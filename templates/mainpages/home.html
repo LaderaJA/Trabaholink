@@ -1,0 +1,21 @@
+{% extends "mainpages/base.html" %}
+{% load static%}
+
+{% block title %}Home | TrabahoLink{% endblock %}
+
+{% block content %}
+<div class="container text-center">
+    <h1>Welcome to TrabahoLink</h1>
+    <p>Find skilled workers for household jobs easily!</p>
+    <a href="{% url 'job_list' %}" class="btn btn-primary">Browse Jobs</a>
+
+    <h3 class="mt-4">Job Categories</h3>
+    <ul class="list-group">
+        {% for category in categories %}
+            <li class="list-group-item">
+                <a href="{% url 'job_list' %}?category={{ category.id }}">{{ category.name }}</a>
+            </li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

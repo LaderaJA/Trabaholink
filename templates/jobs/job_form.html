@@ -1,0 +1,79 @@
+{% extends 'mainpages/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h2>{% if object %}Edit Job{% else %}Post a New Job{% endif %}</h2>
+
+    <form method="post" enctype="multipart/form-data">
+        {% csrf_token %}
+        {{ form.as_p }}
+
+        <input type="hidden" id="latitude" name="latitude" value="{{ job.latitude|default:'' }}">
+        <input type="hidden" id="longitude" name="longitude" value="{{ job.longitude|default:'' }}">
+
+        <button type="submit" class="btn btn-success">Save Job</button>
+    </form>
+
+    <div id="map" style="height: 300px; margin-top: 20px;"></div>
+</div>
+
+<!-- ✅ Include Leaflet.js -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var map = L.map('map').setView([{{ job.latitude|default:14.5995 }}, {{ job.longitude|default:120.9842 }}], 15);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        var marker = L.marker([{{ job.latitude|default:14.5995 }}, {{ job.longitude|default:120.9842 }}], { draggable: true }).addTo(map);
+
+        function updateAddressFields(lat, lon) {
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.address) {
+                        document.getElementById("municipality-input").value = data.address.city || data.address.town || document.getElementById("municipality-input").value;
+                        let newBarangay = data.address.suburb || document.getElementById("barangay-input").value;  // Preserve existing barangay if missing
+                        document.getElementById("barangay-input").value = newBarangay;
+                        document.getElementById("street").value = data.address.road || "";
+                        document.getElementById("house_number").value = data.address.house_number || "";
+                        document.getElementById("latitude").value = lat;
+                        document.getElementById("longitude").value = lon;
+                    }
+                });
+        }
+
+        marker.on("dragend", function () {
+            var latlng = marker.getLatLng();
+            updateAddressFields(latlng.lat, latlng.lng);
+        });
+
+        var barangayInput = document.getElementById("barangay-input");
+        barangayInput.addEventListener("change", function () {
+            var address = `${barangayInput.value}, ${document.getElementById("municipality-input").value}, Cavite, Philippines`;
+            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${address}`)
+                .then(response => response.json())
+                .then(data => {
+                    if (data.length > 0) {
+                        var lat = data[0].lat;
+                        var lon = data[0].lon;
+                        map.setView([lat, lon], 15);
+                        marker.setLatLng([lat, lon]);
+                        updateAddressFields(lat, lon);
+                    }
+                });
+        });
+
+        // Prevent clearing barangay on map click
+        map.on("click", function (e) {
+            updateAddressFields(e.latlng.lat, e.latlng.lng);
+        });
+    });
+</script>
+
+{% endblock %}

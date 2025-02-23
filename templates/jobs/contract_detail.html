@@ -1,0 +1,10 @@
+{% extends 'mainpages/base.html' %}
+{% block content %}
+<div class="container">
+    <h2>Contract for {{ contract.job.title }}</h2>
+    <p><strong>Worker:</strong> {{ contract.worker.username }}</p>
+    <p><strong>Status:</strong> {{ contract.status }}</p>
+    <p><strong>Start Date:</strong> {{ contract.start_date }}</p>
+    <p><strong>End Date:</strong> {{ contract.end_date }}</p>
+</div>
+{% endblock %}

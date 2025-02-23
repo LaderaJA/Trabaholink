@@ -1,0 +1,25 @@
+{% extends 'mainpages/base.html' %}
+{% load static %}
+{% block content %}
+<div class="container">
+    <h2>Your Profile</h2>
+    <div class="card">
+        <div class="card-body">
+            {% if user.profile_picture %}
+                <img src="{{ user.profile_picture.url }}" class="img-thumbnail" width="150" alt="Profile Picture">
+            {% else %}
+                <img src="{% static 'images/default_profile.png' %}" class="img-thumbnail" width="150" alt="Default Profile">
+            {% endif %}
+            
+            <p><strong>Username:</strong> {{ user.username }}</p>
+            <p><strong>Email:</strong> {{ user.email }}</p>
+            <p><strong>Contact Number:</strong> {{ user.contact_number }}</p>
+            <p><strong>Bio:</strong> {{ user.bio }}</p>
+        </div>
+    </div>
+    <a href="{% url 'job_create' %}" class="btn btn-primary mt-3">Post a Job</a>
+    <a href="{% url 'profile_edit' %}" class="btn btn-warning mt-3">Edit Profile</a>
+    <a href="{% url 'profile_delete' %}" class="btn btn-danger mt-3">Delete Account</a>
+</div>
+{% endblock %}
+

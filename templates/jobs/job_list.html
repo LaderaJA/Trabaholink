@@ -1,0 +1,25 @@
+{% extends 'mainpages/base.html' %}
+
+
+
+{% block content %}
+<div class="container">
+<form method="GET">
+    <label for="category">Filter by Category:</label>
+    <select name="category">
+        <option value="">All</option>
+        {% for category in categories %}
+            <option value="{{ category.id }}">{{ category.name }}</option>
+        {% endfor %}
+    </select>
+    <button type="submit">Filter</button>
+</form>
+
+<ul>
+    {% for job in jobs %}
+        <li><a href="{% url 'job_detail' job.pk %}">{{ job.title }}</a> - {{ job.category.name }}</li>
+    {% endfor %}
+</ul>
+
+</div>
+{% endblock %}

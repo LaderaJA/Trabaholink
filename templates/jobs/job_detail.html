@@ -1,0 +1,53 @@
+{% extends 'mainpages/base.html' %}
+{% load static %}
+
+{% block content %}
+<div class="container">
+    <h2>{{ job.title }}</h2>
+
+    {% if job.job_picture %}
+        <img src="{{ job.job_picture.url }}" class="img-fluid" alt="Job Image">
+    {% else %}
+        <p>No image available.</p>
+    {% endif %}
+
+
+    <p><strong>Category:</strong> {{ job.category }}</p>
+    <p><strong>Budget:</strong> ₱{{ job.budget }}</p>
+    <p><strong>Location:</strong> {{ job.municipality }}, {{ job.barangay }}</p>
+    <p><strong>Description:</strong> {{ job.description }}</p>
+
+    <div class="mt-3">
+        {% if user.is_authenticated %}
+            {% if user == job.owner %}
+                <!-- If job owner -->
+                <a href="{% url 'job_edit' job.pk %}" class="btn btn-warning">Edit</a>
+                <a href="{% url 'job_delete' job.pk %}" class="btn btn-danger">Delete</a>
+            {% else %}
+                <!-- If worker (not the owner) -->
+                <a href="{% url 'job_apply' job.pk %}" class="btn btn-success">Apply for Job</a>
+            {% endif %}
+        {% else %}
+            <p><a href="{% url 'login' %}">Login</a> to apply or manage this job.</p>
+        {% endif %}
+    </div>
+
+    <div id="map" style="height: 300px;"></div>
+</div>
+
+<!-- Include Leaflet.js -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        var map = L.map('map').setView([{{ job.latitude|default:14.5995 }}, {{ job.longitude|default:120.9842 }}], 15);
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        L.marker([{{ job.latitude|default:14.5995 }}, {{ job.longitude|default:120.9842 }}]).addTo(map);
+    });
+</script>
+{% endblock %}
