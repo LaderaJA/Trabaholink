@@ -1,0 +1,11 @@
+{% extends 'mainpages/base.html' %}
+{% block content %}
+<div class="container">
+    <h2>Start a New Conversation</h2>
+    <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Start Chat</button>
+    </form>
+</div>
+{% endblock %}

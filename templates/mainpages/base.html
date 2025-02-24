@@ -30,6 +30,9 @@
 
                 {% if user.is_authenticated %}
                     <li class="nav-item">
+                    <a class="nav-link" href="{% url 'conversation_list' %}">Messaging</a>
+                    </li>
+                    <li class="nav-item">
                         <a class="nav-link {% if request.path == '/users/profile/' %}active{% endif %}" href="{% url 'profile' %}">Profile</a>
                     </li>
                     <li class="nav-item">

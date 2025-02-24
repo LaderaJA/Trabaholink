@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from better_profanity import profanity # type: ignore
+from better_profanity import profanity 
 
 User = get_user_model()
 

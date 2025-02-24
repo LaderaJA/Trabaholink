@@ -25,32 +25,35 @@ SECRET_KEY = 'django-insecure-j%%kku167m+le-25a0+o-0qvl64osod4=tf!ab$*9h!y$^9viy
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+
 
 
 # Application definition
 
 INSTALLED_APPS = [
+    'daphne',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    "corsheaders",
     
     'rest_framework',
     'allauth',
     'allauth.account',
     'allauth.socialaccount',
     'channels',
-
+    'messaging',
     'users',
     'jobs',
-    'messaging',
     'reports',
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -81,6 +84,20 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'Trabaholink.wsgi.application'
+
+ASGI_APPLICATION = "Trabaholink.asgi.application"
+CHANNEL_LAYERS = {
+    "default": {
+        "BACKEND": "channels_redis.core.RedisChannelLayer",
+        "CONFIG": {
+            "hosts": [("127.0.0.1", 6379)],  
+        },
+    },
+}
+
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:5173",  # Vue.js frontend
+]
 
 
 # Database
@@ -148,10 +165,10 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Use Django's built-in authentication system
 AUTHENTICATION_BACKENDS = [
     'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
 ]
 
-# Custom user model
-AUTH_USER_MODEL = 'users.CustomUser'
+
 
 # Redirect users after login/logout
 LOGIN_REDIRECT_URL = 'profile'  

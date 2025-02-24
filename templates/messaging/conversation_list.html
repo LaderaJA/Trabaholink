@@ -1,0 +1,27 @@
+{% extends 'mainpages/base.html' %}
+{% block content %}
+{% if user.is_authenticated %}
+  <li class="nav-item">
+    <a class="nav-link" href="{% url 'start_conversation' %}">New Message</a>
+  </li>
+{% endif %}
+<div class="container">
+    <h2>Conversations</h2>
+    <ul class="list-group">
+        {% for conversation in conversations %}
+            <li class="list-group-item">
+                <a href="{% url 'conversation_detail' conversation.id %}">
+                    Conversation with 
+                    {% if conversation.user1 == request.user %}
+                        {{ conversation.user2.username }}
+                    {% else %}
+                        {{ conversation.user1.username }}
+                    {% endif %}
+                </a>
+            </li>
+        {% empty %}
+            <li class="list-group-item">No conversations found.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

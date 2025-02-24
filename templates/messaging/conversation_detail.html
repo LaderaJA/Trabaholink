@@ -1,0 +1,11 @@
+{% extends 'mainpages/base.html' %}
+{% block content %}
+<div id="chat-app">
+    <chat-component 
+        :conversation-id="Number({{ conversation.id }})" 
+        :current-user-id="Number({{ request.user.id }})">
+    </chat-component>
+</div>
+
+<script type="module" src="http://localhost:5173/src/main.js"></script>
+{% endblock %}
