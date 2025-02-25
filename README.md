@@ -1,2 +1,0 @@
-# Trabaholink
-Capstone Project
