@@ -37,7 +37,8 @@ class Job(models.Model):
 class JobApplication(models.Model):
     """Model for job applications by workers."""
     job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="applications")
-    worker = models.ForeignKey(User, on_delete=models.CASCADE, related_name="applications")
+    worker = models.ForeignKey(User, on_delete=models.CASCADE, related_name="job_applications")
+
     cover_letter = models.TextField(blank=True, null=True)
     status = models.CharField(
         max_length=20,

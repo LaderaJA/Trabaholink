@@ -115,7 +115,6 @@ DATABASES = {
 }
 
 
-
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
 
@@ -154,6 +153,7 @@ MEDIA_ROOT = BASE_DIR/'media'
 
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
+STATIC_ROOT = BASE_DIR / 'staticfiles'  # New line added
 
 AUTH_USER_MODEL = 'users.CustomUser'
 
@@ -169,9 +169,6 @@ AUTHENTICATION_BACKENDS = [
 ]
 
 
-
 # Redirect users after login/logout
 LOGIN_REDIRECT_URL = 'profile'  
-LOGOUT_REDIRECT_URL = 'login'  
-
-
+LOGOUT_REDIRECT_URL = 'login'

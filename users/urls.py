@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import RegisterView, UserLoginView, UserLogoutView, UserProfileDetailView, UserProfileUpdateView, UserProfileDeleteView 
+from .views import RegisterView, UserLoginView, UserLogoutView, UserProfileDetailView, UserProfileUpdateView, UserProfileDeleteView, ChangePasswordView, PrivacySettingsView
+
 from django.contrib.auth import views as auth_views
 
 urlpatterns = [
@@ -9,6 +10,8 @@ urlpatterns = [
     path('profile/', UserProfileDetailView.as_view(), name='profile'),
     path('profile/edit/', UserProfileUpdateView.as_view(), name='profile_edit'),
     path('profile/delete/', UserProfileDeleteView.as_view(), name='profile_delete'),
+    path('change_password/', ChangePasswordView.as_view(), name='change_password'),
+    path('privacy_settings/', PrivacySettingsView.as_view(), name='privacy_settings'),
 
     # Password Reset Views (Django built-in)
     path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
