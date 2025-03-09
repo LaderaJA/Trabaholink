@@ -1,6 +1,14 @@
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 
+class Skill(models.Model):
+    """Model for user skills."""
+    name = models.CharField(max_length=100, unique=True)
+
+    def __str__(self):
+        return self.name
+
+
 class CustomUser(AbstractUser):
     ROLE_CHOICES = [
         ('worker', 'Worker'),
@@ -16,6 +24,12 @@ class CustomUser(AbstractUser):
 
     groups = models.ManyToManyField(Group, related_name="customuser_groups", blank=True)
     user_permissions = models.ManyToManyField(Permission, related_name="customuser_permissions", blank=True)
+
+    jobs_posted = models.ManyToManyField('jobs.Job', related_name='customuser_jobs_posted', blank=True)
+    applications = models.ManyToManyField('jobs.JobApplication', related_name='customuser_applications', blank=True)
+
+    connections = models.ManyToManyField('self', symmetrical=False, related_name='connected_users', blank=True)
+    skills = models.ManyToManyField('Skill', related_name='customuser_skills', blank=True)
 
     def __str__(self):
         return self.username

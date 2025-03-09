@@ -1,11 +1,371 @@
 {% extends 'mainpages/base.html' %}
+
 {% block content %}
-<div id="chat-app">
-    <chat-component 
-        :conversation-id="Number({{ conversation.id }})" 
-        :current-user-id="Number({{ request.user.id }})">
-    </chat-component>
+<!-- Chat Interface Container -->
+<div class="chat-interface">
+    <!-- Sidebar with Conversations -->
+    <div class="chat-sidebar" id="chat-sidebar">
+        <div class="sidebar-header">
+            <h5 class="mb-0">Conversations</h5>
+            <button class="btn-toggle-sidebar d-md-none" id="btn-close-sidebar">
+                <i class="bi bi-x-lg"></i>
+            </button>
+        </div>
+        
+        <!-- Search Box -->
+        <div class="sidebar-search">
+            <div class="input-group">
+                <span class="input-group-text bg-transparent border-end-0">
+                    <i class="bi bi-search"></i>
+                </span>
+                <input type="text" class="form-control border-start-0" placeholder="Search conversations...">
+            </div>
+        </div>
+        
+        <!-- Conversations List -->
+        <div class="conversations-list">
+            {% for conv in all_conversations %}
+                <a href="{% url 'conversation_detail' conv.id %}" class="conversation-item {% if conv.id == conversation.id %}active{% endif %}">
+                    <div class="d-flex align-items-center">
+                        <!-- User Avatar -->
+                        {% if conv.user1_id == request.user.id %}
+                            {% with other_user=conv.user2 %}
+                                <div class="avatar-container me-2">
+                                    {% if other_user.profile_image %}
+                                        <img src="{{ other_user.profile_image.url }}" alt="{{ other_user.username }}" class="rounded-circle" width="40" height="40">
+                                    {% else %}
+                                        <div class="avatar-placeholder rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                            <span>{{ other_user.username|slice:":1"|upper }}</span>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <!-- Online Status Indicator (if available) -->
+                                    {% if other_user.is_online %}
+                                        <span class="status-indicator bg-success"></span>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="conversation-info">
+                                    <h6 class="mb-0">{{ other_user.get_full_name|default:other_user.username }}</h6>
+                                    
+                                    <!-- Last Message Preview (if available) -->
+                                    {% if conv.last_message %}
+                                        <p class="text-muted mb-0 text-truncate">{{ conv.last_message.content|truncatechars:30 }}</p>
+                                    {% else %}
+                                        <p class="text-muted mb-0"><em>No messages yet</em></p>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Unread Badge (if available) -->
+                                {% if conv.unread_count > 0 %}
+                                    <span class="badge rounded-pill bg-primary ms-auto">{{ conv.unread_count }}</span>
+                                {% endif %}
+                            {% endwith %}
+                        {% else %}
+                            {% with other_user=conv.user1 %}
+                                <div class="avatar-container me-2">
+                                    {% if other_user.profile_image %}
+                                        <img src="{{ other_user.profile_image.url }}" alt="{{ other_user.username }}" class="rounded-circle" width="40" height="40">
+                                    {% else %}
+                                        <div class="avatar-placeholder rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                            <span>{{ other_user.username|slice:":1"|upper }}</span>
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <!-- Online Status Indicator (if available) -->
+                                    {% if other_user.is_online %}
+                                        <span class="status-indicator bg-success"></span>
+                                    {% endif %}
+                                </div>
+                                
+                                <div class="conversation-info">
+                                    <h6 class="mb-0">{{ other_user.get_full_name|default:other_user.username }}</h6>
+                                    
+                                    <!-- Last Message Preview (if available) -->
+                                    {% if conv.last_message %}
+                                        <p class="text-muted mb-0 text-truncate">{{ conv.last_message.content|truncatechars:30 }}</p>
+                                    {% else %}
+                                        <p class="text-muted mb-0"><em>No messages yet</em></p>
+                                    {% endif %}
+                                </div>
+                                
+                                <!-- Unread Badge (if available) -->
+                                {% if conv.unread_count > 0 %}
+                                    <span class="badge rounded-pill bg-primary ms-auto">{{ conv.unread_count }}</span>
+                                {% endif %}
+                            {% endwith %}
+                        {% endif %}
+                    </div>
+                </a>
+            {% empty %}
+                <div class="text-center p-3">
+                    <p class="text-muted">No conversations yet</p>
+                    <a href="{% url 'start_conversation' %}" class="btn btn-sm btn-primary">
+                        <i class="bi bi-plus-circle me-1"></i>New Conversation
+                    </a>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Main Chat Area -->
+    <div class="chat-main">
+        <!-- Chat Header -->
+        <div class="chat-header">
+            <button class="btn-toggle-sidebar d-md-none me-2" id="btn-open-sidebar">
+                <i class="bi bi-list"></i>
+            </button>
+            
+            <!-- User Info -->
+            {% if request.user.id == conversation.user1.id %}
+                {% with other_user=conversation.user2 %}
+                    <div class="d-flex align-items-center">
+                        <!-- User Avatar -->
+                        <div class="avatar-container me-2">
+                            {% if other_user.profile_image %}
+                                <img src="{{ other_user.profile_image.url }}" alt="{{ other_user.username }}" class="rounded-circle" width="40" height="40">
+                            {% else %}
+                                <div class="avatar-placeholder rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <span>{{ other_user.username|slice:":1"|upper }}</span>
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Online Status Indicator (if available) -->
+                            {% if other_user.is_online %}
+                                <span class="status-indicator bg-success"></span>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <h6 class="mb-0">{{ other_user.get_full_name|default:other_user.username }}</h6>
+                            {% if other_user.is_online %}
+                                <small class="text-success">Online</small>
+                            {% else %}
+                                <small class="text-muted">Offline</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endwith %}
+            {% else %}
+                {% with other_user=conversation.user1 %}
+                    <div class="d-flex align-items-center">
+                        <!-- User Avatar -->
+                        <div class="avatar-container me-2">
+                            {% if other_user.profile_image %}
+                                <img src="{{ other_user.profile_image.url }}" alt="{{ other_user.username }}" class="rounded-circle" width="40" height="40">
+                            {% else %}
+                                <div class="avatar-placeholder rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
+                                    <span>{{ other_user.username|slice:":1"|upper }}</span>
+                                </div>
+                            {% endif %}
+                            
+                            <!-- Online Status Indicator (if available) -->
+                            {% if other_user.is_online %}
+                                <span class="status-indicator bg-success"></span>
+                            {% endif %}
+                        </div>
+                        
+                        <div>
+                            <h6 class="mb-0">{{ other_user.get_full_name|default:other_user.username }}</h6>
+                            {% if other_user.is_online %}
+                                <small class="text-success">Online</small>
+                            {% else %}
+                                <small class="text-muted">Offline</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                {% endwith %}
+            {% endif %}
+            
+            <!-- Action Buttons -->
+            <div class="chat-actions">
+                <button class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-telephone"></i>
+                </button>
+                <button class="btn btn-sm btn-outline-secondary ms-2">
+                    <i class="bi bi-three-dots-vertical"></i>
+                </button>
+            </div>
+        </div>
+        
+        <!-- Chat Content Area (Vue App Mount Point) -->
+        <div id="chat-app" 
+             data-conversation-id="{{ conversation.id }}" 
+             data-current-user-id="{{ request.user.id }}" 
+             data-receiver-id="{% if request.user.id == conversation.user1.id %}{{ conversation.user2.id }}{% else %}{{ conversation.user1.id }}{% endif %}">
+        </div>
+    </div>
 </div>
 
+<!-- Keep your original script configuration -->
+<script>
+    window.chatConfig = {
+        conversationId: "{{ conversation.id }}",
+        currentUserId: "{{ request.user.id }}",
+        receiverId: "{% if request.user.id == conversation.user1.id %}{{ conversation.user2.id }}{% else %}{{ conversation.user1.id }}{% endif %}",
+        apiBaseUrl: "{% url 'fetch_messages' conversation.id %}"
+    };
+    
+    // Sidebar toggle functionality
+    document.addEventListener('DOMContentLoaded', function() {
+        const sidebar = document.getElementById('chat-sidebar');
+        const openBtn = document.getElementById('btn-open-sidebar');
+        const closeBtn = document.getElementById('btn-close-sidebar');
+        
+        if (openBtn) {
+            openBtn.addEventListener('click', function() {
+                sidebar.classList.add('show');
+            });
+        }
+        
+        if (closeBtn) {
+            closeBtn.addEventListener('click', function() {
+                sidebar.classList.remove('show');
+            });
+        }
+    });
+</script>
+
 <script type="module" src="http://localhost:5173/src/main.js"></script>
+
+<!-- Add Bootstrap Icons if not already included in your base template -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+
+<!-- Custom CSS for chat interface -->
+<style>
+    /* Main Layout */
+    .chat-interface {
+        display: flex;
+        height: calc(100vh - 50px); 
+        position: relative;
+        overflow: hidden;
+    }
+    
+    /* Sidebar Styles */
+    .chat-sidebar {
+        width: 300px;
+        background-color: #f8f9fa;
+        border-right: 1px solid #dee2e6;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    .sidebar-header {
+        padding: 15px;
+        border-bottom: 1px solid #dee2e6;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .sidebar-search {
+        padding: 10px 15px;
+        border-bottom: 1px solid #dee2e6;
+    }
+    
+    .conversations-list {
+        flex: 1;
+        overflow-y: auto;
+    }
+    
+    .conversation-item {
+        display: block;
+        padding: 10px 15px;
+        border-bottom: 1px solid #f0f0f0;
+        text-decoration: none;
+        color: inherit;
+        transition: background-color 0.2s;
+    }
+    
+    .conversation-item:hover {
+        background-color: rgba(0, 0, 0, 0.03);
+    }
+    
+    .conversation-item.active {
+        background-color: rgba(13, 110, 253, 0.1);
+        border-left: 3px solid #0d6efd;
+    }
+    
+    .conversation-info {
+        flex: 1;
+        min-width: 0; /* Ensures text truncation works */
+    }
+    
+    /* Main Chat Area */
+    .chat-main {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+    
+    .chat-header {
+        padding: 10px 15px;
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+        display: flex;
+        align-items: center;
+    }
+    
+    .chat-actions {
+        margin-left: auto;
+    }
+    
+    #chat-app {
+        flex: 1;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+    }
+    
+    /* Avatar and Status */
+    .avatar-container {
+        position: relative;
+    }
+    
+    .status-indicator {
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: 2px solid white;
+    }
+    
+    /* Toggle Buttons */
+    .btn-toggle-sidebar {
+        background: none;
+        border: none;
+        font-size: 1.25rem;
+        cursor: pointer;
+        padding: 0;
+        color: #6c757d;
+    }
+    
+    .btn-toggle-sidebar:hover {
+        color: #0d6efd;
+    }
+    
+    /* Responsive Adjustments */
+    @media (max-width: 767.98px) {
+        .chat-sidebar {
+            position: absolute;
+            left: -300px;
+            top: 0;
+            bottom: 0;
+            z-index: 1030;
+            transition: left 0.3s ease;
+        }
+        
+        .chat-sidebar.show {
+            left: 0;
+        }
+    }
+
+    .mt-4 {
+    margin-top: 0.5rem !important;
+    }
+</style>
 {% endblock %}
