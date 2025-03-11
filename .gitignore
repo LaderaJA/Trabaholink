@@ -1,0 +1,77 @@
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+
+# Virtual Environment
+venv/
+.env
+*.env
+*.env.*
+
+# Django
+/db.sqlite3
+/db.sqlite3-journal
+/media/
+/static/
+*.log
+
+# Migrations
+**/migrations/*.py
+!**/migrations/__init__.py
+
+# Node.js / Vue.js
+node_modules/
+/.vite/
+/.nuxt/
+dist/
+
+# IDE and Editor Settings
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Database and Cache
+*.sqlite3
+*.db
+*.bak
+*.log
+*.pid
+*.seed
+*.dump
+
+# Coverage / Testing
+htmlcov/
+.coverage
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+.hypothesis/
+
+# Media/Uploads
+/media/
+/uploads/
+
+# Compiled code
+*.class
+*.dll
+*.exe
+*.o
+*.so
+
+# PyCharm
+*.iml
+*.ipr
+*.iws
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Misc
+*.bak
+*.orig
+*.rej
