@@ -1,11 +1,415 @@
 {% extends "mainpages/base.html" %}
 
 {% block content %}
-    <h2>Create Announcement</h2>
-    <form method="post" enctype="multipart/form-data">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit">Post</button>
-    </form>
-    <a href="{% url 'announcement_list' %}">Cancel</a>
+<div class="create-announcement-container">
+    <div class="form-card">
+        <div class="form-header">
+            <h2>Create Announcement</h2>
+            <p class="form-subtitle">Share important information with the TrabahoLink community</p>
+        </div>
+        
+        <form method="post" enctype="multipart/form-data" class="announcement-form">
+            {% csrf_token %}
+            
+            <div class="form-fields">
+                {% for field in form %}
+                    <div class="form-group {% if field.errors %}has-error{% endif %}">
+                        <label for="{{ field.id_for_label }}">
+                            {{ field.label }}
+                            {% if field.field.required %}
+                                <span class="required-asterisk">*</span>
+                            {% endif %}
+                        </label>
+                        
+                        {% if field.errors %}
+                            <div class="field-errors">
+                                {% for error in field.errors %}
+                                    <p class="error-message">{{ error }}</p>
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        
+                        {% if field.help_text %}
+                            <p class="help-text">{{ field.help_text }}</p>
+                        {% endif %}
+                        
+                        {% if field.name == 'image' %}
+                            <div class="file-upload-container">
+                                <div class="file-upload-box" id="fileUploadBox">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="currentColor" viewBox="0 0 16 16" class="upload-icon">
+                                        <path d="M.5 9.9a.5.5 0 0 1 .5.5v2.5a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-2.5a.5.5 0 0 1 1 0v2.5a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2v-2.5a.5.5 0 0 1 .5-.5z"/>
+                                        <path d="M7.646 1.146a.5.5 0 0 1 .708 0l3 3a.5.5 0 0 1-.708.708L8.5 2.707V11.5a.5.5 0 0 1-1 0V2.707L5.354 4.854a.5.5 0 1 1-.708-.708l3-3z"/>
+                                    </svg>
+                                    <span id="fileUploadText">Drag and drop an image or click to browse</span>
+                                    <span id="selectedFileName" class="selected-file-name"></span>
+                                </div>
+                                {{ field }}
+                            </div>
+                        {% else %}
+                            {{ field }}
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+            
+            <div class="form-actions">
+                <button type="submit" class="btn-submit">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="btn-icon">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                        <path d="M10.97 4.97a.235.235 0 0 0-.02.022L7.477 9.417 5.384 7.323a.75.75 0 0 0-1.06 1.06L6.97 11.03a.75.75 0 0 0 1.079-.02l3.992-4.99a.75.75 0 0 0-1.071-1.05z"/>
+                    </svg>
+                    Post Announcement
+                </button>
+                <a href="{% url 'announcement_list' %}" class="btn-cancel">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16" class="btn-icon">
+                        <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                        <path d="M4.646 4.646a.5.5 0 0 1 .708 0L8 7.293l2.646-2.647a.5.5 0 0 1 .708.708L8.707 8l2.647 2.646a.5.5 0 0 1-.708.708L8 8.707l-2.646 2.647a.5.5 0 0 1-.708-.708L7.293 8 4.646 5.354a.5.5 0 0 1 0-.708z"/>
+                    </svg>
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<style>
+    /* Create Announcement Container */
+    .create-announcement-container {
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    /* Form Card */
+    .form-card {
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.08);
+        padding: 30px;
+        animation: slideUp 0.4s ease-out forwards;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    /* Form Header */
+    .form-header {
+        margin-bottom: 30px;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 20px;
+    }
+
+    .form-header h2 {
+        font-size: 28px;
+        color: #333;
+        margin: 0 0 10px 0;
+    }
+
+    .form-subtitle {
+        color: #666;
+        margin: 0;
+        font-size: 16px;
+    }
+
+    /* Form Fields */
+    .form-fields {
+        display: grid;
+        gap: 25px;
+    }
+
+    .form-group {
+        display: flex;
+        flex-direction: column;
+    }
+
+    .form-group label {
+        font-weight: 500;
+        margin-bottom: 8px;
+        color: #444;
+        font-size: 15px;
+    }
+
+    .required-asterisk {
+        color: #e53e3e;
+        margin-left: 3px;
+    }
+
+    .form-group input[type="text"],
+    .form-group input[type="email"],
+    .form-group textarea,
+    .form-group select {
+        padding: 12px 15px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 15px;
+        transition: all 0.3s ease;
+    }
+
+    .form-group input[type="text"]:focus,
+    .form-group input[type="email"]:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.2);
+        outline: none;
+    }
+
+    .form-group textarea {
+        min-height: 150px;
+        resize: vertical;
+    }
+
+    /* File Upload */
+    .file-upload-container {
+        position: relative;
+    }
+
+    .file-upload-box {
+        border: 2px dashed #ddd;
+        border-radius: 6px;
+        padding: 30px 20px;
+        text-align: center;
+        cursor: pointer;
+        transition: all 0.3s ease;
+        margin-bottom: 10px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .file-upload-box:hover {
+        border-color: #3b82f6;
+        background-color: rgba(59, 130, 246, 0.05);
+    }
+
+    .upload-icon {
+        color: #3b82f6;
+        margin-bottom: 10px;
+    }
+
+    .form-group input[type="file"] {
+        position: absolute;
+        width: 0.1px;
+        height: 0.1px;
+        opacity: 0;
+        overflow: hidden;
+        z-index: -1;
+    }
+
+    .selected-file-name {
+        font-size: 14px;
+        color: #3b82f6;
+        font-weight: 500;
+        display: none;
+    }
+
+    /* Error States */
+    .has-error input,
+    .has-error textarea,
+    .has-error select,
+    .has-error .file-upload-box {
+        border-color: #e53e3e;
+    }
+
+    .error-message {
+        color: #e53e3e;
+        font-size: 14px;
+        margin: 5px 0 0 0;
+    }
+
+    .help-text {
+        color: #666;
+        font-size: 13px;
+        margin: 5px 0 8px 0;
+    }
+
+    /* Form Actions */
+    .form-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 30px;
+        padding-top: 20px;
+        border-top: 1px solid #f0f0f0;
+    }
+
+    .btn-submit, .btn-cancel {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 12px 20px;
+        border-radius: 6px;
+        font-weight: 500;
+        font-size: 15px;
+        transition: all 0.3s ease;
+        cursor: pointer;
+        text-decoration: none;
+    }
+
+    .btn-submit {
+        background-color: #3b82f6;
+        color: white;
+        border: none;
+        box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3);
+    }
+
+    .btn-submit:hover {
+        background-color: #2563eb;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+    }
+
+    .btn-submit:active {
+        transform: translateY(0);
+    }
+
+    .btn-cancel {
+        background-color: #f3f4f6;
+        color: #4b5563;
+        border: 1px solid #e5e7eb;
+    }
+
+    .btn-cancel:hover {
+        background-color: #e5e7eb;
+    }
+
+    .btn-icon {
+        flex-shrink: 0;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .form-card {
+            padding: 20px;
+        }
+
+        .form-actions {
+            flex-direction: column;
+        }
+
+        .btn-submit, .btn-cancel {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // File upload preview
+        const fileInput = document.querySelector('input[type="file"]');
+        const fileUploadBox = document.getElementById('fileUploadBox');
+        const fileUploadText = document.getElementById('fileUploadText');
+        const selectedFileName = document.getElementById('selectedFileName');
+        
+        if (fileInput && fileUploadBox) {
+            fileUploadBox.addEventListener('click', function() {
+                fileInput.click();
+            });
+            
+            fileInput.addEventListener('change', function() {
+                if (this.files && this.files[0]) {
+                    const fileName = this.files[0].name;
+                    selectedFileName.textContent = fileName;
+                    selectedFileName.style.display = 'block';
+                    fileUploadText.style.display = 'none';
+                } else {
+                    selectedFileName.style.display = 'none';
+                    fileUploadText.style.display = 'block';
+                }
+            });
+            
+            // Drag and drop functionality
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                fileUploadBox.addEventListener(eventName, preventDefaults, false);
+            });
+            
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+            
+            ['dragenter', 'dragover'].forEach(eventName => {
+                fileUploadBox.addEventListener(eventName, highlight, false);
+            });
+            
+            ['dragleave', 'drop'].forEach(eventName => {
+                fileUploadBox.addEventListener(eventName, unhighlight, false);
+            });
+            
+            function highlight() {
+                fileUploadBox.classList.add('highlight');
+                fileUploadBox.style.borderColor = '#3b82f6';
+                fileUploadBox.style.backgroundColor = 'rgba(59, 130, 246, 0.1)';
+            }
+            
+            function unhighlight() {
+                fileUploadBox.classList.remove('highlight');
+                fileUploadBox.style.borderColor = '#ddd';
+                fileUploadBox.style.backgroundColor = '';
+            }
+            
+            fileUploadBox.addEventListener('drop', handleDrop, false);
+            
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const files = dt.files;
+                fileInput.files = files;
+                
+                if (files && files[0]) {
+                    const fileName = files[0].name;
+                    selectedFileName.textContent = fileName;
+                    selectedFileName.style.display = 'block';
+                    fileUploadText.style.display = 'none';
+                }
+            }
+        }
+        
+        // Form validation
+        const form = document.querySelector('.announcement-form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                let hasErrors = false;
+                const requiredFields = form.querySelectorAll('input[required], textarea[required], select[required]');
+                
+                requiredFields.forEach(field => {
+                    if (!field.value.trim()) {
+                        const formGroup = field.closest('.form-group');
+                        if (formGroup && !formGroup.classList.contains('has-error')) {
+                            formGroup.classList.add('has-error');
+                            
+                            const errorMessage = document.createElement('p');
+                            errorMessage.className = 'error-message';
+                            errorMessage.textContent = 'This field is required.';
+                            
+                            const existingErrors = formGroup.querySelector('.field-errors');
+                            if (existingErrors) {
+                                existingErrors.appendChild(errorMessage);
+                            } else {
+                                const fieldErrors = document.createElement('div');
+                                fieldErrors.className = 'field-errors';
+                                fieldErrors.appendChild(errorMessage);
+                                field.parentNode.insertBefore(fieldErrors, field.nextSibling);
+                            }
+                            
+                            hasErrors = true;
+                        }
+                    }
+                });
+                
+                if (hasErrors) {
+                    e.preventDefault();
+                }
+            });
+        }
+    });
+</script>
 {% endblock %}

@@ -197,6 +197,8 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
+
+
 <style>
     .job-posting-container {
         display: flex;
@@ -427,131 +429,97 @@
         }
     }
 </style>
-
 <script>
     document.addEventListener("DOMContentLoaded", function () {
-        // Initialize map with default or existing coordinates
-        var map = L.map('map').setView([{{ job.latitude|default:14.5995 }}, {{ job.longitude|default:120.9842 }}], 15);
-        
-        // Add tile layer with improved styling
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            maxZoom: 19
-        }).addTo(map);
+    const defaultLat = {{ job.latitude|default:14.5995|safe }};
+    const defaultLon = {{ job.longitude|default:120.9842|safe }};
 
-        // Add custom styled marker
-        var marker = L.marker([{{ job.latitude|default:14.5995 }}, {{ job.longitude|default:120.9842 }}], { 
-            draggable: true,
-            title: 'Drag to set job location'
-        }).addTo(map);
+    const map = L.map('map').setView([defaultLat, defaultLon], 15);
 
-        // Function to update address fields based on coordinates
-        function updateAddressFields(lat, lon) {
-            // Show loading indicator
-            var mapSection = document.querySelector('.map-section');
-            var loadingIndicator = document.createElement('div');
-            loadingIndicator.className = 'loading-indicator';
-            loadingIndicator.innerHTML = 'Fetching address...';
-            loadingIndicator.style.position = 'absolute';
-            loadingIndicator.style.top = '50%';
-            loadingIndicator.style.left = '50%';
-            loadingIndicator.style.transform = 'translate(-50%, -50%)';
-            loadingIndicator.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
-            loadingIndicator.style.padding = '10px';
-            loadingIndicator.style.borderRadius = '4px';
-            loadingIndicator.style.zIndex = '1000';
-            mapSection.style.position = 'relative';
-            mapSection.appendChild(loadingIndicator);
-            
-            // Update hidden coordinates fields
-            document.getElementById("latitude").value = lat;
-            document.getElementById("longitude").value = lon;
-            
-            // Fetch address data from coordinates
-            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.address) {
-                        // Update form fields with address data
-                        document.getElementById("municipality-input").value = data.address.city || data.address.town || document.getElementById("municipality-input").value;
-                        let newBarangay = data.address.suburb || document.getElementById("barangay-input").value;
-                        document.getElementById("barangay-input").value = newBarangay;
-                        document.getElementById("street").value = data.address.road || "";
-                        document.getElementById("house_number").value = data.address.house_number || "";
-                    }
-                    // Remove loading indicator
-                    mapSection.removeChild(loadingIndicator);
-                })
-                .catch(error => {
-                    console.error("Error fetching address:", error);
-                    mapSection.removeChild(loadingIndicator);
-                });
-        }
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
+    }).addTo(map);
 
-        // Update address when marker is dragged
-        marker.on("dragend", function () {
-            var latlng = marker.getLatLng();
-            updateAddressFields(latlng.lat, latlng.lng);
+    const marker = L.marker([defaultLat, defaultLon], {
+        draggable: true,
+        title: 'Drag to set job location'
+    }).addTo(map);
+
+    const showLoadingIndicator = (message) => {
+        const mapSection = document.querySelector('.map-section');
+        const loadingIndicator = document.createElement('div');
+        loadingIndicator.className = 'loading-indicator';
+        loadingIndicator.innerHTML = message;
+        Object.assign(loadingIndicator.style, {
+            position: 'absolute',
+            top: '50%',
+            left: '50%',
+            transform: 'translate(-50%, -50%)',
+            backgroundColor: 'rgba(255, 255, 255, 0.8)',
+            padding: '10px',
+            borderRadius: '4px',
+            zIndex: '1000'
         });
+        mapSection.style.position = 'relative';
+        mapSection.appendChild(loadingIndicator);
+        return loadingIndicator;
+    };
 
-        // Update map when barangay is changed
-        var barangayInput = document.getElementById("barangay-input");
-        barangayInput.addEventListener("change", function () {
-            var address = `${barangayInput.value}, ${document.getElementById("municipality-input").value}, Cavite, Philippines`;
-            
-            // Show loading indicator on map
-            var mapSection = document.querySelector('.map-section');
-            var loadingIndicator = document.createElement('div');
-            loadingIndicator.className = 'loading-indicator';
-            loadingIndicator.innerHTML = 'Updating map...';
-            loadingIndicator.style.position = 'absolute';
-            loadingIndicator.style.top = '50%';
-            loadingIndicator.style.left = '50%';
-            loadingIndicator.style.transform = 'translate(-50%, -50%)';
-            loadingIndicator.style.backgroundColor = 'rgba(255, 255, 255, 0.8)';
-            loadingIndicator.style.padding = '10px';
-            loadingIndicator.style.borderRadius = '4px';
-            loadingIndicator.style.zIndex = '1000';
-            mapSection.style.position = 'relative';
-            mapSection.appendChild(loadingIndicator);
-            
-            // Fetch coordinates from address
-            fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${address}`)
-                .then(response => response.json())
-                .then(data => {
-                    if (data.length > 0) {
-                        var lat = data[0].lat;
-                        var lon = data[0].lon;
-                        map.setView([lat, lon], 15);
-                        marker.setLatLng([lat, lon]);
-                        updateAddressFields(lat, lon);
-                    }
-                    mapSection.removeChild(loadingIndicator);
-                })
-                .catch(error => {
-                    console.error("Error updating map:", error);
-                    mapSection.removeChild(loadingIndicator);
-                });
-        });
+    const updateAddressFields = (lat, lon) => {
+        const loadingIndicator = showLoadingIndicator('Fetching address...');
+        
+        document.getElementById("latitude").value = lat;
+        document.getElementById("longitude").value = lon;
 
-        // Update address when map is clicked
-        map.on("click", function (e) {
-            marker.setLatLng(e.latlng);
-            updateAddressFields(e.latlng.lat, e.latlng.lng);
-        });
-        
-        // Add map controls
-        map.addControl(new L.Control.Zoom({ position: 'bottomright' }));
-        
-        // Improve map responsiveness
-        window.addEventListener('resize', function() {
-            map.invalidateSize();
-        });
-        
-        // Force map to render correctly after page load
-        setTimeout(function() {
-            map.invalidateSize();
-        }, 100);
+        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.address) {
+                    document.getElementById("municipality-input").value = data.address.city || data.address.town || "";
+                    document.getElementById("barangay-input").value = data.address.suburb || "";
+                    document.getElementById("street").value = data.address.road || "";
+                    document.getElementById("house_number").value = data.address.house_number || "";
+                }
+            })
+            .catch(error => console.error("Error fetching address:", error))
+            .finally(() => loadingIndicator.remove());
+    };
+
+    marker.on("dragend", () => {
+        const { lat, lng } = marker.getLatLng();
+        updateAddressFields(lat, lng);
     });
+
+    document.getElementById("barangay-input").addEventListener("change", function () {
+        const address = `${this.value}, ${document.getElementById("municipality-input").value}, Cavite, Philippines`;
+        const loadingIndicator = showLoadingIndicator('Updating map...');
+
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${address}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data.length > 0) {
+                    const { lat, lon } = data[0];
+                    map.setView([lat, lon], 15);
+                    marker.setLatLng([lat, lon]);
+                    updateAddressFields(lat, lon);
+                }
+            })
+            .catch(error => console.error("Error updating map:", error))
+            .finally(() => loadingIndicator.remove());
+    });
+
+    map.on("click", (e) => {
+        const { lat, lng } = e.latlng;
+        marker.setLatLng([lat, lng]);
+        updateAddressFields(lat, lng);
+    });
+
+    map.addControl(new L.Control.Zoom({ position: 'bottomright' }));
+
+    window.addEventListener('resize', () => map.invalidateSize());
+
+    setTimeout(() => map.invalidateSize(), 100);
+});
 </script>
 {% endblock %}

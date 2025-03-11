@@ -1,0 +1,14 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load static %}
+
+
+{% block content %}
+<h1>Confirm Deletion</h1>
+<p>Are you sure you want to delete <strong>{{ user.username }}</strong>?</p>
+
+<form method="post">
+    {% csrf_token %}
+    <button type="submit">Confirm</button>
+    <a href="{% url 'admin_dashboard:user_list' %}">Cancel</a>
+</form>
+{% endblock %}

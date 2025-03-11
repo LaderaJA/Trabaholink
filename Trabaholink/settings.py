@@ -51,6 +51,7 @@ INSTALLED_APPS = [
     'jobs',
     'reports',
     'announcements',
+    'admin_dashboard',
 ]
 
 MIDDLEWARE = [

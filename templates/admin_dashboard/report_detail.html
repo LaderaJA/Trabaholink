@@ -1,0 +1,12 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Report Details</h1>
+<p><strong>Reported By:</strong> {{ report.reporter.username }}</p>
+<p><strong>Reason:</strong> {{ report.reason }}</p>
+<p><strong>Details:</strong> {{ report.details }}</p>
+<p><strong>Status:</strong> {{ report.is_resolved|yesno:"Resolved,Pending" }}</p>
+
+<a href="{% url 'admin_dashboard:report_list' %}">Back to Reports</a>
+{% endblock %}

@@ -1,21 +1,283 @@
 {% extends "mainpages/base.html" %}
 
 {% block content %}
-    <h2>Announcements</h2>
+<div class="announcements-container">
+    <div class="announcements-header">
+        <h2 class="announcements-title">Announcements</h2>
+        {% if user.is_staff %}
+            <a href="{% url 'announcement_create' %}" class="post-announcement-btn">
+                <span>Post Announcement</span>
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+                </svg>
+            </a>
+        {% endif %}
+    </div>
+
+    <div class="announcements-grid">
+        {% for announcement in announcements %}
+            <div class="announcement-card">
+                {% if announcement.image %}
+                    <div class="announcement-image">
+                        <img src="{{ announcement.image.url }}" alt="{{ announcement.title }}">
+                    </div>
+                {% endif %}
+                <div class="announcement-content">
+                    <h3 class="announcement-title">
+                        <a href="{% url 'announcement_detail' announcement.pk %}">{{ announcement.title }}</a>
+                    </h3>
+                    <p class="announcement-description">{{ announcement.description|truncatewords:20 }}</p>
+                    <div class="announcement-meta">
+                        <div class="announcement-author">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
+                            </svg>
+                            <span>{{ announcement.posted_by }}</span>
+                        </div>
+                        <div class="announcement-date">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
+                                <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
+                            </svg>
+                            <span>{{ announcement.created_at|date:"M d, Y" }}</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        {% empty %}
+            <div class="no-announcements">
+                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
+                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+                    <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
+                </svg>
+                <p>No announcements available at this time.</p>
+            </div>
+        {% endfor %}
+    </div>
+</div>
+
+<style>
+    /* Announcements Container */
+    .announcements-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    /* Announcements Header */
+    .announcements-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 30px;
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 15px;
+    }
+
+    .announcements-title {
+        font-size: 28px;
+        color: #333;
+        margin: 0;
+        position: relative;
+        padding-left: 15px;
+    }
+
+    .announcements-title::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 5px;
+        height: 80%;
+        width: 5px;
+        background-color: #3b82f6;
+        border-radius: 3px;
+    }
+
+    /* Post Announcement Button */
+    .post-announcement-btn {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        background-color: #3b82f6;
+        color: white;
+        padding: 10px 16px;
+        border-radius: 6px;
+        text-decoration: none;
+        font-weight: 500;
+        transition: all 0.3s ease;
+        box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3);
+    }
+
+    .post-announcement-btn:hover {
+        background-color: #2563eb;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+    }
+
+    .post-announcement-btn:active {
+        transform: translateY(0);
+    }
+
+    /* Announcements Grid */
+    .announcements-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 25px;
+    }
+
+    /* Announcement Card */
+    .announcement-card {
+        background-color: white;
+        border-radius: 10px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+    }
+
+    .announcement-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+    }
+
+    /* Announcement Image */
+    .announcement-image {
+        height: 180px;
+        overflow: hidden;
+    }
+
+    .announcement-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .announcement-card:hover .announcement-image img {
+        transform: scale(1.05);
+    }
+
+    /* Announcement Content */
+    .announcement-content {
+        padding: 20px;
+        flex-grow: 1;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .announcement-title {
+        margin-top: 0;
+        margin-bottom: 12px;
+        font-size: 18px;
+        line-height: 1.4;
+    }
+
+    .announcement-title a {
+        color: #333;
+        text-decoration: none;
+        transition: color 0.2s ease;
+    }
+
+    .announcement-title a:hover {
+        color: #3b82f6;
+    }
+
+    .announcement-description {
+        color: #666;
+        margin-bottom: 15px;
+        line-height: 1.5;
+        flex-grow: 1;
+    }
+
+    /* Announcement Meta */
+    .announcement-meta {
+        display: flex;
+        justify-content: space-between;
+        font-size: 14px;
+        color: #777;
+        margin-top: auto;
+        border-top: 1px solid #f0f0f0;
+        padding-top: 15px;
+    }
+
+    .announcement-author, .announcement-date {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+    }
+
+    /* No Announcements */
+    .no-announcements {
+        grid-column: 1 / -1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        padding: 60px 20px;
+        background-color: white;
+        border-radius: 10px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+        color: #777;
+        text-align: center;
+    }
+
+    .no-announcements svg {
+        margin-bottom: 15px;
+        color: #ccc;
+    }
+
+    .no-announcements p {
+        font-size: 18px;
+        margin: 0;
+    }
+
+    /* Responsive Adjustments */
+    @media (max-width: 768px) {
+        .announcements-header {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 15px;
+        }
+
+        .announcements-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    /* Animation for cards */
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(20px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .announcement-card {
+        animation: fadeIn 0.5s ease forwards;
+    }
+
     {% for announcement in announcements %}
-        <div>
-            <h3><a href="{% url 'announcement_detail' announcement.pk %}">{{ announcement.title }}</a></h3>
-            <p>{{ announcement.description|truncatewords:20 }}</p>
-            <p>Posted by: {{ announcement.posted_by }}</p>
-            <p>Posted on: {{ announcement.created_at }}</p>
-            {% if announcement.image %}
-                <img src="{{ announcement.image.url }}" alt="{{ announcement.title }}" width="200">
-            {% endif %}
-        </div>
-    {% empty %}
-        <p>No announcements available.</p>
+        .announcement-card:nth-child({{ forloop.counter }}) {
+            animation-delay: {{ forloop.counter|add:"-1" }}00ms;
+        }
     {% endfor %}
-    {% if user.is_staff %}
-        <a href="{% url 'announcement_create' %}">Post Announcement</a>
-    {% endif %}
+</style>
+
+<script>
+    // Add hover effect for cards
+    document.addEventListener('DOMContentLoaded', function() {
+        const cards = document.querySelectorAll('.announcement-card');
+        
+        cards.forEach(card => {
+            card.addEventListener('mouseenter', function() {
+                this.style.transition = 'all 0.3s ease';
+            });
+        });
+    });
+</script>
 {% endblock %}

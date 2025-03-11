@@ -1,0 +1,31 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Reports</h1>
+<table>
+    <thead>
+        <tr>
+            <th>Reporter</th>
+            <th>Reason</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for report in reports %}
+        <tr>
+            <td>{{ report.reporter.username }}</td>
+            <td>{{ report.reason }}</td>
+            <td>{{ report.is_resolved|yesno:"Resolved,Pending" }}</td>
+            <td>
+                <a href="{% url 'admin_dashboard:report_detail' report.id %}">View</a> |
+                {% if not report.is_resolved %}
+                <a href="{% url 'admin_dashboard:resolve_report' report.id %}">Mark as Resolved</a>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+{% endblock %}

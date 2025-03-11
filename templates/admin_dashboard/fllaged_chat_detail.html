@@ -1,0 +1,11 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<h1>Flagged Chat Details</h1>
+<p><strong>Sender:</strong> {{ chat.sender.username }}</p>
+<p><strong>Message:</strong> {{ chat.message }}</p>
+<p><strong>Sent At:</strong> {{ chat.timestamp }}</p>
+
+<a href="{% url 'admin_dashboard:flagged_chat_list' %}">Back to Flagged Chats</a>
+{% endblock %}

@@ -11,6 +11,7 @@ urlpatterns = [
     path('users/', include('users.urls')),
     path("messaging/", include("messaging.urls")),
     path("announcements/", include("announcements.urls")),
+    path("admin_dashboard/", include("admin_dashboard.urls")),
 
 ]
 
