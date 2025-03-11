@@ -1,221 +1,284 @@
-{% extends "mainpages/base.html" %}
-{% load static %}
-
-{% block title %}Home | TrabahoLink{% endblock %}
-
-{% block content %}
+{% extends "mainpages/base.html" %} {% load static %} {% block title %}Home |
+TrabahoLink{% endblock %} {% block content %}
 <!-- Hero Section -->
 <section class="hero-section py-5 bg-light">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6 mb-4 mb-lg-0">
-                <h1 class="display-4 fw-bold">Find Skilled Workers for Your Home</h1>
-                <p class="lead my-4">TrabahoLink connects you with trusted professionals for all your household needs - from plumbing to gardening and everything in between.</p>
-                <div class="d-flex gap-3">
-                    <a href="{% url 'job_list' %}" class="btn btn-primary btn-lg">Browse Jobs</a>
-                    <a href="#how-it-works" class="btn btn-outline-secondary btn-lg">How It Works</a>
-                </div>
-            </div>
-            <div class="col-lg-6">
-                <img src="{% static 'images/hero-image.jpeg' %}" alt="Home service professionals" class="img-fluid rounded-3 shadow" onerror="this.src='/placeholder.svg?height=400&width=600'; this.onerror=null;">
-            </div>
+  <div class="container">
+    <div class="row align-items-center">
+      <div class="col-lg-6 mb-4 mb-lg-0">
+        <h1 class="display-4 fw-bold">Find Skilled Workers for Your Home</h1>
+        <p class="lead my-4">
+          TrabahoLink connects you with trusted professionals for all your
+          household needs - from plumbing to gardening and everything in
+          between.
+        </p>
+        <div class="d-flex gap-3">
+          <a href="{% url 'job_list' %}" class="btn btn-primary btn-lg"
+            >Browse Jobs</a
+          >
+          <a href="#how-it-works" class="btn btn-outline-secondary btn-lg"
+            >How It Works</a
+          >
         </div>
+      </div>
+      <div class="col-lg-6">
+        <img
+          src="{% static 'images/hero-image.jpeg' %}"
+          alt="Home service professionals"
+          class="img-fluid rounded-3 shadow"
+          onerror="this.src='/placeholder.svg?height=400&width=600'; this.onerror=null;"
+        />
+      </div>
     </div>
+  </div>
 </section>
 
 <!-- Categories Section -->
 <section class="py-5">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold">Popular Service Categories</h2>
-            <p class="text-muted">Find the right professional for any job around your home</p>
-        </div>
-        
-        <div class="row g-4">
-            {% for category in categories %}
-                <div class="col-6 col-md-4 col-lg-3">
-                    <a href="{% url 'job_list' %}?category={{ category.id }}" class="text-decoration-none">
-                        <div class="card h-100 border-0 shadow-sm hover-shadow">
-                            <div class="card-body text-center p-4">
-                                <!-- Dynamic icon based on category name (you may need to adjust this logic) -->
-                                {% if 'plumb' in category.name.lower %}
-                                    <i class="bi bi-droplet-fill fs-1 text-primary mb-3"></i>
-                                {% elif 'electric' in category.name.lower %}
-                                    <i class="bi bi-lightning-fill fs-1 text-primary mb-3"></i>
-                                {% elif 'garden' in category.name.lower or 'lawn' in category.name.lower %}
-                                    <i class="bi bi-flower1 fs-1 text-primary mb-3"></i>
-                                {% elif 'clean' in category.name.lower %}
-                                    <i class="bi bi-brush fs-1 text-primary mb-3"></i>
-                                {% elif 'paint' in category.name.lower %}
-                                    <i class="bi bi-palette-fill fs-1 text-primary mb-3"></i>
-                                {% elif 'repair' in category.name.lower or 'fix' in category.name.lower %}
-                                    <i class="bi bi-tools fs-1 text-primary mb-3"></i>
-                                {% else %}
-                                    <i class="bi bi-house-gear-fill fs-1 text-primary mb-3"></i>
-                                {% endif %}
-                                <h5 class="card-title">{{ category.name }}</h5>
-                            </div>
-                        </div>
-                    </a>
-                </div>
-            {% endfor %}
-        </div>
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold">Popular Service Categories</h2>
+      <p class="text-muted">
+        Find the right professional for any job around your home
+      </p>
     </div>
+
+    <div class="row g-4">
+      {% for category in categories %}
+      <div class="col-6 col-md-4 col-lg-3">
+        <a
+          href="{% url 'job_list' %}?category={{ category.id }}"
+          class="text-decoration-none"
+        >
+          <div class="card h-100 border-0 shadow-sm hover-shadow">
+            <div class="card-body text-center p-4">
+              <!-- Dynamic icon based on category name (you may need to adjust this logic) -->
+              {% if 'plumb' in category.name.lower %}
+              <i class="bi bi-droplet-fill fs-1 text-primary mb-3"></i>
+              {% elif 'electric' in category.name.lower %}
+              <i class="bi bi-lightning-fill fs-1 text-primary mb-3"></i>
+              {% elif 'garden' in category.name.lower or 'lawn' in
+              category.name.lower %}
+              <i class="bi bi-flower1 fs-1 text-primary mb-3"></i>
+              {% elif 'clean' in category.name.lower %}
+              <i class="bi bi-brush fs-1 text-primary mb-3"></i>
+              {% elif 'paint' in category.name.lower %}
+              <i class="bi bi-palette-fill fs-1 text-primary mb-3"></i>
+              {% elif 'repair' in category.name.lower or 'fix' in
+              category.name.lower %}
+              <i class="bi bi-tools fs-1 text-primary mb-3"></i>
+              {% else %}
+              <i class="bi bi-house-gear-fill fs-1 text-primary mb-3"></i>
+              {% endif %}
+              <h5 class="card-title">{{ category.name }}</h5>
+            </div>
+          </div>
+        </a>
+      </div>
+      {% endfor %}
+    </div>
+  </div>
 </section>
 
 <!-- How It Works Section -->
 <section id="how-it-works" class="py-5 bg-light">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold">How TrabahoLink Works</h2>
-            <p class="text-muted">Three simple steps to find the perfect professional</p>
-        </div>
-        
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px;">
-                            <h3 class="m-0">1</h3>
-                        </div>
-                        <h4>Post Your Job</h4>
-                        <p class="text-muted">Describe what you need done, when you need it, and your location.</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px;">
-                            <h3 class="m-0">2</h3>
-                        </div>
-                        <h4>Compare Offers</h4>
-                        <p class="text-muted">Review profiles, ratings, and offers from interested professionals.</p>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body text-center p-4">
-                        <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-4" style="width: 80px; height: 80px;">
-                            <h3 class="m-0">3</h3>
-                        </div>
-                        <h4>Hire & Pay</h4>
-                        <p class="text-muted">Choose the best match, get the job done, and pay securely through our platform.</p>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold">How TrabahoLink Works</h2>
+      <p class="text-muted">
+        Three simple steps to find the perfect professional
+      </p>
     </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body text-center p-4">
+            <div
+              class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-4"
+              style="width: 80px; height: 80px"
+            >
+              <h3 class="m-0">1</h3>
+            </div>
+            <h4>Post Your Job</h4>
+            <p class="text-muted">
+              Describe what you need done, when you need it, and your location.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body text-center p-4">
+            <div
+              class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-4"
+              style="width: 80px; height: 80px"
+            >
+              <h3 class="m-0">2</h3>
+            </div>
+            <h4>Compare Offers</h4>
+            <p class="text-muted">
+              Review profiles, ratings, and offers from interested
+              professionals.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body text-center p-4">
+            <div
+              class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-4"
+              style="width: 80px; height: 80px"
+            >
+              <h3 class="m-0">3</h3>
+            </div>
+            <h4>Hire & Pay</h4>
+            <p class="text-muted">
+              Choose the best match, get the job done, and pay securely through
+              our platform.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- Testimonials Section -->
 <section class="py-5">
-    <div class="container">
-        <div class="text-center mb-5">
-            <h2 class="fw-bold">What Our Customers Say</h2>
-            <p class="text-muted">Join thousands of satisfied homeowners</p>
-        </div>
-        
-        <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <div class="d-flex mb-3">
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                        </div>
-                        <p class="mb-3">"Found an amazing plumber through TrabahoLink who fixed our leaking pipes in no time. Great service and very professional!"</p>
-                        <div class="d-flex align-items-center">
-                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                                <i class="bi bi-person-fill"></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-0">Maria Santos</h6>
-                                <small class="text-muted">Niog</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <div class="d-flex mb-3">
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                        </div>
-                        <p class="mb-3">"The gardener I hired through TrabahoLink transformed my backyard completely. Very reasonable rates and excellent work!"</p>
-                        <div class="d-flex align-items-center">
-                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                                <i class="bi bi-person-fill"></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-0">Juan Reyes</h6>
-                                <small class="text-muted">Aniban</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <div class="col-md-4">
-                <div class="card h-100 border-0 shadow-sm">
-                    <div class="card-body p-4">
-                        <div class="d-flex mb-3">
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-fill text-warning"></i>
-                            <i class="bi bi-star-half text-warning"></i>
-                        </div>
-                        <p class="mb-3">"Quick and easy to find an electrician for our home renovation. The whole process was smooth and the work quality was excellent."</p>
-                        <div class="d-flex align-items-center">
-                            <div class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px;">
-                                <i class="bi bi-person-fill"></i>
-                            </div>
-                            <div>
-                                <h6 class="mb-0">Ana Lim</h6>
-                                <small class="text-muted">Molino I</small>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold">What Our Customers Say</h2>
+      <p class="text-muted">Join thousands of satisfied homeowners</p>
     </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body p-4">
+            <div class="d-flex mb-3">
+              <i class="bi bi-star-fill text-warning"></i>
+              <i class="bi bi-star-fill text-warning"></i>
+              <i class="bi bi-star-fill text-warning"></i>
+              <i class="bi bi-star-fill text-warning"></i>
+              <i class="bi bi-star-fill text-warning"></i>
+            </div>
+            <p class="mb-3">
+              "Found an amazing plumber through TrabahoLink who fixed our
+              leaking pipes in no time. Great service and very professional!"
+            </p>
+            <div class="d-flex align-items-center">
+              <div
+                class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3"
+                style="width: 50px; height: 50px"
+              >
+                <i class="bi bi-person-fill"></i>
+              </div>
+              <div>
+                <h6 class="mb-0">Maria Santos</h6>
+                <small class="text-muted">Niog</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body p-4">
+            <div class="d-flex mb-3">
+              <i class="bi bi-star-fill text-warning"></i>
+              <i class="bi bi-star-fill text-warning"></i>
+              <i class="bi bi-star-fill text-warning"></i>
+              <i class="bi bi-star-fill text-warning"></i>
+              <i class="bi bi-star-fill text-warning"></i>
+            </div>
+            <p class="mb-3">
+              "The gardener I hired through TrabahoLink transformed my backyard
+              completely. Very reasonable rates and excellent work!"
+            </p>
+            <div class="d-flex align-items-center">
+              <div
+                class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3"
+                style="width: 50px; height: 50px"
+              >
+                <i class="bi bi-person-fill"></i>
+              </div>
+              <div>
+                <h6 class="mb-0">Juan Reyes</h6>
+                <small class="text-muted">Aniban</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body p-4">
+            <div class="d-flex mb-3">
+              <i class="bi bi-star-fill text-warning"></i>
+              <i class="bi bi-star-fill text-warning"></i>
+              <i class="bi bi-star-fill text-warning"></i>
+              <i class="bi bi-star-fill text-warning"></i>
+              <i class="bi bi-star-half text-warning"></i>
+            </div>
+            <p class="mb-3">
+              "Quick and easy to find an electrician for our home renovation.
+              The whole process was smooth and the work quality was excellent."
+            </p>
+            <div class="d-flex align-items-center">
+              <div
+                class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3"
+                style="width: 50px; height: 50px"
+              >
+                <i class="bi bi-person-fill"></i>
+              </div>
+              <div>
+                <h6 class="mb-0">Ana Lim</h6>
+                <small class="text-muted">Molino I</small>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </section>
 
 <!-- CTA Section -->
 <section class="py-5 bg-primary text-white">
-    <div class="container text-center">
-        <h2 class="fw-bold mb-4">Ready to Get Started?</h2>
-        <p class="lead mb-4">Join thousands of homeowners who have found reliable professionals through TrabahoLink</p>
-        <div class="d-flex justify-content-center gap-3">
-            <a href="{% url 'job_list' %}" class="btn btn-light btn-lg">Find a Professional</a>
-            <a href="{% url 'job_create' %}" class="btn btn-outline-light btn-lg">Post a Job</a>
-        </div>
+  <div class="container text-center">
+    <h2 class="fw-bold mb-4">Ready to Get Started?</h2>
+    <p class="lead mb-4">
+      Join thousands of homeowners who have found reliable professionals through
+      TrabahoLink
+    </p>
+    <div class="d-flex justify-content-center gap-3">
+      <a href="{% url 'job_list' %}" class="btn btn-light btn-lg"
+        >Find a Professional</a
+      >
+      <a href="{% url 'job_create' %}" class="btn btn-outline-light btn-lg"
+        >Post a Job</a
+      >
     </div>
+  </div>
 </section>
 
 <!-- Add Bootstrap Icons if not already included in your base template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+<link
+  rel="stylesheet"
+  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+/>
 
 <!-- Add custom CSS for hover effects -->
 <style>
-    .hover-shadow:hover {
-        transform: translateY(-5px);
-        transition: transform 0.3s ease;
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
-    }
+  .hover-shadow:hover {
+    transform: translateY(-5px);
+    transition: transform 0.3s ease;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
+  }
 </style>
 {% endblock %}

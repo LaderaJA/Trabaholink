@@ -1,0 +1,21 @@
+{% extends "mainpages/base.html" %}
+
+{% block content %}
+    <h2>Announcements</h2>
+    {% for announcement in announcements %}
+        <div>
+            <h3><a href="{% url 'announcement_detail' announcement.pk %}">{{ announcement.title }}</a></h3>
+            <p>{{ announcement.description|truncatewords:20 }}</p>
+            <p>Posted by: {{ announcement.posted_by }}</p>
+            <p>Posted on: {{ announcement.created_at }}</p>
+            {% if announcement.image %}
+                <img src="{{ announcement.image.url }}" alt="{{ announcement.title }}" width="200">
+            {% endif %}
+        </div>
+    {% empty %}
+        <p>No announcements available.</p>
+    {% endfor %}
+    {% if user.is_staff %}
+        <a href="{% url 'announcement_create' %}">Post Announcement</a>
+    {% endif %}
+{% endblock %}

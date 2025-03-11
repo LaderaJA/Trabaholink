@@ -1,74 +1,107 @@
 {% load static %}
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>{% block title %}TrabahoLink{% endblock %}</title>
     {% load static %}
-    <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}">
-    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}">
+    <link
+      rel="icon"
+      type="image/x-icon"
+      href="{% static 'images/favicon.ico' %}"
+    />
+    <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
     <script src="{% static 'js/bootstrap.min.js' %}"></script>
-    <script type="module" src="{% static 'frontend/dist/assets/index.js' %}"></script>
-
-</head>
-<body>
-
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
+    <script
+      type="module"
+      src="{% static 'frontend/dist/assets/index.js' %}"
+    ></script>
+  </head>
+  <body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+      <div class="container">
         <a class="navbar-brand" href="{% url 'home' %}">TrabahoLink</a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
-            <span class="navbar-toggler-icon"></span>
+        <button
+          class="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarNav"
+        >
+          <span class="navbar-toggler-icon"></span>
         </button>
 
         <div class="collapse navbar-collapse" id="navbarNav">
-            <ul class="navbar-nav ms-auto">
-                <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'home' %}">Home</a>
-                </li>
-                <li class="nav-item">
-                    <a class="nav-link {% if request.path == '/jobs/' %}active{% endif %}" href="{% url 'job_list' %}">Jobs</a>
-                </li>
-
-                {% if user.is_authenticated %}
-                    <li class="nav-item">
-                    <a class="nav-link" href="{% url 'conversation_list' %}">Messaging</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/users/profile/' %}active{% endif %}" href="{% url 'profile' %}">Profile</a>
-                    </li>
-                    <li class="nav-item">
-                        <form method="post" action="{% url 'logout' %}" style="display:inline;">
-                            {% csrf_token %}
-                            <button type="submit" class="nav-link btn btn-link text-danger" style="border:none; background:none;">Logout</button>
-                        </form>
-                        
-                    </li>
-                {% else %}
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/users/login/' %}active{% endif %}" href="{% url 'login' %}">Login</a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link {% if request.path == '/users/register/' %}active{% endif %}" href="{% url 'register' %}">Register</a>
-                    </li>
-                {% endif %}
-            </ul>
+          <ul class="navbar-nav ms-auto">
+            <li class="nav-item">
+              <a
+                class="nav-link {% if request.path == '/' %}active{% endif %}"
+                href="{% url 'home' %}"
+                >Home</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link {% if request.path == '/jobs/' %}active{% endif %}"
+                href="{% url 'job_list' %}"
+                >Jobs</a
+              >
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'announcement_list' %}">Announcements</a>
+            </li>
+            {% if user.is_authenticated %}
+            <li class="nav-item">
+              <a class="nav-link" href="{% url 'conversation_list' %}"
+                >Messaging</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link {% if request.path == '/users/profile/' %}active{% endif %}"
+                href="{% url 'profile' %}"
+                >Profile</a
+              >
+            </li>
+            <li class="nav-item">
+              <form
+                method="post"
+                action="{% url 'logout' %}"
+                style="display: inline"
+              >
+                {% csrf_token %}
+                <button
+                  type="submit"
+                  class="nav-link btn btn-link text-danger"
+                  style="border: none; background: none"
+                >
+                  Logout
+                </button>
+              </form>
+            </li>
+            {% else %}
+            <li class="nav-item">
+              <a
+                class="nav-link {% if request.path == '/users/login/' %}active{% endif %}"
+                href="{% url 'login' %}"
+                >Login</a
+              >
+            </li>
+            <li class="nav-item">
+              <a
+                class="nav-link {% if request.path == '/users/register/' %}active{% endif %}"
+                href="{% url 'register' %}"
+                >Register</a
+              >
+            </li>
+            {% endif %}
+          </ul>
         </div>
-    </div>
-</nav>
+      </div>
+    </nav>
 
-<div class="container mt-4">
-    {% block content %}
-    {% endblock %}
-</div>
+    <div class="container mt-4">{% block content %} {% endblock %}</div>
 
-<div id="chat-app"></div>  
-
-
-
-
-  
-
-</body>
+    <div id="chat-app"></div>
+  </body>
 </html>
-

@@ -1,0 +1,12 @@
+{% extends "mainpages/base.html" %}
+
+{% block content %}
+    <h2>{{ announcement.title }}</h2>
+    <p>{{ announcement.description }}</p>
+    <p>Posted by: {{ announcement.posted_by }}</p>
+    <p>Posted on: {{ announcement.created_at }}</p>
+    {% if announcement.image %}
+        <img src="{{ announcement.image.url }}" alt="{{ announcement.title }}" width="400">
+    {% endif %}
+    <a href="{% url 'announcement_list' %}">Back to Announcements</a>
+{% endblock %}

@@ -1,30 +1,246 @@
 {% extends 'mainpages/base.html' %}
+
 {% block content %}
-<div class="container">
-    <h2>Register</h2>
-    <form method="post" class="mt-3">
-        {% csrf_token %}
-        <div class="mb-3">
-            {{ form.username.label_tag }}
-            {{ form.username }}
+<div class="register-container">
+    <div class="register-card">
+        <div class="register-header">
+            <h1 class="site-title">TrabahoLink</h1>
+            <p class="site-tagline">Join our community of skilled professionals</p>
         </div>
-        <div class="mb-3">
-            {{ form.email.label_tag }}
-            {{ form.email }}
+        
+        <div class="register-content">         
+            <div class="register-form-container">
+                <h2>Create Your Account</h2>
+                <p class="register-subtitle">Start your journey to better opportunities</p>
+                
+                <form method="post" class="register-form">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="{{ form.username.id_for_label }}">Username</label>
+                        {{ form.username }}
+                        {% if form.username.errors %}
+                        <div class="error-message">{{ form.username.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.email.id_for_label }}">Email Address</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}
+                        <div class="error-message">{{ form.email.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.password1.id_for_label }}">Password</label>
+                        {{ form.password1 }}
+                        {% if form.password1.errors %}
+                        <div class="error-message">{{ form.password1.errors }}</div>
+                        {% endif %}
+                        <div class="help-text">{{ form.password1.help_text }}</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
+                        {{ form.password2 }}
+                        {% if form.password2.errors %}
+                        <div class="error-message">{{ form.password2.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.role.id_for_label }}">I am a:</label>
+                        {{ form.role }}
+                        {% if form.role.errors %}
+                        <div class="error-message">{{ form.role.errors }}</div>
+                        {% endif %}
+                    </div>
+                    
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary btn-block">Create Account</button>
+                    </div>
+                </form>
+                
+                <div class="login-prompt">
+                    <p>Already have an account?</p>
+                    <a href="{% url 'login' %}" class="btn btn-outline">Sign In</a>
+                </div>
+            </div>
+            <div class="register-image">
+                <img src="/static/images/workers.jpeg" alt="Construction worker" onerror="this.src='/placeholder.svg?height=500&width=400'; this.onerror=null;">
+            </div>
         </div>
-        <div class="mb-3">
-            {{ form.password1.label_tag }}
-            {{ form.password1 }}
-        </div>
-        <div class="mb-3">
-            {{ form.password2.label_tag }}
-            {{ form.password2 }}
-        </div>
-        <div class="mb-3">
-            {{ form.role.label_tag }}
-            {{ form.role }}
-        </div>
-        <button type="submit" class="btn btn-success">Register</button>
-    </form>
+    </div>
 </div>
+
+<style>
+    .register-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+        padding: 0.1rem;
+        background-color: #f5f7fa;
+    }
+    
+    .register-card {
+        width: 100%;
+        max-width: 1000px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    
+    .register-header {
+        background-color: #1e4d8c;
+        color: white;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    
+    .site-title {
+        font-size: 2rem;
+        margin: 0;
+        font-weight: 700;
+    }
+    
+    .site-tagline {
+        margin-top: 0.5rem;
+        opacity: 0.9;
+    }
+    
+    .register-content {
+        display: flex;
+        flex-direction: row;
+    }
+    
+    .register-image {
+        flex: 1;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: flex-start;
+        padding: 2rem;
+        flex-direction: column;
+    }
+    
+    .register-image img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+    }
+    
+    .register-form-container {
+        flex: 1.2;
+        padding: 2rem;
+    }
+    
+    .register-subtitle {
+        color: #6c757d;
+        margin-bottom: 1.5rem;
+    }
+    
+    .register-form {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #495057;
+    }
+    
+    .form-group input, .form-group select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+    
+    .help-text {
+        font-size: 0.8rem;
+        color: #6c757d;
+        margin-top: 0.5rem;
+    }
+    
+    .error-message {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+    
+    .form-actions {
+        margin-top: 1.5rem;
+    }
+    
+    .btn {
+        display: inline-block;
+        font-weight: 500;
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        border-radius: 4px;
+        transition: all 0.15s ease-in-out;
+    }
+    
+    .btn-primary {
+        color: #fff;
+        background-color: #f26522;
+        border: 1px solid #f26522;
+    }
+    
+    .btn-primary:hover {
+        background-color: #e55b14;
+        border-color: #e55b14;
+    }
+    
+    .btn-outline {
+        color: #1e4d8c;
+        background-color: transparent;
+        border: 1px solid #1e4d8c;
+    }
+    
+    .btn-outline:hover {
+        color: #fff;
+        background-color: #1e4d8c;
+    }
+    
+    .btn-block {
+        display: block;
+        width: 100%;
+    }
+    
+    .login-prompt {
+        margin-top: 2rem;
+        text-align: center;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    @media (max-width: 768px) {
+        .register-content {
+            flex-direction: column;
+        }
+        
+        .register-image {
+            display: none;
+        }
+    }
+
+    .mt-4 {
+        margin-top: 0.5rem !important;
+    }
+</style>
 {% endblock %}

@@ -1,15 +1,240 @@
 {% extends 'mainpages/base.html' %}
 
 {% block content %}
-<div class="container">
-    <h2>Login</h2>
-    <form method="post">
-        {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Login</button>
-    </form>
-    <p>Don't have an account? <a href="{% url 'register' %}">Register here</a></p>
+<div class="login-container">
+    <div class="login-card">
+        <div class="login-header">
+            <h1 class="site-title">TrabahoLink</h1>
+            <p class="site-tagline">Connecting skilled workers with quality opportunities</p>
+        </div>
+        
+        <div class="login-content">
+            <div class="login-image">
+                <img src="/static/images/workers.jpeg" alt="Blue collar workers" onerror="this.src='/placeholder.svg?height=300&width=300'; this.onerror=null;">
+            </div>
+            
+            <div class="login-form-container">
+                <h2>Welcome Back</h2>
+                <p class="login-subtitle">Log in to find your next opportunity</p>
+                
+                <form method="post" class="login-form">
+                    {% csrf_token %}
+                    
+                    <div class="form-group">
+                        <label for="{{ form.username.id_for_label }}">Username</label>
+                        {{ form.username }}
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="{{ form.password.id_for_label }}">Password</label>
+                        {{ form.password }}
+                    </div>
+                    
+                    {% if form.errors %}
+                    <div class="alert alert-danger">
+                        <p>Your username and password didn't match. Please try again.</p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="form-actions">
+                        <a href="#" onclick="this.closest('form').submit();" class="btn btn-primary btn-block">Sign In</a>
+                    </div>
+                    
+                    <div class="form-footer">
+                        <a href="{% url 'password_reset' %}" class="forgot-password">Forgot password?</a>
+                    </div>
+                </form>
+                
+                <div class="register-prompt">
+                    <p>Don't have an account?</p>
+                    <a href="{% url 'register' %}" class="btn btn-outline">Create Account</a>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+<style>
+    .login-container {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        min-height: 80vh;
+        padding: 0.5rem;
+        background-color: #f5f7fa;
+    }
+    
+    .login-card {
+        width: 100%;
+        max-width: 900px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+    
+    .login-header {
+        background-color: #1e4d8c;
+        color: white;
+        padding: 0.5rem;
+        text-align: center;
+    }
+    
+    .site-title {
+        font-size: 2rem;
+        margin: 0;
+        font-weight: 700;
+    }
+    
+    .site-tagline {
+        margin-top: 0.5rem;
+        opacity: 0.9;
+    }
+    
+    .login-content {
+        display: flex;
+        flex-direction: row;
+    }
+    
+    .login-image {
+        flex: 1;
+        background-color: #e9ecef;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem;
+    }
+    
+    .login-image img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 4px;
+    }
+    
+    .login-form-container {
+        flex: 1;
+        padding: 1rem;
+    }
+    
+    .login-subtitle {
+        color: #6c757d;
+        margin-bottom: 1.5rem;
+    }
+    
+    .login-form {
+        margin-bottom: 1.5rem;
+    }
+    
+    .form-group {
+        margin-bottom: 1.25rem;
+    }
+    
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #495057;
+    }
+    
+    .form-group input {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+    
+    .alert {
+        padding: 0.75rem;
+        margin-bottom: 1rem;
+        border-radius: 4px;
+    }
+    
+    .alert-danger {
+        background-color: #f8d7da;
+        color: #721c24;
+        border: 1px solid #f5c6cb;
+    }
+    
+    .form-actions {
+        margin-top: 1.5rem;
+    }
+    
+    .btn {
+        display: inline-block;
+        font-weight: 500;
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        border-radius: 4px;
+        transition: all 0.15s ease-in-out;
+        text-decoration: none;
+    }
+    
+    .btn-primary {
+        color: #fff;
+        background-color: #f26522;
+        border: 1px solid #f26522;
+    }
+    
+    .btn-primary:hover {
+        background-color: #e55b14;
+        border-color: #e55b14;
+    }
+    
+    .btn-outline {
+        color: #1e4d8c;
+        background-color: transparent;
+        border: 1px solid #1e4d8c;
+    }
+    
+    .btn-outline:hover {
+        color: #fff;
+        background-color: #1e4d8c;
+    }
+    
+    .btn-block {
+        display: block;
+        width: 100%;
+    }
+    
+    .form-footer {
+        text-align: center;
+        margin-top: 1rem;
+    }
+    
+    .forgot-password {
+        color: #6c757d;
+        text-decoration: none;
+        font-size: 0.9rem;
+    }
+    
+    .forgot-password:hover {
+        text-decoration: underline;
+    }
+    
+    .register-prompt {
+        margin-top: 0.2rem;
+        text-align: center;
+        padding-top: 0.1rem;
+        border-top: 1px solid #e9ecef;
+    }
+    
+    @media (max-width: 768px) {
+        .login-content {
+            flex-direction: column;
+        }
+        
+        .login-image {
+            display: none;
+        }
+    }
+
+    .mt-4 {
+        margin-top: 0.5rem !important;
+    }
+</style>
 {% endblock %}
-
-
