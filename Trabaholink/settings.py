@@ -11,6 +11,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
 from pathlib import Path
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -52,6 +53,7 @@ INSTALLED_APPS = [
     'reports',
     'announcements',
     'admin_dashboard',
+    'notifications',
 ]
 
 MIDDLEWARE = [
@@ -174,3 +176,10 @@ AUTHENTICATION_BACKENDS = [
 # Redirect users after login/logout
 LOGIN_REDIRECT_URL = 'profile'  
 LOGOUT_REDIRECT_URL = 'login'
+
+EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
+ANYMAIL = {
+    "SENDGRID_API_KEY": os.getenv("SENDGRID_API_KEY"),
+}
+DEFAULT_FROM_EMAIL = "junnuj312@gmail.com"
+
