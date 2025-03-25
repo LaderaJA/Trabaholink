@@ -4,11 +4,6 @@ from better_profanity import profanity
 
 User = get_user_model()
 
-from django.contrib.auth import get_user_model
-from django.db import models
-
-User = get_user_model()
-
 class Conversation(models.Model):
     """Represents a chat between two users."""
     user1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name="conversations_initiated")

@@ -19,7 +19,8 @@ class CustomUser(AbstractUser):
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='client')
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
     contact_number = models.CharField(max_length=15, blank=True)
-    bio = models.TextField(blank=True)  
+    bio = models.TextField(blank=True)
+    job_coverage = models.CharField(max_length=255, blank=True, null=True) 
     is_verified_philsys = models.BooleanField(default=False)
 
     groups = models.ManyToManyField(Group, related_name="customuser_groups", blank=True)

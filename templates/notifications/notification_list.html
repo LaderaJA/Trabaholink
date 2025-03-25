@@ -1,0 +1,31 @@
+{% extends 'mainpages/base.html' %}
+
+{% block content %}
+<h2>Notifications</h2>
+<ul>
+    {% for notification in notifications %}
+    <li>
+        {{ notification.message }}
+        {% if not notification.is_read %}
+        <button onclick="markAsRead('{{ notification.id }}')">Mark as Read</button>
+        {% endif %}
+    </li>
+    {% endfor %}
+</ul>
+
+<script>
+    function markAsRead(notificationId) {
+        fetch(`/notifications/mark-as-read/${notificationId}/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": "{{ csrf_token }}",
+                "Content-Type": "application/json"
+            }
+        }).then(response => response.json()).then(data => {
+            if (data.status === "success") {
+                location.reload();
+            }
+        });
+    }
+</script>
+{% endblock %}
