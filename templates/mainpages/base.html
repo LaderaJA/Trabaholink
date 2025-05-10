@@ -8,6 +8,8 @@
   <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}"/>
   <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
   <link rel="stylesheet" href="{% static 'css/base.css' %}"></link>
+ 
+
   {% block css %}  {% endblock %}
 
 
@@ -17,7 +19,7 @@
   <nav class="tl-navbar">
     <div class="container">
       <div class="tl-navbar-content">
-        <a class="tl-navbar-brand" href="{% url 'home' %}">
+        <a class="tl-navbar-brand" href="{% url 'jobs:home' %}">
           <span class="tl-brand-text">Trabaho</span>
           <span class="tl-brand-text tl-brand-highlight">Link</span>
         </a>
@@ -29,17 +31,17 @@
         <div class="tl-navbar-collapse">
           <ul class="tl-navbar-nav">
             <li class="tl-nav-item">
-              <a class="tl-nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'home' %}">Home</a>
+              <a class="tl-nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'jobs:home' %}">Home</a>
             </li>
             <li class="tl-nav-item">
-              <a class="tl-nav-link {% if request.path == '/jobs/' %}active{% endif %}" href="{% url 'job_list' %}">Jobs</a>
+              <a class="tl-nav-link {% if request.path == '/jobs/' %}active{% endif %}" href="{% url 'jobs:job_list' %}">Jobs</a>
             </li>
             <li class="tl-nav-item">
-              <a class="tl-nav-link {% if request.path == '/announcements/' %}active{% endif %}" href="{% url 'announcement_list' %}">Announcements</a>
+              <a class="tl-nav-link {% if request.path == '/announcements/' %}active{% endif %}" href="{% url 'announcements:announcement_list' %}">Announcements</a>
             </li>
             {% if user.is_authenticated %}
             <li class="tl-nav-item">
-              <a class="tl-nav-link {% if request.path == '/conversation_list/' %}active{% endif %}" href="{% url 'conversation_list' %}">Messaging</a>
+              <a class="tl-nav-link {% if request.path == '/conversation_list/' %}active{% endif %}" href="{% url 'messaging:conversation_list' %}">Messaging</a>
             </li>
             <li class="tl-nav-item">
               <a class="tl-nav-link {% if request.path == '/users/profile/' %}active{% endif %}" href="{% url 'profile' %}">Profile</a>
@@ -70,7 +72,7 @@
   <!-- JS -->
   {% block js %}   {% endblock %}
   <script src="{% static 'js/bootstrap.min.js' %}"></script>
-  <script src="{% static 'js/base.js' %}"></script>
+ 
   <!-- <script type="module" src="{% static 'frontend/dist/assets/index.js' %}"
   ></script> -->
 

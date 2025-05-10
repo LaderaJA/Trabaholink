@@ -16,7 +16,7 @@ TrabahoLink{% endblock %}
           between.
         </p>
         <div class="d-flex gap-3">
-          <a href="{% url 'job_list' %}" class="btn btn-primary btn-lg"
+          <a href="{% url 'jobs:job_list' %}" class="btn btn-primary btn-lg"
             >Browse Jobs</a
           >
           <a href="#how-it-works" class="btn btn-outline-secondary btn-lg"
@@ -50,7 +50,7 @@ TrabahoLink{% endblock %}
       {% for category in categories %}
       <div class="col-6 col-md-4 col-lg-3">
         <a
-          href="{% url 'job_list' %}?category={{ category.id }}"
+          href="{% url 'jobs:job_list' %}?category={{ category.id }}"
           class="text-decoration-none"
         >
           <div class="card h-100 border-0 shadow-sm hover-shadow">
@@ -60,15 +60,13 @@ TrabahoLink{% endblock %}
               <i class="bi bi-droplet-fill fs-1 text-primary mb-3"></i>
               {% elif 'electric' in category.name.lower %}
               <i class="bi bi-lightning-fill fs-1 text-primary mb-3"></i>
-              {% elif 'garden' in category.name.lower or 'lawn' in
-              category.name.lower %}
+              {% elif 'garden' in category.name.lower  %}
               <i class="bi bi-flower1 fs-1 text-primary mb-3"></i>
               {% elif 'clean' in category.name.lower %}
               <i class="bi bi-brush fs-1 text-primary mb-3"></i>
               {% elif 'paint' in category.name.lower %}
               <i class="bi bi-palette-fill fs-1 text-primary mb-3"></i>
-              {% elif 'repair' in category.name.lower or 'fix' in
-              category.name.lower %}
+              {% elif 'repair' in category.name.lower %}
               <i class="bi bi-tools fs-1 text-primary mb-3"></i>
               {% else %}
               <i class="bi bi-house-gear-fill fs-1 text-primary mb-3"></i>
@@ -138,9 +136,9 @@ TrabahoLink{% endblock %}
             >
               <h3 class="m-0">3</h3>
             </div>
-            <h4>Hire & Pay</h4>
+            <h4>Negotiate and Hire</h4>
             <p class="text-muted">
-              Choose the best match, get the job done, and pay securely through
+              Choose the best match, get the job done, and hire securely through
               our platform.
             </p>
           </div>
@@ -150,8 +148,74 @@ TrabahoLink{% endblock %}
   </div>
 </section>
 
-<!-- Testimonials Section -->
+<!-- How to Apply for a Job Section -->
 <section class="py-5">
+  <div class="container">
+    <div class="text-center mb-5">
+      <h2 class="fw-bold">How to Apply for a Job</h2>
+      <p class="text-muted">
+        Follow these steps to apply and get hired quickly through TrabahoLink
+      </p>
+    </div>
+
+    <div class="row g-4">
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body text-center p-4">
+            <div
+              class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-4"
+              style="width: 80px; height: 80px"
+            >
+              <h3 class="m-0">1</h3>
+            </div>
+            <h4>Browse Available Jobs</h4>
+            <p class="text-muted">
+              Go to the job listings page and find a job that fits your skills and location.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body text-center p-4">
+            <div
+              class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-4"
+              style="width: 80px; height: 80px"
+            >
+              <h3 class="m-0">2</h3>
+            </div>
+            <h4>Submit Your Application</h4>
+            <p class="text-muted">
+              Click on a job to view details and use the apply button to submit your offer or message.
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-md-4">
+        <div class="card h-100 border-0 shadow-sm">
+          <div class="card-body text-center p-4">
+            <div
+              class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-4"
+              style="width: 80px; height: 80px"
+            >
+              <h3 class="m-0">3</h3>
+            </div>
+            <h4>Get Hired</h4>
+            <p class="text-muted">
+              Wait for the job poster to review your application and accept your offer. Communicate and complete the job.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- Testimonials Section -->
+<!-- <section class="py-5">
   <div class="container">
     <div class="text-center mb-5">
       <h2 class="fw-bold">What Our Customers Say</h2>
@@ -250,7 +314,7 @@ TrabahoLink{% endblock %}
       </div>
     </div>
   </div>
-</section>
+</section> -->
 
 <!-- CTA Section -->
 <section class="py-5 bg-primary text-white">
@@ -261,10 +325,10 @@ TrabahoLink{% endblock %}
       TrabahoLink
     </p>
     <div class="d-flex justify-content-center gap-3">
-      <a href="{% url 'job_list' %}" class="btn btn-light btn-lg"
+      <a href="{% url 'jobs:job_list' %}" class="btn btn-light btn-lg"
         >Find a Professional</a
       >
-      <a href="{% url 'job_create' %}" class="btn btn-outline-light btn-lg"
+      <a href="{% url 'jobs:job_create' %}" class="btn btn-outline-light btn-lg"
         >Post a Job</a
       >
     </div>

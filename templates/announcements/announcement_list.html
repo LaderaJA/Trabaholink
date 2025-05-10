@@ -5,7 +5,7 @@
     <div class="announcements-header">
         <h2 class="announcements-title">Announcements</h2>
         {% if user.is_staff %}
-            <a href="{% url 'announcement_create' %}" class="post-announcement-btn">
+            <a href="{% url 'announcements:announcement_create' %}" class="post-announcement-btn">
                 <span>Post Announcement</span>
                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
                     <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
@@ -24,7 +24,7 @@
                 {% endif %}
                 <div class="announcement-content">
                     <h3 class="announcement-title">
-                        <a href="{% url 'announcement_detail' announcement.pk %}">{{ announcement.title }}</a>
+                        <a href="{% url 'announcements:announcement_detail' announcement.pk %}">{{ announcement.title }}</a>
                     </h3>
                     <p class="announcement-description">{{ announcement.description|truncatewords:20 }}</p>
                     <div class="announcement-meta">
@@ -261,11 +261,12 @@
         animation: fadeIn 0.5s ease forwards;
     }
 
-    {% for announcement in announcements %}
+    /* {% for announcement in announcements %}
         .announcement-card:nth-child({{ forloop.counter }}) {
             animation-delay: {{ forloop.counter|add:"-1" }}00ms;
         }
-    {% endfor %}
+    {% endfor %} */
+    
 </style>
 
 <script>

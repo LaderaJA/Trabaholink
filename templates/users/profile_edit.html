@@ -1,5 +1,9 @@
 {% extends 'mainpages/base.html' %}
+
+{% block css %}  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css"> {% endblock %}
+
 {% block content %}
+
 <div class="container">
     <h2>Edit Profile</h2>
     <form method="post" enctype="multipart/form-data">
@@ -9,4 +13,16 @@
     </form>
     <a href="{% url 'profile' %}" class="btn btn-secondary mt-3">Back to Profile</a>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
+<script>
+  const input = document.querySelector('#skills-input');
+  const existingSkills = input.value.split(',').filter(s => s.trim()).map(skill => skill.trim());
+
+  const tagify = new Tagify(input, {
+    originalInputValueFormat: values => values.map(item => item.value).join(',')  
+  });
+  tagify.addTags(existingSkills); 
+</script>
 {% endblock %}
+  

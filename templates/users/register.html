@@ -56,6 +56,19 @@
                         <div class="error-message">{{ form.role.errors }}</div>
                         {% endif %}
                     </div>
+
+                    <!-- Consent Checkbox -->
+                    <div class="form-group form-check consent-container d-flex align-items-center">
+                        <input type="checkbox" class="form-check-input me-2" name="consent" id="consent" required style="width: 18px; height: 18px;">
+                        <label class="form-check-label consent-label" for="consent">
+                            I agree to the
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a>
+                            and the
+                            <a href="#" data-bs-toggle="modal" data-bs-target="#privacyConsentModal">Privacy Consent Agreement</a>.
+                        </label>
+                    </div>
+                    
+                    
                     
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary btn-block">Create Account</button>
@@ -73,6 +86,137 @@
         </div>
     </div>
 </div>
+
+<!-- Consent Modal -->
+
+<!-- Terms and Services Modal -->
+<div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="termsModalLabel">Terms and Services Agreement</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <h5>Effective Date: [Insert Date]</h5>
+          <p>This Terms and Services Agreement ("Agreement") governs the use of the services provided by Trabaholink ("we", "us", or "our"). By accessing or using Trabaholink, you agree to be bound by these terms and conditions set forth in this Agreement. If you do not agree to these terms, do not use our services.</p>
+          
+          <h6>1. Acceptance of Terms</h6>
+          <p>By accessing or using our platform, you agree to be bound by these Terms and Conditions and our Privacy Policy. We may update or modify these terms at any time without prior notice. Continued use of the platform after such changes constitutes your acceptance of the new terms.</p>
+  
+          <h6>2. User Responsibilities</h6>
+          <p>You are responsible for the content you post or upload on Trabaholink and for ensuring that your actions comply with applicable laws...</p>
+  
+          <h6>3. Limitation of Liability</h6>
+          <p>To the fullest extent permitted by law: <br>
+             - **No Warranty**: We provide the platform and its services "as is," without any warranties, express or implied.<br>
+             - **Limitation of Liability**: We are not liable for any damages arising from the use of the platform, including loss of data, business interruption, or other consequential damages.
+          </p>
+  
+          <h6>4. No Monetary Transactions</h6>
+          <p>Trabaholink does not facilitate monetary transactions. We are a platform designed to connect users for job postings, services, and freelance opportunities. You use the platform at your own risk.</p>
+  
+          <h6>5. User Content</h6>
+          <p>You retain ownership of your content posted on the platform but grant us a license to use and display your content as needed for platform operations.</p>
+  
+          <h6>6. Termination of Account</h6>
+          <p>We reserve the right to suspend or terminate your account at our sole discretion if you violate the terms of this Agreement or if we believe your actions harm the platform.</p>
+  
+          <h6>7. Indemnification</h6>
+          <p>You agree to indemnify and hold harmless Trabaholink, its affiliates, and its employees from any claims, damages, or liabilities resulting from your use of the platform, including but not limited to legal claims from other users or third parties.</p>
+  
+          <h6>8. Privacy and Data Protection</h6>
+          <p>Your use of the platform is subject to our Privacy Policy, which governs how we collect and process your personal data.</p>
+  
+          <h6>9. Governing Law</h6>
+          <p>This Agreement is governed by the laws of [Your Jurisdiction]. Any disputes arising from this Agreement will be subject to the jurisdiction of the courts in [Your Jurisdiction].</p>
+  
+          <h6>10. Changes to Agreement</h6>
+          <p>We reserve the right to modify this Agreement at any time. By continuing to use the platform, you agree to be bound by the updated terms.</p>
+  
+          <h6>11. Contact Information</h6>
+          <p>If you have any questions or concerns regarding this Agreement, please contact us at:<br>
+             **Trabaholink**<br>
+             Email: [Insert Contact Email]
+          </p>
+  
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+</div>
+  
+  <!-- Privacy Consent Agreement Modal -->
+  <div class="modal fade" id="privacyConsentModal" tabindex="-1" aria-labelledby="privacyConsentModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="privacyConsentModalLabel">Privacy Consent Agreement</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <h4>Effective Date: [Insert Date]</h4>
+          <p>Trabaholink ("we", "us", or "our") is committed to protecting your privacy and ensuring the security of personal data collected from users of our platform. This Privacy Consent Agreement outlines the manner in which we collect, use, process, store, and disclose personal data in accordance with Republic Act No. 10173, otherwise known as the Data Privacy Act of 2012, and its Implementing Rules and Regulations.</p>
+          
+          <h4>1. Collection of Personal Data</h4>
+          <p>We collect and process the following categories of personal information:</p>
+          <ul>
+              <li>Basic identifying information (e.g., full name, email address, contact number, gender)</li>
+              <li>Residential and work address, including location data</li>
+              <li>Professional and employment details (e.g., skills, experience, resume data)</li>
+              <li>System and technical information (e.g., IP address, browser type, device information, access logs)</li>
+              <li>Other information voluntarily provided through our forms, applications, or communications</li>
+          </ul>
+          
+          <h4>2. Purpose of Processing</h4>
+          <p>Personal data collected shall be processed for the following legitimate and lawful purposes:</p>
+          <ul>
+              <li>Creation and management of user accounts and profiles</li>
+              <li>Facilitation of job matching and contractual engagements</li>
+              <li>Communication between job seekers and clients</li>
+              <li>Monitoring of platform use for service improvement</li>
+              <li>Dissemination of relevant information, alerts, or service updates (subject to opt-in consent)</li>
+              <li>Compliance with legal obligations, regulatory requirements, or lawful orders</li>
+          </ul>
+  
+          <h4>3. Data Sharing and Disclosure</h4>
+          <p>We do not sell or rent your personal data. We may share data in the following instances:</p>
+          <ul>
+              <li>With registered users and entities relevant to your job search or service offering</li>
+              <li>With third-party service providers, strictly for platform-related functions (e.g., IT, analytics)</li>
+              <li>With government agencies or regulators when required by law or lawful order</li>
+          </ul>
+          
+          <h4>4. Data Retention</h4>
+          <p>We retain personal data only for as long as necessary to fulfill the purposes stated above, or as required by applicable law.</p>
+          
+          <h4>5. Your Rights as a Data Subject</h4>
+          <p>You have the following rights under Philippine law:</p>
+          <ul>
+              <li>Right to be informed</li>
+              <li>Right to access</li>
+              <li>Right to object</li>
+              <li>Right to correct</li>
+              <li>Right to erasure or blocking</li>
+              <li>Right to data portability</li>
+              <li>Right to lodge a complaint</li>
+          </ul>
+          
+          <h4>6. Data Security</h4>
+          <p>We adopt organizational, physical, and technical security measures to safeguard your personal data.</p>
+          
+          <h4>7. Consent and Withdrawal</h4>
+          <p>By continuing to use Trabaholink and submitting your personal data, you affirm that you have read, understood, and voluntarily consented to the terms of this Privacy Consent Agreement. You may withdraw your consent at any time by submitting a written request to [Insert Contact Email].</p>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
 <style>
     .register-container {
@@ -242,5 +386,41 @@
     .mt-4 {
         margin-top: 0.5rem !important;
     }
+
+    .form-group input[type="checkbox"] {
+        margin-right: 0.5rem;
+    }
+
+    .form-group a {
+        text-decoration: none;
+        color: #007bff;
+    }
+
+    .form-group a:hover {
+        text-decoration: underline;
+    }
+.consent-container {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+.consent-container input[type="checkbox"] {
+    margin: 0;
+    margin-top: 0.2rem;
+    flex-shrink: 0;
+}
+
+.consent-label {
+    flex: 1;
+    margin: 0;
+    word-wrap: break-word;
+    white-space: normal;
+}
+
 </style>
+
+<!-- Bootstrap JS (required for the modal to function) -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
 {% endblock %}

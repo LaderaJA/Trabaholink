@@ -8,7 +8,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, DetailView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
-from .models import CustomUser
+from .models import CustomUser, Skill
 from .forms import CustomUserRegistrationForm, UserProfileForm
 
 # Change Password View
@@ -44,7 +44,7 @@ class RegisterView(CreateView):
 @method_decorator(login_required, name='dispatch')
 class PrivacySettingsView(UpdateView):
     model = CustomUser
-    form_class = UserProfileForm  # Assuming you have a form for privacy settings
+    form_class = UserProfileForm 
     template_name = "users/privacy_settings.html"
 
     def get_object(self):
@@ -56,7 +56,7 @@ class PrivacySettingsView(UpdateView):
 class UserLoginView(LoginView):
     template_name = "users/login.html"
 
-# User Logout View (Django built-in)
+# User Logout View 
 class UserLogoutView(LogoutView):
     template_name = "users/logout.html"
 
@@ -69,7 +69,7 @@ class UserProfileDetailView(DetailView):
     def get_object(self):
         return self.request.user  
 
-# Profile Update View
+
 @method_decorator(login_required, name='dispatch')
 class UserProfileUpdateView(UpdateView):
     model = CustomUser
@@ -77,11 +77,26 @@ class UserProfileUpdateView(UpdateView):
     template_name = "users/profile_edit.html"
 
     def get_object(self):
-        return self.request.user 
+        return self.request.user
+
+    def get_initial(self):
+        initial = super().get_initial()
+        skills = self.request.user.skills.values_list('name', flat=True)
+        initial['skills'] = ','.join(skills) 
+        return initial
+
+    def form_valid(self, form):
+        response = super().form_valid(form)
+        skill_names = self.request.POST.get('skills', '')
+        skill_list = [s.strip() for s in skill_names.split(',') if s.strip()]
+        skill_objs = [Skill.objects.get_or_create(name=name)[0] for name in skill_list]
+        self.object.skills.set(skill_objs)
+
+        return response
 
     def get_success_url(self):
-        return reverse_lazy('profile')  
-    
+        return reverse_lazy('profile')
+
 # Profile Delete View
 @method_decorator(login_required, name='dispatch')
 class UserProfileDeleteView(DeleteView):

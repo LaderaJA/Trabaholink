@@ -1,0 +1,80 @@
+{% extends 'admin_dashboard/base.html' %}
+{% load static %}
+
+{% block content %}
+<h2>Announcement Summary</h2>
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>Title</th>
+            <th>Description</th>
+            <th>Posted By</th>
+            <th>Date Posted</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for announcement in announcements %}
+        <tr>
+            <td>{{ announcement.title }}</td>
+            <td>{{ announcement.description|truncatechars:50 }}</td>
+            <td>{{ announcement.posted_by }}</td>
+            <td>{{ announcement.created_at|date:"M d, Y H:i" }}</td>
+            <td>
+                <a href="{% url 'admin_dashboard:admin_announcement_edit' announcement.pk %}" class="btn btn-sm btn-primary">Edit</a>
+                <a href="{% url 'admin_dashboard:admin_announcement_delete' announcement.pk %}" class="btn btn-sm btn-danger">Delete</a>
+            </td>
+        </tr>
+        {% empty %}
+        <tr>
+            <td colspan="5" class="text-center">No announcements found.</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'admin_dashboard:admin_announcement_create' %}" class="btn btn-success mt-3">Create New Announcement</a>
+
+<style>
+    table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 20px;
+    }
+
+    th, td {
+        padding: 12px;
+        border: 1px solid #ddd;
+        text-align: left;
+    }
+
+    th {
+        background-color: #f2f2f2;
+    }
+
+    .btn {
+        padding: 5px 10px;
+        text-decoration: none;
+        color: white;
+        border-radius: 3px;
+        font-size: 14px;
+    }
+
+    .btn-primary {
+        background-color: #007bff;
+    }
+
+    .btn-danger {
+        background-color: #dc3545;
+    }
+
+    .btn-success {
+        background-color: #28a745;
+    }
+
+    .btn:hover {
+        opacity: 0.85;
+    }
+</style>
+{% endblock %}

@@ -1,7 +1,7 @@
 from django.urls import path
 from . import views
-from .views import ModeratedWordListView, ModeratedWordCreateView, ModeratedWordUpdateView, ModeratedWordDeleteView
-
+from .views import (ModeratedWordListView, ModeratedWordCreateView, ModeratedWordUpdateView, ModeratedWordDeleteView,
+                     AnnouncementSummaryView, AnnouncementCreateView, AnnouncementUpdateView, AnnouncementDeleteView)
 
 app_name = 'admin_dashboard'
 
@@ -24,4 +24,10 @@ urlpatterns = [
     path('moderated-words/add/', ModeratedWordCreateView.as_view(), name='moderated_word_create'),
     path('moderated-words/<int:pk>/edit/', ModeratedWordUpdateView.as_view(), name='moderated_word_update'),
     path('moderated-words/<int:pk>/delete/', ModeratedWordDeleteView.as_view(), name='moderated_word_delete'),
+
+    # Admin Announcement Management
+    path('admin-announcements/', AnnouncementSummaryView.as_view(), name='admin_announcement_list'),
+    path('admin-announcements/create/', AnnouncementCreateView.as_view(), name='admin_announcement_create'),
+    path('admin-announcements/edit/<int:pk>/', AnnouncementUpdateView.as_view(), name='admin_announcement_edit'),
+    path('admin-announcements/delete/<int:pk>/', AnnouncementDeleteView.as_view(), name='admin_announcement_delete'),
 ]

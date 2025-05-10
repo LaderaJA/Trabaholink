@@ -75,9 +75,9 @@
             <div class="card-body">
                 <div class="list-group">
                     <a href="#" class="list-group-item list-group-item-action">
-                        <i class="bi bi-plus-circle me-2"></i> Add New User
+                        <i class="bi bi-plus-circle me-2"></i> Add New Admin
                     </a>
-                    <a href="{ url 'annoucement_list'}" class="list-group-item list-group-item-action">
+                    <a href="{% url 'announcements:announcement_create' %}" class="list-group-item list-group-item-action">
                         <i class="bi bi-megaphone me-2"></i> Create Announcement
                     </a>
                     <a href="#" class="list-group-item list-group-item-action">
@@ -99,7 +99,7 @@
     <div class="card">
         <h2>Announcements</h2>
         <p>Post new announcements, edit existing ones, or remove outdated content.</p>
-        <a href="{% url 'announcement_list' %}">Manage Announcements</a>
+        <a href="{% url 'admin_dashboard:admin_announcement_list' %}">Manage Announcements</a>
     </div>
 
     <div class="card">

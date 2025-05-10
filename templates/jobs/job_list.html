@@ -1,180 +1,468 @@
 {% extends 'mainpages/base.html' %}
+{% load static %}
 
 {% block content %}
-<!-- Job Listing Header -->
-<section class="py-4 bg-light">
-    <div class="container">
-        <div class="row align-items-center">
-            <div class="col-lg-6">
-                <h1 class="fw-bold">Available Jobs</h1>
-                <p class="lead text-muted">Find the perfect job opportunity that matches your skills</p>
-            </div>
-            <div class="col-lg-6">
-                <!-- Filter Form -->
-                <div class="card shadow-sm border-0">
-                    <div class="card-body p-4">
-                        <h5 class="card-title mb-3">Filter Jobs</h5>
-                        <form method="GET" class="row g-3">
-                            <div class="col-md-8">
-                                <label for="category" class="form-label">Category</label>
-                                <select name="category" id="category" class="form-select">
+<div class="jobs-list-container">
+    <!-- Hero section with search bar -->
+    <div class="search-hero">
+        <div class="container">
+            <h1 class="text-center mb-4">Find Jobs</h1>
+
+            <!-- Simple Search Bar -->
+            <form method="get" action="{% url 'jobs:job_list' %}" class="simple-search-form">
+                <div class="search-bar-container">
+                    <div class="main-search-input">
+                        <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Search jobs..." class="form-control">
+                        <button type="submit" class="btn btn-primary search-btn">
+                            <i class="fa fa-search"></i> Search
+    </button>
+        </div>
+
+                    <div class="advanced-search-toggle">
+                        <button type="button" id="advanced-search-btn" class="btn btn-link">
+                            Advanced Search <i class="fa fa-chevron-down"></i>
+                        </button>
+          </div>
+          </div>
+
+                <!-- Advanced Search Panel (hidden by default) -->
+                <div id="advanced-search-panel" class="advanced-search-panel" style="display: none;">
+                    <div class="row">
+                        <div class="col-md-6 col-lg-3">
+                            <div class="form-group">
+                                <label for="category">Category</label>
+                                <select name="category" id="category" class="form-control">
                                     <option value="">All Categories</option>
                                     {% for category in categories %}
-                                        <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"i" %}selected{% endif %}>
-                                            {{ category.name }}
-                                        </option>
-                                    {% endfor %}
+                                    <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"i" %}selected{% endif %}>
+                                        {{ category.name }}
+                                    </option>
+                {% endfor %}
                                 </select>
+            </div>
+            </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="form-group">
+                                <label for="municipality">Municipality</label>
+                                <input type="text" name="municipality" id="municipality" value="{{ request.GET.municipality|default:'' }}" class="form-control" placeholder="Municipality">
+    </div>
+    </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="form-group">
+                                <label for="barangay">Barangay</label>
+                                <input type="text" name="barangay" id="barangay" value="{{ request.GET.barangay|default:'' }}" class="form-control" placeholder="Barangay">
                             </div>
-                            <div class="col-md-4 d-flex align-items-end">
-                                <button type="submit" class="btn btn-primary w-100">
-                                    <i class="bi bi-filter me-2"></i>Apply Filter
-                                </button>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="form-group">
+                                <label>Budget Range</label>
+                                <div class="row">
+                                    <div class="col-6">
+                                        <input type="number" name="min_budget" value="{{ request.GET.min_budget|default:'' }}" class="form-control" placeholder="Min ₱">
+                                    </div>
+                                    <div class="col-6">
+                                        <input type="number" name="max_budget" value="{{ request.GET.max_budget|default:'' }}" class="form-control" placeholder="Max ₱">
+                                    </div>
+                                </div>
                             </div>
-                        </form>
+                        </div>
+                    </div>
+                    <div class="advanced-search-actions">
+                        <button type="submit" class="btn btn-primary">Apply Filters</button>
+                        <a href="{% url 'jobs:job_list' %}" class="btn btn-outline-secondary">Reset</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Job listings section -->
+    <div class="container">
+        <div class="job-list-header">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <h2>
+                        {% if request.GET.q %}Search results for "{{ request.GET.q }}"{% else %}Available Jobs{% endif %}
+                    </h2>
+                    <p class="text-muted">{{ page_obj.paginator.count }} jobs found</p>
+                </div>
+                <div class="col-md-6">
+                    <div class="job-list-actions">
+                        <!-- Post a New Job Button -->
+                        <a href="{% url 'jobs:job_create' %}" class="btn btn-success post-job-btn">
+                            <i class="fa fa-plus-circle"></i> Post a New Job
+                        </a>
+                        <!-- Sorting Options -->
+                        <div class="sorting-options">
+                            <label for="sort-select">Sort by:</label>
+                        <select id="sort-select" class="form-control form-control-sm" onchange="applySorting(this.value)">
+                            <option value="date_desc" {% if request.GET.sort == 'date_desc' or not request.GET.sort %}selected{% endif %}>Newest First</option>
+                            <option value="date_asc" {% if request.GET.sort == 'date_asc' %}selected{% endif %}>Oldest First</option>
+                            <option value="budget_desc" {% if request.GET.sort == 'budget_desc' %}selected{% endif %}>Budget: High to Low</option>
+                            <option value="budget_asc" {% if request.GET.sort == 'budget_asc' %}selected{% endif %}>Budget: Low to High</option>
+                            {% if user_location %}
+                            <option value="distance" {% if request.GET.sort == 'distance' %}selected{% endif %}>Nearest First</option>
+                            {% endif %}
+                        </select>
                     </div>
                 </div>
             </div>
         </div>
-    </div>
-</section>
+                        </div>
 
-<!-- Job Listings -->
-<section class="py-5">
-    <div class="container">
-        {% if jobs %}
-            <div class="row g-4">
-                {% for job in jobs %}
-                    <div class="col-md-6 col-lg-4">
-                        <div class="card h-100 border-0 shadow-sm hover-card">
-                            <div class="card-body p-4">
-                                <!-- Category Badge -->
-                                <span class="badge bg-primary mb-2">{{ job.category.name }}</span>
-                                
-                                <!-- Job Title -->
-                                <h5 class="card-title mb-3">
-                                    <a href="{% url 'job_detail' job.pk %}" class="text-decoration-none text-dark stretched-link">
-                                        {{ job.title }}
-                                    </a>
-                                </h5>
-                                
-                                <!-- Job Details (if available) -->
-                                {% if job.location %}
-                                    <div class="d-flex align-items-center mb-2 text-muted">
-                                        <i class="bi bi-geo-alt me-2"></i>
-                                        <span>{{ job.location }}</span>
-                                    </div>
-                                {% endif %}
-                                
-                                {% if job.budget %}
-                                    <div class="d-flex align-items-center mb-2 text-muted">
-                                        <i class="bi bi-cash-coin me-2"></i>
-                                        <span>₱{{ job.budget }}</span>
-                                    </div>
-                                {% endif %}
-                                
-                                {% if job.date_posted %}
-                                    <div class="d-flex align-items-center mb-2 text-muted">
-                                        <i class="bi bi-calendar-date me-2"></i>
-                                        <span>Posted: {{ job.date_posted|date:"M d, Y" }}</span>
-                                    </div>
-                                {% endif %}
-                                
-                                <!-- Job Description (if available) -->
-                                {% if job.description %}
-                                    <p class="card-text text-muted mt-3">
-                                        {{ job.description|truncatechars:100 }}
-                                    </p>
-                                {% endif %}
-                            </div>
-                            <div class="card-footer bg-white border-0 p-4 pt-0">
-                                <a href="{% url 'job_detail' job.pk %}" class="btn btn-outline-primary">View Details</a>
-                            </div>
+        <!-- Job Cards Grid -->
+        <div class="row job-cards-container">
+            {% for job in jobs %}
+            <div class="col-md-6 col-lg-4 mb-4">
+                <div class="job-card">
+                    <div class="job-card-header">
+                        <div class="category-badge" style="background-color: {{ job.category.color|default:'#1e4d8c' }}">
+                            {{ job.category.name }}
+                        </div>
+                        <h3 class="job-title">
+                            <a href="{% url 'jobs:job_detail' job.id %}">{{ job.title }}</a>
+                        </h3>
+                        <div class="job-meta">
+                            <span class="job-location">
+                                <i class="fa fa-map-marker-alt"></i> {{ job.municipality }}
+                            </span>
+                            <span class="job-date">
+                                <i class="fa fa-calendar-alt"></i> {{ job.created_at|date:"M d, Y" }}
+                            </span>
                         </div>
                     </div>
+                    <div class="job-card-body">
+                        <div class="job-image-container">
+                            {% if job.jobimage_set.exists %}
+                            <img src="{{ job.jobimage_set.first.image.url }}" class="job-image" alt="{{ job.title }} - Job Image">
+                            {% else %}
+                            <div class="no-image">No image available</div>
+                {% endif %}
+        </div>
+                        <p class="job-description">{{ job.description|truncatechars:120 }}</p>
+    </div>
+                    <div class="job-card-footer">
+                        <div class="job-budget">₱{{ job.budget }}</div>
+                        {% if job.distance_km %}
+                        <div class="job-distance">{{ job.distance_km }} km away</div>
+    {% endif %}
+                        <a href="{% url 'jobs:job_detail' job.id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <div class="col-12">
+                <div class="no-jobs-found">
+                    <h3>No jobs found</h3>
+                    <p>Try adjusting your search criteria or browse all available jobs.</p>
+                    <a href="{% url 'jobs:job_list' %}" class="btn btn-primary">View All Jobs</a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="pagination-container">
+            <ul class="pagination">
+                {% if page_obj.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page=1">&laquo; First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+                </li>
+                {% endif %}
+
+                {% for num in page_obj.paginator.page_range %}
+                    {% if page_obj.number == num %}
+                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ num }}">{{ num }}</a>
+                    </li>
+                    {% endif %}
                 {% endfor %}
-            </div>
-            
-            <!-- Pagination (if available) -->
-            {% if is_paginated %}
-                <nav class="mt-5">
-                    <ul class="pagination justify-content-center">
-                        {% if page_obj.has_previous %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page=1{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">First</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.previous_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Previous</a>
-                            </li>
-                        {% endif %}
-                        
-                        {% for num in page_obj.paginator.page_range %}
-                            {% if page_obj.number == num %}
-                                <li class="page-item active">
-                                    <span class="page-link">{{ num }}</span>
-                                </li>
-                            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                                <li class="page-item">
-                                    <a class="page-link" href="?page={{ num }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">{{ num }}</a>
-                                </li>
-                            {% endif %}
-                        {% endfor %}
-                        
-                        {% if page_obj.has_next %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.next_page_number }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Next</a>
-                            </li>
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}{% if request.GET.category %}&category={{ request.GET.category }}{% endif %}">Last</a>
-                            </li>
-                        {% endif %}
-                    </ul>
-                </nav>
-            {% endif %}
-            
-        {% else %}
-            <!-- No Jobs Found -->
-            <div class="text-center py-5">
-                <img src="/placeholder.svg?height=200&width=200" alt="No jobs found" class="img-fluid mb-4" style="max-width: 200px;">
-                <h3>No Jobs Found</h3>
-                <p class="text-muted">There are no jobs matching your criteria at the moment.</p>
-                <a href="{% url 'job_list' %}" class="btn btn-primary mt-3">View All Jobs</a>
-            </div>
+
+                {% if page_obj.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+                </li>
+                {% endif %}
+            </ul>
+        </div>
         {% endif %}
     </div>
-</section>
-
-<!-- Call to Action -->
-<section class="py-5 bg-light">
-    <div class="container text-center">
-        <h2 class="fw-bold mb-4">Can't find what you're looking for?</h2>
-        <p class="lead mb-4">Post a job and let skilled professionals come to you</p>
-        <a href="{% url 'job_create' %}" class="btn btn-primary btn-lg">Post a Job</a>
-    </div>
-</section>
-
-<!-- Add Bootstrap Icons if not already included in your base template -->
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-
-<!-- Custom CSS for hover effects -->
+</div>
 <style>
-    .hover-card {
-        transition: transform 0.3s ease, box-shadow 0.3s ease;
+/* Hero section with search */
+.search-hero {
+    background-color: #1e4d8c;
+    padding: 3rem 0;
+    margin-bottom: 2rem;
+    color: white;
     }
-    
-    .hover-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 20px rgba(0,0,0,0.1) !important;
+
+.simple-search-form {
+    max-width: 900px;
+    margin: 0 auto;
     }
-    
-    .stretched-link::after {
-        position: absolute;
-        top: 0;
-        right: 0;
-        bottom: 0;
-        left: 0;
-        z-index: 1;
-        content: "";
-    }
+
+.search-bar-container {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+}
+
+.main-search-input {
+    display: flex;
+    flex: 1;
+}
+
+.main-search-input input {
+    border-top-right-radius: 0;
+    border-bottom-right-radius: 0;
+    height: 50px;
+    font-size: 1.1rem;
+}
+
+.search-btn {
+    border-top-left-radius: 0;
+    border-bottom-left-radius: 0;
+    height: 50px;
+    background-color: #f26522;
+    border-color: #f26522;
+    min-width: 100px;
+}
+
+.advanced-search-toggle button {
+    color: white;
+    text-decoration: underline;
+}
+
+.advanced-search-panel {
+    background-color: white;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-top: 1rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    color: #333;
+}
+
+.advanced-search-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1rem;
+}
+
+/* Sorting options */
+.job-list-header {
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.sorting-options {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 0.5rem;
+}
+
+.sorting-options select {
+    width: auto;
+    max-width: 200px;
+}
+
+/* Job cards */
+.job-card {
+    height: 100%;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: transform 0.2s, box-shadow 0.2s;
+    display: flex;
+    flex-direction: column;
+    background-color: white;
+}
+
+.job-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+}
+
+.job-card-header {
+    padding: 1rem;
+    border-bottom: 1px solid #e9ecef;
+}
+
+.category-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 50px;
+    color: white;
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+}
+
+.job-title {
+    font-size: 1.25rem;
+    margin-bottom: 0.5rem;
+    line-height: 1.3;
+}
+
+.job-title a {
+    color: #333;
+    text-decoration: none;
+}
+
+.job-title a:hover {
+    color: #f26522;
+}
+
+.job-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem;
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+.job-card-body {
+    padding: 1rem;
+    flex: 1;
+}
+
+.job-image-container {
+    margin-bottom: 1rem;
+    height: 160px;
+    overflow: hidden;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #f8f9fa;
+}
+
+.job-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.no-image {
+    color: #6c757d;
+    font-style: italic;
+}
+
+.job-description {
+    color: #495057;
+    font-size: 0.9rem;
+}
+
+.job-card-footer {
+    padding: 1rem;
+    background-color: #f8f9fa;
+    border-top: 1px solid #e9ecef;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+}
+
+.job-budget {
+    font-weight: bold;
+    color: #1e4d8c;
+    font-size: 1.15rem;
+}
+
+.job-distance {
+    font-size: 0.85rem;
+    color: #6c757d;
+}
+
+/* No jobs found message */
+.no-jobs-found {
+    text-align: center;
+    padding: 3rem;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+    margin: 2rem 0;
+}
+
+/* Pagination */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    margin: 2rem 0;
+}
 </style>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Toggle advanced search panel
+    const advancedSearchBtn = document.getElementById('advanced-search-btn');
+    const advancedSearchPanel = document.getElementById('advanced-search-panel');
+
+    advancedSearchBtn.addEventListener('click', function() {
+        const isHidden = advancedSearchPanel.style.display === 'none';
+        advancedSearchPanel.style.display = isHidden ? 'block' : 'none';
+        advancedSearchBtn.innerHTML = isHidden ?
+            'Advanced Search <i class="fa fa-chevron-up"></i>' :
+            'Advanced Search <i class="fa fa-chevron-down"></i>';
+});
+
+    // Show advanced panel if any of the advanced filters are active
+    {% if request.GET.category or request.GET.municipality or request.GET.barangay or request.GET.min_budget or request.GET.max_budget %}
+        advancedSearchPanel.style.display = 'block';
+        advancedSearchBtn.innerHTML = 'Advanced Search <i class="fa fa-chevron-up"></i>';
+    {% endif %}
+});
+
+// Function to apply sorting
+function applySorting(sortValue) {
+    const currentUrl = new URL(window.location.href);
+    const searchParams = currentUrl.searchParams;
+
+    // Update sort parameter
+    searchParams.set('sort', sortValue);
+
+    // Keep the page at 1 when sorting changes
+    searchParams.set('page', '1');
+
+    // Redirect to the new URL
+    window.location.href = currentUrl.toString();
+}
+</script>
 {% endblock %}
+
+<style>
+.job-list-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 1rem;
+}
+
+.post-job-btn {
+    white-space: nowrap;
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+}
+
+@media (max-width: 768px) {
+    .job-list-actions {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+        margin-top: 1rem;
+    }
+
+    .post-job-btn {
+        margin-bottom: 0.5rem;
+    }
+}
+</style>

@@ -3,12 +3,12 @@ from django.shortcuts import render, get_object_or_404, redirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import get_user_model
 from django.views.decorators.csrf import csrf_exempt
-from django.views.generic import ListView
+from django.db.models import OuterRef, Subquery, Q
+from django.contrib.auth.mixins import LoginRequiredMixin
 import json
 from .models import Conversation, Message
 from .forms import MessageForm, StartConversationForm
-from django.db.models import OuterRef, Subquery, Q
-from django.contrib.auth.mixins import LoginRequiredMixin
+from django.views.generic import ListView
 
 User = get_user_model()
 
@@ -20,6 +20,7 @@ class ConversationsListView(LoginRequiredMixin, ListView):
     def get_queryset(self):
         user = self.request.user
         
+        # Subquery for the last message content and time
         last_message_subquery = Subquery(
             Message.objects.filter(conversation=OuterRef("pk"))
             .order_by("-created_at")
@@ -32,24 +33,24 @@ class ConversationsListView(LoginRequiredMixin, ListView):
             .values("created_at")[:1]
         )
 
-        conversations = Conversation.objects.filter(Q(user1=user) | Q(user2=user)).annotate(
+        return Conversation.objects.filter(Q(user1=user) | Q(user2=user)).annotate(
             last_message_content=last_message_subquery,
             last_message_created_at=last_message_time_subquery,  
         )
-        
-        return conversations
+
 
 @login_required
 def conversation_detail(request, conversation_id):
     """Fetch previous messages in JSON if requested via an API call."""
     conversation = get_object_or_404(Conversation, id=conversation_id)
 
+    # Check if the user is part of the conversation
     if request.user not in [conversation.user1, conversation.user2]:
         return JsonResponse({"error": "Unauthorized"}, status=403)
 
     messages = conversation.messages.all().order_by("created_at")
 
-    if request.headers.get("Accept") == "application/json":  
+    if request.headers.get("Accept") == "application/json":
         return JsonResponse({
             "messages": [
                 {
@@ -61,15 +62,37 @@ def conversation_detail(request, conversation_id):
                 }
                 for msg in messages
             ]
-        }, safe=False) 
+        }, safe=False)
 
-    # Otherwise, return the HTML page
+    # Prepare conversation list with last message content and timestamp
+    last_message_subquery = Subquery(
+        Message.objects.filter(conversation=OuterRef("pk"))
+        .order_by("-created_at")
+        .values("content")[:1]
+    )
+
+    last_message_time_subquery = Subquery(
+        Message.objects.filter(conversation=OuterRef("pk"))
+        .order_by("-created_at")
+        .values("created_at")[:1]
+    )
+
+    conversations = Conversation.objects.filter(
+        Q(user1=request.user) | Q(user2=request.user)
+    ).annotate(
+        last_message_content=last_message_subquery,
+        last_message_created_at=last_message_time_subquery
+    )
+
     receiver_id = conversation.user2.id if request.user == conversation.user1 else conversation.user1.id
+
     return render(request, "messaging/conversation_detail.html", {
         "conversation": conversation,
         "messages": messages,
         "receiver_id": receiver_id,
+        "conversations": conversations,  
     })
+
 
 @login_required
 def fetch_messages(request, conversation_id):
@@ -96,6 +119,7 @@ def fetch_messages(request, conversation_id):
 
     return JsonResponse(response_data) 
 
+
 @csrf_exempt  
 @login_required
 def send_message(request, conversation_id):
@@ -113,6 +137,7 @@ def send_message(request, conversation_id):
             data = json.loads(request.body)  # Handle raw JSON data from Axios
             print(f"Received data: {data}")  # Debugging
 
+            # Create and save the new message
             new_message = Message.objects.create(
                 conversation=conversation,
                 sender=request.user,
@@ -136,6 +161,7 @@ def send_message(request, conversation_id):
 
     return JsonResponse({"error": "Invalid request method"}, status=400)
 
+
 @login_required
 def start_conversation(request):
     """Start a conversation by searching for a user by username."""
@@ -157,3 +183,19 @@ def start_conversation(request):
             return redirect("conversation_detail", conversation_id=conversation.id) 
 
     return render(request, "messaging/start_conversation.html", {"form": StartConversationForm()})
+
+
+@login_required
+def start_conversation_with_user(request, username):
+    """Start or get a conversation with a user via direct URL."""
+    recipient = get_object_or_404(User, username=username)
+
+    if recipient == request.user:
+        return redirect("messaging:conversation_list")
+
+    conversation, created = Conversation.objects.get_or_create(
+        user1=min(request.user, recipient, key=lambda u: u.id),
+        user2=max(request.user, recipient, key=lambda u: u.id)
+    )
+
+    return redirect("messaging:conversation_detail", conversation_id=conversation.id)

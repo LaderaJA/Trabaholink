@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.gis',
     "corsheaders",
     
     'rest_framework',
@@ -109,7 +110,7 @@ CORS_ALLOWED_ORIGINS = [
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': 'django.contrib.gis.db.backends.postgis',
         'NAME': 'trabaholink_db', 
         'USER': 'trabaholink_db', 
         'PASSWORD': '121628',  
@@ -183,3 +184,4 @@ ANYMAIL = {
 }
 DEFAULT_FROM_EMAIL = "junnuj312@gmail.com"
 
+GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH', '/usr/lib/libgdal.so')

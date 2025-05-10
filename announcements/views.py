@@ -1,4 +1,4 @@
-from django.views.generic import ListView, DetailView, CreateView
+from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib.auth.mixins import UserPassesTestMixin, LoginRequiredMixin
 from django.urls import reverse_lazy
 from .models import Announcement
@@ -25,4 +25,4 @@ class AnnouncementCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView
         return super().form_valid(form)
 
     def test_func(self):
-        return self.request.user.is_staff  #
+        return self.request.user.is_staff  

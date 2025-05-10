@@ -1,6 +1,264 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
-
+{% block css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+<style>
+    .job-posting-container {
+        display: flex;
+        justify-content: center;
+        padding: 2rem;
+        background-color: #f5f7fa;
+    }
+    .job-posting-card {
+        width: 100%;
+        max-width: 1200px;
+        background-color: #ffffff;
+        border-radius: 8px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+    .job-posting-header {
+        background-color: #1e4d8c;
+        color: white;
+        padding: 1.5rem;
+        text-align: center;
+    }
+    .site-title {
+        font-size: 2rem;
+        margin: 0;
+        font-weight: 700;
+    }
+    .site-tagline {
+        margin-top: 0.5rem;
+        opacity: 0.9;
+    }
+    .job-posting-content {
+        display: flex;
+        flex-direction: row;
+    }
+    /* Left Column: Form */
+    .job-posting-form-container {
+        flex: 3;
+        padding: 2rem;
+        border-right: 1px solid #e9ecef;
+    }
+    .job-posting-form {
+        margin-top: 1.5rem;
+    }
+    .form-sections {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+    .form-section {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        border: 1px solid #e9ecef;
+    }
+    .section-title {
+        margin-top: 0;
+        margin-bottom: 1.5rem;
+        color: #1e4d8c;
+        font-size: 1.25rem;
+        font-weight: 600;
+        border-bottom: 2px solid #f26522;
+        padding-bottom: 0.5rem;
+        display: inline-block;
+    }
+    .form-row {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+    .form-group {
+        flex: 1;
+        margin-bottom: 1.25rem;
+    }
+    .full-width {
+        flex-basis: 100%;
+    }
+    .form-group label {
+        display: block;
+        margin-bottom: 0.5rem;
+        font-weight: 500;
+        color: #495057;
+    }
+    .form-group input, 
+    .form-group select, 
+    .form-group textarea {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #ced4da;
+        border-radius: 4px;
+        font-size: 1rem;
+    }
+    .form-group textarea {
+        min-height: 120px;
+        resize: vertical;
+    }
+    .error-message {
+        color: #dc3545;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+    .current-logo {
+        display: flex;
+        align-items: center;
+        margin-bottom: 1rem;
+    }
+    .logo-preview {
+        max-width: 100px;
+        max-height: 60px;
+        margin-right: 1rem;
+        border: 1px solid #ced4da;
+        padding: 0.25rem;
+        border-radius: 4px;
+    }
+    /* Right Column: Map and Guidelines */
+    .map-guidelines-container {
+        flex: 2;
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+    }
+    .map-section {
+        margin-bottom: 2rem;
+    }
+    .map-instructions {
+        margin-bottom: 0.5rem;
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+    #map {
+        height: 400px;
+        border-radius: 8px;
+        border: 1px solid #ced4da;
+        margin-bottom: 1rem;
+    }
+    .guidelines-section {
+        background-color: #f8f9fa;
+        border-radius: 8px;
+        padding: 1.5rem;
+        border: 1px solid #e9ecef;
+    }
+    .guidelines-list {
+        padding-left: 1.5rem;
+        margin-bottom: 0;
+    }
+    .guidelines-list li {
+        margin-bottom: 0.75rem;
+        color: #495057;
+    }
+    .form-actions {
+        margin-top: 2rem;
+    }
+    .btn {
+        display: inline-block;
+        font-weight: 500;
+        text-align: center;
+        vertical-align: middle;
+        cursor: pointer;
+        padding: 0.75rem 1rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        border-radius: 4px;
+        transition: all 0.15s ease-in-out;
+    }
+    .btn-primary {
+        color: #fff;
+        background-color: #f26522;
+        border: 1px solid #f26522;
+    }
+    .btn-primary:hover {
+        background-color: #e55b14;
+        border-color: #e55b14;
+    }
+.btn-danger {
+    color: #fff;
+    background-color: #dc3545;
+    border: 1px solid #dc3545;
+    }
+.btn-danger:hover {
+    background-color: #c82333;
+    border-color: #bd2130;
+}
+.btn-block {
+    display: block;
+    width: 100%;
+}
+/* Image handling styles */
+.image-preview-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+.preview-item {
+    border: 1px solid #ddd;
+    padding: 5px;
+    border-radius: 4px;
+}
+.custom-file-input {
+    opacity: 0;
+    position: absolute;
+    z-index: -1;
+}
+.custom-file-label {
+    padding: 0.75rem;
+    background-color: #f8f9fa;
+    border: 1px solid #ced4da;
+    border-radius: 4px;
+    cursor: pointer;
+    display: inline-block;
+}
+.custom-file-label:hover {
+    background-color: #e9ecef;
+}
+#image-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 15px;
+    padding: 0;
+    list-style: none;
+}
+#image-list li {
+    position: relative;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 5px;
+    text-align: center;
+}
+#image-list img {
+    display: block;
+    margin-bottom: 8px;
+    object-fit: cover;
+}
+.file-selected {
+    margin-top: 8px;
+    color: #6c757d;
+    font-size: 0.9rem;
+}
+    /* Responsive Design */
+    @media (max-width: 992px) {
+        .job-posting-content {
+            flex-direction: column;
+        }
+        .job-posting-form-container {
+            border-right: none;
+            border-bottom: 1px solid #e9ecef;
+        }
+        .form-row {
+            flex-direction: column;
+            gap: 0;
+        }
+        #map {
+            height: 300px;
+        }
+    }
+</style>
+{% endblock %}
 {% block content %}
 <div class="job-posting-container">
     <div class="job-posting-card">
@@ -8,19 +266,16 @@
             <h1 class="site-title">TrabahoLink</h1>
             <p class="site-tagline">{% if object %}Edit Job Listing{% else %}Post a New Job Opportunity{% endif %}</p>
         </div>
-        
         <div class="job-posting-content">
             <!-- Left Column: Form -->
             <div class="job-posting-form-container">
                 <h2>{% if object %}Edit Job Details{% else %}Create New Job Listing{% endif %}</h2>
-                
-                <form method="post" enctype="multipart/form-data" class="job-posting-form">
+                <form method="post" enctype="multipart/form-data" class="job-posting-form" id="job-form">
                     {% csrf_token %}
-                    
                     <div class="form-sections">
                         <div class="form-section">
                             <h3 class="section-title">Job Details</h3>
-                            
+                            <!-- Job Title, Category, Job Type, Budget, Description, Requirements -->
                             <div class="form-row">
                                 <div class="form-group full-width">
                                     <label for="{{ form.title.id_for_label }}">Job Title</label>
@@ -30,7 +285,6 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="{{ form.category.id_for_label }}">Category</label>
@@ -39,7 +293,6 @@
                                     <div class="error-message">{{ form.category.errors }}</div>
                                     {% endif %}
                                 </div>
-                                
                                 <div class="form-group">
                                     <label for="{{ form.job_type.id_for_label }}">Job Type</label>
                                     {{ form.job_type }}
@@ -48,7 +301,6 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            
                             <div class="form-row">
                                 <label for="{{ form.budget.id_for_label }}">Budget (₱)</label>
                                 {{ form.budget }}
@@ -56,7 +308,6 @@
                                 <div class="error-message">{{ form.budget.errors }}</div>
                                 {% endif %}
                             </div>
-                            
                             <div class="form-group full-width">
                                 <label for="{{ form.description.id_for_label }}">Job Description</label>
                                 {{ form.description }}
@@ -64,7 +315,6 @@
                                 <div class="error-message">{{ form.description.errors }}</div>
                                 {% endif %}
                             </div>
-                            
                             <div class="form-group full-width">
                                 <label for="{{ form.requirements.id_for_label }}">Requirements</label>
                                 {{ form.requirements }}
@@ -72,11 +322,45 @@
                                 <div class="error-message">{{ form.requirements.errors }}</div>
                                 {% endif %}
                             </div>
+                            <!-- Image handling section -->
+                            <h3 class="section-title">Job Images</h3>
+                            <div class="images-section">
+                                <!-- Existing Images -->
+                                <h4>Existing Images</h4>
+                                <ul id="image-list">
+                                    {% for image in existing_images %}
+                                    <li id="image-{{ image.id }}">
+                                        <img src="{{ image.image.url }}" alt="Job Image" width="100" height="100">
+<button type="button" class="btn btn-danger" onclick="deleteImage('{{ image.id }}')">Delete</button>
+                                    </li>
+                                    {% empty %}
+                                    <p>No images uploaded yet.</p>
+                                    {% endfor %}
+                                </ul>
+
+                                <!-- Upload New Images -->
+                                <h4>Upload New Images</h4>
+                                <div class="form-group">
+                                    <label class="custom-file-label" for="{{ image_form.images.id_for_label }}">
+                                        <i class="fa fa-upload"></i> Choose Images
+                                    </label>
+                                    <input type="file" id="{{ image_form.images.id_for_label }}"
+                                           name="{{ image_form.images.name }}"
+                                           class="custom-file-input"
+                                           multiple>
+                                    <div class="file-selected" id="file-selected">No files selected</div>
+                                    {% if image_form.images.errors %}
+                                    <div class="error-message">
+                                        {{ image_form.images.errors }}
+                                    </div>
+                                    {% endif %}
+                                </div>
+                                <div id="image-preview-container" class="image-preview-container"></div>
+                            </div>
                         </div>
-                        
                         <div class="form-section">
                             <h3 class="section-title">Location Information</h3>
-                            
+                            <!-- Municipality, Barangay, Street, House Number -->
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="municipality-input">Municipality</label>
@@ -85,7 +369,6 @@
                                     <div class="error-message">{{ form.municipality.errors }}</div>
                                     {% endif %}
                                 </div>
-                                
                                 <div class="form-group">
                                     <label for="barangay-input">Barangay</label>
                                     {{ form.barangay }}
@@ -94,7 +377,6 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            
                             <div class="form-row">
                                 <div class="form-group">
                                     <label for="street">Street</label>
@@ -103,7 +385,6 @@
                                     <div class="error-message">{{ form.street.errors }}</div>
                                     {% endif %}
                                 </div>
-                                
                                 <div class="form-group">
                                     <label for="house_number">Building/House Number</label>
                                     {{ form.house_number }}
@@ -112,54 +393,12 @@
                                     {% endif %}
                                 </div>
                             </div>
-                            
-                            <input type="hidden" id="latitude" name="latitude" value="{{ job.latitude|default:'' }}">
-                            <input type="hidden" id="longitude" name="longitude" value="{{ job.longitude|default:'' }}">
-                        </div>
-                        
-                        <div class="form-section">
-                            <h3 class="section-title">Additional Information</h3>
-                            
-                            <div class="form-group full-width">
-                                <label for="{{ form.company_name.id_for_label }}">Company Name</label>
-                                {{ form.company_name }}
-                                {% if form.company_name.errors %}
-                                <div class="error-message">{{ form.company_name.errors }}</div>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="form-group full-width">
-                                <label for="{{ form.contact_email.id_for_label }}">Contact Email</label>
-                                {{ form.contact_email }}
-                                {% if form.contact_email.errors %}
-                                <div class="error-message">{{ form.contact_email.errors }}</div>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="form-group full-width">
-                                <label for="{{ form.contact_phone.id_for_label }}">Contact Phone</label>
-                                {{ form.contact_phone }}
-                                {% if form.contact_phone.errors %}
-                                <div class="error-message">{{ form.contact_phone.errors }}</div>
-                                {% endif %}
-                            </div>
-                            
-                            <div class="form-group full-width">
-                                <label for="{{ form.company_logo.id_for_label }}">Company Logo</label>
-                                {% if job.company_logo %}
-                                <div class="current-logo">
-                                    <img src="{{ job.company_logo.url }}" alt="Current logo" class="logo-preview">
-                                    <p>Current logo</p>
-                                </div>
-                                {% endif %}
-                                {{ form.company_logo }}
-                                {% if form.company_logo.errors %}
-                                <div class="error-message">{{ form.company_logo.errors }}</div>
-                                {% endif %}
-                            </div>
+                            <input type="hidden" id="latitude" name="latitude" value="{{ object.latitude|default:'' }}">
+                            <input type="hidden" id="longitude" name="longitude" value="{{ object.longitude|default:'' }}">
+                            <p>Latitude: <span id="lat-display">{{ job.latitude|default:'Not set' }}</span></p>
+                            <p>Longitude: <span id="lon-display">{{ job.longitude|default:'Not set' }}</span></p>
                         </div>
                     </div>
-                    
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary btn-block">
                             {% if object %}Update Job Listing{% else %}Post Job Opportunity{% endif %}
@@ -167,7 +406,6 @@
                     </div>
                 </form>
             </div>
-            
             <!-- Right Column: Map and Guidelines -->
             <div class="map-guidelines-container">
                 <div class="map-section">
@@ -175,7 +413,6 @@
                     <p class="map-instructions">Drag the marker to set the exact job location or click on the map</p>
                     <div id="map"></div>
                 </div>
-                
                 <div class="guidelines-section">
                     <h3 class="section-title">Posting Guidelines</h3>
                     <ul class="guidelines-list">
@@ -193,333 +430,207 @@
     </div>
 </div>
 
-<!-- Include Leaflet.js -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+<!-- Scripts -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-
-
-<style>
-    .job-posting-container {
-        display: flex;
-        justify-content: center;
-        padding: 2rem;
-        background-color: #f5f7fa;
-    }
-    
-    .job-posting-card {
-        width: 100%;
-        max-width: 1200px;
-        background-color: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-        margin-bottom: 2rem;
-    }
-    
-    .job-posting-header {
-        background-color: #1e4d8c;
-        color: white;
-        padding: 1.5rem;
-        text-align: center;
-    }
-    
-    .site-title {
-        font-size: 2rem;
-        margin: 0;
-        font-weight: 700;
-    }
-    
-    .site-tagline {
-        margin-top: 0.5rem;
-        opacity: 0.9;
-    }
-    
-    .job-posting-content {
-        display: flex;
-        flex-direction: row;
-    }
-    
-    /* Left Column: Form */
-    .job-posting-form-container {
-        flex: 3;
-        padding: 2rem;
-        border-right: 1px solid #e9ecef;
-    }
-    
-    .job-posting-form {
-        margin-top: 1.5rem;
-    }
-    
-    .form-sections {
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
-    }
-    
-    .form-section {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        padding: 1.5rem;
-        border: 1px solid #e9ecef;
-    }
-    
-    .section-title {
-        margin-top: 0;
-        margin-bottom: 1.5rem;
-        color: #1e4d8c;
-        font-size: 1.25rem;
-        font-weight: 600;
-        border-bottom: 2px solid #f26522;
-        padding-bottom: 0.5rem;
-        display: inline-block;
-    }
-    
-    .form-row {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
-    
-    .form-group {
-        flex: 1;
-        margin-bottom: 1.25rem;
-    }
-    
-    .full-width {
-        flex-basis: 100%;
-    }
-    
-    .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-        color: #495057;
-    }
-    
-    .form-group input, 
-    .form-group select, 
-    .form-group textarea {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        font-size: 1rem;
-    }
-    
-    .form-group textarea {
-        min-height: 120px;
-        resize: vertical;
-    }
-    
-    .error-message {
-        color: #dc3545;
-        font-size: 0.875rem;
-        margin-top: 0.5rem;
-    }
-    
-    .current-logo {
-        display: flex;
-        align-items: center;
-        margin-bottom: 1rem;
-    }
-    
-    .logo-preview {
-        max-width: 100px;
-        max-height: 60px;
-        margin-right: 1rem;
-        border: 1px solid #ced4da;
-        padding: 0.25rem;
-        border-radius: 4px;
-    }
-    
-    /* Right Column: Map and Guidelines */
-    .map-guidelines-container {
-        flex: 2;
-        padding: 2rem;
-        display: flex;
-        flex-direction: column;
-    }
-    
-    .map-section {
-        margin-bottom: 2rem;
-    }
-    
-    .map-instructions {
-        margin-bottom: 0.5rem;
-        font-size: 0.9rem;
-        color: #6c757d;
-    }
-    
-    #map {
-        height: 400px;
-        border-radius: 8px;
-        border: 1px solid #ced4da;
-        margin-bottom: 1rem;
-    }
-    
-    .guidelines-section {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        padding: 1.5rem;
-        border: 1px solid #e9ecef;
-    }
-    
-    .guidelines-list {
-        padding-left: 1.5rem;
-        margin-bottom: 0;
-    }
-    
-    .guidelines-list li {
-        margin-bottom: 0.75rem;
-        color: #495057;
-    }
-    
-    .form-actions {
-        margin-top: 2rem;
-    }
-    
-    .btn {
-        display: inline-block;
-        font-weight: 500;
-        text-align: center;
-        vertical-align: middle;
-        cursor: pointer;
-        padding: 0.75rem 1rem;
-        font-size: 1rem;
-        line-height: 1.5;
-        border-radius: 4px;
-        transition: all 0.15s ease-in-out;
-    }
-    
-    .btn-primary {
-        color: #fff;
-        background-color: #f26522;
-        border: 1px solid #f26522;
-    }
-    
-    .btn-primary:hover {
-        background-color: #e55b14;
-        border-color: #e55b14;
-    }
-    
-    .btn-block {
-        display: block;
-        width: 100%;
-    }
-    
-    /* Responsive Design */
-    @media (max-width: 992px) {
-        .job-posting-content {
-            flex-direction: column;
-        }
-        
-        .job-posting-form-container {
-            border-right: none;
-            border-bottom: 1px solid #e9ecef;
-        }
-        
-        .form-row {
-            flex-direction: column;
-            gap: 0;
-        }
-        
-        #map {
-            height: 300px;
-        }
-    }
-</style>
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-    const defaultLat = {{ job.latitude|default:14.5995|safe }};
-    const defaultLon = {{ job.longitude|default:120.9842|safe }};
+// Image deletion function
+function deleteImage(imageId) {
+    var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    var data = new FormData();
+    data.append('delete_image', imageId);
+    data.append('csrfmiddlewaretoken', csrfToken);
 
-    const map = L.map('map').setView([defaultLat, defaultLon], 15);
+    fetch('', {
+        method: 'POST',
+        body: data,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'  // Add this header for AJAX request
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.status === 'success') {
+            var imageElement = document.getElementById('image-' + imageId);
+            imageElement.remove();
+        } else {
+            alert(data.message || 'Error deleting image');
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while deleting the image.');
+    });
+}
 
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19
-    }).addTo(map);
+// Wait for DOM to be fully loaded
+document.addEventListener('DOMContentLoaded', function() {
+    // Image preview functionality
+    const imageInput = document.getElementById('{{ image_form.images.id_for_label }}');
+    const previewContainer = document.getElementById('image-preview-container');
+    const fileSelectedText = document.getElementById('file-selected');
 
-    const marker = L.marker([defaultLat, defaultLon], {
-        draggable: true,
-        title: 'Drag to set job location'
-    }).addTo(map);
+    if (imageInput) {
+    imageInput.addEventListener('change', function() {
+        // Update selected files text
+        let fileCount = this.files.length;
+        fileSelectedText.textContent = fileCount > 0 ? fileCount + ' files selected' : 'No files selected';
 
-    const showLoadingIndicator = (message) => {
-        const mapSection = document.querySelector('.map-section');
-        const loadingIndicator = document.createElement('div');
-        loadingIndicator.className = 'loading-indicator';
-        loadingIndicator.innerHTML = message;
-        Object.assign(loadingIndicator.style, {
-            position: 'absolute',
-            top: '50%',
-            left: '50%',
-            transform: 'translate(-50%, -50%)',
-            backgroundColor: 'rgba(255, 255, 255, 0.8)',
-            padding: '10px',
-            borderRadius: '4px',
-            zIndex: '1000'
+        // Clear previous previews
+        previewContainer.innerHTML = '';
+
+        // Generate previews for new files
+        if (this.files) {
+            for (let i = 0; i < this.files.length; i++) {
+                const file = this.files[i];
+                if (file.type.match('image.*')) {
+                    const reader = new FileReader();
+                    reader.onload = function(e) {
+                        const previewDiv = document.createElement('div');
+                        previewDiv.className = 'preview-item';
+                        previewDiv.innerHTML = `
+                            <img src="${e.target.result}" height="100" width="100" alt="Preview">
+                            <div>${file.name.substring(0, 15)}${file.name.length > 15 ? '...' : ''}</div>
+                        `;
+                        previewContainer.appendChild(previewDiv);
+                    }
+                    reader.readAsDataURL(file);
+                }
+            }
+        }
+    });
+    }
+
+    // Map initialization
+    try {
+        // Parse Django template variables as strings, then convert to numbers
+        const defaultLat = parseFloat("{{ object.latitude|default:14.4311278|floatformat:7 }}");
+        const defaultLon = parseFloat("{{ object.longitude|default:120.9682000|floatformat:7 }}");
+
+        console.log("Initializing map with coordinates:", defaultLat, defaultLon);
+
+const jobEditMode = parseInt("{{ object.id|default:0 }}") > 0;
+        const hasExistingAddress = document.getElementById("barangay-input").value.trim() !== '' ||
+                                  document.getElementById("municipality-input").value.trim() !== '';
+
+        const map = L.map('map').setView([defaultLat, defaultLon], 15);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+
+        const marker = L.marker([defaultLat, defaultLon], {
+            draggable: true,
+            title: 'Drag to set job location'
+        }).addTo(map);
+
+        const showLoadingIndicator = (message) => {
+            const mapSection = document.querySelector('.map-section');
+            const loadingIndicator = document.createElement('div');
+            loadingIndicator.className = 'loading-indicator';
+            loadingIndicator.innerHTML = message;
+            Object.assign(loadingIndicator.style, {
+                position: 'absolute',
+                top: '50%',
+                left: '50%',
+                transform: 'translate(-50%, -50%)',
+                backgroundColor: 'rgba(255, 255, 255, 0.8)',
+                padding: '10px',
+                borderRadius: '4px',
+                zIndex: '1000'
+            });
+            mapSection.style.position = 'relative';
+            mapSection.appendChild(loadingIndicator);
+            return loadingIndicator;
+        };
+
+        const updateAddressFields = (lat, lon) => {
+            const loadingIndicator = showLoadingIndicator('Fetching address...');
+
+            // Update hidden coordinates fields
+            document.getElementById("latitude").value = lat;
+            document.getElementById("longitude").value = lon;
+
+            // Update display coordinates (if they exist)
+            const latDisplay = document.getElementById("lat-display");
+            const lonDisplay = document.getElementById("lon-display");
+            if (latDisplay) latDisplay.textContent = lat;
+            if (lonDisplay) lonDisplay.textContent = lon;
+
+            // Fetch address details from Nominatim
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=en`)
+            .then(response => response.json())
+            .then(data => {
+                console.log("Nominatim API response:", data);
+
+                // Try to get the city/town/municipality
+                const municipality = data.address.city ||
+                                    data.address.town ||
+                                    data.address.municipality ||
+                                    data.address.village ||
+                                    '';
+
+                // Try to get the barangay/suburb/neighborhood
+                const barangay = data.address.suburb ||
+                                data.address.neighborhood ||
+                                data.address.district ||
+                                data.address.subdistrict ||
+                                '';
+
+                // Get road and house number
+                const street = data.address.road || data.address.street || '';
+                const house_number = data.address.house_number || '';
+
+                // Update form fields
+                document.getElementById("municipality-input").value = municipality;
+                document.getElementById("barangay-input").value = barangay;
+                document.getElementById("street").value = street;
+                document.getElementById("house_number").value = house_number;
+
+                loadingIndicator.remove();
+                console.log("Updated address fields:", {
+                    municipality,
+                    barangay,
+                    street,
+                    house_number
+                });
+            })
+            .catch(err => {
+                console.error("Error fetching address:", err);
+                loadingIndicator.remove();
+            });
+        };
+
+        // Update on marker drag
+        marker.on('dragend', function (e) {
+            const lat = e.target.getLatLng().lat;
+            const lon = e.target.getLatLng().lng;
+            updateAddressFields(lat, lon);
         });
-        mapSection.style.position = 'relative';
-        mapSection.appendChild(loadingIndicator);
-        return loadingIndicator;
-    };
 
-    const updateAddressFields = (lat, lon) => {
-        const loadingIndicator = showLoadingIndicator('Fetching address...');
-        
-        document.getElementById("latitude").value = lat;
-        document.getElementById("longitude").value = lon;
+        // Update on map click
+        map.on('click', function (e) {
+            const lat = e.latlng.lat;
+            const lon = e.latlng.lng;
+            marker.setLatLng([lat, lon]);
+            updateAddressFields(lat, lon);
+        });
 
-        fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.address) {
-                    document.getElementById("municipality-input").value = data.address.city || data.address.town || "";
-                    document.getElementById("barangay-input").value = data.address.suburb || "";
-                    document.getElementById("street").value = data.address.road || "";
-                    document.getElementById("house_number").value = data.address.house_number || "";
-                }
-            })
-            .catch(error => console.error("Error fetching address:", error))
-            .finally(() => loadingIndicator.remove());
-    };
+        // Initialize address fields if needed
+        if (!jobEditMode || !hasExistingAddress) {
+            updateAddressFields(defaultLat, defaultLon);
+        }
 
-    marker.on("dragend", () => {
-        const { lat, lng } = marker.getLatLng();
-        updateAddressFields(lat, lng);
-    });
+        // Force map to recalculate its container size
+        setTimeout(function() {
+            map.invalidateSize();
+        }, 100);
 
-    document.getElementById("barangay-input").addEventListener("change", function () {
-        const address = `${this.value}, ${document.getElementById("municipality-input").value}, Cavite, Philippines`;
-        const loadingIndicator = showLoadingIndicator('Updating map...');
-
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${address}`)
-            .then(response => response.json())
-            .then(data => {
-                if (data.length > 0) {
-                    const { lat, lon } = data[0];
-                    map.setView([lat, lon], 15);
-                    marker.setLatLng([lat, lon]);
-                    updateAddressFields(lat, lon);
-                }
-            })
-            .catch(error => console.error("Error updating map:", error))
-            .finally(() => loadingIndicator.remove());
-    });
-
-    map.on("click", (e) => {
-        const { lat, lng } = e.latlng;
-        marker.setLatLng([lat, lng]);
-        updateAddressFields(lat, lng);
-    });
-
-    map.addControl(new L.Control.Zoom({ position: 'bottomright' }));
-
-    window.addEventListener('resize', () => map.invalidateSize());
-
-    setTimeout(() => map.invalidateSize(), 100);
+    } catch (error) {
+        console.error("Error initializing map:", error);
+        document.getElementById('map').innerHTML = '<div class="error-message">Error loading map. Please refresh the page.</div>';
+    }
 });
 </script>
 {% endblock %}
+

@@ -2,279 +2,333 @@
 {% load static %}
 
 {% block content %}
-<div class="container py-5">
-    <div class="row">
-        <!-- Profile Sidebar -->
-        <div class="col-lg-4 mb-4">
-            <div class="card border-0 shadow">
-                <div class="card-body text-center">
-                    <div class="profile-picture-container mb-4">
-                        {% if user.profile_picture %}
-                            <img src="{{ user.profile_picture.url }}" class="rounded-circle profile-picture" alt="Profile Picture">
-                        {% else %}
-                            <img src="{% static 'images/default_profile.png' %}" class="rounded-circle profile-picture" alt="Default Profile">
-                        {% endif %}
-                        <div class="profile-picture-edit">
-                            <a href="{% url 'profile_edit' %}" class="text-white">
-                                <i class="bi bi-camera-fill"></i>
-                            </a>
-                        </div>
+<!-- LinkedIn-style Profile Page -->
+<div class="profile-container">
+    <!-- Background header -->
+    <div class="profile-background"></div>
+
+    <div class="container py-4">
+        <!-- Profile Header Card -->
+        <div class="profile-header-card">
+            <div class="profile-picture-wrapper">
+                <div class="profile-picture-container">
+                    {% if user.profile_picture %}
+                        <img src="{{ user.profile_picture.url }}" class="profile-picture" alt="Profile Picture">
+                    {% else %}
+                        <img src="{% static 'images/default_profile.png' %}" class="profile-picture" alt="Default Profile">
+                    {% endif %}
+                    <div class="profile-picture-edit">
+                        <a href="{% url 'profile_edit' %}" class="text-white">
+                            <i class="bi bi-camera-fill"></i>
+                        </a>
                     </div>
-                    
-                    <h3 class="mb-1">{{ user.get_full_name|default:user.username }}</h3>
-                    <p class="text-muted mb-3">
-                        <i class="bi bi-geo-alt-fill me-1"></i>
+                </div>
+            </div>
+            
+            <div class="profile-header-content">
+                <div class="profile-header-info">
+                    <h1 class="profile-name">{{ user.get_full_name|default:user.username }}</h1>
+                    <p class="profile-location">
+                        <i class="bi bi-geo-alt-fill"></i>
                         {{ user.location|default:"Location not specified" }}
                     </p>
-                    
-                    <div class="d-grid gap-2">
-                        <a href="{% url 'profile_edit' %}" class="btn btn-primary">
-                            <i class="bi bi-pencil-square me-2"></i>Edit Profile
-                        </a>
-                        <a href="{% url 'job_create' %}" class="btn btn-success">
-                            <i class="bi bi-briefcase-fill me-2"></i>Post a Job
-                        </a>
-                    </div>
                 </div>
                 
-                <div class="card-footer bg-white border-top-0">
-                    <div class="row text-center">
-                        <div class="col-4 border-end">
-                            <div class="h4 mb-0">{{ user.jobs_posted|default:"0" }}</div>
-                            <small class="text-muted">Jobs</small>
-                        </div>
-                        <div class="col-4 border-end">
-                            <div class="h4 mb-0">{{ user.applications.all|length|default:"0" }}</div>
-
-                            <small class="text-muted">Applied</small>
-                        </div>
-                        <div class="col-4">
-                            <div class="h4 mb-0">{{ user.connections|default:"0" }}</div>
-                            <small class="text-muted">Connects</small>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Contact Information -->
-            <div class="card border-0 shadow mt-4">
-                <div class="card-header bg-white border-bottom-0">
-                    <h5 class="mb-0">Contact Information</h5>
-                </div>
-                <div class="card-body">
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="icon-square bg-light text-dark flex-shrink-0 me-3">
-                            <i class="bi bi-envelope"></i>
-                        </div>
-                        <div>
-                            <h6 class="mb-0">Email</h6>
-                            <p class="mb-0 text-muted">{{ user.email }}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="d-flex align-items-center mb-3">
-                        <div class="icon-square bg-light text-dark flex-shrink-0 me-3">
-                            <i class="bi bi-telephone"></i>
-                        </div>
-                        <div>
-                            <h6 class="mb-0">Phone</h6>
-                            <p class="mb-0 text-muted">{{ user.contact_number|default:"Not provided" }}</p>
-                        </div>
-                    </div>
-                    
-                    <div class="d-flex align-items-center">
-                        <div class="icon-square bg-light text-dark flex-shrink-0 me-3">
-                            <i class="bi bi-globe"></i>
-                        </div>
-                        <div>
-                            <h6 class="mb-0">Website</h6>
-                            <p class="mb-0 text-muted">
-                                {% if user.website %}
-                                    <a href="{{ user.website }}" target="_blank">{{ user.website }}</a>
-                                {% else %}
-                                    Not provided
-                                {% endif %}
-                            </p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Account Actions -->
-            <div class="card border-0 shadow mt-4">
-                <div class="card-body">
-                    <h5 class="card-title">Account Actions</h5>
-                    <div class="list-group list-group-flush">
-                        <a href="{% url 'change_password' %}" class="list-group-item list-group-item-action">
-                            <i class="bi bi-shield-lock me-2"></i>Change Password
-                        </a>
-                        <a href="{% url 'privacy_settings' %}" class="list-group-item list-group-item-action">
-                            <i class="bi bi-eye me-2"></i>Privacy Settings
-                        </a>
-                        <a href="{% url 'profile_delete' %}" class="list-group-item list-group-item-action text-danger"></a>
-                        <a href="{% url 'change_password' %}" class="list-group-item list-group-item-action">
-                            <i class="bi bi-shield-lock me-2"></i>Change Password
-                        </a>
-                        <a href="{% url 'privacy_settings' %}" class="list-group-item list-group-item-action">
-                            <i class="bi bi-eye me-2"></i>Privacy Settings
-                        </a>
-
-                        <a href="{% url 'profile_delete' %}" class="list-group-item list-group-item-action text-danger">
-                            <i class="bi bi-trash me-2"></i>Delete Account
-                        </a>
-                        
-                    </div>
+                <div class="profile-actions">
+                    <a href="{% url 'profile_edit' %}" class="btn btn-primary-outline">
+                        <i class="bi bi-pencil-square me-2"></i>Edit Profile
+                    </a>
+                    <a href="{% url 'jobs:job_create' %}" class="btn btn-primary">
+                        <i class="bi bi-briefcase-fill me-2"></i>Post a Job
+                    </a>
                 </div>
             </div>
         </div>
-        
-        <!-- Profile Main Content -->
-        <div class="col-lg-8">
-            <!-- About Me -->
-            <div class="card border-0 shadow mb-4">
-                <div class="card-header bg-white border-bottom-0 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">About Me</h5>
-                    <a href="{% url 'profile_edit' %}" class="btn btn-sm btn-outline-primary">
-                        <i class="bi bi-pencil"></i>
-                    </a>
-                </div>
-                <div class="card-body">
-                    {% if user.bio %}
-                        <p>{{ user.bio }}</p>
-                    {% else %}
-                        <p class="text-muted">Tell others about yourself by adding a bio.</p>
-                    {% endif %}
-                </div>
-            </div>
-            
-            <!-- Skills -->
-            <div class="card border-0 shadow mb-4">
-                <div class="card-header bg-white border-bottom-0 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Skills</h5>
-                    <a href="{% url 'profile_edit' %}" class="btn btn-sm btn-outline-primary">
-                        <i class="bi bi-plus"></i>
-                    </a>
-                </div>
-                <div class="card-body">
-                    {% if user.skills.all %}
-                    <div class="d-flex flex-wrap gap-2">
-                        {% for skill in user.skills.all %}
-                            <span class="badge bg-light text-dark p-2">{{ skill.name }}</span>
-                        {% endfor %}
+
+        <div class="profile-grid">
+            <!-- Left Column (Sidebar) -->
+            <div class="profile-sidebar">
+                <!-- Stats Card -->
+                <div class="profile-card">
+                    <div class="stats-row">
+                        <div class="stat-item">
+                            <div class="stat-number">
+                                {{ user.posted_jobs.count|default:"0" }}
+                            </div>
+                            <div class="stat-label">Jobs</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">
+                                {{ user.applications.count|default:"0" }}
+                            </div>
+                            <div class="stat-label">Applied</div>
+                        </div>
+                        <div class="stat-item">
+                            <div class="stat-number">
+                                {{ user.connections.count|default:"0" }}
+                            </div>
+                            <div class="stat-label">Connects</div>
+                        </div>
                     </div>
-                    {% else %}
-                        <p class="text-muted">Add skills to showcase your expertise.</p>
-                    {% endif %}
-                
                 </div>
                 
-            
-            <!-- Recent Activity -->
-            <div class="card border-0 shadow mb-4">
-                <div class="card-header bg-white border-bottom-0">
-                    <h5 class="mb-0">Recent Activity</h5>
-                </div>
-                <div class="card-body">
-                    {% if user.recent_activities %}
-                        <div class="timeline">
-                            {% for activity in user.recent_activities %}
-                                <div class="timeline-item">
-                                    <div class="timeline-marker"></div>
-                                    <div class="timeline-content">
-                                        <h6 class="mb-1">{{ activity.title }}</h6>
-                                        <p class="text-muted mb-0">{{ activity.description }}</p>
-                                        <small class="text-muted">{{ activity.timestamp }}</small>
-                                    </div>
-                                </div>
-                            {% endfor %}
+                
+                <!-- Contact Information -->
+                <div class="profile-card">
+                    <div class="card-header">
+                        <h3>Contact Information</h3>
+                    </div>
+                    <div class="card-body">
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="bi bi-envelope"></i>
+                            </div>
+                            <div class="contact-content">
+                                <h4>Email</h4>
+                                <p>{{ user.email }}</p>
+                            </div>
                         </div>
-                    {% else %}
-                        <div class="text-center py-4">
-                            <i class="bi bi-activity display-4 text-muted"></i>
-                            <p class="mt-3 text-muted">No recent activity to show.</p>
-                            <a href="{% url 'job_list' %}" class="btn btn-sm btn-outline-primary mt-2">
-                                Browse Jobs
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="bi bi-telephone"></i>
+                            </div>
+                            <div class="contact-content">
+                                <h4>Phone</h4>
+                                <p>{{ user.contact_number|default:"Not provided" }}</p>
+                            </div>
+                        </div>
+                        
+                        <div class="contact-item">
+                            <div class="contact-icon">
+                                <i class="bi bi-globe"></i>
+                            </div>
+                            <div class="contact-content">
+                                <h4>Website</h4>
+                                <p>
+                                    {% if user.website %}
+                                        <a href="{{ user.website }}" target="_blank">{{ user.website }}</a>
+                                    {% else %}
+                                        Not provided
+                                    {% endif %}
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <!-- Account Actions -->
+                <div class="profile-card">
+                    <div class="card-header">
+                        <h3>Account Actions</h3>
+                    </div>
+                    <div class="card-body p-0">
+                        <div class="action-list">
+                            <a href="{% url 'change_password' %}" class="action-item">
+                                <i class="bi bi-shield-lock me-2"></i>Change Password
+                            </a>
+                            <a href="{% url 'privacy_settings' %}" class="action-item">
+                                <i class="bi bi-eye me-2"></i>Privacy Settings
+                            </a>
+                            <a href="{% url 'profile_delete' %}" class="action-item danger">
+                                <i class="bi bi-trash me-2"></i>Delete Account
                             </a>
                         </div>
-                    {% endif %}
+                    </div>
                 </div>
             </div>
             
-            <!-- Posted Jobs -->
-            <div class="card border-0 shadow">
-                <div class="card-header bg-white border-bottom-0 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0">Your Posted Jobs</h5>
-                    <a href="{% url 'job_create' %}" class="btn btn-sm btn-outline-success">
-                        <i class="bi bi-plus"></i> New Job
-                    </a>
+            <!-- Right Column (Main Content) -->
+            <div class="profile-main-content">
+                <!-- Tabs Navigation -->
+                <div class="profile-tabs">
+                    <button class="tab-button active" data-tab="about">About</button>
+                    <button class="tab-button" data-tab="activity">Activity</button>
+                    <button class="tab-button" data-tab="jobs">Jobs</button>
                 </div>
-                <div class="card-body">
-                    {% if user.posted_jobs.all %}
-                        <div class="list-group list-group-flush">
-                            {% for job in user.posted_jobs.all %}
-                                <div class="list-group-item px-0">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <h6 class="mb-1">{{ job.title }}</h6>
-                                        <span class="badge bg-{{ job.status_color }}">{{ job.status }}</span>
-                                    </div>
-                                    <p class="text-muted mb-1 small">
-                                        <i class="bi bi-geo-alt me-1"></i>{{ job.location }}
-                                        <i class="bi bi-clock ms-3 me-1"></i>{{ job.job_type }}
-                                    </p>
-                                    <div class="d-flex justify-content-between align-items-center mt-2">
-                                        <small class="text-muted">Posted on {{ job.created_at }}</small>
-                                        <div>
-                                            <a href="{% url 'job_detail' job.id %}" class="btn btn-sm btn-outline-primary me-1">
-                                                View
-                                            </a>
-                                            <a href="{% url 'job_edit' job.id %}" class="btn btn-sm btn-outline-secondary">
-                                                Edit
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div>
-                            {% endfor %}
-                        </div>
-                    {% else %}
-                        <div class="text-center py-4">
-                            <i class="bi bi-briefcase display-4 text-muted"></i>
-                            <p class="mt-3 text-muted">You haven't posted any jobs yet.</p>
-                            <a href="{% url 'job_create' %}" class="btn btn-primary mt-2">
-                                Post Your First Job
+                
+                <!-- Tab Content -->
+                <div class="tab-content" id="about-tab">
+                    <!-- About Me -->
+                    <div class="profile-card">
+                        <div class="card-header">
+                            <h3>About Me</h3>
+                            <a href="{% url 'profile_edit' %}" class="btn-icon">
+                                <i class="bi bi-pencil"></i>
                             </a>
                         </div>
-                    {% endif %}
+                        <div class="card-body">
+                            {% if user.bio %}
+                                <p>{{ user.bio }}</p>
+                            {% else %}
+                                <p class="text-muted">Tell others about yourself by adding a bio.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    
+                    <!-- Skills -->
+                    <div class="profile-card">
+                        <div class="card-header">
+                            <h3>Skills</h3>
+                            <a href="{% url 'profile_edit' %}" class="btn-icon">
+                                <i class="bi bi-plus"></i>
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            {% if user.skills.all %}
+                                <div class="skills-container">
+                                    {% for skill in user.skills.all %}
+                                        <span class="skill-badge">{{ skill.name }}</span>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <p class="text-muted">Add skills to showcase your expertise.</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="activity-tab" style="display: none;">
+                    <!-- Recent Activity -->
+                    <div class="profile-card">
+                        <div class="card-header">
+                            <h3>Recent Activity</h3>
+                        </div>
+                        <div class="card-body">
+                            {% if user.recent_activities %}
+                                <div class="timeline">
+                                    {% for activity in user.recent_activities %}
+                                        <div class="timeline-item">
+                                            <div class="timeline-marker"></div>
+                                            <div class="timeline-content">
+                                                <h4>{{ activity.title }}</h4>
+                                                <p>{{ activity.description }}</p>
+                                                <span class="timeline-date">{{ activity.timestamp }}</span>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="empty-state">
+                                    <i class="bi bi-activity empty-icon"></i>
+                                    <p class="empty-text">No recent activity to show.</p>
+                                    <a href="{% url 'jobs:job_list' %}" class="btn btn-outline">
+                                        Browse Jobs
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="tab-content" id="jobs-tab" style="display: none;">
+                    <!-- Posted Jobs -->
+                    <div class="profile-card">
+                        <div class="card-header">
+                            <h3>Your Posted Jobs</h3>
+                            <a href="{% url 'jobs:job_create' %}" class="btn btn-outline">
+                                <i class="bi bi-plus"></i> New Job
+                            </a>
+                        </div>
+                        <div class="card-body">
+                            {% if user.posted_jobs.all %}
+                                <div class="list-group list-group-flush">
+                                    {% for job in user.posted_jobs.all %}
+                                        <div class="job-item">
+                                            <div class="job-header">
+                                                <h4 class="job-title">{{ job.title }}</h4>
+                                                <span class="job-badge bg-{{ job.status_color }}">{{ job.status }}</span>
+                                            </div>
+                                            <p class="job-details">
+                                                <i class="bi bi-geo-alt me-1"></i>{{ job.location }}
+                                                <i class="bi bi-clock ms-3 me-1"></i>{{ job.job_type }}
+                                            </p>
+                                            <div class="job-footer">
+                                                <small class="job-date">Posted on {{ job.created_at }}</small>
+                                                <div class="job-actions">
+                                                    <a href="{% url 'jobs:job_detail' job.id %}" class="btn btn-sm btn-outline-primary me-1">
+                                                        View
+                                                    </a>
+                                                    <a href="{% url 'jobs:job_edit' job.id %}" class="btn btn-sm btn-outline-secondary">
+                                                        Edit
+                                                    </a>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    {% endfor %}
+                                </div>
+                            {% else %}
+                                <div class="empty-state">
+                                    <i class="bi bi-briefcase empty-icon"></i>
+                                    <p class="empty-text">You haven't posted any jobs yet.</p>
+                                    <a href="{% url 'jobs:job_create' %}" class="btn btn-primary">
+                                        Post Your First Job
+                                    </a>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Custom CSS for profile page -->
+<!-- LinkedIn-style CSS -->
 <style>
-    /* Profile Picture */
+    /* Base Styles */
+    .profile-container {
+        background-color: #f3f2ef;
+        padding-bottom: 40px;
+    }
+    
+    /* Profile Background */
+    .profile-background {
+        height: 200px;
+        background-color: #1d4354;
+        margin-bottom: 75px;
+    }
+    
+    /* Profile Header Card */
+    .profile-header-card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+        margin-top: -160px;
+        margin-bottom: 24px;
+        padding: 20px;
+        position: relative;
+    }
+    
+    .profile-picture-wrapper {
+        position: relative;
+        margin-bottom: 16px;
+    }
+    
     .profile-picture-container {
         position: relative;
-        width: 150px;
-        height: 150px;
-        margin: 0 auto;
+        width: 152px;
+        height: 152px;
+        margin-top: -96px;
     }
     
     .profile-picture {
-        width: 150px;
-        height: 150px;
+        width: 152px;
+        height: 152px;
+        border-radius: 50%;
+        border: 4px solid white;
         object-fit: cover;
-        border: 5px solid #fff;
+        background-color: white;
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
     
     .profile-picture-edit {
         position: absolute;
-        bottom: 0;
-        right: 0;
-        background-color: #4f46e5;
-        width: 40px;
-        height: 40px;
+        bottom: 8px;
+        right: 8px;
+        background-color: #0a66c2;
+        width: 36px;
+        height: 36px;
         border-radius: 50%;
         display: flex;
         align-items: center;
@@ -285,75 +339,59 @@
     
     .profile-picture-edit:hover {
         transform: scale(1.1);
+        background-color: #004182;
     }
     
-    /* Icon Square */
-    .icon-square {
-        width: 40px;
-        height: 40px;
-        border-radius: 8px;
+    .profile-header-content {
         display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.2rem;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-wrap: wrap;
     }
     
-    /* Timeline */
-    .timeline {
-        position: relative;
-        padding-left: 30px;
+    .profile-name {
+        font-size: 24px;
+        font-weight: 600;
+        margin-bottom: 4px;
     }
     
-    .timeline:before {
-        content: '';
-        position: absolute;
-        left: 10px;
-        top: 0;
-        bottom: 0;
-        width: 2px;
-        background-color: #e9ecef;
+    .profile-location {
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.6);
+        margin-bottom: 16px;
     }
     
-    .timeline-item {
-        position: relative;
-        margin-bottom: 20px;
+    .profile-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 8px;
     }
     
-    .timeline-marker {
-        position: absolute;
-        left: -30px;
-        top: 5px;
-        width: 12px;
-        height: 12px;
-        border-radius: 50%;
-        background-color: #4f46e5;
-        border: 2px solid #fff;
+    /* Profile Grid Layout */
+    .profile-grid {
+        display: grid;
+        grid-template-columns: 1fr 2.5fr;
+        gap: 24px;
     }
     
-    .timeline-content {
-        padding-bottom: 15px;
-        border-bottom: 1px solid #f0f0f0;
-    }
-    
-    .timeline-item:last-child .timeline-content {
-        border-bottom: none;
-        padding-bottom: 0;
-    }
-    
-    /* Card Hover Effect */
-    .card {
-        transition: transform 0.2s;
-    }
-    
-    .card:hover {
-        transform: translateY(-5px);
-    }
-    
-    /* Responsive Adjustments */
     @media (max-width: 991.98px) {
+        .profile-grid {
+            grid-template-columns: 1fr;
+        }
+        
+        .profile-header-content {
+            flex-direction: column;
+        }
+        
+        .profile-actions {
+            margin-top: 16px;
+            width: 100%;
+        }
+        
         .profile-picture-container {
             width: 120px;
             height: 120px;
+            margin-top: -80px;
         }
         
         .profile-picture {
@@ -361,5 +399,500 @@
             height: 120px;
         }
     }
+    
+    /* Cards */
+    .profile-card {
+        background-color: white;
+        border-radius: 8px;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.08);
+        margin-bottom: 24px;
+        overflow: hidden;
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+    
+    .profile-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-header {
+        padding: 16px 24px;
+        border-bottom: 1px solid #f3f2ef;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .card-header h3 {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .card-body {
+        padding: 24px;
+    }
+    
+    .card-body.p-0 {
+        padding: 0;
+    }
+    
+    /* Stats */
+    .stats-row {
+        display: flex;
+        text-align: center;
+    }
+    
+    .stat-item {
+        flex: 1;
+        padding: 16px 8px;
+        border-right: 1px solid #f3f2ef;
+    }
+    
+    .stat-item:last-child {
+        border-right: none;
+    }
+    
+    .stat-number {
+        font-size: 24px;
+        font-weight: 600;
+        color: #0a66c2;
+    }
+    
+    .stat-label {
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.6);
+    }
+    
+    /* Contact Info */
+    .contact-item {
+        display: flex;
+        align-items: center;
+        margin-bottom: 16px;
+    }
+    
+    .contact-item:last-child {
+        margin-bottom: 0;
+    }
+    
+    .contact-icon {
+        width: 36px;
+        height: 36px;
+        background-color: #f3f2ef;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-right: 12px;
+        flex-shrink: 0;
+    }
+    
+    .contact-content h4 {
+        font-size: 14px;
+        font-weight: 600;
+        margin-bottom: 2px;
+    }
+    
+    .contact-content p {
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.6);
+        margin: 0;
+    }
+    
+    .contact-content a {
+        color: #0a66c2;
+        text-decoration: none;
+    }
+    
+    .contact-content a:hover {
+        text-decoration: underline;
+    }
+    
+    /* Account Actions */
+    .action-list {
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+    
+    .action-item {
+        display: flex;
+        align-items: center;
+        padding: 16px 24px;
+        border-bottom: 1px solid #f3f2ef;
+        color: #333;
+        text-decoration: none;
+        transition: background-color 0.2s;
+    }
+    
+    .action-item:last-child {
+        border-bottom: none;
+    }
+    
+    .action-item:hover {
+        background-color: #f3f2ef;
+    }
+    
+    .action-item.danger {
+        color: #d11124;
+    }
+    
+    /* Tabs */
+    .profile-tabs {
+        display: flex;
+        border-bottom: 1px solid #e0e0e0;
+        margin-bottom: 24px;
+    }
+    
+    .tab-button {
+        padding: 16px 24px;
+        background: none;
+        border: none;
+        border-bottom: 2px solid transparent;
+        font-weight: 600;
+        color: rgba(0, 0, 0, 0.6);
+        cursor: pointer;
+        transition: all 0.2s;
+    }
+    
+    .tab-button:hover {
+        color: #0a66c2;
+    }
+    
+    .tab-button.active {
+        color: #0a66c2;
+        border-bottom-color: #0a66c2;
+    }
+    
+    /* Skills */
+    .skills-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+    
+    .skill-badge {
+        background-color: #f3f2ef;
+        color: #333;
+        padding: 8px 12px;
+        border-radius: 16px;
+        font-size: 14px;
+        transition: background-color 0.2s;
+    }
+    
+    .skill-badge:hover {
+        background-color: #e0e0e0;
+    }
+    
+    /* Timeline */
+    .timeline {
+        position: relative;
+        padding-left: 36px;
+    }
+    
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 8px;
+        top: 8px;
+        bottom: 8px;
+        width: 2px;
+        background-color: #e9e9e9;
+    }
+    
+    .timeline-item {
+        position: relative;
+        margin-bottom: 24px;
+    }
+    
+    .timeline-marker {
+        position: absolute;
+        left: -36px;
+        top: 4px;
+        width: 16px;
+        height: 16px;
+        border-radius: 50%;
+        background-color: #0a66c2;
+        border: 3px solid white;
+    }
+    
+    .timeline-content h4 {
+        font-size: 16px;
+        font-weight: 600;
+        margin-bottom: 4px;
+    }
+    
+    .timeline-content p {
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.6);
+        margin-bottom: 4px;
+    }
+    
+    .timeline-date {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.6);
+    }
+    
+    /* Jobs */
+    .job-item {
+        padding: 16px 0;
+        border-bottom: 1px solid #f3f2ef;
+    }
+    
+    .job-item:last-child {
+        border-bottom: none;
+    }
+    
+    .job-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 8px;
+    }
+    
+    .job-title {
+        font-size: 16px;
+        font-weight: 600;
+        margin: 0;
+    }
+    
+    .job-badge {
+        font-size: 12px;
+        padding: 4px 8px;
+        border-radius: 12px;
+    }
+    
+    .job-details {
+        font-size: 14px;
+        color: rgba(0, 0, 0, 0.6);
+        margin-bottom: 12px;
+    }
+    
+    .job-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    
+    .job-date {
+        font-size: 12px;
+        color: rgba(0, 0, 0, 0.6);
+    }
+    
+    .job-actions {
+        display: flex;
+        gap: 8px;
+    }
+    
+    /* List Group (for jobs) */
+    .list-group {
+        display: flex;
+        flex-direction: column;
+        padding-left: 0;
+        margin-bottom: 0;
+    }
+    
+    .list-group-item {
+        position: relative;
+        display: block;
+        padding: 16px 0;
+        border-bottom: 1px solid #f3f2ef;
+    }
+    
+    .list-group-item:last-child {
+        border-bottom: none;
+    }
+    
+    .list-group-flush {
+        border-radius: 0;
+    }
+    
+    .list-group-flush .list-group-item {
+        border-right: 0;
+        border-left: 0;
+    }
+    
+    /* Buttons */
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 8px 16px;
+        border-radius: 16px;
+        font-weight: 600;
+        font-size: 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-decoration: none;
+        border: none;
+    }
+    
+    .btn-primary {
+        background-color: #0a66c2;
+        color: white !important;
+    }
+    
+    .btn-primary:hover {
+        background-color: #004182;
+    }
+    
+    .btn-primary-outline {
+        background-color: transparent;
+        color: #0a66c2 !important;
+        border: 1px solid #0a66c2;
+    }
+    
+    .btn-primary-outline:hover {
+        background-color: rgba(10, 102, 194, 0.1);
+    }
+    
+    .btn-outline {
+        background-color: transparent;
+        color: rgba(0, 0, 0, 0.6) !important;
+        border: 1px solid rgba(0, 0, 0, 0.6);
+    }
+    
+    .btn-outline:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+    
+    .btn-outline-primary {
+        color: #0a66c2 !important;
+        border: 1px solid #0a66c2;
+        background-color: transparent;
+    }
+    
+    .btn-outline-primary:hover {
+        background-color: rgba(10, 102, 194, 0.1);
+    }
+    
+    .btn-outline-secondary {
+        color: #6c757d !important;
+        border: 1px solid #6c757d;
+        background-color: transparent;
+    }
+    
+    .btn-outline-secondary:hover {
+        background-color: rgba(108, 117, 125, 0.1);
+    }
+    
+    .btn-sm {
+        padding: 4px 12px;
+        font-size: 12px;
+    }
+    
+    .btn-icon {
+        width: 32px;
+        height: 32px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background-color: transparent;
+        color: rgba(0, 0, 0, 0.6);
+        transition: all 0.2s;
+        text-decoration: none;
+    }
+    
+    .btn-icon:hover {
+        background-color: rgba(0, 0, 0, 0.05);
+    }
+    
+    /* Empty States */
+    .empty-state {
+        text-align: center;
+        padding: 32px 16px;
+    }
+    
+    .empty-icon {
+        font-size: 48px;
+        color: #e0e0e0;
+        margin-bottom: 16px;
+    }
+    
+    .empty-text {
+        color: rgba(0, 0, 0, 0.6);
+        margin-bottom: 16px;
+    }
+    
+    /* Text Utilities */
+    .text-muted {
+        color: rgba(0, 0, 0, 0.6) !important;
+    }
+    
+    /* Badge colors */
+    .bg-success {
+        background-color: #dcf5dc !important;
+        color: #057a05 !important;
+    }
+    
+    .bg-secondary {
+        background-color: #e9ecef !important;
+        color: #6c757d !important;
+    }
+    
+    .bg-warning {
+        background-color: #fff3cd !important;
+        color: #856404 !important;
+    }
+    
+    .bg-danger {
+        background-color: #f8d7da !important;
+        color: #721c24 !important;
+    }
+    
+    .bg-info {
+        background-color: #d1ecf1 !important;
+        color: #0c5460 !important;
+    }
+    
+    .bg-light {
+        background-color: #f8f9fa !important;
+        color: #212529 !important;
+    }
+    
+    .bg-dark {
+        background-color: #343a40 !important;
+        color: #fff !important;
+    }
 </style>
+
+<!-- JavaScript for tabs -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Tab functionality
+        const tabButtons = document.querySelectorAll('.tab-button');
+        const tabContents = document.querySelectorAll('.tab-content');
+        
+        tabButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                // Remove active class from all buttons
+                tabButtons.forEach(btn => btn.classList.remove('active'));
+                
+                // Add active class to clicked button
+                this.classList.add('active');
+                
+                // Hide all tab contents
+                tabContents.forEach(content => {
+                    content.style.display = 'none';
+                });
+                
+                // Show the selected tab content
+                const tabId = this.getAttribute('data-tab');
+                document.getElementById(tabId + '-tab').style.display = 'block';
+            });
+        });
+        
+        // Profile picture edit hover effect
+        const editButton = document.querySelector('.profile-picture-edit');
+        if (editButton) {
+            editButton.addEventListener('mouseenter', function() {
+                this.style.transform = 'scale(1.1)';
+            });
+            editButton.addEventListener('mouseleave', function() {
+                this.style.transform = 'scale(1)';
+            });
+        }
+    });
+</script>
 {% endblock %}

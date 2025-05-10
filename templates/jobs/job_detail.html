@@ -2,52 +2,355 @@
 {% load static %}
 
 {% block content %}
-<div class="container">
-    <h2>{{ job.title }}</h2>
+<style>
+  /* Custom styles for job details page */
+  .job-details-container {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 2rem 1rem;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+  }
+  
+  .job-card {
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+    margin-bottom: 2rem;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+  
+  .job-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+  }
+  
+  .job-header {
+    padding: 1.5rem 1.5rem 0.5rem;
+  }
+  
+  .job-title {
+    font-size: 1.75rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 1rem;
+    line-height: 1.2;
+  }
+  
+  .job-image-container {
+    width: 100%;
+    height: 300px;
+    overflow: hidden;
+    position: relative;
+    background-color: #f7fafc;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .job-images-gallery {
+    display: flex;
+    flex-wrap: wrap;
+  }
+  
+  .job-image-item {
+    width: 33.33%;
+    padding: 0.5rem;
+  }
 
-    {% if job.job_picture %}
-        <img src="{{ job.job_picture.url }}" class="img-fluid" alt="Job Image">
-    {% else %}
-        <p>No image available.</p>
-    {% endif %}
+  .job-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  
+  .job-image:hover {
+    transform: scale(1.03);
+  }
+    
+  .no-image {
+    color: #a0aec0;
+    font-style: italic;
+  }
+    
+  .job-content {
+    padding: 1.5rem;
+  }
 
+  .job-info-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
 
-    <p><strong>Category:</strong> {{ job.category }}</p>
-    <p><strong>Budget:</strong> ₱{{ job.budget }}</p>
-    <p><strong>Location:</strong> {{ job.municipality }}, {{ job.barangay }}</p>
-    <p><strong>Description:</strong> {{ job.description }}</p>
+  .job-info-item {
+    padding: 0.75rem;
+    background-color: #f8fafc;
+    border-radius: 6px;
+    border-left: 3px solid #e2e8f0;
+  }
 
-    <div class="mt-3">
-        {% if user.is_authenticated %}
-            {% if user == job.owner %}
-                <!-- If job owner -->
-                <a href="{% url 'job_edit' job.pk %}" class="btn btn-warning">Edit</a>
-                <a href="{% url 'job_delete' job.pk %}" class="btn btn-danger">Delete</a>
-            {% else %}
-                <!-- If worker (not the owner) -->
-                <a href="{% url 'job_apply' job.pk %}" class="btn btn-success">Apply for Job</a>
-            {% endif %}
-        {% else %}
-            <p><a href="{% url 'login' %}">Login</a> to apply or manage this job.</p>
-        {% endif %}
+  .job-info-item.category {
+    border-left-color: #4299e1;
+  }
+
+  .job-info-item.budget {
+    border-left-color: #48bb78;
+  }
+
+  .job-info-item.location {
+    border-left-color: #ed8936;
+  }
+
+  .job-info-label {
+    font-weight: 600;
+    color: #4a5568;
+    margin-right: 0.5rem;
+  }
+
+  .job-info-value {
+    color: #2d3748;
+  }
+
+  .job-description {
+    background-color: #f8fafc;
+    padding: 1.25rem;
+    border-radius: 6px;
+    margin-bottom: 1.5rem;
+    line-height: 1.6;
+    color: #4a5568;
+    white-space: pre-line;
+  }
+
+  .job-actions {
+    margin: 1.5rem 0;
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+  }
+
+  .btn {
+    padding: 0.6rem 1.2rem;
+    border-radius: 6px;
+    font-weight: 500;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.2s ease;
+    border: none;
+    cursor: pointer;
+  }
+
+  .btn-warning {
+    background-color: #ecc94b;
+    color: #744210;
+  }
+
+  .btn-warning:hover {
+    background-color: #d69e2e;
+    color: #fff;
+  }
+
+  .btn-danger {
+    background-color: #f56565;
+    color: #fff;
+  }
+
+  .btn-danger:hover {
+    background-color: #e53e3e;
+  }
+
+  .btn-success {
+    background-color: #48bb78;
+    color: #fff;
+  }
+
+  .btn-success:hover {
+    background-color: #38a169;
+  }
+
+  .login-prompt {
+    padding: 1rem;
+    background-color: #ebf8ff;
+    border-radius: 6px;
+    color: #2c5282;
+    text-align: center;
+  }
+
+  .login-prompt a {
+    color: #3182ce;
+    font-weight: 600;
+    text-decoration: none;
+  }
+
+  .login-prompt a:hover {
+    text-decoration: underline;
+  }
+
+  .map-container {
+        border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-top: 1.5rem;
+      }
+
+  .map-title {
+    background-color: #f8fafc;
+    padding: 0.75rem 1rem;
+    font-weight: 600;
+    color: #4a5568;
+    border-bottom: 1px solid #e2e8f0;
+      }
+
+  #map {
+    height: 300px;
+    width: 100%;
+  }
+
+  /* Responsive adjustments */
+  @media (max-width: 768px) {
+    .job-info-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .job-title {
+      font-size: 1.5rem;
+    }
+
+    .job-image-container {
+      height: 200px;
+    }
+  }
+</style>
+
+<div class="job-details-container">
+  <div class="job-card">
+    <div class="job-header">
+      <h2 class="job-title">{{ job.title }}</h2>
     </div>
 
-    <div id="map" style="height: 300px;"></div>
+    <div class="job-image-container">
+    {% if job.jobimage_set.exists %}
+        <div class="job-images-gallery">
+            {% for job_image in job.jobimage_set.all %}
+                <div class="job-image-item">
+                    <img src="{{ job_image.image.url }}" class="job-image" alt="{{ job.title }} - Job Image {{ forloop.counter }}">
+                </div>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p class="no-image">No images available</p>
+    {% endif %}
+    </div>
+
+    <div class="job-content">
+      <div class="job-info-grid">
+        <div class="job-info-item category">
+          <span class="job-info-label">Category:</span>
+          <span class="job-info-value">{{ job.category }}</span>
+        </div>
+
+        <div class="job-info-item budget">
+          <span class="job-info-label">Budget:</span>
+          <span class="job-info-value">₱{{ job.budget }}</span>
+        </div>
+
+        <div class="job-info-item location">
+          <span class="job-info-label">Location:</span>
+          <span class="job-info-value">{{ job.municipality }}, {{ job.barangay }}</span>
+        </div>
+      </div>
+
+      <div class="job-description">
+        <strong>Description:</strong><br>
+        {{ job.description }}
+      </div>
+
+      <div class="job-actions">
+        {% if user.is_authenticated %}
+          {% if user == job.owner %}
+            <!-- If job owner -->
+            <a href="{% url 'jobs:job_edit' job.pk %}" class="btn btn-warning">Edit</a>
+            <a href="{% url 'jobs:job_delete' job.pk %}" class="btn btn-danger">Delete</a>
+          {% else %}
+            <!-- If worker (not the owner) -->
+            <a href="{% url 'messaging:start_conversation_with_user' username=job.owner.username %}" class="btn btn-primary">Message Owner</a>
+            <a href="{% url 'jobs:job_apply' job.pk %}" class="btn btn-success">Apply for Job</a>
+          {% endif %}
+        {% else %}
+          <div class="login-prompt">
+            <a href="{% url 'login' %}">Login</a> to apply or manage this job.
+          </div>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="map-container">
+    <div class="map-title">Job Location</div>
+    <div id="map"></div>
+  </div>
+  <p>Latitude: {{ job.latitude }}</p>
+  <p>Longitude: {{ job.longitude }}</p>
 </div>
 
 <!-- Include Leaflet.js -->
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
+<!-- Include Leaflet -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-    document.addEventListener("DOMContentLoaded", function () {
-        var map = L.map('map').setView([{{ job.latitude|default:14.5995 }}, {{ job.longitude|default:120.9842 }}], 15);
-        
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(map);
+  document.addEventListener("DOMContentLoaded", function () {
+    var lat = parseFloat("{{ job.latitude|default:14.4311278 }}");
+    var lng = parseFloat("{{ job.longitude|default:120.9682000 }}");
 
-        L.marker([{{ job.latitude|default:14.5995 }}, {{ job.longitude|default:120.9842 }}]).addTo(map);
-    });
+
+    var map = L.map('map').setView([lat, lng], 15);
+
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '© OpenStreetMap contributors',
+      maxZoom: 19
+    }).addTo(map);
+
+    var marker = L.marker([lat, lng])
+      .addTo(map)
+      .bindPopup("<strong>{{ job.title }}</strong><br>{{ job.municipality }}, {{ job.barangay }}")
+      .openPopup();
+
+    function pulseMarker() {
+      marker._icon.classList.add('pulse-marker');
+      setTimeout(() => {
+        if (marker._icon) marker._icon.classList.remove('pulse-marker');
+      }, 1000);
+    }
+
+    pulseMarker();
+    setInterval(pulseMarker, 5000);
+    setTimeout(() => map.invalidateSize(), 100);
+
+    const style = document.createElement('style');
+    style.textContent = `
+      .pulse-marker { animation: pulse 1s ease-out; }
+      @keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.3); opacity: 0.8; }
+        100% { transform: scale(1); opacity: 1; }
+      }
+      .leaflet-popup-content-wrapper {
+        border-radius: 8px;
+        box-shadow: 0 3px 14px rgba(0,0,0,0.2);
+      }
+      .leaflet-popup-content {
+        margin: 12px 16px;
+        line-height: 1.5;
+      }
+    `;
+    document.head.appendChild(style);
+  });
 </script>
+
 {% endblock %}
+

@@ -1,26 +1,7 @@
 <template>
   <div class="chat-container">
-    <!-- Chat Header -->
-    <!-- <div class="chat-header">
-      <div class="user-info">
-        <div class="avatar">{{ receiverName.charAt(0).toUpperCase() }}</div>
-        <div class="user-details">
-          <h3>{{ receiverName }}</h3>
-          <span class="status">Online</span>
-        </div>
-      </div>
-      <div class="header-actions">
-        <button class="icon-button">
-          <i class="bi bi-telephone"></i>
-        </button>
-        <button class="icon-button">
-          <i class="bi bi-info-circle"></i>
-        </button>
-      </div>
-    </div> -->
-
     <!-- Breadcrumb Navigation -->
-    <div class="breadcrumb-nav">
+    <div class="chat-header">
       <div class="breadcrumb-path">
         <a href="/messages" class="breadcrumb-item">Messages</a>
         <i class="bi bi-chevron-right breadcrumb-separator"></i>
@@ -32,53 +13,57 @@
       </button>
     </div>
 
-    <!-- Messages Area with Fixed Height and Scrolling -->
-    <div class="messages custom-scrollbar" ref="messagesContainer">
-      <div v-if="messages.length === 0" class="empty-state">
-        <div class="empty-icon">
-          <i class="bi bi-chat-dots"></i>
+    <!-- Messages Area with Scrolling -->
+    <div class="messages-container">
+      <div class="messages custom-scrollbar" ref="messagesContainer">
+        <div v-if="messages.length === 0" class="empty-state">
+          <div class="empty-icon">
+            <i class="bi bi-chat-dots"></i>
+          </div>
+          <p>No messages yet. Start the conversation!</p>
         </div>
-        <p>No messages yet. Start the conversation!</p>
+
+        <template v-else>
+          <!-- Message Groups by Date -->
+          <div v-for="(group, date) in messageGroups" :key="date" class="message-group">
+            <!-- Date Separator -->
+            <div class="date-separator" :id="`date-${date}`">
+              <span>{{ formatDateLabel(date) }}</span>
+            </div>
+
+            <!-- Message Bubbles -->
+            <div 
+              v-for="message in group" 
+              :key="message.id" 
+              :class="[
+                'message-wrapper', 
+                message.sender_id === currentUserId ? 'outgoing' : 'incoming'
+              ]">
+              
+              <!-- Avatar (only for incoming) -->
+              <div v-if="message.sender_id !== currentUserId" class="message-avatar">
+                {{ message.sender_username ? message.sender_username.charAt(0).toUpperCase() : 'U' }}
+              </div>
+              
+              <!-- Message Content -->
+              <div class="message-content">
+                <div class="message-bubble">
+                  {{ message.content }}
+                </div>
+                <div class="message-info">
+                  <span class="message-time">{{ formatTime(message.timestamp || new Date()) }}</span>
+                  <span v-if="message.sender_id === currentUserId" class="message-status">
+                    <i class="bi bi-check2-all"></i>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </template>
       </div>
-
-      <template v-else>
-        <!-- Message Groups by Date -->
-        <div v-for="(group, date) in messageGroups" :key="date" class="message-group">
-          <!-- Date Separator -->
-          <div class="date-separator" :id="`date-${date}`">
-            <span>{{ formatDateLabel(date) }}</span>
-          </div>
-
-          <!-- Message Bubbles -->
-          <div 
-            v-for="message in group" 
-            :key="message.id" 
-            class="message-wrapper"
-            :class="{'outgoing': message.sender_id === currentUserId, 'incoming': message.sender_id !== currentUserId}">
-            
-            <!-- Avatar (only for incoming) -->
-            <div v-if="message.sender_id !== currentUserId" class="message-avatar">
-              {{ message.sender_username.charAt(0).toUpperCase() }}
-            </div>
-            
-            <!-- Message Content -->
-            <div class="message-content">
-              <div class="message-bubble">
-                {{ message.content }}
-              </div>
-              <div class="message-info">
-                <span class="message-time">{{ formatTime(message.timestamp || new Date()) }}</span>
-                <span v-if="message.sender_id === currentUserId" class="message-status">
-                  <i class="bi bi-check2-all"></i>
-                </span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </template>
     </div>
 
-    <!-- Input Area - Always Visible at Bottom -->
+    <!-- Input Area - Fixed at Bottom -->
     <div class="input-area">
       <button class="attachment-button">
         <i class="bi bi-plus"></i>
@@ -275,16 +260,15 @@ export default {
 
 <style scoped>
 /* Main Container */
-
 .chat-container {
-    display: flex;
-    flex-direction: column;
-    height: 80vh; 
-    max-height: 600px; 
-    width: 100%;
-    border: 1px solid #ccc;
-    border-radius: 8px;
-    overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* Use viewport height */
+  width: 100%;
+  background-color: #ffffff;
+  position: relative;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  overflow: hidden; /* Prevent scrolling of the entire container */
 }
 
 /* Chat Header */
@@ -292,75 +276,12 @@ export default {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 15px 20px;
-  background-color: white;
-  border-bottom: 1px solid #eaeaea;
-  flex-shrink: 0; /* Prevent header from shrinking */
-}
-
-.user-info {
-  display: flex;
-  align-items: center;
-}
-
-.avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  background-color: #4f46e5;
-  color: white;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: bold;
-  margin-right: 12px;
-}
-
-.user-details h3 {
-  margin: 0;
-  font-size: 16px;
-  font-weight: 600;
-}
-
-.status {
-  font-size: 12px;
-  color: #10b981;
-}
-
-.header-actions {
-  display: flex;
-  gap: 10px;
-}
-
-.icon-button {
-  background: none;
-  border: none;
-  color: #6b7280;
-  font-size: 18px;
-  cursor: pointer;
-  padding: 5px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background-color 0.2s;
-}
-
-.icon-button:hover {
-  background-color: #f3f4f6;
-  color: #4f46e5;
-}
-
-/* Breadcrumb Navigation */
-.breadcrumb-nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 8px 20px;
+  padding: 12px 16px;
   background-color: #ffffff;
-  border-bottom: 1px solid #eaeaea;
-  font-size: 14px;
-  flex-shrink: 0; /* Prevent breadcrumb from shrinking */
+  border-bottom: 1px solid #e4e6eb;
+  height: 60px; /* Fixed height */
+  flex-shrink: 0; /* Prevent shrinking */
+  z-index: 10;
 }
 
 .breadcrumb-path {
@@ -369,193 +290,197 @@ export default {
 }
 
 .breadcrumb-item {
-  color: #6b7280;
+  color: #050505;
   text-decoration: none;
+  font-weight: 600;
+  font-size: 16px;
 }
 
 .breadcrumb-item:hover {
-  color: #4f46e5;
-  text-decoration: underline;
+  color: #1877f2;
 }
 
 .breadcrumb-item.current {
-  color: #1f2937;
-  font-weight: 500;
+  color: #050505;
+  font-weight: 600;
 }
 
 .breadcrumb-separator {
   margin: 0 8px;
-  color: #9ca3af;
+  color: #65676b;
   font-size: 12px;
 }
 
 .scroll-bottom-btn {
   display: flex;
   align-items: center;
-  background-color: #f3f4f6;
+  background-color: #e4e6eb;
   border: none;
-  border-radius: 16px;
-  padding: 4px 10px;
-  font-size: 12px;
-  color: #4f46e5;
+  padding: 6px 12px;
+  border-radius: 18px;
+  font-size: 13px;
   cursor: pointer;
-  transition: background-color 0.2s;
+  color: #050505;
+  font-weight: 500;
 }
 
 .scroll-bottom-btn:hover {
-  background-color: #e5e7eb;
+  background-color: #d8dadf;
 }
 
 .scroll-bottom-btn i {
   margin-right: 4px;
 }
 
-/* Custom Scrollbar */
-.custom-scrollbar {
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e1 transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar {
-  width: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb {
-  background-color: #cbd5e1;
-  border-radius: 6px;
-}
-
-.custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background-color: #94a3b8;
-}
-
-/* Messages Area - Fixed Height with Scrolling */
-.messages {
-  flex: 1; 
-  overflow-y: auto;
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
+/* Messages Container */
+.messages-container {
+  flex: 1; /* Take up all available space */
   position: relative;
-  min-height: 100px; /* Ensure minimum height */
-  max-height: calc(100% - 40%); 
+  overflow: hidden;
+}
+
+/* Messages Area */
+.messages {
+  height: 100%;
+  padding: 16px;
+  overflow-y: auto; /* Enable vertical scrolling */
+  background-color: #ffffff;
 }
 
 .empty-state {
   display: flex;
   flex-direction: column;
-  align-items: center;
   justify-content: center;
+  align-items: center;
   height: 100%;
-  color: #9ca3af;
+  color: #65676b;
+  padding: 20px;
 }
 
 .empty-icon {
   font-size: 48px;
-  margin-bottom: 10px;
-  color: #d1d5db;
+  margin-bottom: 16px;
+  color: #1877f2;
+}
+
+.empty-state p {
+  font-size: 15px;
+  text-align: center;
 }
 
 .message-group {
-  margin-bottom: 20px;
+  margin-bottom: 16px;
 }
 
 .date-separator {
   text-align: center;
-  margin: 20px 0;
+  margin: 16px 0;
   position: relative;
 }
 
 .date-separator span {
-  background-color: #f5f7fb;
-  padding: 0 10px;
+  background-color: #ffffff;
+  padding: 0 12px;
   font-size: 12px;
-  color: #6b7280;
+  color: #65676b;
   position: relative;
   z-index: 1;
 }
 
 .date-separator:before {
-  content: "";
+  content: '';
   position: absolute;
   top: 50%;
   left: 0;
   right: 0;
   height: 1px;
-  background-color: #e5e7eb;
+  background-color: #e4e6eb;
   z-index: 0;
 }
 
+/* Message Wrapper */
 .message-wrapper {
   display: flex;
-  margin-bottom: 12px;
-  max-width: 80%;
+  margin-bottom: 8px;
+  clear: both;
+  width: 100%;
 }
 
 .outgoing {
-  align-self: flex-end;
-  flex-direction: row-reverse;
+  flex-direction: row-reverse; /* Reverse direction for outgoing */
+  justify-content: flex-end;
 }
 
 .incoming {
-  align-self: flex-start;
+  flex-direction: row;
+  justify-content: flex-start;
 }
 
 .message-avatar {
-  width: 32px;
-  height: 32px;
+  width: 28px;
+  height: 28px;
+  background-color: #1877f2;
+  color: #ffffff;
   border-radius: 50%;
-  background-color: #4f46e5;
-  color: white;
   display: flex;
-  align-items: center;
   justify-content: center;
-  font-size: 12px;
-  font-weight: bold;
+  align-items: center;
   margin: 0 8px;
+  font-size: 14px;
+  font-weight: 500;
+  align-self: flex-end;
   flex-shrink: 0;
 }
 
 .message-content {
   display: flex;
   flex-direction: column;
+  max-width: 60%;
 }
 
 .outgoing .message-content {
   align-items: flex-end;
 }
 
+.incoming .message-content {
+  align-items: flex-start;
+}
+
 .message-bubble {
-  padding: 12px 16px;
+  padding: 8px 12px;
+  font-size: 14px;
+  word-wrap: break-word;
+  line-height: 1.4;
   border-radius: 18px;
   max-width: 100%;
-  word-wrap: break-word;
-  margin-bottom: 4px;
 }
 
 .outgoing .message-bubble {
-  background-color: #4f46e5;
+  background-color: #0084ff;
   color: white;
-  border-bottom-right-radius: 4px;
+  border-radius: 18px 18px 0 18px;
 }
 
 .incoming .message-bubble {
-  background-color: white;
-  color: #1f2937;
-  border-bottom-left-radius: 4px;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  background-color: #f0f2f5;
+  color: #050505;
+  border-radius: 18px 18px 18px 0;
 }
 
 .message-info {
   display: flex;
-  align-items: center;
   font-size: 11px;
-  color: #9ca3af;
-  margin: 0 4px;
+  color: #65676b;
+  margin-top: 2px;
+  padding: 0 4px;
+}
+
+.outgoing .message-info {
+  justify-content: flex-end;
+}
+
+.incoming .message-info {
+  justify-content: flex-start;
 }
 
 .message-time {
@@ -563,132 +488,141 @@ export default {
 }
 
 .message-status {
-  color: #4f46e5;
+  color: #0084ff;
 }
 
-/* Input Area - Always Visible at Bottom */
+/* Input Area - Fixed at Bottom */
 .input-area {
   display: flex;
   align-items: center;
-  padding: 15px;
-  background-color: white;
-  border-top: 1px solid #eaeaea;
-  flex-shrink: 0; 
+  padding: 12px 16px;
+  background-color: #ffffff;
+  border-top: 1px solid #e4e6eb;
+  height: 64px; /* Fixed height */
+  flex-shrink: 0; /* Prevent shrinking */
+  z-index: 10;
+  box-shadow: 0 -1px 5px rgba(0, 0, 0, 0.05);
 }
 
-.attachment-button {
-  background: none;
+.attachment-button,
+.emoji-button,
+.send-button {
   border: none;
-  color: #6b7280;
+  background: none;
+  color: #1877f2;
   font-size: 20px;
   cursor: pointer;
-  padding: 8px;
+  width: 36px;
+  height: 36px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   transition: background-color 0.2s;
+  flex-shrink: 0;
 }
 
-.attachment-button:hover {
-  background-color: #f3f4f6;
-  color: #4f46e5;
+.attachment-button:hover,
+.emoji-button:hover {
+  background-color: #f0f2f5;
 }
 
 .input-wrapper {
-  flex: 1;
   display: flex;
+  flex-grow: 1;
   align-items: center;
-  background-color: #f3f4f6;
-  border-radius: 24px;
-  padding: 0 15px;
-  margin: 0 10px;
+  background-color: #f0f2f5;
+  border-radius: 20px;
+  margin: 0 8px;
+  padding: 0 4px;
+  min-height: 40px;
 }
 
-.emoji-button {
-  background: none;
+.input-wrapper input {
+  width: 100%;
+  padding: 8px 12px;
   border: none;
-  color: #6b7280;
-  font-size: 18px;
-  cursor: pointer;
-  padding: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-input {
-  flex: 1;
-  border: none;
-  background: transparent;
-  padding: 12px 5px;
   font-size: 14px;
-  color:black;
+  background-color: transparent;
   outline: none;
-  z-index: 99;
+  color: #050505;
+}
+
+.input-wrapper input::placeholder {
+  color: #65676b;
 }
 
 .send-button {
-  background-color: #e5e7eb;
-  border: none;
-  color: #9ca3af;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  cursor: pointer;
-  transition: all 0.2s;
+  color: #1877f2;
+  opacity: 0.6;
+  transition: opacity 0.2s;
 }
 
 .send-button.active {
-  background-color: #4f46e5;
-  color: white;
+  opacity: 1;
 }
 
 .send-button:disabled {
+  opacity: 0.4;
   cursor: not-allowed;
-  opacity: 0.7;
 }
 
-/* Responsive Adjustments */
+/* Custom scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 8px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: #bcc0c4;
+  border-radius: 4px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #8a8d91;
+}
+
+/* Media queries for responsive design */
 @media (max-width: 768px) {
-  .message-wrapper {
-    max-width: 90%;
-  }
-  
-  .breadcrumb-nav {
-    padding: 6px 15px;
-    font-size: 12px;
-  }
-  
-  .messages {
-    max-height: calc(100% - 160px); /* Adjust for smaller header/footer on mobile */
-  }
-}
-
-@media (max-width: 576px) {
   .chat-header {
-    padding: 10px 15px;
-  }
-  
-  .avatar {
-    width: 36px;
-    height: 36px;
+    height: 50px;
+    padding: 8px 12px;
   }
   
   .messages {
-    padding: 15px;
+    padding: 12px;
   }
   
-  .message-bubble {
-    padding: 10px 14px;
+  .message-content {
+    max-width: 75%;
   }
   
   .input-area {
-    padding: 10px;
+    height: 56px;
+    padding: 8px 12px;
+  }
+  
+  .breadcrumb-item {
+    font-size: 14px;
+  }
+  
+  .scroll-bottom-btn {
+    padding: 4px 8px;
+    font-size: 12px;
+  }
+  
+  .scroll-bottom-btn span {
+    display: none; /* Hide text on small screens */
   }
 }
 
+/* Fix for iOS Safari viewport height issues */
+@supports (-webkit-touch-callout: none) {
+  .chat-container {
+    height: -webkit-fill-available;
+  }
+}
 </style>

@@ -1,0 +1,14 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Delete Announcement</h2>
+    <p>Are you sure you want to delete the announcement titled: <strong>{{ object.title }}</strong>?</p>
+
+    <form method="post">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-danger">Yes, Delete</button>
+        <a href="{% url 'admin_dashboard:admin_announcement_list' %}" class="btn btn-secondary">Cancel</a>
+    </form>
+</div>
+{% endblock %}

@@ -40,7 +40,7 @@ class ChatConsumer(AsyncWebsocketConsumer):
         try:
             data = json.loads(text_data)
             message = data.get("message")
-            sender_id = data.get("sender")
+            sender_id = data.get("sender_id")
 
             if not message:
                 logger.error("Received empty message.")
@@ -64,8 +64,16 @@ class ChatConsumer(AsyncWebsocketConsumer):
                 logger.error(f"Conversation with ID {self.conversation_id} does not exist.")
                 return await self.send(text_data=json.dumps({"error": "Conversation not found."}))
 
+            if sender not in [conversation.user1, conversation.user2]:
+                logger.warning("Unauthorized message attempt.")
+                return await self.send(text_data=json.dumps({"error": "Unauthorized"}))
+
             # Save message
-            new_message = await Message.objects.acreate(conversation=conversation, sender=sender, content=message)
+            new_message = await Message.objects.acreate(
+                conversation=conversation,
+                sender=sender,
+                content=message
+            )
 
             # Send message to group
             await self.channel_layer.group_send(
@@ -74,6 +82,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
                     "type": "chat_message",
                     "message": new_message.content,
                     "sender": sender.username,
+                    "sender_id": sender.id,
+                    "timestamp": new_message.created_at.strftime("%Y-%m-%d %H:%M:%S"),
                 }
             )
             logger.debug("Message sent to group.")
@@ -91,6 +101,8 @@ class ChatConsumer(AsyncWebsocketConsumer):
             await self.send(text_data=json.dumps({
                 "message": event["message"],
                 "sender": event["sender"],
+                "sender_id": event["sender_id"],
+                "timestamp": event["timestamp"],
             }))
         except Exception as e:
             logger.error(f"Error in chat_message: {e}")

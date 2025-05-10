@@ -1,18 +1,31 @@
 import { createApp } from 'vue';
 import './style.css';
 import App from './App.vue';
-import Chat from './components/Chat.vue'; // Import Chat component
+import Chat from './components/Chat.vue';
 
+// Create app and register the chat component
 const app = createApp(App);
-app.component('chat-component', Chat); // Register Chat component
+app.component('chat-component', Chat);
 
-// Add a delay before mounting
+// Delay to ensure DOM is ready
 setTimeout(() => {
     const chatAppElement = document.getElementById('chat-app');
-    console.log("📌 chat-app element:", chatAppElement); // Check for presence
+    console.log("chat-app element:", chatAppElement);
+
     if (chatAppElement) {
-        app.mount('#chat-app'); // Change mount point back to #chat-app
+        const conversationId = chatAppElement.dataset.conversationId;
+        const currentUserId = chatAppElement.dataset.currentUserId;
+        const receiverId = chatAppElement.dataset.receiverId;
+
+        app.mount('#chat-app');
+
+        // Provide props through global config or use <chat-component :conversation-id="..." />
+        app.provide('chatConfig', {
+            conversationId: parseInt(conversationId),
+            currentUserId: parseInt(currentUserId),
+            receiverId: parseInt(receiverId)
+        });
     } else {
-        console.error("❌ chat-app element not found!");
+        console.error("chat-app element not found!");
     }
-}, 1000); // 1 second delay
+}, 1000);

@@ -1,4 +1,5 @@
 {% extends 'mainpages/base.html' %}
+{% load static %}
 
 {% block content %}
 <!-- Chat Interface Container -->
@@ -11,7 +12,41 @@
                 <i class="bi bi-x-lg"></i>
             </button>
         </div>
-        
+
+        <!-- Conversations List -->
+        <div class="conversations-list">
+            {% for conv in conversations %}
+                <a href="{% url 'messaging:conversation_detail' conv.id %}" class="conversation-item {% if conv.id == conversation.id %}active{% endif %}">
+                    <!-- Added Avatar for Conversation -->
+                    <div class="conversation-avatar">
+                        {% if conv.user1.id != request.user.id and conv.user1.profile_image %}
+                            <img src="{{ conv.user1.profile_image.url }}" alt="{{ conv.user1.username }}" class="rounded-circle">
+                        {% elif conv.user2.id != request.user.id and conv.user2.profile_image %}
+                            <img src="{{ conv.user2.profile_image.url }}" alt="{{ conv.user2.username }}" class="rounded-circle">
+                        {% else %}
+                            <div class="avatar-placeholder rounded-circle">
+                                <span>
+                                    {% if conv.user1.id != request.user.id %}
+                                        {{ conv.user1.username|slice:":1"|upper }}
+                                    {% else %}
+                                        {{ conv.user2.username|slice:":1"|upper }}
+                                    {% endif %}
+                                </span>
+                            </div>
+                        {% endif %}
+                        
+                        <!-- Online Status Indicator -->
+                        {% if conv.user1.id != request.user.id and conv.user1.is_online or conv.user2.id != request.user.id and conv.user2.is_online %}
+                            <span class="status-indicator bg-success"></span>
+                        {% endif %}
+                    </div>
+                    <div class="conversation-info">
+                        <h6>{{ conv.user1.username }} & {{ conv.user2.username }}</h6>
+                        <small class="message-preview">{{ conv.last_message_content }}</small>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
         <!-- Search Box -->
         <div class="sidebar-search">
             <div class="input-group">
@@ -21,91 +56,9 @@
                 <input type="text" class="form-control border-start-0" placeholder="Search conversations...">
             </div>
         </div>
+
         
-        <!-- Conversations List -->
-        <div class="conversations-list">
-            {% for conv in all_conversations %}
-                <a href="{% url 'conversation_detail' conv.id %}" class="conversation-item {% if conv.id == conversation.id %}active{% endif %}">
-                    <div class="d-flex align-items-center">
-                        <!-- User Avatar -->
-                        {% if conv.user1_id == request.user.id %}
-                            {% with other_user=conv.user2 %}
-                                <div class="avatar-container me-2">
-                                    {% if other_user.profile_image %}
-                                        <img src="{{ other_user.profile_image.url }}" alt="{{ other_user.username }}" class="rounded-circle" width="40" height="40">
-                                    {% else %}
-                                        <div class="avatar-placeholder rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                            <span>{{ other_user.username|slice:":1"|upper }}</span>
-                                        </div>
-                                    {% endif %}
-                                    
-                                    <!-- Online Status Indicator (if available) -->
-                                    {% if other_user.is_online %}
-                                        <span class="status-indicator bg-success"></span>
-                                    {% endif %}
-                                </div>
-                                
-                                <div class="conversation-info">
-                                    <h6 class="mb-0">{{ other_user.get_full_name|default:other_user.username }}</h6>
-                                    
-                                    <!-- Last Message Preview (if available) -->
-                                    {% if conv.last_message %}
-                                        <p class="text-muted mb-0 text-truncate">{{ conv.last_message.content|truncatechars:30 }}</p>
-                                    {% else %}
-                                        <p class="text-muted mb-0"><em>No messages yet</em></p>
-                                    {% endif %}
-                                </div>
-                                
-                                <!-- Unread Badge (if available) -->
-                                {% if conv.unread_count > 0 %}
-                                    <span class="badge rounded-pill bg-primary ms-auto">{{ conv.unread_count }}</span>
-                                {% endif %}
-                            {% endwith %}
-                        {% else %}
-                            {% with other_user=conv.user1 %}
-                                <div class="avatar-container me-2">
-                                    {% if other_user.profile_image %}
-                                        <img src="{{ other_user.profile_image.url }}" alt="{{ other_user.username }}" class="rounded-circle" width="40" height="40">
-                                    {% else %}
-                                        <div class="avatar-placeholder rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 40px; height: 40px;">
-                                            <span>{{ other_user.username|slice:":1"|upper }}</span>
-                                        </div>
-                                    {% endif %}
-                                    
-                                    <!-- Online Status Indicator (if available) -->
-                                    {% if other_user.is_online %}
-                                        <span class="status-indicator bg-success"></span>
-                                    {% endif %}
-                                </div>
-                                
-                                <div class="conversation-info">
-                                    <h6 class="mb-0">{{ other_user.get_full_name|default:other_user.username }}</h6>
-                                    
-                                    <!-- Last Message Preview (if available) -->
-                                    {% if conv.last_message %}
-                                        <p class="text-muted mb-0 text-truncate">{{ conv.last_message.content|truncatechars:30 }}</p>
-                                    {% else %}
-                                        <p class="text-muted mb-0"><em>No messages yet</em></p>
-                                    {% endif %}
-                                </div>
-                                
-                                <!-- Unread Badge (if available) -->
-                                {% if conv.unread_count > 0 %}
-                                    <span class="badge rounded-pill bg-primary ms-auto">{{ conv.unread_count }}</span>
-                                {% endif %}
-                            {% endwith %}
-                        {% endif %}
-                    </div>
-                </a>
-            {% empty %}
-                <div class="text-center p-3">
-                    <p class="text-muted">No conversations yet</p>
-                    <a href="{% url 'start_conversation' %}" class="btn btn-sm btn-primary">
-                        <i class="bi bi-plus-circle me-1"></i>New Conversation
-                    </a>
-                </div>
-            {% endfor %}
-        </div>
+        
     </div>
     
     <!-- Main Chat Area -->
@@ -179,10 +132,10 @@
             
             <!-- Action Buttons -->
             <div class="chat-actions">
-                <button class="btn btn-sm btn-outline-secondary">
+                <button class="btn btn-sm btn-outline-secondary action-btn">
                     <i class="bi bi-telephone"></i>
                 </button>
-                <button class="btn btn-sm btn-outline-secondary ms-2">
+                <button class="btn btn-sm btn-outline-secondary action-btn ms-2">
                     <i class="bi bi-three-dots-vertical"></i>
                 </button>
             </div>
@@ -203,7 +156,7 @@
         conversationId: "{{ conversation.id }}",
         currentUserId: "{{ request.user.id }}",
         receiverId: "{% if request.user.id == conversation.user1.id %}{{ conversation.user2.id }}{% else %}{{ conversation.user1.id }}{% endif %}",
-        apiBaseUrl: "{% url 'fetch_messages' conversation.id %}"
+        apiBaseUrl: "{% url 'messaging:fetch_messages' conversation.id %}"
     };
     
     // Sidebar toggle functionality
@@ -227,8 +180,6 @@
 </script>
 
 <script type="module" src="http://localhost:5173/src/main.js"></script>
-
-<!-- Add Bootstrap Icons if not already included in your base template -->
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
 
 <!-- Custom CSS for chat interface -->
@@ -236,55 +187,140 @@
     /* Main Layout */
     .chat-interface {
         display: flex;
-        height: calc(100vh - 50px); 
+        height: 100vh;
         position: relative;
         overflow: hidden;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background-color: #ffffff;
+        box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
+        border-radius: 0;
+        margin: 0;
     }
     
     /* Sidebar Styles */
     .chat-sidebar {
         width: 300px;
-        background-color: #f8f9fa;
-        border-right: 1px solid #dee2e6;
+        background-color: #f9fafb;
+        border-right: 1px solid #eaecf0;
         display: flex;
         flex-direction: column;
         height: 100%;
+        transition: all 0.3s ease;
     }
     
     .sidebar-header {
-        padding: 15px;
-        border-bottom: 1px solid #dee2e6;
+        padding: 18px 20px;
+        border-bottom: 1px solid #eaecf0;
         display: flex;
         justify-content: space-between;
         align-items: center;
+        background-color: #ffffff;
+    }
+    
+    .sidebar-header h5 {
+        font-weight: 600;
+        color: #111827;
+        font-size: 1.1rem;
     }
     
     .sidebar-search {
-        padding: 10px 15px;
-        border-bottom: 1px solid #dee2e6;
+        padding: 12px 15px;
+        border-bottom: 1px solid #eaecf0;
+        background-color: #ffffff;
+    }
+    
+    .sidebar-search .input-group {
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        border-radius: 8px;
+        overflow: hidden;
+    }
+    
+    .sidebar-search .input-group-text,
+    .sidebar-search .form-control {
+        border-color: #e5e7eb;
+    }
+    
+    .sidebar-search .form-control:focus {
+        box-shadow: none;
+        border-color: #d1d5db;
     }
     
     .conversations-list {
         flex: 1;
         overflow-y: auto;
+        padding: 8px 0;
     }
     
     .conversation-item {
-        display: block;
-        padding: 10px 15px;
-        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        align-items: center;
+        padding: 12px 20px;
+        border-bottom: 1px solid #f3f4f6;
         text-decoration: none;
-        color: inherit;
-        transition: background-color 0.2s;
+        color: #4b5563;
+        transition: all 0.2s ease;
+        position: relative;
     }
     
     .conversation-item:hover {
-        background-color: rgba(0, 0, 0, 0.03);
+        background-color: #f3f4f6;
+        color: #111827;
     }
     
     .conversation-item.active {
-        background-color: rgba(13, 110, 253, 0.1);
-        border-left: 3px solid #0d6efd;
+        background-color: #eff6ff;
+        border-left: 3px solid #3b82f6;
+        color: #1e40af;
+    }
+    
+    /* Added styles for conversation avatars */
+    .conversation-avatar {
+        position: relative;
+        margin-right: 12px;
+        flex-shrink: 0;
+    }
+    
+    .conversation-avatar img,
+    .conversation-avatar .avatar-placeholder {
+        width: 40px;
+        height: 40px;
+        object-fit: cover;
+    }
+    
+    .conversation-avatar .avatar-placeholder {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 600;
+        font-size: 16px;
+    }
+    
+    .conversation-avatar .status-indicator {
+        width: 10px;
+        height: 10px;
+        position: absolute;
+        bottom: 0;
+        right: 0;
+        border: 2px solid white;
+        border-radius: 50%;
+    }
+    
+    .conversation-item h6 {
+        margin-bottom: 4px;
+        font-weight: 600;
+        font-size: 0.95rem;
+        color: #111827;
+    }
+    
+    .message-preview {
+        display: block;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        color: #6b7280;
+        font-size: 0.85rem;
     }
     
     .conversation-info {
@@ -298,25 +334,54 @@
         display: flex;
         flex-direction: column;
         height: 100%;
+        background-color: #ffffff;
     }
     
     .chat-header {
-        padding: 10px 15px;
-        background-color: #f8f9fa;
-        border-bottom: 1px solid #dee2e6;
+        padding: 15px 20px;
+        background-color: #ffffff;
+        border-bottom: 1px solid #eaecf0;
         display: flex;
         align-items: center;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        z-index: 10;
+    }
+    
+    .chat-header h6 {
+        font-weight: 600;
+        color: #111827;
     }
     
     .chat-actions {
         margin-left: auto;
     }
     
+    .action-btn {
+        width: 36px;
+        height: 36px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        border-color: #e5e7eb;
+        color: #4b5563;
+        transition: all 0.2s ease;
+    }
+    
+    .action-btn:hover {
+        background-color: #f3f4f6;
+        color: #111827;
+        border-color: #d1d5db;
+    }
+    
     #chat-app {
         flex: 1;
-        overflow: hidden;
+        overflow-y: auto;
         display: flex;
         flex-direction: column;
+        background-color: #f9fafb;
+        padding: 20px;
+        height: calc(100% - 60px); /* Account for header height */
     }
     
     /* Avatar and Status */
@@ -324,14 +389,21 @@
         position: relative;
     }
     
+    .avatar-placeholder {
+        background: linear-gradient(135deg, #3b82f6, #2563eb);
+        font-weight: 600;
+        box-shadow: 0 2px 5px rgba(37, 99, 235, 0.2);
+    }
+    
     .status-indicator {
         position: absolute;
-        bottom: 0;
-        right: 0;
-        width: 10px;
-        height: 10px;
+        bottom: 2px;
+        right: 2px;
+        width: 12px;
+        height: 12px;
         border-radius: 50%;
         border: 2px solid white;
+        box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.05);
     }
     
     /* Toggle Buttons */
@@ -341,31 +413,72 @@
         font-size: 1.25rem;
         cursor: pointer;
         padding: 0;
-        color: #6c757d;
+        color: #6b7280;
+        transition: color 0.2s ease;
     }
     
     .btn-toggle-sidebar:hover {
-        color: #0d6efd;
+        color: #3b82f6;
+    }
+    
+    /* Scrollbar Styling */
+    .conversations-list::-webkit-scrollbar {
+        width: 6px;
+    }
+    
+    .conversations-list::-webkit-scrollbar-track {
+        background: #f9fafb;
+    }
+    
+    .conversations-list::-webkit-scrollbar-thumb {
+        background-color: #d1d5db;
+        border-radius: 20px;
+    }
+    
+    .conversations-list::-webkit-scrollbar-thumb:hover {
+        background-color: #9ca3af;
     }
     
     /* Responsive Adjustments */
     @media (max-width: 767.98px) {
-        .chat-sidebar {
-            position: absolute;
-            left: -300px;
-            top: 0;
-            bottom: 0;
-            z-index: 1030;
-            transition: left 0.3s ease;
+        .chat-interface {
+            margin: 0;
+            border-radius: 0;
+            height: 100vh;
+        }
+        #chat-app {
+            height: calc(100% - 60px);
+            padding: 10px;
+        }
+
+        
+        .conversation-item {
+            padding: 10px 15px;
         }
         
-        .chat-sidebar.show {
-            left: 0;
+        .conversation-avatar img,
+        .conversation-avatar .avatar-placeholder {
+            width: 36px;
+            height: 36px;
         }
     }
 
+    /* Animation for new messages */
+    @keyframes message-fade-in {
+        from { opacity: 0; transform: translateY(10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+    
+    /* Utility classes */
     .mt-4 {
-    margin-top: 0.5rem !important;
+        margin-top: 0.5rem !important;
+    }
+    
+    /* Improve focus states for accessibility */
+    .form-control:focus,
+    .btn:focus {
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3);
+        outline: none;
     }
 </style>
 {% endblock %}

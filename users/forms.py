@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser
+from .models import CustomUser, Skill
 
 # Custom Registration Form
 class CustomUserRegistrationForm(UserCreationForm):
@@ -51,6 +51,23 @@ class UserProfileForm(forms.ModelForm):
         widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Write something about yourself...', 'rows': 3})
     )
 
+    skills = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Add skills...',
+            'id': 'skills-input'
+        })
+    )
+
+
     class Meta:
         model = CustomUser
-        fields = ['profile_picture', 'username', 'email', 'contact_number', 'bio']
+        fields = ['profile_picture', 'username', 'email', 'contact_number', 'bio']  # Removed 'skills' from fields
+
+    def save(self, commit=True):
+        user = super().save(commit=False)
+        # skills field is handled separately in the view
+        if commit:
+            user.save()
+        return user

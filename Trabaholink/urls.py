@@ -7,11 +7,11 @@ from django.conf.urls.static import static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path("", include("jobs.urls")),
+    path("admin_dashboard/", include("admin_dashboard.urls", namespace="admin_dashboard")),
+    path("", include("jobs.urls", namespace="jobs")),
     path('users/', include('users.urls')),
-    path("messaging/", include("messaging.urls")),
-    path("announcements/", include("announcements.urls")),
-    path("admin_dashboard/", include("admin_dashboard.urls")),
+    path("messaging/", include("messaging.urls", namespace="messaging")),
+    path("announcements/", include("announcements.urls", namespace="announcements")),
     path("notifications/", include("notifications.urls")),
 
 ]

@@ -9,6 +9,7 @@ from django.contrib import messages
 from django.contrib.messages.views import SuccessMessageMixin
 from .models import ModeratedWord
 from .forms import ModeratedWordForm
+from announcements.forms import AnnouncementForm
 from django.contrib.auth import get_user_model
 from announcements.models import Announcement
 
@@ -107,3 +108,33 @@ class ModeratedWordDeleteView(SuccessMessageMixin, DeleteView):
     template_name = 'admin_dashboard/moderated_word_confirm_delete.html'
     success_url = reverse_lazy('admin_dashboard:moderated_word_list')
     success_message = "Word deleted successfully."
+
+
+
+# Announcement management
+
+class AnnouncementCreateView(AdminRequiredMixin, CreateView):
+    model = Announcement
+    form_class = AnnouncementForm
+    template_name = 'admin_dashboard/announcement_form.html'
+    success_url = reverse_lazy('admin_dashboard:admin_announcement_list')
+    success_message = "Announcement created successfully."
+
+    
+class AnnouncementSummaryView(AdminRequiredMixin, ListView):
+    model = Announcement
+    template_name = 'admin_dashboard/announcement_summary.html'
+    context_object_name = 'announcements'
+    ordering = ['-created_at']
+
+class AnnouncementUpdateView(AdminRequiredMixin, UpdateView):
+    model = Announcement
+    form_class = AnnouncementForm
+    template_name = 'admin_dashboard/announcement_edit.html'
+    success_url = reverse_lazy('admin_dashboard:admin_announcement_list')
+
+
+class AnnouncementDeleteView(AdminRequiredMixin, DeleteView):
+    model = Announcement
+    template_name = 'admin_dashboard/announcement_confirm_delete.html'
+    success_url = reverse_lazy('admin_dashboard:admin_announcement_list')
