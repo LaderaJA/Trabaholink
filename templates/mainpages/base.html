@@ -41,10 +41,10 @@
             </li>
             {% if user.is_authenticated %}
             <li class="tl-nav-item">
-              <a class="tl-nav-link {% if request.path == '/conversation_list/' %}active{% endif %}" href="{% url 'messaging:conversation_list' %}">Messaging</a>
+              <a class="tl-nav-link {% if request.path == '/conversation_list/' %}active{% endif %}" href="{% url 'messaging:conversation_list' %}">Messages</a>
             </li>
             <li class="tl-nav-item">
-              <a class="tl-nav-link {% if request.path == '/users/profile/' %}active{% endif %}" href="{% url 'profile' %}">Profile</a>
+              <a class="tl-nav-link {% if request.path == '/users/profile/' %}active{% endif %}" href="{% url 'profile' user.pk %}">Profile</a>
             </li>
             <li class="tl-nav-item">
               <form method="post" action="{% url 'logout' %}" style="display: inline">

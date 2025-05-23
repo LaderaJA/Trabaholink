@@ -1,14 +1,18 @@
-from django.http import JsonResponse
+import json
+from django.http import HttpResponseRedirect, JsonResponse
 from django.views.generic import TemplateView, ListView, CreateView, UpdateView, DeleteView, DetailView
 from django.shortcuts import get_object_or_404, redirect
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
-from django.urls import reverse_lazy
+from django.urls import reverse, reverse_lazy
 from django.contrib.gis.geos import Point
 from django.contrib.gis.db.models.functions import Distance
 from django.db.models import Q
+from .utils import get_users_who_applied
 from .models import Job, JobCategory, JobImage, JobApplication, Contract
 from .forms import JobForm, JobApplicationForm, JobImageForm
 from django.views.decorators.csrf import csrf_exempt
+from django.core.paginator import Paginator
+
 
 # Homepage View (Static Landing Page)
 class HomePageView(TemplateView):
@@ -29,6 +33,20 @@ def build_full_address(job):
         job.municipality,
     ])
     return ", ".join(parts)
+
+@csrf_exempt
+def set_user_location(request):
+    if request.method == 'POST':
+        try:
+            data = json.loads(request.body)
+            request.session['user_location'] = {
+                'lat': data['lat'],
+                'lng': data['lng']
+            }
+            return JsonResponse({'status': 'ok'})
+        except (KeyError, ValueError):
+            return JsonResponse({'status': 'error', 'message': 'Invalid data'})
+    return JsonResponse({'status': 'error', 'message': 'Invalid HTTP method'})
 
 class JobListView(ListView):
     model = Job
@@ -70,7 +88,6 @@ class JobListView(ListView):
         if user_lat and user_lng:
             try:
                 self.user_location = Point(float(user_lng), float(user_lat), srid=4326)
-                queryset = queryset.filter(location__distance_lte=(self.user_location, 10000))
                 queryset = queryset.annotate(distance=Distance("location", self.user_location))
             except (ValueError, TypeError):
                 self.user_location = None
@@ -98,6 +115,8 @@ class JobListView(ListView):
         context = super().get_context_data(**kwargs)
         context["categories"] = JobCategory.objects.all()
         context["request"] = self.request
+        context["user_location"] = self.user_location
+
         return context
 
 # 🔹 Job Detail View
@@ -105,6 +124,37 @@ class JobDetailView(DetailView):
     model = Job
     template_name = "jobs/job_detail.html"
     context_object_name = "job"
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        job = self.get_object()
+        user = self.request.user
+
+        if user.is_authenticated:
+            # Check if the user is the owner of the job
+            context["is_owner"] = user == job.owner
+
+            # Get the list of applicants if the user is the owner
+            if context["is_owner"]:
+                applicants = job.applications.select_related("worker").all()
+
+                # Apply filters
+                search_query = self.request.GET.get("search", "")
+                if search_query:
+                    applicants = applicants.filter(worker__username__icontains=search_query)
+
+                # Paginate the applicants
+                paginator = Paginator(applicants, 5)  # Show 5 applicants per page
+                page_number = self.request.GET.get("page")
+                page_obj = paginator.get_page(page_number)
+
+                context["applicants"] = page_obj
+                context["search_query"] = search_query
+
+            # Check if the user has already applied for the job
+            context["has_applied"] = job.applications.filter(worker=user).exists()
+
+        return context
 
 # 🔹 Job Create View (with geolocation support)
 class JobCreateView(LoginRequiredMixin, CreateView):
@@ -135,14 +185,16 @@ class JobCreateView(LoginRequiredMixin, CreateView):
         if lat and lng:
             job.location = Point(float(lng), float(lat), srid=4326)
 
-            job.save()
+        job.save()
 
+        # Handle images
         files = self.request.FILES.getlist('images')
         if files:
             for f in files:
                 JobImage.objects.create(job=job, image=f)
 
-            return redirect(self.success_url)
+        # Redirect to success URL
+        return redirect(self.success_url)
 # 🔹 Job Update View (Only job owners can edit)
 class JobUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Job
@@ -231,7 +283,7 @@ class ContractDetailView(LoginRequiredMixin, DetailView):
     template_name = "jobs/contract_detail.html"
     context_object_name = "contract"
 
-# Standalone image deletion view (optional - you can use this instead of handling in JobUpdateView)
+# Standalone image deletion view 
 @csrf_exempt
 def delete_image(request):
     if request.method == "POST":
@@ -251,3 +303,18 @@ def delete_image(request):
         else:
             return JsonResponse({'status': 'error', 'message': 'Invalid request type'})
     return JsonResponse({'status': 'error', 'message': 'Invalid HTTP method'})
+
+
+
+def job_applicants_view(request, job_id):
+    users = get_users_who_applied(job_id)
+    user_data = [{"id": user.id, "username": user.username, "email": user.email} for user in users]
+    return JsonResponse({"applicants": user_data})
+
+
+
+def deny_application(request, pk):
+    application = get_object_or_404(JobApplication, pk=pk)
+    if request.user == application.job.owner:
+        application.delete()
+    return HttpResponseRedirect(reverse('jobs:job_detail', kwargs={'pk': application.job.pk}))

@@ -269,19 +269,25 @@
 
       <div class="job-actions">
         {% if user.is_authenticated %}
-          {% if user == job.owner %}
-            <!-- If job owner -->
-            <a href="{% url 'jobs:job_edit' job.pk %}" class="btn btn-warning">Edit</a>
-            <a href="{% url 'jobs:job_delete' job.pk %}" class="btn btn-danger">Delete</a>
-          {% else %}
-            <!-- If worker (not the owner) -->
-            <a href="{% url 'messaging:start_conversation_with_user' username=job.owner.username %}" class="btn btn-primary">Message Owner</a>
-            <a href="{% url 'jobs:job_apply' job.pk %}" class="btn btn-success">Apply for Job</a>
-          {% endif %}
+            {% if user == job.owner %}
+                <!-- If the user is the job owner -->
+                <a href="{% url 'jobs:job_edit' job.pk %}" class="btn btn-warning">Edit</a>
+                <a href="{% url 'jobs:job_delete' job.pk %}" class="btn btn-danger">Delete</a>
+
+            {% else %}
+                <!-- If the user is not the job owner -->
+                <p>Number of Applications: {{ job.applications.count }}</p>
+                {% if has_applied %}
+                    <button class="btn btn-success" disabled>You have already applied</button>
+                {% else %}
+                    <a href="{% url 'jobs:job_apply' job.pk %}" class="btn btn-success">Apply for Job</a>
+                {% endif %}
+                <a href="{% url 'messaging:start_conversation_with_user' username=job.owner.username %}" class="btn btn-primary">Message Owner</a>
+            {% endif %}
         {% else %}
-          <div class="login-prompt">
-            <a href="{% url 'login' %}">Login</a> to apply or manage this job.
-          </div>
+            <div class="login-prompt">
+                <a href="{% url 'login' %}">Login</a> to apply or manage this job.
+            </div>
         {% endif %}
       </div>
     </div>
@@ -293,6 +299,90 @@
   </div>
   <p>Latitude: {{ job.latitude }}</p>
   <p>Longitude: {{ job.longitude }}</p>
+
+  <div class="job-actions">
+    {% if user.is_authenticated %}
+        {% if user == job.owner %}
+            <h3>Applicants:</h3>
+
+            <!-- Search and Filter -->
+            <form method="get" class="mb-3">
+                <input type="text" name="search" value="{{ search_query }}" placeholder="Search applicants..." class="form-control" />
+                <button type="submit" class="btn btn-primary mt-2">Search</button>
+            </form>
+
+            {% if applicants %}
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>Username</th>
+                            <th>Email</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for application in applicants %}
+                            <tr>
+                                <td>{{ forloop.counter }}</td>
+                                <td>
+                                    <a href="{% url 'profile' application.worker.id %}">
+                                        {{ application.worker.username }}
+                                    </a>
+                                </td>
+                                <td>{{ application.worker.email }}</td>
+                                <td>
+                                    <a href="{% url 'profile' application.worker.id %}" class="btn btn-info btn-sm">View Profile</a>
+                                    <a href="{% url 'messaging:start_conversation_with_user' username=application.worker.username %}" class="btn btn-primary btn-sm">Send Message</a>
+                                    <form method="post" action="{% url 'jobs:deny_application' application.id %}" style="display:inline;">
+                                        {% csrf_token %}
+                                        <button type="submit" class="btn btn-danger btn-sm">Deny</button>
+                                    </form>
+                                </td>
+                            </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <!-- Pagination -->
+                <nav>
+                    <ul class="pagination">
+                        {% if applicants.has_previous %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ applicants.previous_page_number }}&search={{ search_query }}">Previous</a>
+                            </li>
+                        {% endif %}
+                        {% for num in applicants.paginator.page_range %}
+                            <li class="page-item {% if num == applicants.number %}active{% endif %}">
+                                <a class="page-link" href="?page={{ num }}&search={{ search_query }}">{{ num }}</a>
+                            </li>
+                        {% endfor %}
+                        {% if applicants.has_next %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ applicants.next_page_number }}&search={{ search_query }}">Next</a>
+                            </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            {% else %}
+                <p>No applicants yet.</p>
+            {% endif %}
+        {% else %}
+            <!-- If the user is not the job owner -->
+            <p>Number of Applications: {{ job.applications.count }}</p>
+            {% if has_applied %}
+                <button class="btn btn-success" disabled>You have already applied</button>
+            {% else %}
+                <a href="{% url 'jobs:job_apply' job.pk %}" class="btn btn-success">Apply for Job</a>
+            {% endif %}
+            <a href="{% url 'messaging:start_conversation_with_user' username=job.owner.username %}" class="btn btn-primary">Message Owner</a>
+        {% endif %}
+    {% else %}
+        <div class="login-prompt">
+            <a href="{% url 'login' %}">Login</a> to apply or manage this job.
+        </div>
+    {% endif %}
+  </div>
 </div>
 
 <!-- Include Leaflet.js -->

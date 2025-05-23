@@ -175,13 +175,12 @@ AUTHENTICATION_BACKENDS = [
 
 
 # Redirect users after login/logout
-LOGIN_REDIRECT_URL = 'profile'  
+LOGIN_REDIRECT_URL = 'jobs:home'  
 LOGOUT_REDIRECT_URL = 'login'
 
 EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
-ANYMAIL = {
-    "SENDGRID_API_KEY": os.getenv("SENDGRID_API_KEY"),
-}
+ANYMAIL = SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
+
 DEFAULT_FROM_EMAIL = "junnuj312@gmail.com"
 
 GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH', '/usr/lib/libgdal.so')

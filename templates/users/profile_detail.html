@@ -55,20 +55,15 @@
                             <div class="stat-number">
                                 {{ user.posted_jobs.count|default:"0" }}
                             </div>
-                            <div class="stat-label">Jobs</div>
+                            <div class="stat-label">Jobs Posted</div>
                         </div>
                         <div class="stat-item">
                             <div class="stat-number">
-                                {{ user.applications.count|default:"0" }}
+                                {{ user.job_applications.count|default:"0" }}
                             </div>
-                            <div class="stat-label">Applied</div>
+                            <div class="stat-label">Job Applications</div>
                         </div>
-                        <div class="stat-item">
-                            <div class="stat-number">
-                                {{ user.connections.count|default:"0" }}
-                            </div>
-                            <div class="stat-label">Connects</div>
-                        </div>
+
                     </div>
                 </div>
                 
@@ -231,42 +226,64 @@
                             </a>
                         </div>
                         <div class="card-body">
-                            {% if user.posted_jobs.all %}
-                                <div class="list-group list-group-flush">
-                                    {% for job in user.posted_jobs.all %}
-                                        <div class="job-item">
-                                            <div class="job-header">
-                                                <h4 class="job-title">{{ job.title }}</h4>
-                                                <span class="job-badge bg-{{ job.status_color }}">{{ job.status }}</span>
-                                            </div>
+                            {% if posted_jobs %}
+                                <ul class="list-group">
+                                    {% for job in posted_jobs %}
+                                        <li class="list-group-item">
+                                            <h4 class="job-title">
+                                                <a href="{% url 'jobs:job_detail' job.id %}">
+                                                    {{ job.title }}
+                                                </a>
+                                            </h4>
                                             <p class="job-details">
-                                                <i class="bi bi-geo-alt me-1"></i>{{ job.location }}
-                                                <i class="bi bi-clock ms-3 me-1"></i>{{ job.job_type }}
+                                                <i class="bi bi-geo-alt me-1"></i>{{ job.municipality }},
+                                                {{ job.barangay }}
+                                                <i class="bi bi-clock ms-3 me-1"></i>{{ job.created_at|date:"M d, Y" }}
                                             </p>
-                                            <div class="job-footer">
-                                                <small class="job-date">Posted on {{ job.created_at }}</small>
-                                                <div class="job-actions">
-                                                    <a href="{% url 'jobs:job_detail' job.id %}" class="btn btn-sm btn-outline-primary me-1">
-                                                        View
-                                                    </a>
-                                                    <a href="{% url 'jobs:job_edit' job.id %}" class="btn btn-sm btn-outline-secondary">
-                                                        Edit
-                                                    </a>
-                                                </div>
+                                            <div class="job-actions">
+                                                <a href="{% url 'jobs:job_edit' job.id %}" class="btn btn-sm btn-outline-secondary">
+                                                    Edit
+                                                </a>
+                                                <a href="{% url 'jobs:job_delete' job.id %}" class="btn btn-sm btn-outline-danger">
+                                                    Delete
+                                                </a>
                                             </div>
-                                        </div>
+                                        </li>
                                     {% endfor %}
-                                </div>
+                                </ul>
                             {% else %}
-                                <div class="empty-state">
-                                    <i class="bi bi-briefcase empty-icon"></i>
-                                    <p class="empty-text">You haven't posted any jobs yet.</p>
-                                    <a href="{% url 'jobs:job_create' %}" class="btn btn-primary">
-                                        Post Your First Job
-                                    </a>
-                                </div>
+                                <p class="text-muted">You haven't posted any jobs yet.</p>
                             {% endif %}
                         </div>
+                    </div>
+                </div>
+                
+                <!-- Recent Applications -->
+                <div class="profile-card">
+                    <div class="card-header">
+                        <h3>Recent Applications</h3>
+                    </div>
+                    <div class="card-body">
+                        {% if recent_applications %}
+                            <ul class="list-group">
+                                {% for application in recent_applications %}
+                                    <li class="list-group-item">
+                                        <h4 class="job-title">
+                                            <a href="{% url 'jobs:job_detail' application.job.id %}">
+                                                {{ application.job.title }}
+                                        </a>
+                                        </h4>
+                                        <p class="job-details">
+                                            <i class="bi bi-geo-alt me-1"></i>{{ application.job.municipality }},
+                                            {{ application.job.barangay }}
+                                            <i class="bi bi-clock ms-3 me-1"></i>{{ application.applied_at|date:"M d, Y" }}
+                                        </p>
+                                    </li>
+                                {% endfor %}
+                            </ul>
+                        {% else %}
+                            <p class="text-muted">You haven't applied for any jobs recently.</p>
+                        {% endif %}
                     </div>
                 </div>
             </div>
@@ -274,7 +291,7 @@
     </div>
 </div>
 
-<!-- LinkedIn-style CSS -->
+
 <style>
     /* Base Styles */
     .profile-container {

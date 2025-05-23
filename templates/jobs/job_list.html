@@ -92,6 +92,40 @@
                         <a href="{% url 'jobs:job_create' %}" class="btn btn-success post-job-btn">
                             <i class="fa fa-plus-circle"></i> Post a New Job
                         </a>
+                        <!-- set location -->
+                        <button type="button" class="btn btn-outline-primary mb-3" data-bs-toggle="modal" data-bs-target="#locationModal">
+                            Set My Location
+                        </button>
+                        
+                        <!-- Location Modal -->
+<div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Set Your Starting Location</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="d-grid gap-3">
+            <button id="useCurrentLocation" class="btn btn-primary">Use My Current Location</button>
+            <button id="enterManualLocationBtn" class="btn btn-secondary">Enter Manually</button>
+            <button class="btn btn-outline-dark" data-bs-dismiss="modal">Not Now</button>
+          </div>
+  
+          <div id="manualLocationFields" class="mt-4 d-none">
+            <input type="text" id="manual_municipality" class="form-control mb-2" placeholder="Municipality/City">
+            <input type="text" id="manual_barangay" class="form-control mb-2" placeholder="Barangay">
+            <input type="text" id="manual_street" class="form-control mb-2" placeholder="Street (optional)">
+            <input type="text" id="manual_number" class="form-control mb-2" placeholder="House No. (optional)">
+          </div>
+        </div>
+        <div class="modal-footer d-none" id="manualSaveFooter">
+          <button type="button" class="btn btn-success" id="saveManualLocation">Save Location</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  
                         <!-- Sorting Options -->
                         <div class="sorting-options">
                             <label for="sort-select">Sort by:</label>
@@ -116,7 +150,7 @@
             <div class="col-md-6 col-lg-4 mb-4">
                 <div class="job-card">
                     <div class="job-card-header">
-                        <div class="category-badge" style="background-color: {{ job.category.color|default:'#1e4d8c' }}">
+                        <div class="category-badge" style="background-color: {% if job.category.color %}{{ job.category.color }}{% else %}#1e4d8c{% endif %}">
                             {{ job.category.name }}
                         </div>
                         <h3 class="job-title">
@@ -161,243 +195,647 @@
             {% endfor %}
         </div>
 
-        <!-- Pagination -->
-        {% if is_paginated %}
-        <div class="pagination-container">
-            <ul class="pagination">
-                {% if page_obj.has_previous %}
-                <li class="page-item">
-                    <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page=1">&laquo; First</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
-                </li>
-                {% endif %}
 
-                {% for num in page_obj.paginator.page_range %}
-                    {% if page_obj.number == num %}
-                    <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-                    {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                    <li class="page-item">
-                        <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ num }}">{{ num }}</a>
-                    </li>
-                    {% endif %}
-                {% endfor %}
 
-                {% if page_obj.has_next %}
-                <li class="page-item">
-                    <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
-                </li>
-                <li class="page-item">
-                    <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
-                </li>
-                {% endif %}
-            </ul>
-        </div>
+<!-- Pagination -->
+{% if is_paginated %}
+<div class="pagination-container">
+    <ul class="pagination">
+        {% if page_obj.has_previous %}
+        <li class="page-item">
+            <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page=1">&laquo; First</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
+        </li>
         {% endif %}
-    </div>
+
+        {% for num in page_obj.paginator.page_range %}
+            {% if page_obj.number == num %}
+            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
+            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+            <li class="page-item">
+                <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ num }}">{{ num }}</a>
+            </li>
+            {% endif %}
+        {% endfor %}
+
+        {% if page_obj.has_next %}
+        <li class="page-item">
+            <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
+        </li>
+        <li class="page-item">
+            <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
+        </li>
+        {% endif %}
+    </ul>
 </div>
+{% endif %}
+
+<!-- Hidden inputs for storing geolocation data -->
+<form id="filter-form" method="get" action="{% url 'jobs:job_list' %}">
+    <input type="hidden" name="lat" id="lat" value="{{ request.GET.lat }}">
+    <input type="hidden" name="lng" id="lng" value="{{ request.GET.lng }}">
+    {% for key, value in request.GET.items %}
+        {% if key != 'lat' and key != 'lng' %}
+            <input type="hidden" name="{{ key }}" value="{{ value }}">
+        {% endif %}
+    {% endfor %}
+</form>
+
+
+
 <style>
+/* Color Variables */
+:root {
+  --primary-blue: #1a73e8;
+  --secondary-blue: #174ea6;
+  --accent-yellow: #fbbc04;
+  --text-dark: #202124;
+  --text-light: #ffffff;
+  --background-light: #ffffff;
+  --background-gray: #f8f9fa;
+  --border-color: #dadce0;
+}
+
+/* Global Styles */
+body {
+  font-family: 'Google Sans', 'Segoe UI', Roboto, Arial, sans-serif;
+  background-color: var(--background-gray);
+  color: var(--text-dark);
+  line-height: 1.6;
+}
+
+.container {
+  max-width: 1200px;
+  padding: 0 20px;
+}
+
+.btn {
+  border-radius: 24px;
+  font-weight: 500;
+  padding: 8px 24px;
+  transition: all 0.2s;
+  text-transform: none;
+  letter-spacing: 0.25px;
+}
+
+.btn-primary {
+  background-color: var(--primary-blue);
+  border-color: var(--primary-blue);
+  color: var(--text-light);
+}
+
+.btn-primary:hover {
+  background-color: var(--secondary-blue);
+  border-color: var(--secondary-blue);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+.btn-success {
+  background-color: var(--accent-yellow);
+  border-color: var(--accent-yellow);
+  color: var(--text-dark);
+}
+
+.btn-success:hover {
+  background-color: #f0b400;
+  border-color: #f0b400;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+.btn-outline-primary {
+  color: var(--primary-blue);
+  border-color: var(--primary-blue);
+}
+
+.btn-outline-primary:hover {
+  background-color: rgba(26, 115, 232, 0.04);
+  color: var(--primary-blue);
+  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+}
+
+.form-control {
+  border-radius: 24px;
+  border: 1px solid var(--border-color);
+  padding: 12px 16px;
+  font-size: 14px;
+}
+
+.form-control:focus {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+}
+
 /* Hero section with search */
 .search-hero {
-    background-color: #1e4d8c;
-    padding: 3rem 0;
-    margin-bottom: 2rem;
-    color: white;
-    }
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+  padding: 60px 0;
+  margin-bottom: 40px;
+  color: var(--text-light);
+  border-radius: 0 0 30px 30px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+
+.search-hero h1 {
+  font-weight: 700;
+  font-size: 2.5rem;
+  margin-bottom: 1.5rem;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
 
 .simple-search-form {
-    max-width: 900px;
-    margin: 0 auto;
-    }
+  max-width: 900px;
+  margin: 0 auto;
+  position: relative;
+}
 
 .search-bar-container {
-    display: flex;
-    align-items: center;
-    gap: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  background: var(--background-light);
+  border-radius: 30px;
+  padding: 6px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
 }
 
 .main-search-input {
-    display: flex;
-    flex: 1;
+  display: flex;
+  flex: 1;
 }
 
 .main-search-input input {
-    border-top-right-radius: 0;
-    border-bottom-right-radius: 0;
-    height: 50px;
-    font-size: 1.1rem;
+  border-radius: 24px;
+  height: 48px;
+  font-size: 16px;
+  border: none;
+  box-shadow: none;
+  padding-left: 24px;
 }
 
 .search-btn {
-    border-top-left-radius: 0;
-    border-bottom-left-radius: 0;
-    height: 50px;
-    background-color: #f26522;
-    border-color: #f26522;
-    min-width: 100px;
+  border-radius: 24px;
+  height: 48px;
+  background-color: var(--accent-yellow);
+  border-color: var(--accent-yellow);
+  min-width: 120px;
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.search-btn:hover {
+  background-color: #f0b400;
+  border-color: #f0b400;
+  color: var(--text-dark);
 }
 
 .advanced-search-toggle button {
-    color: white;
-    text-decoration: underline;
+  color: var(--primary-blue);
+  text-decoration: none;
+  background-color: var(--background-light);
+  border-radius: 24px;
+  padding: 8px 16px;
+  font-size: 14px;
+  border: none;
+}
+
+.advanced-search-toggle button:hover {
+  background-color: rgba(26, 115, 232, 0.04);
 }
 
 .advanced-search-panel {
-    background-color: white;
-    border-radius: 8px;
-    padding: 1.5rem;
-    margin-top: 1rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    color: #333;
+  background-color: var(--background-light);
+  border-radius: 16px;
+  padding: 24px;
+  margin-top: 16px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  color: var(--text-dark);
+}
+
+.advanced-search-panel label {
+  font-weight: 500;
+  color: var(--text-dark);
+  margin-bottom: 8px;
+  display: block;
 }
 
 .advanced-search-actions {
-    display: flex;
-    justify-content: flex-end;
-    gap: 1rem;
-    margin-top: 1rem;
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 24px;
 }
 
 /* Sorting options */
 .job-list-header {
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid #e9ecef;
+  margin-bottom: 32px;
+  padding-bottom: 16px;
+  border-bottom: none;
+}
+
+.job-list-header h2 {
+  color: var(--text-dark);
+  font-weight: 700;
+  font-size: 1.75rem;
+  margin-bottom: 8px;
+}
+
+.text-muted {
+  color: #5f6368 !important;
 }
 
 .sorting-options {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 0.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 8px;
+}
+
+.sorting-options label {
+  color: #5f6368;
+  font-size: 14px;
 }
 
 .sorting-options select {
-    width: auto;
-    max-width: 200px;
+  width: auto;
+  max-width: 200px;
+  border: 1px solid var(--border-color);
+  border-radius: 24px;
+  padding: 8px 16px;
+  font-size: 14px;
+  background-color: var(--background-light);
+}
+
+/* Job list actions */
+.job-list-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+}
+
+.post-job-btn {
+  white-space: nowrap;
+  padding: 10px 20px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.post-job-btn i {
+  font-size: 16px;
 }
 
 /* Job cards */
+.job-cards-container {
+  margin-bottom: 40px;
+}
+
 .job-card {
-    height: 100%;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    transition: transform 0.2s, box-shadow 0.2s;
-    display: flex;
-    flex-direction: column;
-    background-color: white;
+  height: 100%;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  background-color: var(--background-light);
+  border: 1px solid var(--border-color);
+  position: relative;
 }
 
 .job-card:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15);
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+  border-color: var(--primary-blue);
 }
 
 .job-card-header {
-    padding: 1rem;
-    border-bottom: 1px solid #e9ecef;
+  padding: 20px;
+  border-bottom: 1px solid var(--border-color);
+  background-color: var(--background-light);
 }
 
 .category-badge {
-    display: inline-block;
-    padding: 0.25rem 0.75rem;
-    border-radius: 50px;
-    color: white;
-    font-size: 0.8rem;
-    margin-bottom: 0.5rem;
+  display: inline-block;
+  padding: 6px 12px;
+  border-radius: 30px;
+  color: var(--text-light);
+  font-size: 12px;
+  margin-bottom: 12px;
+  background-color: var(--primary-blue);
+  font-weight: 500;
+  letter-spacing: 0.5px;
 }
 
 .job-title {
-    font-size: 1.25rem;
-    margin-bottom: 0.5rem;
-    line-height: 1.3;
+  font-size: 18px;
+  margin-bottom: 12px;
+  line-height: 1.3;
 }
 
 .job-title a {
-    color: #333;
-    text-decoration: none;
+  color: var(--text-dark);
+  text-decoration: none;
+  font-weight: 600;
 }
 
 .job-title a:hover {
-    color: #f26522;
+  color: var(--primary-blue);
 }
 
 .job-meta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-    font-size: 0.85rem;
-    color: #6c757d;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  font-size: 13px;
+  color: #5f6368;
+}
+
+.job-meta i {
+  color: var(--primary-blue);
+  margin-right: 4px;
 }
 
 .job-card-body {
-    padding: 1rem;
-    flex: 1;
+  padding: 20px;
+  flex: 1;
 }
 
 .job-image-container {
-    margin-bottom: 1rem;
-    height: 160px;
-    overflow: hidden;
-    border-radius: 6px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: #f8f9fa;
+  margin-bottom: 16px;
+  height: 160px;
+  overflow: hidden;
+  border-radius: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8f9fa;
+  border: none;
 }
 
 .job-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.5s ease;
+}
+
+.job-card:hover .job-image {
+  transform: scale(1.05);
 }
 
 .no-image {
-    color: #6c757d;
-    font-style: italic;
+  color: #5f6368;
+  font-style: italic;
+  font-size: 14px;
 }
 
 .job-description {
-    color: #495057;
-    font-size: 0.9rem;
+  color: #5f6368;
+  font-size: 14px;
+  line-height: 1.6;
 }
 
 .job-card-footer {
-    padding: 1rem;
-    background-color: #f8f9fa;
-    border-top: 1px solid #e9ecef;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  padding: 16px 20px;
+  background-color: var(--background-gray);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 }
 
 .job-budget {
-    font-weight: bold;
-    color: #1e4d8c;
-    font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--primary-blue);
+  font-size: 18px;
 }
 
 .job-distance {
-    font-size: 0.85rem;
-    color: #6c757d;
+  font-size: 13px;
+  color: #5f6368;
+  display: flex;
+  align-items: center;
+}
+
+.job-card-footer .btn {
+  padding: 6px 16px;
+  font-size: 13px;
+  border-radius: 20px;
 }
 
 /* No jobs found message */
 .no-jobs-found {
-    text-align: center;
-    padding: 3rem;
-    background-color: #f8f9fa;
-    border-radius: 8px;
-    margin: 2rem 0;
+  text-align: center;
+  padding: 60px 30px;
+  background-color: var(--background-light);
+  border-radius: 16px;
+  margin: 40px 0;
+  border: 1px solid var(--border-color);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+}
+
+.no-jobs-found h3 {
+  color: var(--text-dark);
+  margin-bottom: 16px;
+  font-weight: 600;
+  font-size: 24px;
+}
+
+.no-jobs-found p {
+  color: #5f6368;
+  margin-bottom: 24px;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
 }
 
 /* Pagination */
 .pagination-container {
-    display: flex;
+  display: flex;
+  justify-content: center;
+  margin: 40px 0;
+}
+
+.pagination {
+  display: flex;
+  gap: 8px;
+}
+
+.pagination .page-item {
+  margin: 0 2px;
+}
+
+.pagination .page-link {
+  color: var(--text-dark);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.pagination .page-item.active .page-link {
+  background-color: var(--primary-blue);
+  border-color: var(--primary-blue);
+  color: var(--text-light);
+}
+
+.pagination .page-link:hover {
+  background-color: rgba(26, 115, 232, 0.04);
+  color: var(--primary-blue);
+  border-color: var(--primary-blue);
+}
+
+/* Modal styling */
+.modal-content {
+  border-radius: 16px;
+  border: none;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.modal-header {
+  background-color: var(--primary-blue);
+  color: var(--text-light);
+  padding: 20px 24px;
+  border-bottom: none;
+}
+
+.modal-title {
+  font-weight: 600;
+  font-size: 20px;
+}
+
+.modal-body {
+  padding: 24px;
+}
+
+.modal-footer {
+  border-top: none;
+  padding: 16px 24px 24px;
+}
+
+.btn-close {
+  color: var(--text-light);
+  opacity: 0.8;
+}
+
+.btn-close:hover {
+  opacity: 1;
+}
+
+/* Responsive adjustments */
+@media (max-width: 992px) {
+  .search-hero {
+    padding: 40px 0;
+  }
+  
+  .search-hero h1 {
+    font-size: 2rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .search-bar-container {
+    flex-direction: column;
+    padding: 12px;
+    gap: 12px;
+  }
+  
+  .main-search-input {
+    width: 100%;
+  }
+  
+  .main-search-input input {
+    width: 100%;
+  }
+  
+  .advanced-search-toggle button {
+    width: 100%;
+  }
+  
+  .job-list-actions {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+    margin-top: 16px;
+  }
+
+  .post-job-btn {
+    width: 100%;
     justify-content: center;
-    margin: 2rem 0;
+  }
+  
+  .sorting-options {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .sorting-options select {
+    max-width: 70%;
+  }
+  
+  .advanced-search-actions {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .advanced-search-actions button,
+  .advanced-search-actions a {
+    width: 100%;
+  }
+  
+  .job-list-header h2 {
+    font-size: 1.5rem;
+  }
+  
+  .pagination .page-link {
+    width: 36px;
+    height: 36px;
+    font-size: 14px;
+  }
+}
+
+@media (max-width: 576px) {
+  .search-hero h1 {
+    font-size: 1.75rem;
+  }
+  
+  .job-card-header {
+    padding: 16px;
+  }
+  
+  .job-card-body {
+    padding: 16px;
+  }
+  
+  .job-card-footer {
+    padding: 12px 16px;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  
+  .job-card-footer .btn {
+    width: 100%;
+    margin-top: 8px;
+    order: 3;
+  }
+  
+  .job-budget {
+    order: 1;
+  }
+
+  .job-distance {
+    order: 2;
+  }
 }
 </style>
 
@@ -413,56 +851,96 @@ document.addEventListener('DOMContentLoaded', function() {
         advancedSearchBtn.innerHTML = isHidden ?
             'Advanced Search <i class="fa fa-chevron-up"></i>' :
             'Advanced Search <i class="fa fa-chevron-down"></i>';
-});
+    });
 
     // Show advanced panel if any of the advanced filters are active
     {% if request.GET.category or request.GET.municipality or request.GET.barangay or request.GET.min_budget or request.GET.max_budget %}
         advancedSearchPanel.style.display = 'block';
         advancedSearchBtn.innerHTML = 'Advanced Search <i class="fa fa-chevron-up"></i>';
     {% endif %}
+
+    // Handle "Use My Current Location" button
+    document.getElementById("useCurrentLocation").addEventListener("click", function () {
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+                function (position) {
+                    document.getElementById("lat").value = position.coords.latitude;
+                    document.getElementById("lng").value = position.coords.longitude;
+                    document.getElementById("filter-form").submit();
+                },
+                function (error) {
+                    alert("Error getting location: " + error.message);
+                }
+            );
+        } else {
+            alert("Geolocation is not supported by your browser.");
+        }
+    });
+
+    // Handle "Enter Manually" button
+    document.getElementById("enterManualLocationBtn").addEventListener("click", function () {
+        document.getElementById("manualLocationFields").classList.remove("d-none");
+        document.getElementById("manualSaveFooter").classList.remove("d-none");
+    });
+
+    // Handle "Save Manual Location" button
+    document.getElementById("saveManualLocation").addEventListener("click", function () {
+        const city = document.getElementById("manual_municipality").value;
+        const barangay = document.getElementById("manual_barangay").value;
+        const street = document.getElementById("manual_street").value;
+        const number = document.getElementById("manual_number").value;
+
+        const fullAddress = [number, street, barangay, city].filter(Boolean).join(", ");
+
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}`)
+            .then(response => response.json())
+            .then(data => {
+                if (data && data.length > 0) {
+                    document.getElementById("lat").value = data[0].lat;
+                    document.getElementById("lng").value = data[0].lon;
+                    document.getElementById("filter-form").submit();
+                } else {
+                    alert("Address not found. Please refine your input.");
+                }
+            })
+            .catch(error => {
+                alert("Error fetching coordinates.");
+            });
+    });
+
+    // Function to apply sorting
+    function applySorting(sortValue) {
+        const currentUrl = new URL(window.location.href);
+        const searchParams = currentUrl.searchParams;
+
+        // Update sort parameter
+        searchParams.set('sort', sortValue);
+
+        // Keep the page at 1 when sorting changes
+        searchParams.set('page', '1');
+
+        // Redirect to the new URL
+        window.location.href = currentUrl.toString();
+    }
+
+    // Store user location in the backend
+    function storeUserLocation(lat, lng) {
+        fetch('/set-location/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ lat: lat, lng: lng })
+        });
+    }
+
+    // Automatically store user location if geolocation is available
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+            storeUserLocation(position.coords.latitude, position.coords.longitude);
+        });
+    }
 });
-
-// Function to apply sorting
-function applySorting(sortValue) {
-    const currentUrl = new URL(window.location.href);
-    const searchParams = currentUrl.searchParams;
-
-    // Update sort parameter
-    searchParams.set('sort', sortValue);
-
-    // Keep the page at 1 when sorting changes
-    searchParams.set('page', '1');
-
-    // Redirect to the new URL
-    window.location.href = currentUrl.toString();
-}
 </script>
 {% endblock %}
-
-<style>
-.job-list-actions {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 1rem;
-}
-
-.post-job-btn {
-    white-space: nowrap;
-    padding: 0.5rem 1rem;
-    font-weight: 500;
-}
-
-@media (max-width: 768px) {
-    .job-list-actions {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0.5rem;
-        margin-top: 1rem;
-    }
-
-    .post-job-btn {
-        margin-bottom: 0.5rem;
-    }
-}
-</style>

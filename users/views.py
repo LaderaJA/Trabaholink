@@ -8,6 +8,7 @@ from django.urls import reverse_lazy
 from django.views.generic import CreateView, UpdateView, DetailView, DeleteView
 from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
+from jobs.models import JobApplication
 from .models import CustomUser, Skill
 from .forms import CustomUserRegistrationForm, UserProfileForm
 
@@ -38,7 +39,7 @@ class RegisterView(CreateView):
         user.backend = f"{backend.__module__}.{backend.__class__.__name__}"
 
         login(self.request, user)  
-        return redirect('profile')
+        return redirect('login')
 
 # Privacy Settings View
 @method_decorator(login_required, name='dispatch')
@@ -65,9 +66,23 @@ class UserLogoutView(LogoutView):
 class UserProfileDetailView(DetailView):
     model = CustomUser
     template_name = "users/profile_detail.html"
+    context_object_name = "user"
 
     def get_object(self):
-        return self.request.user  
+        return self.request.user
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.get_object()
+
+        # Fetch recent jobs the user has applied for
+        recent_applications = JobApplication.objects.filter(worker=user).select_related("job").order_by("-applied_at")[:5]
+        context["recent_applications"] = recent_applications
+
+        # Fetch jobs the user has posted
+        context["posted_jobs"] = user.posted_jobs.order_by("-created_at")
+
+        return context
 
 
 @method_decorator(login_required, name='dispatch')
