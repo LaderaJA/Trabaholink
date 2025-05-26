@@ -2,7 +2,7 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
-import json
+from django.urls import reverse
 
 CustomUser = get_user_model()
 
@@ -15,9 +15,10 @@ class Notification(models.Model):
 
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="notifications")
     message = models.TextField()
-    notif_type = models.CharField(max_length=20, choices=NOTIF_TYPES)
+    notif_type = models.CharField(max_length=30)  # Increased max_length to 30
     is_read = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
+    object_id = models.IntegerField(null=True, blank=True)  # Unified ID field for related objects
 
     def save(self, *args, **kwargs):
         super().save(*args, **kwargs)
@@ -28,4 +29,18 @@ class Notification(models.Model):
             f"notifications_{self.user.id}",
             {"type": "send_notification", "message": {"message": self.message, "type": self.notif_type}},
         )
+
+    @property
+    def target_url(self):
+        if self.notif_type == "announcement" and self.object_id:
+            return reverse('announcements:announcement_detail', args=[self.object_id])
+        elif self.notif_type == "job_post" and self.object_id:
+            return reverse('jobs:job_detail', args=[self.object_id])
+        elif self.notif_type == "message" and self.object_id:
+            return reverse('messaging:conversation_detail', args=[self.object_id])
+        return "#"
+
+    def mark_as_read(self):
+        self.is_read = True
+        self.save(update_fields=['is_read'])
 

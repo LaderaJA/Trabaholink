@@ -39,7 +39,8 @@
             z-index: 1030;
             overflow-y: auto;
             overflow-x: hidden;
-            box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-right: 1px solid rgba(255, 255, 255, 0.1);
         }
 
         .sidebar.collapsed {
@@ -60,16 +61,12 @@
         }
 
         .sidebar-brand-icon {
-            display: none;
             font-size: 1.5rem;
+            margin-right: 10px;
         }
 
         .sidebar.collapsed .sidebar-brand-text {
             display: none;
-        }
-
-        .sidebar.collapsed .sidebar-brand-icon {
-            display: block;
         }
 
         .sidebar-nav {
@@ -84,11 +81,13 @@
             display: flex;
             align-items: center;
             padding: 12px 20px;
-            color: rgba(255, 255, 255, 0.7);
+            color: rgba(255, 255, 255, 0.8);
             text-decoration: none;
             transition: all var(--transition-speed) ease;
             white-space: nowrap;
             overflow: hidden;
+            border-radius: 8px;
+            margin: 5px 10px;
         }
 
         .sidebar-link:hover {
@@ -119,31 +118,27 @@
             opacity: 0;
         }
 
-        .sidebar-tooltip {
-            position: absolute;
-            left: 70px;
-            top: 50%;
-            transform: translateY(-50%);
-            background-color: #333;
-            color: white;
-            padding: 5px 10px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            opacity: 0;
-            pointer-events: none;
-            transition: opacity var(--transition-speed) ease;
-            white-space: nowrap;
-            z-index: 1031;
-        }
-
-        .sidebar.collapsed .sidebar-item:hover .sidebar-tooltip {
-            opacity: 1;
-        }
-
         .sidebar-divider {
             height: 1px;
             margin: 10px 15px;
             background-color: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Notification Badge */
+        .notification-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background-color: #dc3545;
+            color: white;
+            border-radius: 50%;
+            width: 18px;
+            height: 18px;
+            font-size: 0.7rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 1.5s infinite;
         }
 
         /* Main Content Styles */
@@ -460,67 +455,102 @@
             justify-content: center;
             animation: pulse 1.5s infinite;
         }
+
+        /* Style the logout button to match sidebar links */
+        .sidebar-link.btn-logout {
+            background: none;
+            border: none;
+            color: rgba(255, 255, 255, 0.8);
+            text-align: left;
+            width: 100%;
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            text-decoration: none;
+            transition: all var(--transition-speed) ease;
+            white-space: nowrap;
+            overflow: hidden;
+            border-radius: 8px;
+            margin: 5px 10px;
+            cursor: pointer;
+        }
+
+        .sidebar-link.btn-logout:hover {
+            color: white;
+            background-color: var(--sidebar-hover);
+        }
+
+        .sidebar-link.btn-logout .sidebar-icon {
+            font-size: 1.2rem;
+            min-width: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .sidebar-link.btn-logout .sidebar-text {
+            margin-left: 10px;
+            opacity: 1;
+            transition: opacity var(--transition-speed) ease;
+        }
     </style>
 </head>
 <body>
     <!-- Sidebar -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-brand">
+            <span class="sidebar-brand-icon"><i class="bi bi-briefcase"></i></span>
             <span class="sidebar-brand-text">Trabaholink Admin</span>
-            <span class="sidebar-brand-icon">TL</span>
         </div>
         <div class="sidebar-nav">
             <div class="sidebar-item">
-                <a href="{% url 'admin_dashboard:dashboard_main' %}" class="sidebar-link active">
+                <a href="{% url 'admin_dashboard:dashboard_main' %}" class="sidebar-link">
                     <span class="sidebar-icon"><i class="bi bi-speedometer2"></i></span>
                     <span class="sidebar-text">Dashboard</span>
                 </a>
-                <div class="sidebar-tooltip">Dashboard</div>
             </div>
-            
+
             <div class="sidebar-divider"></div>
-            
+
             <div class="sidebar-item">
                 <a href="{% url 'admin_dashboard:user_list' %}" class="sidebar-link">
                     <span class="sidebar-icon"><i class="bi bi-people"></i></span>
                     <span class="sidebar-text">Users</span>
                 </a>
-                <div class="sidebar-tooltip">Users</div>
             </div>
-            
+
             <div class="sidebar-item">
                 <a href="{% url 'admin_dashboard:admin_announcement_list' %}" class="sidebar-link">
                     <span class="sidebar-icon"><i class="bi bi-megaphone"></i></span>
                     <span class="sidebar-text">Announcements</span>
                 </a>
-                <div class="sidebar-tooltip">Announcements</div>
             </div>
-            
+
             <div class="sidebar-item">
                 <a href="{% url 'admin_dashboard:report_list' %}" class="sidebar-link">
                     <span class="sidebar-icon"><i class="bi bi-flag"></i></span>
                     <span class="sidebar-text">Reports</span>
-                    <span class="notification-badge"></span>
+                    <span class="notification-badge">3</span>
                 </a>
-                <div class="sidebar-tooltip">Reports</div>
             </div>
-            
+
             <div class="sidebar-item">
                 <a href="{% url 'admin_dashboard:moderated_word_list' %}" class="sidebar-link">
                     <span class="sidebar-icon"><i class="bi bi-shield-check"></i></span>
                     <span class="sidebar-text">Moderated Words</span>
                 </a>
-                <div class="sidebar-tooltip">Moderated Words</div>
             </div>
-            
+
             <div class="sidebar-divider"></div>
-            
+
             <div class="sidebar-item">
-                <a href="{% url 'logout' %}" class="sidebar-link">
-                    <span class="sidebar-icon"><i class="bi bi-box-arrow-right"></i></span>
-                    <span class="sidebar-text">Logout</span>
-                </a>
-                <div class="sidebar-tooltip">Logout</div>
+                <form method="post" action="{% url 'logout' %}">
+                    {% csrf_token %}
+                    <button type="submit" class="sidebar-link btn-logout">
+                        <span class="sidebar-icon"><i class="bi bi-box-arrow-right"></i></span>
+                        <span class="sidebar-text">Logout</span>
+                    </button>
+                </form>
             </div>
         </div>
     </div>
@@ -569,7 +599,7 @@
         <!-- Content Area -->
         <div class="content">
             {% block content %}
-            <!-- Default Dashboard Content -->
+            
             <h1 class="page-title">Dashboard Overview</h1>
             
 

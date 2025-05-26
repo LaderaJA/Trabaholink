@@ -6,70 +6,84 @@
     <!-- Hero section with search bar -->
     <div class="search-hero">
         <div class="container">
-            <h1 class="text-center mb-4">Find Jobs</h1>
+            <div class="hero-content">
+                <h1 class="hero-title">Find Your Perfect Job</h1>
+                <p class="hero-subtitle">Discover opportunities that match your skills and location</p>
+            </div>
 
             <!-- Simple Search Bar -->
             <form method="get" action="{% url 'jobs:job_list' %}" class="simple-search-form">
                 <div class="search-bar-container">
                     <div class="main-search-input">
-                        <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Search jobs..." class="form-control">
+                        <div class="search-input-wrapper">
+                            <i class="fa fa-search search-icon"></i>
+                            <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Search jobs, skills, or companies..." class="form-control search-input">
+                        </div>
                         <button type="submit" class="btn btn-primary search-btn">
-                            <i class="fa fa-search"></i> Search
-    </button>
-        </div>
+                            <i class="fa fa-search"></i>
+                            <span class="btn-text">Search</span>
+                        </button>
+                    </div>
 
                     <div class="advanced-search-toggle">
                         <button type="button" id="advanced-search-btn" class="btn btn-link">
-                            Advanced Search <i class="fa fa-chevron-down"></i>
+                            <i class="fa fa-sliders-h"></i>
+                            <span>Filters</span>
+                            <i class="fa fa-chevron-down toggle-icon"></i>
                         </button>
-          </div>
-          </div>
+                    </div>
+                </div>
 
                 <!-- Advanced Search Panel (hidden by default) -->
                 <div id="advanced-search-panel" class="advanced-search-panel" style="display: none;">
+                    <div class="panel-header">
+                        <h3>Advanced Filters</h3>
+                        <p>Refine your search to find the perfect job</p>
+                    </div>
                     <div class="row">
                         <div class="col-md-6 col-lg-3">
                             <div class="form-group">
-                                <label for="category">Category</label>
+                                <label for="category"><i class="fa fa-tag"></i> Category</label>
                                 <select name="category" id="category" class="form-control">
                                     <option value="">All Categories</option>
                                     {% for category in categories %}
                                     <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"i" %}selected{% endif %}>
                                         {{ category.name }}
                                     </option>
-                {% endfor %}
+                                    {% endfor %}
                                 </select>
-            </div>
-            </div>
-                        <div class="col-md-6 col-lg-3">
-                            <div class="form-group">
-                                <label for="municipality">Municipality</label>
-                                <input type="text" name="municipality" id="municipality" value="{{ request.GET.municipality|default:'' }}" class="form-control" placeholder="Municipality">
-    </div>
-    </div>
-                        <div class="col-md-6 col-lg-3">
-                            <div class="form-group">
-                                <label for="barangay">Barangay</label>
-                                <input type="text" name="barangay" id="barangay" value="{{ request.GET.barangay|default:'' }}" class="form-control" placeholder="Barangay">
                             </div>
                         </div>
                         <div class="col-md-6 col-lg-3">
                             <div class="form-group">
-                                <label>Budget Range</label>
-                                <div class="row">
-                                    <div class="col-6">
-                                        <input type="number" name="min_budget" value="{{ request.GET.min_budget|default:'' }}" class="form-control" placeholder="Min ₱">
-                                    </div>
-                                    <div class="col-6">
-                                        <input type="number" name="max_budget" value="{{ request.GET.max_budget|default:'' }}" class="form-control" placeholder="Max ₱">
-                                    </div>
+                                <label for="municipality"><i class="fa fa-city"></i> Municipality</label>
+                                <input type="text" name="municipality" id="municipality" value="{{ request.GET.municipality|default:'' }}" class="form-control" placeholder="Enter municipality">
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="form-group">
+                                <label for="barangay"><i class="fa fa-map-marker-alt"></i> Barangay</label>
+                                <input type="text" name="barangay" id="barangay" value="{{ request.GET.barangay|default:'' }}" class="form-control" placeholder="Enter barangay">
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-lg-3">
+                            <div class="form-group">
+                                <label><i class="fa fa-peso-sign"></i> Budget Range</label>
+                                <div class="budget-range">
+                                    <input type="number" name="min_budget" value="{{ request.GET.min_budget|default:'' }}" class="form-control" placeholder="Min ₱">
+                                    <span class="range-separator">to</span>
+                                    <input type="number" name="max_budget" value="{{ request.GET.max_budget|default:'' }}" class="form-control" placeholder="Max ₱">
                                 </div>
                             </div>
                         </div>
                     </div>
                     <div class="advanced-search-actions">
-                        <button type="submit" class="btn btn-primary">Apply Filters</button>
-                        <a href="{% url 'jobs:job_list' %}" class="btn btn-outline-secondary">Reset</a>
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fa fa-filter"></i> Apply Filters
+                        </button>
+                        <a href="{% url 'jobs:job_list' %}" class="btn btn-outline-secondary">
+                            <i class="fa fa-times"></i> Clear All
+                        </a>
                     </div>
                 </div>
             </form>
@@ -80,78 +94,81 @@
     <div class="container">
         <div class="job-list-header">
             <div class="row align-items-center">
-                <div class="col-md-6">
-                    <h2>
-                        {% if request.GET.q %}Search results for "{{ request.GET.q }}"{% else %}Available Jobs{% endif %}
-                    </h2>
-                    <p class="text-muted">{{ page_obj.paginator.count }} jobs found</p>
+                <div class="col-md-8">
+                    <div class="results-info">
+                        <h2 class="results-title">
+                            {% if request.GET.q %}
+                                <i class="fa fa-search"></i>
+                                Search results for "{{ request.GET.q }}"
+                            {% else %}
+                                <i class="fa fa-briefcase"></i>
+                                Available Jobs
+                            {% endif %}
+                        </h2>
+                        <p class="results-count">
+                            <span class="count-number">{{ page_obj.paginator.count }}</span> 
+                            job{{ page_obj.paginator.count|pluralize }} found
+                        </p>
+                    </div>
                 </div>
-                <div class="col-md-6">
+                <div class="col-md-4">
                     <div class="job-list-actions">
                         <!-- Post a New Job Button -->
+                        {% if user.is_authenticated %}
                         <a href="{% url 'jobs:job_create' %}" class="btn btn-success post-job-btn">
-                            <i class="fa fa-plus-circle"></i> Post a New Job
+                            <i class="fa fa-plus-circle"></i> 
+                            <span>Post Job</span>
                         </a>
-                        <!-- set location -->
-                        <button type="button" class="btn btn-outline-primary mb-3" data-bs-toggle="modal" data-bs-target="#locationModal">
-                            Set My Location
-                        </button>
+                        {% else %}
+                        <a href="{% url 'login' %}" class="btn btn-outline-primary post-job-btn">
+                            <i class="fa fa-plus-circle"></i> 
+                            <span>Post Job</span>
+                        </a>
+                        {% endif %}
                         
-                        <!-- Location Modal -->
-<div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title">Set Your Starting Location</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          <div class="d-grid gap-3">
-            <button id="useCurrentLocation" class="btn btn-primary">Use My Current Location</button>
-            <button id="enterManualLocationBtn" class="btn btn-secondary">Enter Manually</button>
-            <button class="btn btn-outline-dark" data-bs-dismiss="modal">Not Now</button>
-          </div>
-  
-          <div id="manualLocationFields" class="mt-4 d-none">
-            <input type="text" id="manual_municipality" class="form-control mb-2" placeholder="Municipality/City">
-            <input type="text" id="manual_barangay" class="form-control mb-2" placeholder="Barangay">
-            <input type="text" id="manual_street" class="form-control mb-2" placeholder="Street (optional)">
-            <input type="text" id="manual_number" class="form-control mb-2" placeholder="House No. (optional)">
-          </div>
-        </div>
-        <div class="modal-footer d-none" id="manualSaveFooter">
-          <button type="button" class="btn btn-success" id="saveManualLocation">Save Location</button>
-        </div>
-      </div>
-    </div>
-  </div>
-  
-                        <!-- Sorting Options -->
-                        <div class="sorting-options">
-                            <label for="sort-select">Sort by:</label>
-                        <select id="sort-select" class="form-control form-control-sm" onchange="applySorting(this.value)">
-                            <option value="date_desc" {% if request.GET.sort == 'date_desc' or not request.GET.sort %}selected{% endif %}>Newest First</option>
-                            <option value="date_asc" {% if request.GET.sort == 'date_asc' %}selected{% endif %}>Oldest First</option>
-                            <option value="budget_desc" {% if request.GET.sort == 'budget_desc' %}selected{% endif %}>Budget: High to Low</option>
-                            <option value="budget_asc" {% if request.GET.sort == 'budget_asc' %}selected{% endif %}>Budget: Low to High</option>
-                            {% if user_location %}
-                            <option value="distance" {% if request.GET.sort == 'distance' %}selected{% endif %}>Nearest First</option>
-                            {% endif %}
-                        </select>
+                        <!-- Location Button -->
+                        <button type="button" class="btn btn-outline-primary location-btn" data-bs-toggle="modal" data-bs-target="#locationModal">
+                            <i class="fa fa-map-marker-alt"></i>
+                            <span>Set Location</span>
+                        </button>
                     </div>
                 </div>
             </div>
+            
+            <!-- Sorting and View Options -->
+            <div class="list-controls">
+                <div class="sorting-options">
+                    <label for="sort-select">
+                        <i class="fa fa-sort"></i> Sort by:
+                    </label>
+                    <select id="sort-select" class="form-control" onchange="applySorting(this.value)">
+                        <option value="date_desc" {% if request.GET.sort == 'date_desc' or not request.GET.sort %}selected{% endif %}>Newest First</option>
+                        <option value="date_asc" {% if request.GET.sort == 'date_asc' %}selected{% endif %}>Oldest First</option>
+                        <option value="budget_desc" {% if request.GET.sort == 'budget_desc' %}selected{% endif %}>Budget: High to Low</option>
+                        <option value="budget_asc" {% if request.GET.sort == 'budget_asc' %}selected{% endif %}>Budget: Low to High</option>
+                        {% if user_location %}
+                        <option value="distance" {% if request.GET.sort == 'distance' %}selected{% endif %}>Nearest First</option>
+                        {% endif %}
+                    </select>
+                </div>
+            </div>
         </div>
-                        </div>
 
         <!-- Job Cards Grid -->
         <div class="row job-cards-container">
             {% for job in jobs %}
-            <div class="col-md-6 col-lg-4 mb-4">
+            <div class="col-md-6 col-xl-4 mb-4">
                 <div class="job-card">
                     <div class="job-card-header">
-                        <div class="category-badge" style="background-color: {% if job.category.color %}{{ job.category.color }}{% else %}#1e4d8c{% endif %}">
-                            {{ job.category.name }}
+                        <div class="card-top">
+                            <div class="category-badge" style="background-color: {% if job.category.color %}{{ job.category.color }}{% else %}#1e4d8c{% endif %}">
+                                {{ job.category.name }}
+                            </div>
+                            <div class="job-actions">
+                                <button class="btn-favorite" title="Save job">
+                                    <i class="fa fa-heart"></i>
+                                </button>
+                            </div>
                         </div>
                         <h3 class="job-title">
                             <a href="{% url 'jobs:job_detail' job.id %}">{{ job.title }}</a>
@@ -165,72 +182,170 @@
                             </span>
                         </div>
                     </div>
+                    
                     <div class="job-card-body">
                         <div class="job-image-container">
                             {% if job.jobimage_set.exists %}
                             <img src="{{ job.jobimage_set.first.image.url }}" class="job-image" alt="{{ job.title }} - Job Image">
                             {% else %}
-                            <div class="no-image">No image available</div>
-                {% endif %}
-        </div>
+                            <div class="no-image">
+                                <i class="fa fa-image"></i>
+                                <span>No image available</span>
+                            </div>
+                            {% endif %}
+                        </div>
                         <p class="job-description">{{ job.description|truncatechars:120 }}</p>
-    </div>
+                    </div>
+                    
                     <div class="job-card-footer">
-                        <div class="job-budget">₱{{ job.budget }}</div>
-                        {% if job.distance_km %}
-                        <div class="job-distance">{{ job.distance_km }} km away</div>
-    {% endif %}
-                        <a href="{% url 'jobs:job_detail' job.id %}" class="btn btn-sm btn-outline-primary">View Details</a>
+                        <div class="footer-left">
+                            <div class="job-budget">₱{{ job.budget|floatformat:0 }}</div>
+                            {% if job.distance_km %}
+                            <div class="job-distance">
+                                <i class="fa fa-location-arrow"></i>
+                                {{ job.distance_km }} km away
+                            </div>
+                            {% endif %}
+                        </div>
+                        <a href="{% url 'jobs:job_detail' job.id %}" class="btn btn-primary btn-sm view-details-btn">
+                            View Details
+                            <i class="fa fa-arrow-right"></i>
+                        </a>
                     </div>
                 </div>
             </div>
             {% empty %}
             <div class="col-12">
                 <div class="no-jobs-found">
+                    <div class="no-jobs-icon">
+                        <i class="fa fa-search"></i>
+                    </div>
                     <h3>No jobs found</h3>
-                    <p>Try adjusting your search criteria or browse all available jobs.</p>
-                    <a href="{% url 'jobs:job_list' %}" class="btn btn-primary">View All Jobs</a>
+                    <p>We couldn't find any jobs matching your criteria. Try adjusting your search filters or browse all available opportunities.</p>
+                    <div class="no-jobs-actions">
+                        <a href="{% url 'jobs:job_list' %}" class="btn btn-primary">View All Jobs</a>
+                        {% if user.is_authenticated %}
+                        <a href="{% url 'jobs:job_create' %}" class="btn btn-outline-primary">Post a Job</a>
+                        {% endif %}
+                    </div>
                 </div>
             </div>
             {% endfor %}
         </div>
 
+        <!-- Pagination -->
+        {% if is_paginated %}
+        <div class="pagination-container">
+            <nav aria-label="Job listings pagination">
+                <ul class="pagination">
+                    {% if page_obj.has_previous %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page=1" aria-label="First page">
+                            <i class="fa fa-angle-double-left"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}" aria-label="Previous page">
+                            <i class="fa fa-angle-left"></i>
+                        </a>
+                    </li>
+                    {% endif %}
 
+                    {% for num in page_obj.paginator.page_range %}
+                        {% if page_obj.number == num %}
+                        <li class="page-item active">
+                            <span class="page-link">{{ num }}</span>
+                        </li>
+                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                        <li class="page-item">
+                            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
+                        </li>
+                        {% endif %}
+                    {% endfor %}
 
-<!-- Pagination -->
-{% if is_paginated %}
-<div class="pagination-container">
-    <ul class="pagination">
-        {% if page_obj.has_previous %}
-        <li class="page-item">
-            <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page=1">&laquo; First</a>
-        </li>
-        <li class="page-item">
-            <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ page_obj.previous_page_number }}">Previous</a>
-        </li>
+                    {% if page_obj.has_next %}
+                    <li class="page-item">
+                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}" aria-label="Next page">
+                            <i class="fa fa-angle-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}" aria-label="Last page">
+                            <i class="fa fa-angle-double-right"></i>
+                        </a>
+                    </li>
+                    {% endif %}
+                </ul>
+            </nav>
+        </div>
         {% endif %}
-
-        {% for num in page_obj.paginator.page_range %}
-            {% if page_obj.number == num %}
-            <li class="page-item active"><span class="page-link">{{ num }}</span></li>
-            {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-            <li class="page-item">
-                <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ num }}">{{ num }}</a>
-            </li>
-            {% endif %}
-        {% endfor %}
-
-        {% if page_obj.has_next %}
-        <li class="page-item">
-            <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ page_obj.next_page_number }}">Next</a>
-        </li>
-        <li class="page-item">
-            <a class="page-link" href="?{% if request.GET.q %}q={{ request.GET.q }}&{% endif %}{% if request.GET.sort %}sort={{ request.GET.sort }}&{% endif %}page={{ page_obj.paginator.num_pages }}">Last &raquo;</a>
-        </li>
-        {% endif %}
-    </ul>
+    </div>
 </div>
-{% endif %}
+
+<!-- Location Modal -->
+<div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">
+                    <i class="fa fa-map-marker-alt"></i>
+                    Set Your Location
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p class="modal-description">Set your location to find jobs near you and see distance information.</p>
+                
+                <div class="location-options">
+                    <button id="useCurrentLocation" class="btn btn-primary location-option-btn">
+                        <i class="fa fa-crosshairs"></i>
+                        <div class="btn-content">
+                            <span class="btn-title">Use Current Location</span>
+                            <span class="btn-subtitle">Automatically detect your location</span>
+                        </div>
+                    </button>
+                    
+                    <button id="enterManualLocationBtn" class="btn btn-outline-primary location-option-btn">
+                        <i class="fa fa-edit"></i>
+                        <div class="btn-content">
+                            <span class="btn-title">Enter Manually</span>
+                            <span class="btn-subtitle">Type your address</span>
+                        </div>
+                    </button>
+                    
+                    <button class="btn btn-outline-secondary location-option-btn" data-bs-dismiss="modal">
+                        <i class="fa fa-times"></i>
+                        <div class="btn-content">
+                            <span class="btn-title">Not Now</span>
+                            <span class="btn-subtitle">Skip location setting</span>
+                        </div>
+                    </button>
+                </div>
+
+                <div id="manualLocationFields" class="manual-location-form d-none">
+                    <h6>Enter Your Address</h6>
+                    <div class="form-group">
+                        <input type="text" id="manual_municipality" class="form-control" placeholder="Municipality/City">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="manual_barangay" class="form-control" placeholder="Barangay">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="manual_street" class="form-control" placeholder="Street (optional)">
+                    </div>
+                    <div class="form-group">
+                        <input type="text" id="manual_number" class="form-control" placeholder="House No. (optional)">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer d-none" id="manualSaveFooter">
+                <button type="button" class="btn btn-success" id="saveManualLocation">
+                    <i class="fa fa-save"></i> Save Location
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <!-- Hidden inputs for storing geolocation data -->
 <form id="filter-form" method="get" action="{% url 'jobs:job_list' %}">
@@ -243,24 +358,35 @@
     {% endfor %}
 </form>
 
-
-
 <style>
-/* Color Variables */
+/* Enhanced Color Variables */
 :root {
-  --primary-blue: #1a73e8;
-  --secondary-blue: #174ea6;
-  --accent-yellow: #fbbc04;
-  --text-dark: #202124;
-  --text-light: #ffffff;
-  --background-light: #ffffff;
-  --background-gray: #f8f9fa;
-  --border-color: #dadce0;
+  --primary-blue: #2563eb;
+  --primary-blue-dark: #1d4ed8;
+  --primary-blue-light: #3b82f6;
+  --secondary-blue: #1e40af;
+  --accent-yellow: #f59e0b;
+  --accent-yellow-dark: #d97706;
+  --success-green: #10b981;
+  --success-green-dark: #059669;
+  --text-dark: #111827;
+  --text-medium: #374151;
+  --text-light: #6b7280;
+  --text-white: #ffffff;
+  --background-white: #ffffff;
+  --background-gray: #f9fafb;
+  --background-gray-light: #f3f4f6;
+  --border-color: #e5e7eb;
+  --border-color-light: #f3f4f6;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 /* Global Styles */
 body {
-  font-family: 'Google Sans', 'Segoe UI', Roboto, Arial, sans-serif;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--background-gray);
   color: var(--text-dark);
   line-height: 1.6;
@@ -271,112 +397,198 @@ body {
   padding: 0 20px;
 }
 
+/* Enhanced Button Styles */
 .btn {
-  border-radius: 24px;
+  border-radius: 8px;
   font-weight: 500;
-  padding: 8px 24px;
-  transition: all 0.2s;
+  padding: 10px 20px;
+  transition: all 0.2s ease;
   text-transform: none;
-  letter-spacing: 0.25px;
+  letter-spacing: 0.025em;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid transparent;
 }
 
 .btn-primary {
   background-color: var(--primary-blue);
   border-color: var(--primary-blue);
-  color: var(--text-light);
+  color: var(--text-white);
 }
 
 .btn-primary:hover {
-  background-color: var(--secondary-blue);
-  border-color: var(--secondary-blue);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  background-color: var(--primary-blue-dark);
+  border-color: var(--primary-blue-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .btn-success {
-  background-color: var(--accent-yellow);
-  border-color: var(--accent-yellow);
-  color: var(--text-dark);
+  background-color: var(--success-green);
+  border-color: var(--success-green);
+  color: var(--text-white);
 }
 
 .btn-success:hover {
-  background-color: #f0b400;
-  border-color: #f0b400;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  background-color: var(--success-green-dark);
+  border-color: var(--success-green-dark);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
 .btn-outline-primary {
   color: var(--primary-blue);
   border-color: var(--primary-blue);
+  background-color: transparent;
 }
 
 .btn-outline-primary:hover {
-  background-color: rgba(26, 115, 232, 0.04);
-  color: var(--primary-blue);
-  box-shadow: 0 1px 3px rgba(0,0,0,0.12), 0 1px 2px rgba(0,0,0,0.24);
+  background-color: var(--primary-blue);
+  color: var(--text-white);
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
+.btn-outline-secondary {
+  color: var(--text-medium);
+  border-color: var(--border-color);
+  background-color: transparent;
+}
+
+.btn-outline-secondary:hover {
+  background-color: var(--background-gray-light);
+  border-color: var(--text-medium);
+  color: var(--text-dark);
+}
+
+.btn-link {
+  color: var(--primary-blue);
+  text-decoration: none;
+  background-color: transparent;
+  border: none;
+  padding: 8px 16px;
+}
+
+.btn-link:hover {
+  background-color: rgba(37, 99, 235, 0.1);
+  color: var(--primary-blue-dark);
+}
+
+/* Form Controls */
 .form-control {
-  border-radius: 24px;
+  border-radius: 8px;
   border: 1px solid var(--border-color);
   padding: 12px 16px;
   font-size: 14px;
+  transition: all 0.2s ease;
+  background-color: var(--background-white);
 }
 
 .form-control:focus {
   border-color: var(--primary-blue);
-  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+  outline: none;
 }
 
-/* Hero section with search */
+/* Enhanced Hero Section */
 .search-hero {
   background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
-  padding: 60px 0;
+  padding: 80px 0;
   margin-bottom: 40px;
-  color: var(--text-light);
-  border-radius: 0 0 30px 30px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  color: var(--text-white);
+  position: relative;
+  overflow: hidden;
 }
 
-.search-hero h1 {
+.search-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
+  opacity: 0.1;
+}
+
+.hero-content {
+  text-align: center;
+  margin-bottom: 40px;
+  position: relative;
+  z-index: 1;
+}
+
+.hero-title {
   font-weight: 700;
-  font-size: 2.5rem;
-  margin-bottom: 1.5rem;
+  font-size: 3rem;
+  margin-bottom: 16px;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
+.hero-subtitle {
+  font-size: 1.25rem;
+  opacity: 0.9;
+  font-weight: 400;
+}
+
+/* Enhanced Search Form */
 .simple-search-form {
   max-width: 900px;
   margin: 0 auto;
   position: relative;
+  z-index: 1;
 }
 
 .search-bar-container {
   display: flex;
-  align-items: center;
-  gap: 1rem;
-  background: var(--background-light);
-  border-radius: 30px;
-  padding: 6px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+  align-items: stretch;
+  gap: 16px;
+  background: var(--background-white);
+  border-radius: 16px;
+  padding: 8px;
+  box-shadow: var(--shadow-xl);
+  backdrop-filter: blur(10px);
 }
 
 .main-search-input {
   display: flex;
   flex: 1;
+  gap: 8px;
 }
 
-.main-search-input input {
-  border-radius: 24px;
-  height: 48px;
+.search-input-wrapper {
+  position: relative;
+  flex: 1;
+}
+
+.search-icon {
+  position: absolute;
+  left: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-light);
+  z-index: 1;
+}
+
+.search-input {
+  border-radius: 12px;
+  height: 56px;
   font-size: 16px;
   border: none;
   box-shadow: none;
-  padding-left: 24px;
+  padding-left: 48px;
+  background-color: var(--background-gray-light);
+}
+
+.search-input:focus {
+  background-color: var(--background-white);
+  border: 1px solid var(--primary-blue);
 }
 
 .search-btn {
-  border-radius: 24px;
-  height: 48px;
+  border-radius: 12px;
+  height: 56px;
   background-color: var(--accent-yellow);
   border-color: var(--accent-yellow);
   min-width: 120px;
@@ -385,110 +597,177 @@ body {
 }
 
 .search-btn:hover {
-  background-color: #f0b400;
-  border-color: #f0b400;
-  color: var(--text-dark);
+  background-color: var(--accent-yellow-dark);
+  border-color: var(--accent-yellow-dark);
+  color: var(--text-white);
 }
 
 .advanced-search-toggle button {
   color: var(--primary-blue);
-  text-decoration: none;
-  background-color: var(--background-light);
-  border-radius: 24px;
-  padding: 8px 16px;
+  background-color: var(--background-gray-light);
+  border-radius: 12px;
+  padding: 16px 20px;
   font-size: 14px;
   border: none;
+  height: 56px;
+  white-space: nowrap;
 }
 
 .advanced-search-toggle button:hover {
-  background-color: rgba(26, 115, 232, 0.04);
+  background-color: rgba(37, 99, 235, 0.1);
 }
 
+.toggle-icon {
+  transition: transform 0.2s ease;
+}
+
+.toggle-icon.rotated {
+  transform: rotate(180deg);
+}
+
+/* Enhanced Advanced Search Panel */
 .advanced-search-panel {
-  background-color: var(--background-light);
+  background-color: var(--background-white);
   border-radius: 16px;
-  padding: 24px;
+  padding: 32px;
   margin-top: 16px;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-lg);
   color: var(--text-dark);
+  border: 1px solid var(--border-color-light);
+}
+
+.panel-header {
+  text-align: center;
+  margin-bottom: 32px;
+}
+
+.panel-header h3 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--text-dark);
+}
+
+.panel-header p {
+  color: var(--text-light);
+  margin: 0;
 }
 
 .advanced-search-panel label {
   font-weight: 500;
   color: var(--text-dark);
   margin-bottom: 8px;
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.advanced-search-panel label i {
+  color: var(--primary-blue);
+  width: 16px;
+}
+
+.budget-range {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.range-separator {
+  color: var(--text-light);
+  font-weight: 500;
 }
 
 .advanced-search-actions {
   display: flex;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-top: 24px;
+  justify-content: center;
+  gap: 16px;
+  margin-top: 32px;
 }
 
-/* Sorting options */
+/* Enhanced Job List Header */
 .job-list-header {
   margin-bottom: 32px;
-  padding-bottom: 16px;
-  border-bottom: none;
+  padding-bottom: 24px;
+  border-bottom: 1px solid var(--border-color);
 }
 
-.job-list-header h2 {
+.results-info {
+  margin-bottom: 16px;
+}
+
+.results-title {
   color: var(--text-dark);
   font-weight: 700;
   font-size: 1.75rem;
   margin-bottom: 8px;
-}
-
-.text-muted {
-  color: #5f6368 !important;
-}
-
-.sorting-options {
   display: flex;
   align-items: center;
-  justify-content: flex-end;
-  gap: 8px;
+  gap: 12px;
 }
 
-.sorting-options label {
-  color: #5f6368;
-  font-size: 14px;
+.results-title i {
+  color: var(--primary-blue);
 }
 
-.sorting-options select {
-  width: auto;
-  max-width: 200px;
-  border: 1px solid var(--border-color);
-  border-radius: 24px;
-  padding: 8px 16px;
-  font-size: 14px;
-  background-color: var(--background-light);
+.results-count {
+  color: var(--text-light);
+  margin: 0;
+  font-size: 1rem;
 }
 
-/* Job list actions */
+.count-number {
+  font-weight: 600;
+  color: var(--text-medium);
+}
+
 .job-list-actions {
   display: flex;
   align-items: center;
   justify-content: flex-end;
   gap: 12px;
+  margin-bottom: 16px;
 }
 
-.post-job-btn {
+.post-job-btn,
+.location-btn {
   white-space: nowrap;
-  padding: 10px 20px;
+  padding: 12px 20px;
   font-weight: 600;
+}
+
+.list-controls {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+}
+
+.sorting-options {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 12px;
 }
 
-.post-job-btn i {
-  font-size: 16px;
+.sorting-options label {
+  color: var(--text-medium);
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 }
 
-/* Job cards */
+.sorting-options select {
+  width: auto;
+  min-width: 200px;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 8px 16px;
+  font-size: 14px;
+  background-color: var(--background-white);
+}
+
+/* Enhanced Job Cards */
 .job-cards-container {
   margin-bottom: 40px;
 }
@@ -497,37 +776,63 @@ body {
   height: 100%;
   border-radius: 16px;
   overflow: hidden;
-  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
   transition: all 0.3s ease;
   display: flex;
   flex-direction: column;
-  background-color: var(--background-light);
+  background-color: var(--background-white);
   border: 1px solid var(--border-color);
   position: relative;
 }
 
 .job-card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.1);
+  transform: translateY(-8px);
+  box-shadow: var(--shadow-xl);
   border-color: var(--primary-blue);
 }
 
 .job-card-header {
-  padding: 20px;
-  border-bottom: 1px solid var(--border-color);
-  background-color: var(--background-light);
+  padding: 24px;
+  border-bottom: 1px solid var(--border-color-light);
+}
+
+.card-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
 }
 
 .category-badge {
   display: inline-block;
   padding: 6px 12px;
-  border-radius: 30px;
-  color: var(--text-light);
+  border-radius: 20px;
+  color: var(--text-white);
   font-size: 12px;
-  margin-bottom: 12px;
   background-color: var(--primary-blue);
   font-weight: 500;
   letter-spacing: 0.5px;
+}
+
+.job-actions {
+  display: flex;
+  gap: 8px;
+}
+
+.btn-favorite {
+  background: none;
+  border: none;
+  color: var(--text-light);
+  font-size: 18px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.btn-favorite:hover {
+  color: #ef4444;
+  background-color: rgba(239, 68, 68, 0.1);
 }
 
 .job-title {
@@ -551,16 +856,21 @@ body {
   flex-wrap: wrap;
   gap: 16px;
   font-size: 13px;
-  color: #5f6368;
+  color: var(--text-light);
+}
+
+.job-meta span {
+  display: flex;
+  align-items: center;
+  gap: 4px;
 }
 
 .job-meta i {
   color: var(--primary-blue);
-  margin-right: 4px;
 }
 
 .job-card-body {
-  padding: 20px;
+  padding: 24px;
   flex: 1;
 }
 
@@ -572,8 +882,7 @@ body {
   display: flex;
   align-items: center;
   justify-content: center;
-  background-color: #f8f9fa;
-  border: none;
+  background-color: var(--background-gray-light);
 }
 
 .job-image {
@@ -588,54 +897,77 @@ body {
 }
 
 .no-image {
-  color: #5f6368;
+  color: var(--text-light);
   font-style: italic;
   font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+
+.no-image i {
+  font-size: 24px;
+  opacity: 0.5;
 }
 
 .job-description {
-  color: #5f6368;
+  color: var(--text-medium);
   font-size: 14px;
   line-height: 1.6;
 }
 
 .job-card-footer {
-  padding: 16px 20px;
-  background-color: var(--background-gray);
-  border-top: 1px solid var(--border-color);
+  padding: 20px 24px;
+  background-color: var(--background-gray-light);
+  border-top: 1px solid var(--border-color-light);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
+.footer-left {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 .job-budget {
   font-weight: 700;
-  color: var(--primary-blue);
+  color: var(--success-green);
   font-size: 18px;
 }
 
 .job-distance {
   font-size: 13px;
-  color: #5f6368;
+  color: var(--text-light);
   display: flex;
   align-items: center;
+  gap: 4px;
 }
 
-.job-card-footer .btn {
-  padding: 6px 16px;
+.view-details-btn {
+  padding: 8px 16px;
   font-size: 13px;
-  border-radius: 20px;
+  border-radius: 8px;
+  font-weight: 500;
 }
 
-/* No jobs found message */
+/* Enhanced No Jobs Found */
 .no-jobs-found {
   text-align: center;
-  padding: 60px 30px;
-  background-color: var(--background-light);
+  padding: 80px 40px;
+  background-color: var(--background-white);
   border-radius: 16px;
   margin: 40px 0;
   border: 1px solid var(--border-color);
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+  box-shadow: var(--shadow-sm);
+}
+
+.no-jobs-icon {
+  font-size: 4rem;
+  color: var(--text-light);
+  margin-bottom: 24px;
 }
 
 .no-jobs-found h3 {
@@ -646,14 +978,22 @@ body {
 }
 
 .no-jobs-found p {
-  color: #5f6368;
-  margin-bottom: 24px;
+  color: var(--text-light);
+  margin-bottom: 32px;
   max-width: 500px;
   margin-left: auto;
   margin-right: auto;
+  line-height: 1.6;
 }
 
-/* Pagination */
+.no-jobs-actions {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* Enhanced Pagination */
 .pagination-container {
   display: flex;
   justify-content: center;
@@ -662,60 +1002,130 @@ body {
 
 .pagination {
   display: flex;
-  gap: 8px;
+  gap: 4px;
+  list-style: none;
+  padding: 0;
+  margin: 0;
 }
 
 .pagination .page-item {
-  margin: 0 2px;
+  margin: 0;
 }
 
 .pagination .page-link {
-  color: var(--text-dark);
+  color: var(--text-medium);
   border: 1px solid var(--border-color);
-  border-radius: 50%;
+  border-radius: 8px;
   width: 40px;
   height: 40px;
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 500;
-  transition: all 0.2s;
+  transition: all 0.2s ease;
+  text-decoration: none;
+  background-color: var(--background-white);
 }
 
 .pagination .page-item.active .page-link {
   background-color: var(--primary-blue);
   border-color: var(--primary-blue);
-  color: var(--text-light);
+  color: var(--text-white);
 }
 
 .pagination .page-link:hover {
-  background-color: rgba(26, 115, 232, 0.04);
-  color: var(--primary-blue);
+  background-color: var(--primary-blue);
+  color: var(--text-white);
   border-color: var(--primary-blue);
+  transform: translateY(-1px);
 }
 
-/* Modal styling */
+/* Enhanced Modal */
 .modal-content {
   border-radius: 16px;
   border: none;
-  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+  box-shadow: var(--shadow-xl);
   overflow: hidden;
 }
 
 .modal-header {
   background-color: var(--primary-blue);
-  color: var(--text-light);
-  padding: 20px 24px;
+  color: var(--text-white);
+  padding: 24px;
   border-bottom: none;
 }
 
 .modal-title {
   font-weight: 600;
   font-size: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
 }
 
 .modal-body {
-  padding: 24px;
+  padding: 32px 24px;
+}
+
+.modal-description {
+  text-align: center;
+  color: var(--text-medium);
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.location-options {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.location-option-btn {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px;
+  text-align: left;
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.location-option-btn i {
+  font-size: 20px;
+  width: 24px;
+  flex-shrink: 0;
+}
+
+.btn-content {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.btn-title {
+  font-weight: 600;
+  font-size: 16px;
+}
+
+.btn-subtitle {
+  font-size: 14px;
+  opacity: 0.7;
+}
+
+.manual-location-form {
+  margin-top: 24px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-color);
+}
+
+.manual-location-form h6 {
+  margin-bottom: 16px;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.manual-location-form .form-group {
+  margin-bottom: 16px;
 }
 
 .modal-footer {
@@ -724,7 +1134,7 @@ body {
 }
 
 .btn-close {
-  color: var(--text-light);
+  color: var(--text-white);
   opacity: 0.8;
 }
 
@@ -732,34 +1142,61 @@ body {
   opacity: 1;
 }
 
-/* Responsive adjustments */
+/* Responsive Design */
+@media (max-width: 1200px) {
+  .hero-title {
+    font-size: 2.5rem;
+  }
+}
+
 @media (max-width: 992px) {
   .search-hero {
-    padding: 40px 0;
+    padding: 60px 0;
   }
   
-  .search-hero h1 {
+  .hero-title {
     font-size: 2rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.125rem;
+  }
+  
+  .job-list-actions {
+    justify-content: stretch;
+  }
+  
+  .post-job-btn,
+  .location-btn {
+    flex: 1;
+    justify-content: center;
   }
 }
 
 @media (max-width: 768px) {
   .search-bar-container {
     flex-direction: column;
-    padding: 12px;
-    gap: 12px;
+    padding: 16px;
+    gap: 16px;
   }
   
   .main-search-input {
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .search-input {
     width: 100%;
   }
   
-  .main-search-input input {
+  .search-btn {
     width: 100%;
+    justify-content: center;
   }
   
   .advanced-search-toggle button {
     width: 100%;
+    justify-content: center;
   }
   
   .job-list-actions {
@@ -768,10 +1205,10 @@ body {
     gap: 12px;
     margin-top: 16px;
   }
-
-  .post-job-btn {
-    width: 100%;
-    justify-content: center;
+  
+  .list-controls {
+    justify-content: stretch;
+    margin-top: 16px;
   }
   
   .sorting-options {
@@ -780,21 +1217,86 @@ body {
   }
   
   .sorting-options select {
-    max-width: 70%;
+    flex: 1;
+    max-width: none;
   }
   
   .advanced-search-actions {
     flex-direction: column;
-    gap: 8px;
+    gap: 12px;
   }
   
   .advanced-search-actions button,
   .advanced-search-actions a {
     width: 100%;
+    justify-content: center;
   }
   
   .job-list-header h2 {
     font-size: 1.5rem;
+  }
+  
+  .no-jobs-actions {
+    flex-direction: column;
+    align-items: center;
+  }
+  
+  .no-jobs-actions .btn {
+    width: 100%;
+    max-width: 300px;
+    justify-content: center;
+  }
+  
+  .location-options {
+    gap: 12px;
+  }
+  
+  .location-option-btn {
+    padding: 16px;
+  }
+}
+
+@media (max-width: 576px) {
+  .hero-title {
+    font-size: 1.75rem;
+  }
+  
+  .hero-subtitle {
+    font-size: 1rem;
+  }
+  
+  .job-card-header {
+    padding: 20px;
+  }
+  
+  .job-card-body {
+    padding: 20px;
+  }
+  
+  .job-card-footer {
+    padding: 16px 20px;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 12px;
+  }
+  
+  .footer-left {
+    align-items: center;
+    text-align: center;
+  }
+  
+  .view-details-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .budget-range {
+    flex-direction: column;
+    gap: 8px;
+  }
+  
+  .range-separator {
+    display: none;
   }
   
   .pagination .page-link {
@@ -803,76 +1305,148 @@ body {
     font-size: 14px;
   }
 }
-
-@media (max-width: 576px) {
-  .search-hero h1 {
-    font-size: 1.75rem;
-  }
-  
-  .job-card-header {
-    padding: 16px;
-  }
-  
-  .job-card-body {
-    padding: 16px;
-  }
-  
-  .job-card-footer {
-    padding: 12px 16px;
-    flex-wrap: wrap;
-    gap: 8px;
-  }
-  
-  .job-card-footer .btn {
-    width: 100%;
-    margin-top: 8px;
-    order: 3;
-  }
-  
-  .job-budget {
-    order: 1;
-  }
-
-  .job-distance {
-    order: 2;
-  }
-}
 </style>
 
 <script>
+function applySorting(sortValue) {
+    const currentUrl = new URL(window.location.href);
+    const searchParams = currentUrl.searchParams;
+
+    // Update sort parameter
+    searchParams.set('sort', sortValue);
+
+    // Keep the page at 1 when sorting changes
+    searchParams.set('page', '1');
+
+    // Redirect to the new URL
+    window.location.href = currentUrl.toString();
+}
+
+// Get CSRF token for AJAX requests
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== '') {
+        const cookies = document.cookie.split(';');
+        for (let i = 0; i < cookies.length; i++) {
+            const cookie = cookies[i].trim();
+            if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                break;
+            }
+        }
+    }
+    return cookieValue;
+}
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Toggle advanced search panel
+    // Toggle advanced search panel with enhanced animation
     const advancedSearchBtn = document.getElementById('advanced-search-btn');
     const advancedSearchPanel = document.getElementById('advanced-search-panel');
+    const toggleIcon = advancedSearchBtn.querySelector('.toggle-icon');
 
     advancedSearchBtn.addEventListener('click', function() {
         const isHidden = advancedSearchPanel.style.display === 'none';
-        advancedSearchPanel.style.display = isHidden ? 'block' : 'none';
-        advancedSearchBtn.innerHTML = isHidden ?
-            'Advanced Search <i class="fa fa-chevron-up"></i>' :
-            'Advanced Search <i class="fa fa-chevron-down"></i>';
+        
+        if (isHidden) {
+            advancedSearchPanel.style.display = 'block';
+            advancedSearchPanel.style.opacity = '0';
+            advancedSearchPanel.style.transform = 'translateY(-10px)';
+            
+            // Animate in
+            setTimeout(() => {
+                advancedSearchPanel.style.transition = 'all 0.3s ease';
+                advancedSearchPanel.style.opacity = '1';
+                advancedSearchPanel.style.transform = 'translateY(0)';
+            }, 10);
+            
+            advancedSearchBtn.innerHTML = '<i class="fa fa-sliders-h"></i><span>Filters</span><i class="fa fa-chevron-up toggle-icon"></i>';
+        } else {
+            advancedSearchPanel.style.transition = 'all 0.3s ease';
+            advancedSearchPanel.style.opacity = '0';
+            advancedSearchPanel.style.transform = 'translateY(-10px)';
+            
+            setTimeout(() => {
+                advancedSearchPanel.style.display = 'none';
+            }, 300);
+            
+            advancedSearchBtn.innerHTML = '<i class="fa fa-sliders-h"></i><span>Filters</span><i class="fa fa-chevron-down toggle-icon"></i>';
+        }
     });
 
     // Show advanced panel if any of the advanced filters are active
     {% if request.GET.category or request.GET.municipality or request.GET.barangay or request.GET.min_budget or request.GET.max_budget %}
         advancedSearchPanel.style.display = 'block';
-        advancedSearchBtn.innerHTML = 'Advanced Search <i class="fa fa-chevron-up"></i>';
+        advancedSearchBtn.innerHTML = '<i class="fa fa-sliders-h"></i><span>Filters</span><i class="fa fa-chevron-up toggle-icon"></i>';
     {% endif %}
 
-    // Handle "Use My Current Location" button
+    // Enhanced favorite button functionality
+    document.querySelectorAll('.btn-favorite').forEach(button => {
+        button.addEventListener('click', function(e) {
+            e.preventDefault();
+            const icon = this.querySelector('i');
+            
+            if (icon.classList.contains('fa-heart')) {
+                icon.classList.remove('fa-heart');
+                icon.classList.add('fas', 'fa-heart');
+                this.style.color = '#ef4444';
+                this.title = 'Remove from favorites';
+            } else {
+                icon.classList.remove('fas', 'fa-heart');
+                icon.classList.add('fa-heart');
+                this.style.color = '';
+                this.title = 'Save job';
+            }
+        });
+    });
+
+    // Handle "Use My Current Location" button with loading state
     document.getElementById("useCurrentLocation").addEventListener("click", function () {
+        const button = this;
+        const originalContent = button.innerHTML;
+        
+        // Show loading state
+        button.innerHTML = '<i class="fa fa-spinner fa-spin"></i><div class="btn-content"><span class="btn-title">Getting Location...</span><span class="btn-subtitle">Please wait</span></div>';
+        button.disabled = true;
+        
         if (navigator.geolocation) {
             navigator.geolocation.getCurrentPosition(
                 function (position) {
                     document.getElementById("lat").value = position.coords.latitude;
                     document.getElementById("lng").value = position.coords.longitude;
-                    document.getElementById("filter-form").submit();
+                    
+                    // Show success state briefly
+                    button.innerHTML = '<i class="fa fa-check"></i><div class="btn-content"><span class="btn-title">Location Found!</span><span class="btn-subtitle">Redirecting...</span></div>';
+                    
+                    setTimeout(() => {
+                        document.getElementById("filter-form").submit();
+                    }, 1000);
                 },
                 function (error) {
-                    alert("Error getting location: " + error.message);
+                    // Reset button state
+                    button.innerHTML = originalContent;
+                    button.disabled = false;
+                    
+                    let errorMessage = "Error getting location: ";
+                    switch(error.code) {
+                        case error.PERMISSION_DENIED:
+                            errorMessage += "Location access denied by user.";
+                            break;
+                        case error.POSITION_UNAVAILABLE:
+                            errorMessage += "Location information is unavailable.";
+                            break;
+                        case error.TIMEOUT:
+                            errorMessage += "Location request timed out.";
+                            break;
+                        default:
+                            errorMessage += "An unknown error occurred.";
+                            break;
+                    }
+                    alert(errorMessage);
                 }
             );
         } else {
+            button.innerHTML = originalContent;
+            button.disabled = false;
             alert("Geolocation is not supported by your browser.");
         }
     });
@@ -881,49 +1455,63 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById("enterManualLocationBtn").addEventListener("click", function () {
         document.getElementById("manualLocationFields").classList.remove("d-none");
         document.getElementById("manualSaveFooter").classList.remove("d-none");
+        
+        // Focus on first input
+        document.getElementById("manual_municipality").focus();
     });
 
-    // Handle "Save Manual Location" button
+    // Handle "Save Manual Location" button with enhanced validation
     document.getElementById("saveManualLocation").addEventListener("click", function () {
-        const city = document.getElementById("manual_municipality").value;
-        const barangay = document.getElementById("manual_barangay").value;
-        const street = document.getElementById("manual_street").value;
-        const number = document.getElementById("manual_number").value;
+        const button = this;
+        const originalContent = button.innerHTML;
+        
+        const city = document.getElementById("manual_municipality").value.trim();
+        const barangay = document.getElementById("manual_barangay").value.trim();
+        const street = document.getElementById("manual_street").value.trim();
+        const number = document.getElementById("manual_number").value.trim();
+
+        // Validation
+        if (!city) {
+            alert("Please enter a municipality/city.");
+            document.getElementById("manual_municipality").focus();
+            return;
+        }
 
         const fullAddress = [number, street, barangay, city].filter(Boolean).join(", ");
+        
+        // Show loading state
+        button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Finding Location...';
+        button.disabled = true;
 
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}`)
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}&countrycodes=ph&limit=1`)
             .then(response => response.json())
             .then(data => {
                 if (data && data.length > 0) {
                     document.getElementById("lat").value = data[0].lat;
                     document.getElementById("lng").value = data[0].lon;
-                    document.getElementById("filter-form").submit();
+                    
+                    // Show success state
+                    button.innerHTML = '<i class="fa fa-check"></i> Location Found!';
+                    
+                    setTimeout(() => {
+                        document.getElementById("filter-form").submit();
+                    }, 1000);
                 } else {
-                    alert("Address not found. Please refine your input.");
+                    // Reset button state
+                    button.innerHTML = originalContent;
+                    button.disabled = false;
+                    alert("Address not found. Please check your input and try again.");
                 }
             })
             .catch(error => {
-                alert("Error fetching coordinates.");
+                // Reset button state
+                button.innerHTML = originalContent;
+                button.disabled = false;
+                alert("Error finding location. Please check your internet connection and try again.");
             });
     });
 
-    // Function to apply sorting
-    function applySorting(sortValue) {
-        const currentUrl = new URL(window.location.href);
-        const searchParams = currentUrl.searchParams;
-
-        // Update sort parameter
-        searchParams.set('sort', sortValue);
-
-        // Keep the page at 1 when sorting changes
-        searchParams.set('page', '1');
-
-        // Redirect to the new URL
-        window.location.href = currentUrl.toString();
-    }
-
-    // Store user location in the backend
+    // Store user location in the backend (if endpoint exists)
     function storeUserLocation(lat, lng) {
         fetch('/set-location/', {
             method: 'POST',
@@ -932,15 +1520,45 @@ document.addEventListener('DOMContentLoaded', function() {
                 'X-CSRFToken': getCookie('csrftoken')
             },
             body: JSON.stringify({ lat: lat, lng: lng })
+        }).catch(error => {
+            console.log('Location storage endpoint not available');
         });
     }
 
-    // Automatically store user location if geolocation is available
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(function(position) {
-            storeUserLocation(position.coords.latitude, position.coords.longitude);
+    // Enhanced search input with debounced suggestions (if you want to add this feature)
+    const searchInput = document.querySelector('.search-input');
+    let searchTimeout;
+    
+    searchInput.addEventListener('input', function() {
+        clearTimeout(searchTimeout);
+        searchTimeout = setTimeout(() => {
+            // You can add search suggestions here
+            console.log('Search query:', this.value);
+        }, 300);
+    });
+
+    // Add smooth scrolling to job cards when they come into view
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.transform = 'translateY(0)';
+            }
         });
-    }
+    }, observerOptions);
+
+    // Observe job cards for animation
+    document.querySelectorAll('.job-card').forEach((card, index) => {
+        card.style.opacity = '0';
+        card.style.transform = 'translateY(20px)';
+        card.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
+        observer.observe(card);
+    });
 });
 </script>
 {% endblock %}

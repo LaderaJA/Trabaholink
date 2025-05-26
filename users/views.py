@@ -1,7 +1,6 @@
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth import update_session_auth_hash
 from django.contrib.auth.forms import PasswordChangeForm
-
 from django.contrib.auth import login, get_backends
 from django.contrib.auth.views import LoginView, LogoutView
 from django.urls import reverse_lazy
@@ -69,7 +68,8 @@ class UserProfileDetailView(DetailView):
     context_object_name = "user"
 
     def get_object(self):
-        return self.request.user
+        from django.shortcuts import get_object_or_404
+        return get_object_or_404(CustomUser, pk=self.kwargs['pk'])
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -110,13 +110,14 @@ class UserProfileUpdateView(UpdateView):
         return response
 
     def get_success_url(self):
-        return reverse_lazy('profile')
+        return reverse_lazy('profile', kwargs={'pk': self.request.user.pk})
 
 # Profile Delete View
 @method_decorator(login_required, name='dispatch')
 class UserProfileDeleteView(DeleteView):
     model = CustomUser
     template_name = "users/profile_confirm_delete.html"
-    success_url = reverse_lazy('login')  
+    success_url = reverse_lazy('login')
+
     def get_object(self):
         return self.request.user

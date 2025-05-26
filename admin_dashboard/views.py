@@ -12,6 +12,14 @@ from .forms import ModeratedWordForm
 from announcements.forms import AnnouncementForm
 from django.contrib.auth import get_user_model
 from announcements.models import Announcement
+from django.http import JsonResponse
+from django.views.decorators.csrf import csrf_exempt
+from django.contrib.auth.decorators import login_required
+from django.core.files.storage import default_storage
+from jobs.models import Job
+from .models import Report
+import json
+from django.views.decorators.http import require_POST
 
 
 class DashboardMainView(LoginRequiredMixin, UserPassesTestMixin, TemplateView):
@@ -46,6 +54,11 @@ class UserListView(AdminRequiredMixin, ListView):
 class UserDetailView(AdminRequiredMixin, DetailView):
     model = CustomUser
     template_name = 'admin_dashboard/user_detail.html'
+    context_object_name = 'selected_user'  # Use a custom context variable name
+
+    def get_object(self, queryset=None):
+        # Retrieve the user based on the primary key (pk) from the URL
+        return get_object_or_404(CustomUser, pk=self.kwargs['pk'])
 
 class UserDeleteView(AdminRequiredMixin, DeleteView):
     model = CustomUser
@@ -138,3 +151,72 @@ class AnnouncementDeleteView(AdminRequiredMixin, DeleteView):
     model = Announcement
     template_name = 'admin_dashboard/announcement_confirm_delete.html'
     success_url = reverse_lazy('admin_dashboard:admin_announcement_list')
+
+
+@csrf_exempt
+@login_required
+def submit_report(request):
+    if request.method == "POST":
+        try:
+            data = request.POST
+            screenshot = request.FILES.get('screenshot')
+            report_type = data.get("report_type")
+            username = data.get("username")  # Updated to handle username
+            content = data.get("content", "").strip()
+
+            # Debugging: Log the received data
+            print("Report Data:", data)
+            print("Screenshot:", screenshot)
+
+            if not content:
+                return JsonResponse({"success": False, "message": "Report content cannot be empty."})
+
+            # Create the report
+            report = Report.objects.create(
+                user=request.user,
+                reported_content=content,
+                report_type=report_type,
+                screenshot=screenshot
+            )
+
+            # Handle specific entity types
+            if report_type == "user" and username:
+                from django.contrib.auth import get_user_model
+                User = get_user_model()
+                try:
+                    reported_user = User.objects.get(username=username)
+                    report.reported_user = reported_user
+                    report.save()
+                except User.DoesNotExist:
+                    return JsonResponse({"success": False, "message": "User not found."})
+
+            return JsonResponse({"success": True, "message": "Report submitted successfully."})
+        except Exception as e:
+            # Debugging: Log any errors
+            print("Error saving report:", e)
+            return JsonResponse({"success": False, "message": "An error occurred while saving the report."})
+
+    return JsonResponse({"success": False, "message": "Invalid request method."})
+
+@csrf_exempt
+@login_required
+@require_POST
+def update_report_status(request):
+    try:
+        data = json.loads(request.body)
+        report_id = data.get("report_id")
+        new_status = data.get("status")
+        
+        # Basic validation
+        if new_status not in ["pending", "reviewed", "resolved"]:
+            return JsonResponse({"success": False, "message": "Invalid status value."})
+        
+        report = Report.objects.get(pk=report_id)
+        report.status = new_status
+        report.save()
+        return JsonResponse({"success": True, "message": "Status updated successfully."})
+    except Report.DoesNotExist:
+        return JsonResponse({"success": False, "message": "Report not found."})
+    except Exception as e:
+        print("Error in update_report_status:", e)
+        return JsonResponse({"success": False, "message": "An error occurred while updating the status."})

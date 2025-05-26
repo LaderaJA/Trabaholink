@@ -1,31 +1,126 @@
 {% extends 'admin_dashboard/base.html' %}
-{% load static %}
 
 {% block content %}
-<h1>Reports</h1>
-<table>
-    <thead>
-        <tr>
-            <th>Reporter</th>
-            <th>Reason</th>
-            <th>Status</th>
-            <th>Actions</th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for report in reports %}
-        <tr>
-            <td>{{ report.reporter.username }}</td>
-            <td>{{ report.reason }}</td>
-            <td>{{ report.is_resolved|yesno:"Resolved,Pending" }}</td>
-            <td>
-                <a href="{% url 'admin_dashboard:report_detail' report.id %}">View</a> |
-                {% if not report.is_resolved %}
-                <a href="{% url 'admin_dashboard:resolve_report' report.id %}">Mark as Resolved</a>
-                {% endif %}
-            </td>
-        </tr>
-        {% endfor %}
-    </tbody>
-</table>
+<div class="container mt-5">
+    <h1 class="mb-4">Submitted Reports</h1>
+    <!-- Filter control -->
+    <div class="mb-3">
+        <label for="statusFilter" class="form-label">Filter by Status:</label>
+        <select id="statusFilter" class="form-select">
+            <option value="">All</option>
+            <option value="pending">Pending</option>
+            <option value="reviewed">Reviewed</option>
+            <option value="resolved">Resolved</option>
+        </select>
+    </div>
+    <div class="card shadow-sm">
+        <div class="card-body">
+            <table class="table table-striped table-hover" id="reportsTable">
+                <thead class="table-dark">
+                    <tr>
+                        <th>User</th>
+                        <th>Type</th>
+                        <th>Entity</th>
+                        <th>Content</th>
+                        <th>Screenshot</th>
+                        <th>Status</th>
+                        <th>Submitted At</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for report in reports %}
+                    <tr data-status="{{ report.status }}">
+                        <td>{{ report.user.username }}</td>
+                        <td>{{ report.get_report_type_display }}</td>
+                        <td>
+                            {% if report.reported_user %}
+                                User: {{ report.reported_user.username }}
+                            {% elif report.job_posting %}
+                                Job: <a href="{% url 'jobs:job_detail' report.job_posting.id %}">{{ report.job_posting.title }}</a>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <td>{{ report.reported_content }}</td>
+                        <td>
+                            {% if report.screenshot %}
+                                <a href="{{ report.screenshot.url }}" target="_blank">View Screenshot</a>
+                            {% else %}
+                                N/A
+                            {% endif %}
+                        </td>
+                        <!-- Replace status text with a dropdown -->
+                        <td>
+                            <select class="report-status form-select" data-report-id="{{ report.id }}">
+                                <option value="pending" {% if report.status == "pending" %}selected{% endif %}>Pending</option>
+                                <option value="reviewed" {% if report.status == "reviewed" %}selected{% endif %}>Reviewed</option>
+                                <option value="resolved" {% if report.status == "resolved" %}selected{% endif %}>Resolved</option>
+                            </select>
+                        </td>
+                        <td>{{ report.created_at|date:"M d, Y H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No reports found.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    // Filtering function for reports table by status
+    const statusFilter = document.getElementById("statusFilter");
+    const reportsTableRows = document.querySelectorAll("#reportsTable tbody tr");
+
+    statusFilter.addEventListener("change", function () {
+        const filterVal = this.value;
+        reportsTableRows.forEach(row => {
+            row.style.display = (filterVal === "" || row.dataset.status === filterVal) ? "" : "none";
+        });
+    });
+
+    // Inline editing for report status
+    const statusDropdowns = document.querySelectorAll(".report-status");
+    statusDropdowns.forEach(dropdown => {
+        dropdown.addEventListener("change", function () {
+            const reportId = this.dataset.reportId;
+            const newStatus = this.value;
+
+            // AJAX call to update the status
+            fetch("{% url 'admin_dashboard:update_report_status' %}", {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value,
+                    "Content-Type": "application/json",
+                    "X-Requested-With": "XMLHttpRequest"
+                },
+                body: JSON.stringify({
+                    report_id: reportId,
+                    status: newStatus
+                })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    // Update the data-status attribute on the row for filtering
+                    const row = this.closest("tr");
+                    if (row) row.dataset.status = newStatus;
+                    alert("Status updated successfully");
+                } else {
+                    alert("Error: " + data.message);
+                }
+            })
+            .catch(error => {
+                console.error("Error updating status:", error);
+                alert("An error occurred while updating the status.");
+            });
+        });
+    });
+});
+</script>
 {% endblock %}

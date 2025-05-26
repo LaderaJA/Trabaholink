@@ -146,13 +146,15 @@ def send_message(request, conversation_id):
             
             print(f"Message saved: {new_message}")  # Debugging
 
+            # Get the receiver from the conversation
+            receiver = conversation.user1 if new_message.sender != conversation.user1 else conversation.user2
+
             return JsonResponse({
-                "success": True,
                 "id": new_message.id,
                 "sender_id": new_message.sender.id,
                 "sender_username": new_message.sender.username,
                 "content": new_message.content,
-                "created_at": new_message.created_at.strftime("%Y-%m-%d %H:%M:%S"),
+                "timestamp": new_message.created_at.strftime("%Y-%m-%dT%H:%M:%S"),
             })
         
         except Exception as e:
@@ -180,7 +182,7 @@ def start_conversation(request):
                 user2=max(request.user, recipient, key=lambda u: u.id)
             )
 
-            return redirect("conversation_detail", conversation_id=conversation.id) 
+            return redirect("messaging:conversation_detail", conversation_id=conversation.id) 
 
     return render(request, "messaging/start_conversation.html", {"form": StartConversationForm()})
 

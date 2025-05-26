@@ -51,7 +51,7 @@
                   {{ message.content }}
                 </div>
                 <div class="message-info">
-                  <span class="message-time">{{ formatTime(message.timestamp || new Date()) }}</span>
+                  <span class="message-time">{{ formatTime(message.timestamp || message.created_at || new Date()) }}</span>
                   <span v-if="message.sender_id === currentUserId" class="message-status">
                     <i class="bi bi-check2-all"></i>
                   </span>

@@ -2,6 +2,7 @@ from django.urls import path
 from . import views
 from .views import (ModeratedWordListView, ModeratedWordCreateView, ModeratedWordUpdateView, ModeratedWordDeleteView,
                      AnnouncementSummaryView, AnnouncementCreateView, AnnouncementUpdateView, AnnouncementDeleteView)
+from users.views import UserLogoutView  
 
 app_name = 'admin_dashboard'
 
@@ -11,11 +12,14 @@ urlpatterns = [
     path('users/', views.UserListView.as_view(), name='user_list'),
     path('users/<int:pk>/', views.UserDetailView.as_view(), name='user_detail'),
     path('users/<int:pk>/delete/', views.UserDeleteView.as_view(), name='user_delete'),
+    path('logout/', UserLogoutView.as_view(), name='logout'),
 
     # Report Management
     path('reports/', views.ReportListView.as_view(), name='report_list'),
     path('reports/<int:pk>/', views.ReportDetailView.as_view(), name='report_detail'),
     path('reports/<int:pk>/resolve/', views.resolve_report, name='resolve_report'),
+    path('submit-report/', views.submit_report, name='submit_report'),
+    path('update-report-status/', views.update_report_status, name='update_report_status'),
 
     # Flagged Chats Management
     path('flagged-chats/', views.FlaggedChatListView.as_view(), name='flagged_chat_list'),

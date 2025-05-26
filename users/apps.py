@@ -6,4 +6,6 @@ class UsersConfig(AppConfig):
     name = 'users'
 
     def ready(self):
-        import users.signals 
+        import announcements.signals
+        import jobs.signals
+        import messaging.signals

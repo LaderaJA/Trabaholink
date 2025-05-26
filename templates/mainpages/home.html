@@ -1,34 +1,38 @@
 {% extends "mainpages/base.html" %} 
 {% load static %} 
-{% block title %}Home |
-TrabahoLink{% endblock %}
-
+{% block title %}Home | TrabahoLink{% endblock %}
+{% block css %}  <link rel="stylesheet" href="{% static 'css/home.css' %}"></link>
+{% endblock %}
 {% block content %}
-<!-- Hero Section -->
-<section class="hero-section py-5 bg-light">
+
+
+<!-- Enhanced Hero Section -->
+<section class="hero-section">
   <div class="container">
     <div class="row align-items-center">
       <div class="col-lg-6 mb-4 mb-lg-0">
-        <h1 class="display-4 fw-bold">Find Skilled Workers for Your Home</h1>
-        <p class="lead my-4">
+        <h1 class="hero-title animate-on-scroll">Find Skilled Workers for Your Home</h1>
+        <p class="hero-subtitle animate-on-scroll animate-delay-1">
           TrabahoLink connects you with trusted professionals for all your
           household needs - from plumbing to gardening and everything in
           between.
         </p>
-        <div class="d-flex gap-3">
-          <a href="{% url 'jobs:job_list' %}" class="btn btn-primary btn-lg"
-            >Browse Jobs</a
-          >
-          <a href="#how-it-works" class="btn btn-outline-secondary btn-lg"
-            >How It Works</a
-          >
+        <div class="d-flex gap-3 animate-on-scroll animate-delay-2">
+          <a href="{% url 'jobs:job_list' %}" class="btn btn-primary btn-lg">
+            <i class="bi bi-search"></i>
+            Browse Jobs
+          </a>
+          <a href="#how-it-works" class="btn btn-outline-secondary btn-lg">
+            <i class="bi bi-info-circle"></i>
+            How It Works
+          </a>
         </div>
       </div>
-      <div class="col-lg-6">
+      <div class="col-lg-6 animate-on-scroll animate-delay-3">
         <img
           src="{% static 'images/hero-image.jpeg' %}"
           alt="Home service professionals"
-          class="img-fluid rounded-3 shadow"
+          class="img-fluid hero-image"
           onerror="this.src='/placeholder.svg?height=400&width=600'; this.onerror=null;"
         />
       </div>
@@ -36,43 +40,44 @@ TrabahoLink{% endblock %}
   </div>
 </section>
 
-<!-- Categories Section -->
-<section class="py-5">
+<!-- Enhanced Categories Section -->
+<section class="categories-section">
   <div class="container">
-    <div class="text-center mb-5">
-      <h2 class="fw-bold">Popular Service Categories</h2>
-      <p class="text-muted">
-        Find the right professional for any job around your home
-      </p>
-    </div>
+    <h2 class="section-title animate-on-scroll">Popular Service Categories</h2>
+    <p class="section-subtitle animate-on-scroll animate-delay-1">
+      Find the right professional for any job around your home
+    </p>
 
     <div class="row g-4">
       {% for category in categories %}
-      <div class="col-6 col-md-4 col-lg-3">
-        <a
-          href="{% url 'jobs:job_list' %}?category={{ category.id }}"
-          class="text-decoration-none"
-        >
-          <div class="card h-100 border-0 shadow-sm hover-shadow">
-            <div class="card-body text-center p-4">
-              <!-- Dynamic icon based on category name (you may need to adjust this logic) -->
-              {% if 'plumb' in category.name.lower %}
-              <i class="bi bi-droplet-fill fs-1 text-primary mb-3"></i>
-              {% elif 'electric' in category.name.lower %}
-              <i class="bi bi-lightning-fill fs-1 text-primary mb-3"></i>
-              {% elif 'garden' in category.name.lower  %}
-              <i class="bi bi-flower1 fs-1 text-primary mb-3"></i>
-              {% elif 'clean' in category.name.lower %}
-              <i class="bi bi-brush fs-1 text-primary mb-3"></i>
-              {% elif 'paint' in category.name.lower %}
-              <i class="bi bi-palette-fill fs-1 text-primary mb-3"></i>
-              {% elif 'repair' in category.name.lower %}
-              <i class="bi bi-tools fs-1 text-primary mb-3"></i>
-              {% else %}
-              <i class="bi bi-house-gear-fill fs-1 text-primary mb-3"></i>
-              {% endif %}
-              <h5 class="card-title">{{ category.name }}</h5>
-            </div>
+      <div class="col-6 col-md-4 col-lg-3 animate-on-scroll animate-delay-{{ forloop.counter|add:1 }}">
+        <a href="{% url 'jobs:job_list' %}?category={{ category.id }}" class="category-card d-block">
+          <div class="card-body">
+            <!-- Enhanced dynamic icons -->
+            {% if 'plumb' in category.name.lower %}
+            <i class="bi bi-droplet-fill category-icon"></i>
+            {% elif 'electric' in category.name.lower %}
+            <i class="bi bi-lightning-fill category-icon"></i>
+            {% elif 'garden' in category.name.lower %}
+            <i class="bi bi-flower1 category-icon"></i>
+            {% elif 'clean' in category.name.lower %}
+            <i class="bi bi-brush category-icon"></i>
+            {% elif 'paint' in category.name.lower %}
+            <i class="bi bi-palette-fill category-icon"></i>
+            {% elif 'repair' in category.name.lower %}
+            <i class="bi bi-tools category-icon"></i>
+            {% elif 'cook' in category.name.lower or 'chef' in category.name.lower %}
+            <i class="bi bi-egg-fried category-icon"></i>
+            {% elif 'security' in category.name.lower %}
+            <i class="bi bi-shield-check category-icon"></i>
+            {% elif 'transport' in category.name.lower or 'driver' in category.name.lower %}
+            <i class="bi bi-car-front category-icon"></i>
+            {% elif 'tutor' in category.name.lower or 'teach' in category.name.lower %}
+            <i class="bi bi-book category-icon"></i>
+            {% else %}
+            <i class="bi bi-house-gear-fill category-icon"></i>
+            {% endif %}
+            <h5 class="category-title">{{ category.name }}</h5>
           </div>
         </a>
       </div>
@@ -81,65 +86,49 @@ TrabahoLink{% endblock %}
   </div>
 </section>
 
-<!-- How It Works Section -->
-<section id="how-it-works" class="py-5 bg-light">
+<!-- Enhanced How It Works Section -->
+<section id="how-it-works" class="how-it-works-section">
   <div class="container">
-    <div class="text-center mb-5">
-      <h2 class="fw-bold">How TrabahoLink Works</h2>
-      <p class="text-muted">
-        Three simple steps to find the perfect professional
-      </p>
-    </div>
+    <h2 class="section-title animate-on-scroll">How TrabahoLink Works</h2>
+    <p class="section-subtitle animate-on-scroll animate-delay-1">
+      Three simple steps to find the perfect professional
+    </p>
 
     <div class="row g-4">
-      <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body text-center p-4">
-            <div
-              class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-4"
-              style="width: 80px; height: 80px"
-            >
-              <h3 class="m-0">1</h3>
-            </div>
-            <h4>Post Your Job</h4>
-            <p class="text-muted">
+      <div class="col-md-4 animate-on-scroll animate-delay-2">
+        <div class="step-card">
+          <div class="card-body">
+            <div class="step-number">1</div>
+            <h4 class="step-title">Post Your Job</h4>
+            <p class="step-description">
               Describe what you need done, when you need it, and your location.
+              Be specific about your requirements to attract the right professionals.
             </p>
           </div>
         </div>
       </div>
 
-      <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body text-center p-4">
-            <div
-              class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-4"
-              style="width: 80px; height: 80px"
-            >
-              <h3 class="m-0">2</h3>
-            </div>
-            <h4>Compare Offers</h4>
-            <p class="text-muted">
+      <div class="col-md-4 animate-on-scroll animate-delay-3">
+        <div class="step-card">
+          <div class="card-body">
+            <div class="step-number">2</div>
+            <h4 class="step-title">Compare Offers</h4>
+            <p class="step-description">
               Review profiles, ratings, and offers from interested
-              professionals.
+              professionals. Compare prices and read reviews to make the best choice.
             </p>
           </div>
         </div>
       </div>
 
-      <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body text-center p-4">
-            <div
-              class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-4"
-              style="width: 80px; height: 80px"
-            >
-              <h3 class="m-0">3</h3>
-            </div>
-            <h4>Negotiate and Hire</h4>
-            <p class="text-muted">
-              Choose the best match, get the job done, and hire securely through
-              our platform.
+      <div class="col-md-4 animate-on-scroll animate-delay-4">
+        <div class="step-card">
+          <div class="card-body">
+            <div class="step-number">3</div>
+            <h4 class="step-title">Negotiate and Hire</h4>
+            <p class="step-description">
+              Choose the best match, negotiate terms, and hire securely through
+              our platform. Get the job done with confidence.
             </p>
           </div>
         </div>
@@ -148,63 +137,49 @@ TrabahoLink{% endblock %}
   </div>
 </section>
 
-<!-- How to Apply for a Job Section -->
-<section class="py-5">
+<!-- Enhanced How to Apply Section -->
+<section class="apply-section">
   <div class="container">
-    <div class="text-center mb-5">
-      <h2 class="fw-bold">How to Apply for a Job</h2>
-      <p class="text-muted">
-        Follow these steps to apply and get hired quickly through TrabahoLink
-      </p>
-    </div>
+    <h2 class="section-title animate-on-scroll">How to Apply for a Job</h2>
+    <p class="section-subtitle animate-on-scroll animate-delay-1">
+      Follow these steps to apply and get hired quickly through TrabahoLink
+    </p>
 
     <div class="row g-4">
-      <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body text-center p-4">
-            <div
-              class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-4"
-              style="width: 80px; height: 80px"
-            >
-              <h3 class="m-0">1</h3>
-            </div>
-            <h4>Browse Available Jobs</h4>
-            <p class="text-muted">
+      <div class="col-md-4 animate-on-scroll animate-delay-2">
+        <div class="step-card">
+          <div class="card-body">
+            <div class="step-number">1</div>
+            <h4 class="step-title">Browse Available Jobs</h4>
+            <p class="step-description">
               Go to the job listings page and find a job that fits your skills and location.
+              Use filters to narrow down your search.
             </p>
           </div>
         </div>
       </div>
 
-      <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body text-center p-4">
-            <div
-              class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-4"
-              style="width: 80px; height: 80px"
-            >
-              <h3 class="m-0">2</h3>
-            </div>
-            <h4>Submit Your Application</h4>
-            <p class="text-muted">
+      <div class="col-md-4 animate-on-scroll animate-delay-3">
+        <div class="step-card">
+          <div class="card-body">
+            <div class="step-number">2</div>
+            <h4 class="step-title">Submit Your Application</h4>
+            <p class="step-description">
               Click on a job to view details and use the apply button to submit your offer or message.
+              Showcase your skills and experience.
             </p>
           </div>
         </div>
       </div>
 
-      <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body text-center p-4">
-            <div
-              class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center mx-auto mb-4"
-              style="width: 80px; height: 80px"
-            >
-              <h3 class="m-0">3</h3>
-            </div>
-            <h4>Get Hired</h4>
-            <p class="text-muted">
-              Wait for the job poster to review your application and accept your offer. Communicate and complete the job.
+      <div class="col-md-4 animate-on-scroll animate-delay-4">
+        <div class="step-card">
+          <div class="card-body">
+            <div class="step-number">3</div>
+            <h4 class="step-title">Get Hired</h4>
+            <p class="step-description">
+              Wait for the job poster to review your application and accept your offer. 
+              Communicate professionally and complete the job successfully.
             </p>
           </div>
         </div>
@@ -213,124 +188,30 @@ TrabahoLink{% endblock %}
   </div>
 </section>
 
-
-<!-- Testimonials Section -->
-<!-- <section class="py-5">
-  <div class="container">
-    <div class="text-center mb-5">
-      <h2 class="fw-bold">What Our Customers Say</h2>
-      <p class="text-muted">Join thousands of satisfied homeowners</p>
-    </div>
-
-    <div class="row g-4">
-      <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body p-4">
-            <div class="d-flex mb-3">
-              <i class="bi bi-star-fill text-warning"></i>
-              <i class="bi bi-star-fill text-warning"></i>
-              <i class="bi bi-star-fill text-warning"></i>
-              <i class="bi bi-star-fill text-warning"></i>
-              <i class="bi bi-star-fill text-warning"></i>
-            </div>
-            <p class="mb-3">
-              "Found an amazing plumber through TrabahoLink who fixed our
-              leaking pipes in no time. Great service and very professional!"
-            </p>
-            <div class="d-flex align-items-center">
-              <div
-                class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3"
-                style="width: 50px; height: 50px"
-              >
-                <i class="bi bi-person-fill"></i>
-              </div>
-              <div>
-                <h6 class="mb-0">Maria Santos</h6>
-                <small class="text-muted">Niog</small>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body p-4">
-            <div class="d-flex mb-3">
-              <i class="bi bi-star-fill text-warning"></i>
-              <i class="bi bi-star-fill text-warning"></i>
-              <i class="bi bi-star-fill text-warning"></i>
-              <i class="bi bi-star-fill text-warning"></i>
-              <i class="bi bi-star-fill text-warning"></i>
-            </div>
-            <p class="mb-3">
-              "The gardener I hired through TrabahoLink transformed my backyard
-              completely. Very reasonable rates and excellent work!"
-            </p>
-            <div class="d-flex align-items-center">
-              <div
-                class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3"
-                style="width: 50px; height: 50px"
-              >
-                <i class="bi bi-person-fill"></i>
-              </div>
-              <div>
-                <h6 class="mb-0">Juan Reyes</h6>
-                <small class="text-muted">Aniban</small>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-4">
-        <div class="card h-100 border-0 shadow-sm">
-          <div class="card-body p-4">
-            <div class="d-flex mb-3">
-              <i class="bi bi-star-fill text-warning"></i>
-              <i class="bi bi-star-fill text-warning"></i>
-              <i class="bi bi-star-fill text-warning"></i>
-              <i class="bi bi-star-fill text-warning"></i>
-              <i class="bi bi-star-half text-warning"></i>
-            </div>
-            <p class="mb-3">
-              "Quick and easy to find an electrician for our home renovation.
-              The whole process was smooth and the work quality was excellent."
-            </p>
-            <div class="d-flex align-items-center">
-              <div
-                class="rounded-circle bg-secondary text-white d-flex align-items-center justify-content-center me-3"
-                style="width: 50px; height: 50px"
-              >
-                <i class="bi bi-person-fill"></i>
-              </div>
-              <div>
-                <h6 class="mb-0">Ana Lim</h6>
-                <small class="text-muted">Molino I</small>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section> -->
-
-<!-- CTA Section -->
-<section class="py-5 bg-primary text-white">
+<!-- Enhanced CTA Section -->
+<section class="cta-section">
   <div class="container text-center">
-    <h2 class="fw-bold mb-4">Ready to Get Started?</h2>
-    <p class="lead mb-4">
+    <h2 class="cta-title animate-on-scroll">Ready to Get Started?</h2>
+    <p class="cta-subtitle animate-on-scroll animate-delay-1">
       Join thousands of homeowners who have found reliable professionals through
       TrabahoLink
     </p>
-    <div class="d-flex justify-content-center gap-3">
-      <a href="{% url 'jobs:job_list' %}" class="btn btn-light btn-lg"
-        >Find a Professional</a
-      >
-      <a href="{% url 'jobs:job_create' %}" class="btn btn-outline-light btn-lg"
-        >Post a Job</a
-      >
+    <div class="d-flex justify-content-center gap-3 animate-on-scroll animate-delay-2">
+      <a href="{% url 'jobs:job_list' %}" class="btn btn-light btn-lg">
+        <i class="bi bi-search"></i>
+        Find a Professional
+      </a>
+      {% if user.is_authenticated %}
+      <a href="{% url 'jobs:job_create' %}" class="btn btn-outline-light btn-lg">
+        <i class="bi bi-plus-circle"></i>
+        Post a Job
+      </a>
+      {% else %}
+      <a href="{% url 'login' %}?next={% url 'jobs:job_create' %}" class="btn btn-outline-light btn-lg">
+        <i class="bi bi-plus-circle"></i>
+        Post a Job
+      </a>
+      {% endif %}
     </div>
   </div>
 </section>
@@ -341,12 +222,122 @@ TrabahoLink{% endblock %}
   href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
 />
 
-<!-- Add custom CSS for hover effects -->
-<style>
-  .hover-shadow:hover {
-    transform: translateY(-5px);
-    transition: transform 0.3s ease;
-    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1) !important;
-  }
-</style>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Intersection Observer for scroll animations
+    const observerOptions = {
+        threshold: 0.1,
+        rootMargin: '0px 0px -50px 0px'
+    };
+
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                entry.target.style.opacity = '1';
+                entry.target.style.animation = entry.target.style.animation.replace('paused', 'running');
+            }
+        });
+    }, observerOptions);
+
+    // Observe all elements with animate-on-scroll class
+    document.querySelectorAll('.animate-on-scroll').forEach(el => {
+        el.style.animationPlayState = 'paused';
+        observer.observe(el);
+    });
+
+    // Smooth scrolling for anchor links
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const target = document.querySelector(this.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({
+                    behavior: 'smooth',
+                    block: 'start'
+                });
+            }
+        });
+    });
+
+    // Add loading states for buttons
+    document.querySelectorAll('.btn').forEach(btn => {
+        btn.addEventListener('click', function(e) {
+            if (this.href && !this.href.includes('#')) {
+                const originalContent = this.innerHTML;
+                this.innerHTML = '<i class="bi bi-arrow-clockwise" style="animation: spin 1s linear infinite;"></i> Loading...';
+                this.disabled = true;
+                
+                // Re-enable after a delay (in case of navigation issues)
+                setTimeout(() => {
+                    this.innerHTML = originalContent;
+                    this.disabled = false;
+                }, 3000);
+            }
+        });
+    });
+
+    // Add CSS for spin animation
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+    `;
+    document.head.appendChild(style);
+
+    // Parallax effect for hero section
+    window.addEventListener('scroll', function() {
+        const scrolled = window.pageYOffset;
+        const heroSection = document.querySelector('.hero-section');
+        if (heroSection) {
+            const rate = scrolled * -0.5;
+            heroSection.style.transform = `translateY(${rate}px)`;
+        }
+    });
+
+    // Add hover effects for category cards
+    document.querySelectorAll('.category-card').forEach(card => {
+        card.addEventListener('mouseenter', function() {
+            this.style.transform = 'translateY(-8px) scale(1.02)';
+        });
+        
+        card.addEventListener('mouseleave', function() {
+            this.style.transform = 'translateY(0) scale(1)';
+        });
+    });
+
+    // Add counter animation for step numbers
+    function animateCounters() {
+        document.querySelectorAll('.step-number').forEach(counter => {
+            const target = parseInt(counter.textContent);
+            let current = 0;
+            const increment = target / 20;
+            const timer = setInterval(() => {
+                current += increment;
+                if (current >= target) {
+                    counter.textContent = target;
+                    clearInterval(timer);
+                } else {
+                    counter.textContent = Math.floor(current);
+                }
+            }, 50);
+        });
+    }
+
+    // Trigger counter animation when step cards come into view
+    const stepObserver = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                animateCounters();
+                stepObserver.unobserve(entry.target);
+            }
+        });
+    }, { threshold: 0.5 });
+
+    document.querySelectorAll('.step-card').forEach(card => {
+        stepObserver.observe(card);
+    });
+});
+</script>
 {% endblock %}

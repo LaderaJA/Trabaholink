@@ -18,7 +18,7 @@ class AnnouncementCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView
     model = Announcement
     template_name = "announcements/announcement_form.html"
     fields = ["title", "description", "image"]
-    success_url = reverse_lazy("announcement_list")
+    success_url = reverse_lazy("announcements:announcement_list")
 
     def form_valid(self, form):
         form.instance.posted_by = self.request.user

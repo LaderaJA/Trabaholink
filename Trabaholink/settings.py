@@ -83,6 +83,7 @@ TEMPLATES = [
                 'django.template.context_processors.request',
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
+                'notifications.context_processors.unread_notifications',
             ],
         },
     },
@@ -179,8 +180,9 @@ LOGIN_REDIRECT_URL = 'jobs:home'
 LOGOUT_REDIRECT_URL = 'login'
 
 EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
-ANYMAIL = SENDGRID_API_KEY = os.getenv('SENDGRID_API_KEY')
-
+ANYMAIL = {
+    "SENDGRID_API_KEY": os.environ.get("SENDGRID_API_KEY")
+}
 DEFAULT_FROM_EMAIL = "junnuj312@gmail.com"
 
 GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH', '/usr/lib/libgdal.so')

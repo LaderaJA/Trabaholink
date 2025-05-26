@@ -1,8 +1,5 @@
 from django.db import models
 from django.contrib.auth import get_user_model
-from messaging.models import Conversation 
-from announcements.models import Announcement
-from users.models import CustomUser  
 
 User = get_user_model()
 
@@ -22,8 +19,11 @@ class Report(models.Model):
     ]
 
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reports')
+    reported_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reported_by')
+    job_posting = models.ForeignKey('jobs.Job', on_delete=models.SET_NULL, null=True, blank=True, related_name='reports')
     reported_content = models.TextField()
     report_type = models.CharField(max_length=20, choices=REPORT_TYPE_CHOICES)
+    screenshot = models.ImageField(upload_to='report_screenshots/', null=True, blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -39,7 +39,11 @@ class FlaggedChat(models.Model):
         ('resolved', 'Resolved'),
     ]
 
-    chat_message = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name='flagged_chats')
+    chat_message = models.ForeignKey(
+        'messaging.Conversation', 
+        on_delete=models.CASCADE,
+        related_name='flagged_chats'
+    )
     flagged_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='flagged_chats')
     reason = models.TextField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
@@ -66,5 +70,9 @@ class ModeratedWord(models.Model):
 
     def __str__(self):
         return self.word
-    
-    
+
+    @classmethod
+    def get_banned_words(cls):
+        """Fetch all banned words from the database."""
+        return list(cls.objects.filter(is_banned=True).values_list('word', flat=True))
+

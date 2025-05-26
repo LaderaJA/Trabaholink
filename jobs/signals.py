@@ -1,15 +1,14 @@
 from django.db.models.signals import post_save
 from django.dispatch import receiver
-from .models import Job
+from jobs.models import JobApplication
 from notifications.models import Notification
 
-# @receiver(post_save, sender=Job)
-# def notify_users_about_new_job(sender, instance, created, **kwargs):
-#     if created:  
-#         nearby_users = instance.get_nearby_users() 
-#         for user in nearby_users:
-#             Notification.objects.create(
-#                 user=user,
-#                 message=f"New job posted near you: {instance.title}",
-#                 notification_type="job_post"
-#             )
+@receiver(post_save, sender=JobApplication)
+def notify_job_owner_on_application(sender, instance, created, **kwargs):
+    if created:
+        Notification.objects.create(
+            user=instance.job.owner,
+            notif_type="job_post",
+            object_id=instance.job.id,
+            message=f"New application from {instance.worker.username} for your job: {instance.job.title}",
+        )

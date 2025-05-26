@@ -5,6 +5,9 @@ from django.dispatch import receiver
 from django.core.mail import send_mail
 from django.conf import settings
 from django.contrib.gis.db import models as gis_models
+from better_profanity import profanity
+from admin_dashboard.utils import load_banned_words
+
 
 CustomUser = get_user_model()
 
@@ -17,7 +20,7 @@ class JobCategory(models.Model):
 class Job(models.Model):
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="posted_jobs")
     title = models.CharField(max_length=255)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True, default="")
     category = models.ForeignKey(JobCategory, on_delete=models.SET_NULL, null=True, related_name="jobs")
     budget = models.DecimalField(max_digits=10, decimal_places=2)
 
@@ -36,6 +39,20 @@ class Job(models.Model):
 
     def __str__(self):
         return f"{self.title} - {self.owner.username}"
+
+    def save(self, *args, **kwargs):
+        # Load banned words
+        banned_words = load_banned_words()
+
+        # Censor single words using better-profanity
+        profanity.load_censor_words([word for word in banned_words if ' ' not in word])
+        self.description = profanity.censor(self.description)
+
+        for phrase in banned_words:
+            if ' ' in phrase:  
+                self.description = self.description.replace(phrase, '*' * len(phrase))
+
+        super().save(*args, **kwargs)
 
 class JobImage(models.Model):
     job = models.ForeignKey(Job, related_name='jobimage_set', on_delete=models.CASCADE)

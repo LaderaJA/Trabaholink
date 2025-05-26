@@ -34,14 +34,17 @@
                     </p>
                 </div>
                 
-                <div class="profile-actions">
-                    <a href="{% url 'profile_edit' %}" class="btn btn-primary-outline">
-                        <i class="bi bi-pencil-square me-2"></i>Edit Profile
-                    </a>
-                    <a href="{% url 'jobs:job_create' %}" class="btn btn-primary">
-                        <i class="bi bi-briefcase-fill me-2"></i>Post a Job
-                    </a>
-                </div>
+                {% if user.pk == request.user.pk %}
+                    <div class="profile-actions">
+                        <a href="{% url 'profile_edit' %}" class="btn btn-primary-outline">
+                            <i class="bi bi-pencil-square me-2"></i>Edit Profile
+                        </a>
+                        <a href="{% url 'jobs:job_create' %}" class="btn btn-primary">
+                            <i class="bi bi-briefcase-fill me-2"></i>Post a Job
+                        </a>
+                    </div>
+                {% endif %}
+
             </div>
         </div>
 
@@ -125,7 +128,7 @@
                             <a href="{% url 'privacy_settings' %}" class="action-item">
                                 <i class="bi bi-eye me-2"></i>Privacy Settings
                             </a>
-                            <a href="{% url 'profile_delete' %}" class="action-item danger">
+                            <a href="{% url 'profile_delete' user.pk %}" class="action-item danger">
                                 <i class="bi bi-trash me-2"></i>Delete Account
                             </a>
                         </div>
@@ -148,9 +151,11 @@
                     <div class="profile-card">
                         <div class="card-header">
                             <h3>About Me</h3>
+                            {% if user.pk == request.user.pk %}
                             <a href="{% url 'profile_edit' %}" class="btn-icon">
                                 <i class="bi bi-pencil"></i>
                             </a>
+                            {% endif %}
                         </div>
                         <div class="card-body">
                             {% if user.bio %}

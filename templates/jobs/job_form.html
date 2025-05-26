@@ -433,203 +433,107 @@
 <!-- Scripts -->
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-// Image deletion function
-function deleteImage(imageId) {
-    var csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
-    var data = new FormData();
-    data.append('delete_image', imageId);
-    data.append('csrfmiddlewaretoken', csrfToken);
-
-    fetch('', {
-        method: 'POST',
-        body: data,
-        headers: {
-            'X-Requested-With': 'XMLHttpRequest'  // Add this header for AJAX request
-        }
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (data.status === 'success') {
-            var imageElement = document.getElementById('image-' + imageId);
-            imageElement.remove();
-        } else {
-            alert(data.message || 'Error deleting image');
-        }
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        alert('An error occurred while deleting the image.');
-    });
-}
-
-// Wait for DOM to be fully loaded
 document.addEventListener('DOMContentLoaded', function() {
-    // Image preview functionality
-    const imageInput = document.getElementById('{{ image_form.images.id_for_label }}');
-    const previewContainer = document.getElementById('image-preview-container');
-    const fileSelectedText = document.getElementById('file-selected');
+    // Get default coordinates (from the object or use fallback values)
+    const defaultLat = parseFloat("{{ object.latitude|default:14.4311278|floatformat:7 }}");
+    const defaultLon = parseFloat("{{ object.longitude|default:120.9682000|floatformat:7 }}");
 
-    if (imageInput) {
-    imageInput.addEventListener('change', function() {
-        // Update selected files text
-        let fileCount = this.files.length;
-        fileSelectedText.textContent = fileCount > 0 ? fileCount + ' files selected' : 'No files selected';
+    // Initialize the Leaflet map
+    const map = L.map('map').setView([defaultLat, defaultLon], 15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors',
+        maxZoom: 19
+    }).addTo(map);
 
-        // Clear previous previews
-        previewContainer.innerHTML = '';
+    // Create a draggable marker
+    const marker = L.marker([defaultLat, defaultLon], {
+        draggable: true,
+        title: 'Drag to set job location'
+    }).addTo(map);
 
-        // Generate previews for new files
-        if (this.files) {
-            for (let i = 0; i < this.files.length; i++) {
-                const file = this.files[i];
-                if (file.type.match('image.*')) {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const previewDiv = document.createElement('div');
-                        previewDiv.className = 'preview-item';
-                        previewDiv.innerHTML = `
-                            <img src="${e.target.result}" height="100" width="100" alt="Preview">
-                            <div>${file.name.substring(0, 15)}${file.name.length > 15 ? '...' : ''}</div>
-                        `;
-                        previewContainer.appendChild(previewDiv);
-                    }
-                    reader.readAsDataURL(file);
-                }
-            }
-        }
+    // Function to update hidden fields and display coordinates
+    function updateCoordinates(lat, lon) {
+        document.getElementById("latitude").value = lat;
+        document.getElementById("longitude").value = lon;
+        document.getElementById("lat-display").textContent = lat;
+        document.getElementById("lon-display").textContent = lon;
+    }
+
+    // Function to compile the full address string from existing fields
+    function getFullAddress() {
+         const municipality = document.getElementById("municipality-input").value.trim();
+         const barangay = document.getElementById("barangay-input").value.trim();
+         const street = document.getElementById("street").value.trim();
+         const houseNumber = document.getElementById("house_number").value.trim();
+         let parts = [];
+         if(houseNumber) parts.push(houseNumber);
+         if(street) parts.push(street);
+         if(barangay) parts.push(barangay);
+         if(municipality) parts.push(municipality);
+         return parts.join(', ');
+    }
+
+    // Reverse geocoding: update address fields based on marker position
+    function reverseGeocode(lat, lon) {
+         fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`)
+             .then(response => response.json())
+             .then(data => {
+                 if(data && data.address) {
+                     const address = data.address;
+                     document.getElementById("municipality-input").value = address.city || address.town || address.municipality || '';
+                     document.getElementById("barangay-input").value = address.suburb || address.neighbourhood || '';
+                     document.getElementById("street").value = address.road || '';
+                     document.getElementById("house_number").value = address.house_number || '';
+                 }
+             })
+             .catch(err => console.error("Reverse geocoding error:", err));
+    }
+
+    // Forward geocoding: update map based on concatenated address
+    function forwardGeocode() {
+         const fullAddress = getFullAddress();
+         if(fullAddress.trim() === '') return;
+         fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}`)
+             .then(response => response.json())
+             .then(data => {
+                 if(data && data.length > 0) {
+                     const result = data[0];
+                     const newLat = parseFloat(result.lat);
+                     const newLon = parseFloat(result.lon);
+                     map.setView([newLat, newLon], 15);
+                     marker.setLatLng([newLat, newLon]);
+                     updateCoordinates(newLat, newLon);
+                 }
+             })
+             .catch(err => console.error("Forward geocoding error:", err));
+    }
+
+    // Event: when marker is dragged
+    marker.on('dragend', function() {
+          const pos = marker.getLatLng();
+          updateCoordinates(pos.lat, pos.lng);
+          reverseGeocode(pos.lat, pos.lng);
     });
-    }
+    
+    // Event: when map is clicked
+    map.on('click', function(e) {
+         marker.setLatLng(e.latlng);
+         updateCoordinates(e.latlng.lat, e.latlng.lng);
+         reverseGeocode(e.latlng.lat, e.latlng.lng);
+    });
+    
+    // Add change listeners to existing address input fields
+    const addressFields = ["municipality-input", "barangay-input", "street", "house_number"];
+    addressFields.forEach(function(fieldId) {
+         document.getElementById(fieldId).addEventListener('change', forwardGeocode);
+    });
 
-    // Map initialization
-    try {
-        // Parse Django template variables as strings, then convert to numbers
-        const defaultLat = parseFloat("{{ object.latitude|default:14.4311278|floatformat:7 }}");
-        const defaultLon = parseFloat("{{ object.longitude|default:120.9682000|floatformat:7 }}");
+    // Initialize fields if no address present
+    updateCoordinates(defaultLat, defaultLon);
+    reverseGeocode(defaultLat, defaultLon);
 
-        console.log("Initializing map with coordinates:", defaultLat, defaultLon);
-
-const jobEditMode = parseInt("{{ object.id|default:0 }}") > 0;
-        const hasExistingAddress = document.getElementById("barangay-input").value.trim() !== '' ||
-                                  document.getElementById("municipality-input").value.trim() !== '';
-
-        const map = L.map('map').setView([defaultLat, defaultLon], 15);
-
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-            attribution: '© OpenStreetMap contributors',
-            maxZoom: 19
-        }).addTo(map);
-
-        const marker = L.marker([defaultLat, defaultLon], {
-            draggable: true,
-            title: 'Drag to set job location'
-        }).addTo(map);
-
-        const showLoadingIndicator = (message) => {
-            const mapSection = document.querySelector('.map-section');
-            const loadingIndicator = document.createElement('div');
-            loadingIndicator.className = 'loading-indicator';
-            loadingIndicator.innerHTML = message;
-            Object.assign(loadingIndicator.style, {
-                position: 'absolute',
-                top: '50%',
-                left: '50%',
-                transform: 'translate(-50%, -50%)',
-                backgroundColor: 'rgba(255, 255, 255, 0.8)',
-                padding: '10px',
-                borderRadius: '4px',
-                zIndex: '1000'
-            });
-            mapSection.style.position = 'relative';
-            mapSection.appendChild(loadingIndicator);
-            return loadingIndicator;
-        };
-
-        const updateAddressFields = (lat, lon) => {
-            const loadingIndicator = showLoadingIndicator('Fetching address...');
-
-            // Update hidden coordinates fields
-            document.getElementById("latitude").value = lat;
-            document.getElementById("longitude").value = lon;
-
-            // Update display coordinates (if they exist)
-            const latDisplay = document.getElementById("lat-display");
-            const lonDisplay = document.getElementById("lon-display");
-            if (latDisplay) latDisplay.textContent = lat;
-            if (lonDisplay) lonDisplay.textContent = lon;
-
-            // Fetch address details from Nominatim
-            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1&accept-language=en`)
-            .then(response => response.json())
-            .then(data => {
-                console.log("Nominatim API response:", data);
-
-                // Try to get the city/town/municipality
-                const municipality = data.address.city ||
-                                    data.address.town ||
-                                    data.address.municipality ||
-                                    data.address.village ||
-                                    '';
-
-                // Try to get the barangay/suburb/neighborhood
-                const barangay = data.address.suburb ||
-                                data.address.neighborhood ||
-                                data.address.district ||
-                                data.address.subdistrict ||
-                                '';
-
-                // Get road and house number
-                const street = data.address.road || data.address.street || '';
-                const house_number = data.address.house_number || '';
-
-                // Update form fields
-                document.getElementById("municipality-input").value = municipality;
-                document.getElementById("barangay-input").value = barangay;
-                document.getElementById("street").value = street;
-                document.getElementById("house_number").value = house_number;
-
-                loadingIndicator.remove();
-                console.log("Updated address fields:", {
-                    municipality,
-                    barangay,
-                    street,
-                    house_number
-                });
-            })
-            .catch(err => {
-                console.error("Error fetching address:", err);
-                loadingIndicator.remove();
-            });
-        };
-
-        // Update on marker drag
-        marker.on('dragend', function (e) {
-            const lat = e.target.getLatLng().lat;
-            const lon = e.target.getLatLng().lng;
-            updateAddressFields(lat, lon);
-        });
-
-        // Update on map click
-        map.on('click', function (e) {
-            const lat = e.latlng.lat;
-            const lon = e.latlng.lng;
-            marker.setLatLng([lat, lon]);
-            updateAddressFields(lat, lon);
-        });
-
-        // Initialize address fields if needed
-        if (!jobEditMode || !hasExistingAddress) {
-            updateAddressFields(defaultLat, defaultLon);
-        }
-
-        // Force map to recalculate its container size
-        setTimeout(function() {
-            map.invalidateSize();
-        }, 100);
-
-    } catch (error) {
-        console.error("Error initializing map:", error);
-        document.getElementById('map').innerHTML = '<div class="error-message">Error loading map. Please refresh the page.</div>';
-    }
+    // Force map to recalc its size if needed
+    setTimeout(() => { map.invalidateSize(); }, 100);
 });
 </script>
 {% endblock %}

@@ -3,22 +3,11 @@ from django.conf import settings
 from django.db.models.signals import post_save
 from django.dispatch import receiver
 from notifications.utils import send_notification_email
-from users.models import CustomUser
-from django.apps import apps
+from admin_dashboard.utils import load_banned_words
+from better_profanity import profanity
 from django.contrib.auth import get_user_model
 
-CustomUser = get_user_model()
-
-@receiver(post_save, sender=None) 
-def notify_users_about_announcement(sender, instance, created, **kwargs):
-    if created:
-        Announcement = apps.get_model('announcements', 'Announcement') 
-        if isinstance(instance, Announcement): 
-            all_users = CustomUser.objects.all()
-            for user in all_users:
-                subject = "New Announcement from Trabaholink!"
-                message = f"{instance.title}\n\n{instance.description}"
-                send_notification_email(subject, message, user.email)  
+User = get_user_model()
 
 class Announcement(models.Model):
     title = models.CharField(max_length=255)
@@ -27,6 +16,28 @@ class Announcement(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     posted_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
+    content = models.TextField(blank=True, null=True, default="")
 
     def __str__(self):
         return self.title
+    
+    def save(self, *args, **kwargs):
+        banned_words = load_banned_words()
+
+        profanity.load_censor_words([word for word in banned_words if ' ' not in word])
+        self.content = profanity.censor(self.content)
+
+        for phrase in banned_words:
+            if ' ' in phrase:  
+                self.content = self.content.replace(phrase, '*' * len(phrase))
+
+        super().save(*args, **kwargs)
+
+@receiver(post_save, sender=Announcement)
+def notify_users_about_announcement(sender, instance, created, **kwargs):
+    if created:
+        all_users = User.objects.all()
+        for user in all_users:
+            subject = "New Announcement from Trabaholink!"
+            message = f"{instance.title}\n\n{instance.description}"
+            send_notification_email(subject, message, user.email)
