@@ -398,6 +398,96 @@
                             <p>Latitude: <span id="lat-display">{{ job.latitude|default:'Not set' }}</span></p>
                             <p>Longitude: <span id="lon-display">{{ job.longitude|default:'Not set' }}</span></p>
                         </div>
+                        <div class="form-section">
+    <h3 class="section-title">Additional Job Details</h3>
+    <div class="form-group full-width">
+        <label for="{{ form.tasks.id_for_label }}">Tasks</label>
+        {{ form.tasks }}
+        {% if form.tasks.errors %}
+            <div class="error-message">{{ form.tasks.errors }}</div>
+        {% endif %}
+    </div>
+    <div class="form-row">
+        <div class="form-group">
+            <label for="{{ form.duration.id_for_label }}">Duration</label>
+            {{ form.duration }}
+            {% if form.duration.errors %}
+                <div class="error-message">{{ form.duration.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.schedule.id_for_label }}">Schedule</label>
+            {{ form.schedule }}
+            {% if form.schedule.errors %}
+                <div class="error-message">{{ form.schedule.errors }}</div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group">
+            <label for="{{ form.start_datetime.id_for_label }}">Start Date & Time</label>
+            {{ form.start_datetime }}
+            {% if form.start_datetime.errors %}
+                <div class="error-message">{{ form.start_datetime.errors }}</div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group">
+            <label for="{{ form.tools_provided.id_for_label }}">Tools Provided?</label>
+            {{ form.tools_provided }}
+            {% if form.tools_provided.errors %}
+                <div class="error-message">{{ form.tools_provided.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.materials_provided.id_for_label }}">Materials Provided?</label>
+            {{ form.materials_provided }}
+            {% if form.materials_provided.errors %}
+                <div class="error-message">{{ form.materials_provided.errors }}</div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="form-group full-width">
+        <label for="{{ form.required_skills.id_for_label }}">Required Skills</label>
+        {{ form.required_skills }}
+        {% if form.required_skills.errors %}
+            <div class="error-message">{{ form.required_skills.errors }}</div>
+        {% endif %}
+    </div>
+    <div class="form-row">
+        <div class="form-group">
+            <label for="{{ form.payment_method.id_for_label }}">Payment Method</label>
+            {{ form.payment_method }}
+            {% if form.payment_method.errors %}
+                <div class="error-message">{{ form.payment_method.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.payment_schedule.id_for_label }}">Payment Schedule</label>
+            {{ form.payment_schedule }}
+            {% if form.payment_schedule.errors %}
+                <div class="error-message">{{ form.payment_schedule.errors }}</div>
+            {% endif %}
+        </div>
+    </div>
+    <div class="form-row">
+        <div class="form-group">
+            <label for="{{ form.urgency.id_for_label }}">Urgency</label>
+            {{ form.urgency }}
+            {% if form.urgency.errors %}
+                <div class="error-message">{{ form.urgency.errors }}</div>
+            {% endif %}
+        </div>
+        <div class="form-group">
+            <label for="{{ form.number_of_workers.id_for_label }}">Number of Workers</label>
+            {{ form.number_of_workers }}
+            {% if form.number_of_workers.errors %}
+                <div class="error-message">{{ form.number_of_workers.errors }}</div>
+            {% endif %}
+        </div>
+    </div>
+</div>
                     </div>
                     <div class="form-actions">
                         <button type="submit" class="btn btn-primary btn-block">
@@ -534,6 +624,42 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Force map to recalc its size if needed
     setTimeout(() => { map.invalidateSize(); }, 100);
+});
+</script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Get the file input element by id (using the form field's id)
+  const fileInput = document.getElementById("{{ image_form.images.id_for_label }}");
+  const previewContainer = document.getElementById("image-preview-container");
+  const fileSelected = document.getElementById("file-selected");
+  
+  if (fileInput) {
+    fileInput.addEventListener("change", function(event) {
+      // Clear any existing previews
+      previewContainer.innerHTML = "";
+      const files = event.target.files;
+      
+      if (files.length > 0) {
+        fileSelected.textContent = files.length + " file(s) selected";
+      } else {
+        fileSelected.textContent = "No files selected";
+      }
+      
+      // Loop over each selected file and create an image preview
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const img = document.createElement("img");
+          img.src = e.target.result;
+          img.width = 100;  // adjust size as needed
+          img.style.marginBottom = "8px";
+          previewContainer.appendChild(img);
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+  }
 });
 </script>
 {% endblock %}

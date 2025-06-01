@@ -1,4 +1,3 @@
-
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
@@ -13,6 +12,8 @@ urlpatterns = [
     path("messaging/", include("messaging.urls", namespace="messaging")),
     path("announcements/", include("announcements.urls", namespace="announcements")),
     path("notifications/", include("notifications.urls")),
+    path("services/", include("services.urls", namespace="services")),
+    path('posts/', include('posts.urls', namespace='posts')),
 
 ]
 

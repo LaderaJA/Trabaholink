@@ -1,70 +1,124 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{% block title %}TrabahoLink{% endblock %}</title>
   {% load static %}
-  <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}"/>
+  <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}" />
   <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
-  <link rel="stylesheet" href="{% static 'css/base.css' %}">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+  <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+  <link
+    rel="stylesheet"
+    href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
+  />
+  <style>
+    /* Minimal toggler collapse CSS */
+    .tl-navbar-collapse {
+      display: none;
+    }
+    .tl-navbar-collapse.show {
+      display: block;
+    }
+  </style>
   {% block css %}{% endblock %}
 </head>
 <body class="d-flex flex-column min-vh-100">
   <nav class="tl-navbar">
     <div class="container">
-      <div class="tl-navbar-content">
+      <div class="tl-navbar-content d-flex align-items-center justify-content-between">
         <a class="tl-navbar-brand" href="{% url 'jobs:home' %}">
           <span class="tl-brand-text">Trabaho</span>
           <span class="tl-brand-text tl-brand-highlight">Link</span>
         </a>
-        <button class="tl-navbar-toggler" type="button" aria-label="Toggle navigation">
-          <i class="tl-toggler-icon">☰</i>
+        <button
+          class="tl-navbar-toggler btn btn-light"
+          type="button"
+          aria-label="Toggle navigation"
+        >
+          <i class="tl-toggler-icon bi bi-list" style="font-size: 1.5rem;"></i>
         </button>
         <div class="tl-navbar-collapse">
-          <ul class="tl-navbar-nav">
-            <li class="tl-nav-item">
-              <a class="tl-nav-link {% if request.path == '/' %}active{% endif %}" href="{% url 'jobs:home' %}">Home</a>
+          <ul class="tl-navbar-nav list-unstyled d-flex mb-0">
+            <li class="tl-nav-item me-3">
+              <a
+                class="tl-nav-link {% if request.path == '/' %}active{% endif %}"
+                href="{% url 'jobs:home' %}"
+                >Home</a
+              >
             </li>
-            <li class="tl-nav-item">
-              <a class="tl-nav-link {% if request.path == '/jobs/' %}active{% endif %}" href="{% url 'jobs:job_list' %}">Jobs</a>
+            <li class="tl-nav-item me-3">
+              <a
+                class="tl-nav-link {% if request.path == '/jobs/' %}active{% endif %}"
+                href="{% url 'jobs:job_list' %}"
+                >Postings</a
+              >
             </li>
-            <li class="tl-nav-item">
-              <a class="tl-nav-link {% if request.path == '/announcements/' %}active{% endif %}" href="{% url 'announcements:announcement_list' %}">Announcements</a>
+            <li class="tl-nav-item me-3">
+              <a
+                class="tl-nav-link {% if request.path == '/announcements/' %}active{% endif %}"
+                href="{% url 'announcements:announcement_list' %}"
+                >Announcements</a
+              >
             </li>
             {% if user.is_authenticated %}
-              <li class="tl-nav-item">
-                <a class="tl-nav-link {% if request.path == '/conversation_list/' %}active{% endif %}" href="{% url 'messaging:conversation_list' %}">Messages</a>
-              </li>
-              <li class="tl-nav-item position-relative">
-                <a class="tl-nav-link" href="{% url 'notifications:notification_list' %}" style="position:relative;">
-                  <i class="bi bi-bell" style="font-size: 1rem; position: relative;"></i>
-                  {% if unread_notification_count > 0 %}
-                    <span class="notification-badge-number">{{ unread_notification_count }}</span>
-                  {% endif %}
-                </a>
-              </li>
-              <li class="tl-nav-item">
-                <a class="tl-nav-link" href="{% url 'profile' user.pk %}" title="Profile">
-                  <i class="bi bi-person-circle" style="font-size: 1.1rem; position: relative;"></i>
-                </a>
-              </li>
-              <li class="tl-nav-item">
-                <form method="post" action="{% url 'logout' %}" style="display: inline">
-                  {% csrf_token %}
-                  <button type="submit" class="tl-btn-logout" title="Logout">
-                    <i class="bi bi-box-arrow-right"></i>
-                  </button>
-                </form>
-              </li>
+            <li class="tl-nav-item me-3">
+              <a
+                class="tl-nav-link {% if request.path == '/conversation_list/' %}active{% endif %}"
+                href="{% url 'messaging:conversation_list' %}"
+                >Messages</a
+              >
+            </li>
+            <li class="tl-nav-item position-relative me-3">
+              <a
+                class="tl-nav-link"
+                href="{% url 'notifications:notification_list' %}"
+                style="position:relative;"
+              >
+                <i
+                  class="bi bi-bell"
+                  style="font-size: 1rem; position: relative;"
+                ></i>
+                {% if unread_notification_count > 0 %}
+                <span class="notification-badge-number">{{ unread_notification_count }}</span>
+                {% endif %}
+              </a>
+            </li>
+            <li class="tl-nav-item me-3">
+              <a
+                class="tl-nav-link"
+                href="{% url 'profile' user.pk %}"
+                title="Profile"
+              >
+                <i
+                  class="bi bi-person-circle"
+                  style="font-size: 1.1rem; position: relative;"
+                ></i>
+              </a>
+            </li>
+            <li class="tl-nav-item">
+              <form method="post" action="{% url 'logout' %}" style="display: inline">
+                {% csrf_token %}
+                <button type="submit" class="tl-btn-logout" title="Logout">
+                  <i class="bi bi-box-arrow-right"></i>
+                </button>
+              </form>
+            </li>
             {% else %}
-              <li class="tl-nav-item">
-                <a class="tl-nav-link {% if request.path == '/users/login/' %}active{% endif %}" href="{% url 'login' %}">Login</a>
-              </li>
-              <li class="tl-nav-item">
-                <a class="tl-nav-link {% if request.path == '/users/register/' %}active{% endif %}" href="{% url 'register' %}">Register</a>
-              </li>
+            <li class="tl-nav-item me-3">
+              <a
+                class="tl-nav-link {% if request.path == '/users/login/' %}active{% endif %}"
+                href="{% url 'login' %}"
+                >Login</a
+              >
+            </li>
+            <li class="tl-nav-item">
+              <a
+                class="tl-nav-link {% if request.path == '/users/register/' %}active{% endif %}"
+                href="{% url 'register' %}"
+                >Register</a
+              >
+            </li>
             {% endif %}
           </ul>
         </div>
@@ -74,6 +128,25 @@
 
   <!-- Main Content -->
   <main class="flex-grow-1">
+    {% if messages %}
+    <div class="container mt-3">
+      {% for message in messages %}
+      <div
+        class="alert alert-{{ message.tags }} alert-dismissible fade show"
+        role="alert"
+      >
+        {{ message }}
+        <button
+          type="button"
+          class="btn-close"
+          data-bs-dismiss="alert"
+          aria-label="Close"
+        ></button>
+      </div>
+      {% endfor %}
+    </div>
+    {% endif %}
+
     {% block content %}{% endblock %}
   </main>
 
@@ -81,96 +154,149 @@
   <footer class="bg-dark text-white py-4 mt-5">
     <div class="container text-center">
       <p>&copy; {{ current_year }} TrabahoLink. All rights reserved.</p>
-      <button class="btn btn-danger report-btn" data-bs-toggle="modal" data-bs-target="#reportModal">
+      <button
+        class="btn btn-danger report-btn"
+        data-bs-toggle="modal"
+        data-bs-target="#reportModal"
+      >
         <i class="bi bi-flag"></i> Report Suspicious Activity
       </button>
     </div>
   </footer>
 
   <!-- Report Modal -->
-<div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+  <div
+    class="modal fade"
+    id="reportModal"
+    tabindex="-1"
+    aria-labelledby="reportModalLabel"
+    aria-hidden="true"
+  >
     <div class="modal-dialog">
-        <div class="modal-content">
-            <div class="modal-header bg-danger text-white">
-                <h5 class="modal-title" id="reportModalLabel">Report Suspicious Activity</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                  <form id="reportForm" method="POST" action="{% url 'admin_dashboard:submit_report' %}" enctype="multipart/form-data">
-    {% csrf_token %}
-    <div class="mb-3">
-        <label for="reportType" class="form-label">Report Type:</label>
-        <select id="reportType" class="form-select" name="report_type" required>
-            <option value="user">User</option>
-            <option value="job_posting">Job Posting</option>
-            <option value="chat_message">Chat Message</option>
-            <option value="other">Other</option>
-        </select>
-    </div>
-    <div class="mb-3" id="entityField">
-        <label for="username" class="form-label">Username (if applicable):</label>
-        <input type="text" id="username" name="username" class="form-control" placeholder="Enter Username">
-    </div>
-    <div class="mb-3">
-        <label for="reportContent" class="form-label">Describe the issue:</label>
-        <textarea id="reportContent" name="content" class="form-control" rows="4" placeholder="Provide details about the suspicious activity..." required></textarea>
-    </div>
-    <div class="mb-3">
-        <label for="screenshot" class="form-label">Upload Screenshot (optional):</label>
-        <input type="file" id="screenshot" name="screenshot" class="form-control" accept="image/*">
-    </div>
-    <div class="text-end">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="submit" class="btn btn-danger">Submit Report</button>
-    </div>
-</form>
-            </div>
+      <div class="modal-content">
+        <div class="modal-header bg-danger text-white">
+          <h5 class="modal-title" id="reportModalLabel">
+            Report Suspicious Activity
+          </h5>
+          <button
+            type="button"
+            class="btn-close"
+            data-bs-dismiss="modal"
+            aria-label="Close"
+          ></button>
         </div>
+        <div class="modal-body">
+          <form
+            id="reportForm"
+            method="POST"
+            action="{% url 'admin_dashboard:submit_report' %}"
+            enctype="multipart/form-data"
+          >
+            {% csrf_token %}
+            <div class="mb-3">
+              <label for="reportType" class="form-label">Report Type:</label>
+              <select
+                id="reportType"
+                class="form-select"
+                name="report_type"
+                required
+              >
+                <option value="user">User</option>
+                <option value="job_posting">Job Posting</option>
+                <option value="chat_message">Chat Message</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="mb-3" id="entityField">
+              <label for="username" class="form-label"
+                >Username (if applicable):</label
+              >
+              <input
+                type="text"
+                id="username"
+                name="username"
+                class="form-control"
+                placeholder="Enter Username"
+              />
+            </div>
+            <div class="mb-3">
+              <label for="reportContent" class="form-label"
+                >Describe the issue:</label
+              >
+              <textarea
+                id="reportContent"
+                name="content"
+                class="form-control"
+                rows="4"
+                placeholder="Provide details about the suspicious activity..."
+                required
+              ></textarea>
+            </div>
+            <div class="mb-3">
+              <label for="screenshot" class="form-label"
+                >Upload Screenshot (optional):</label
+              >
+              <input
+                type="file"
+                id="screenshot"
+                name="screenshot"
+                class="form-control"
+                accept="image/*"
+              />
+            </div>
+            <div class="text-end">
+              <button
+                type="button"
+                class="btn btn-secondary"
+                data-bs-dismiss="modal"
+              >
+                Cancel
+              </button>
+              <button type="submit" class="btn btn-danger">Submit Report</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
-</div>
-<!-- In your base.html file -->
-<script>
-document.addEventListener("DOMContentLoaded", function () {
-    const reportForm = document.getElementById('reportForm');
-    if (!reportForm) return;
-    
-    reportForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        let formData = new FormData(this);
+  </div>
 
-        fetch("{% url 'admin_dashboard:submit_report' %}", {
-            method: "POST",
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': document.querySelector("[name=csrfmiddlewaretoken]").value,
-            },
-            body: formData,
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                alert(data.message);  
-                var modal = bootstrap.Modal.getInstance(document.getElementById('reportModal'));
-                if(modal) {
-                    modal.hide();
-                }
-                this.reset();
-            } else {
-                alert('There was an error: ' + data.message);
-            }
-        })
-        .catch(error => {
-            console.error('Error:', error);
-            alert('There was an error. Please try again.');
+  <!-- Your custom script -->
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function () {
+      const navbarToggler = document.querySelector(".tl-navbar-toggler");
+      const navbarCollapse = document.querySelector(".tl-navbar-collapse");
+      const togglerIcon = document.querySelector(".tl-toggler-icon");
+
+      if (navbarToggler && navbarCollapse && togglerIcon) {
+        navbarToggler.addEventListener("click", function () {
+          navbarCollapse.classList.toggle("show");
+
+          if (navbarCollapse.classList.contains("show")) {
+            togglerIcon.classList.remove("bi-list");
+            togglerIcon.classList.add("bi-x");
+          } else {
+            togglerIcon.classList.remove("bi-x");
+            togglerIcon.classList.add("bi-list");
+          }
         });
+      }
+
+      // Ensure toggler visibility based on screen size
+      const updateTogglerVisibility = () => {
+        if (window.innerWidth >= 992) {
+          navbarToggler.style.display = "none";
+        } else {
+          navbarToggler.style.display = "block";
+        }
+      };
+
+      updateTogglerVisibility();
+      window.addEventListener("resize", updateTogglerVisibility);
     });
-});
-</script>
-
-  <!-- JS -->
-  {% block js %}{% endblock %}
-
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="{% static 'js/base.js' %}"></script>
-  <script src="{% static 'js/bootstrap.min.js' %}"></script>
+  {% block js %}{% endblock %}
 </body>
 </html>

@@ -1,0 +1,769 @@
+{% extends 'mainpages/base.html' %}
+
+{% block css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+<style>
+  /* Custom formal styling */
+  body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .negotiation-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .negotiation-header {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    padding: 2.5rem 2rem;
+    border-bottom: 4px solid #3498db;
+  }
+
+  .negotiation-header h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    letter-spacing: -0.5px;
+  }
+
+  .contract-parties {
+    display: flex;
+    gap: 2rem;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+  }
+
+  .contract-parties strong {
+    color: #ecf0f1;
+  }
+
+  .negotiation-content {
+    padding: 2rem;
+  }
+
+  .status-section {
+    background: #f8f9fa;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #e9ecef;
+    margin: -2rem -2rem 2rem -2rem;
+  }
+
+  /* Enhanced Badge Styling */
+  .badge {
+    font-size: 0.9rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border: 2px solid transparent;
+  }
+
+  .bg-warning.text-dark {
+    background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+    color: white !important;
+    border-color: #d68910;
+  }
+
+  .bg-success {
+    background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
+    border-color: #229954;
+  }
+
+  .bg-primary {
+    background: linear-gradient(135deg, #3498db, #2980b9) !important;
+    border-color: #2471a3;
+  }
+
+  .bg-info {
+    background: linear-gradient(135deg, #17a2b8, #138496) !important;
+    border-color: #117a8b;
+  }
+
+  .bg-danger {
+    background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+    border-color: #a93226;
+  }
+
+  .bg-secondary {
+    background: linear-gradient(135deg, #6c757d, #5a6268) !important;
+    border-color: #545b62;
+  }
+
+  /* Form Section Styling */
+  .form-section {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border-left: 4px solid #3498db;
+  }
+
+  .form-section h3 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    font-size: 1.4rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .form-group {
+    margin-bottom: 2rem;
+    position: relative;
+  }
+
+  .form-label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .form-label i {
+    color: #3498db;
+    width: 16px;
+  }
+
+  .form-control, .form-select {
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background-color: white;
+  }
+
+  .form-control:focus, .form-select:focus {
+    border-color: #3498db;
+    box-shadow: 0 0 0 0.2rem rgba(52, 152, 219, 0.25);
+    background-color: #f8f9fa;
+  }
+
+  .form-control:hover, .form-select:hover {
+    border-color: #bdc3c7;
+  }
+
+  /* Input Guide Styling */
+  .input-guide {
+    background: linear-gradient(135deg, #e8f4fd 0%, #f0f8ff 100%);
+    border: 1px solid #3498db;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-top: 0.5rem;
+    font-size: 0.9rem;
+    color: #2c3e50;
+  }
+
+  .input-guide h6 {
+    color: #2980b9;
+    font-weight: 600;
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .input-guide ul {
+    margin: 0.5rem 0 0 0;
+    padding-left: 1.2rem;
+  }
+
+  .input-guide li {
+    margin-bottom: 0.25rem;
+    line-height: 1.4;
+  }
+
+  .example-box {
+    background: #ffffff;
+    border: 1px solid #d5dbdb;
+    border-radius: 4px;
+    padding: 0.75rem;
+    margin-top: 0.5rem;
+    font-style: italic;
+    color: #5a6c7d;
+  }
+
+  .example-box strong {
+    color: #2c3e50;
+    font-style: normal;
+  }
+
+  /* Error Styling */
+  .text-danger {
+    font-size: 0.9rem;
+    margin-top: 0.25rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .text-danger i {
+    color: #e74c3c;
+  }
+
+  /* Button Styling */
+  .btn {
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.9rem;
+    margin: 0.25rem;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border-color: #2471a3;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #2980b9, #2471a3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+  }
+
+  .btn-success {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    border-color: #229954;
+  }
+
+  .btn-success:hover {
+    background: linear-gradient(135deg, #2ecc71, #229954);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
+  }
+
+  .btn-outline-secondary {
+    border-color: #6c757d;
+    color: #6c757d;
+  }
+
+  .btn-outline-secondary:hover {
+    background: #6c757d;
+    border-color: #6c757d;
+    transform: translateY(-1px);
+  }
+
+  /* Action Section */
+  .action-section {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 8px;
+    margin: 2rem 0;
+    border-top: 4px solid #3498db;
+  }
+
+  .action-section h4 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  /* Chat Section */
+  .chat-section {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border-left: 4px solid #9b59b6;
+  }
+
+  .chat-section h3 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .coming-soon {
+    background: linear-gradient(135deg, #f4f1fb 0%, #f8f5ff 100%);
+    border: 1px solid #9b59b6;
+    border-radius: 6px;
+    padding: 1.5rem;
+    text-align: center;
+    color: #6c5ce7;
+    font-style: italic;
+  }
+
+  /* Character Counter */
+  .char-counter {
+    font-size: 0.8rem;
+    color: #6c757d;
+    text-align: right;
+    margin-top: 0.25rem;
+  }
+
+  .char-counter.warning {
+    color: #f39c12;
+  }
+
+  .char-counter.danger {
+    color: #e74c3c;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .negotiation-header {
+      padding: 2rem 1rem;
+    }
+
+    .contract-parties {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .negotiation-content {
+      padding: 1rem;
+    }
+
+    .form-section {
+      padding: 1rem;
+    }
+
+    .action-section {
+      padding: 1rem;
+    }
+
+    .btn {
+      width: 100%;
+      margin: 0.25rem 0;
+    }
+  }
+
+  /* Animation for form validation */
+  .form-control.is-invalid {
+    animation: shake 0.5s ease-in-out;
+  }
+
+  @keyframes shake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-5px); }
+    75% { transform: translateX(5px); }
+  }
+
+  /* Tooltip styling */
+  .tooltip-icon {
+    color: #3498db;
+    cursor: help;
+    margin-left: 0.5rem;
+  }
+
+  .tooltip-icon:hover {
+    color: #2980b9;
+  }
+</style>
+{% endblock css %}
+
+{% block content %}
+<div class="container">
+  <div class="negotiation-container">
+    <div class="negotiation-header">
+      <h2><i class="fas fa-handshake"></i> Negotiate Contract for {{ object.job.title }}</h2>
+      <div class="contract-parties">
+        <span><strong>Worker:</strong> {{ object.worker.username }}</span>
+        <span><strong>Client:</strong> {{ object.client.username }}</span>
+      </div>
+    </div>
+
+    <div class="negotiation-content">
+      <!-- Status Badge -->
+      <div class="status-section">
+        {% if object.is_draft %}
+          <span class="badge bg-warning text-dark"><i class="fas fa-edit"></i> Draft</span>
+        {% else %}
+          {% if object.status == "Accepted" %}
+            <span class="badge bg-success"><i class="fas fa-check-circle"></i> Accepted</span>
+          {% elif object.status == "In Progress" %}
+            <span class="badge bg-primary"><i class="fas fa-clock"></i> In Progress</span>
+          {% elif object.status == "Submitted for Review" %}
+            <span class="badge bg-info"><i class="fas fa-eye"></i> Submitted for Review</span>
+          {% elif object.status == "Completed" %}
+            <span class="badge bg-success"><i class="fas fa-check-circle"></i> Completed</span>
+          {% elif object.status == "Cancelled" %}
+            <span class="badge bg-danger"><i class="fas fa-times-circle"></i> Cancelled</span>
+          {% else %}
+            <span class="badge bg-secondary">{{ object.status }}</span>
+          {% endif %}
+        {% endif %}
+      </div>
+
+      <form method="post" id="negotiationForm">
+        {% csrf_token %}
+        
+        <!-- Non-field errors -->
+        {% if form.non_field_errors %}
+          <div class="alert alert-danger" role="alert">
+            <i class="fas fa-exclamation-triangle"></i>
+            {{ form.non_field_errors }}
+          </div>
+        {% endif %}
+        
+        <div class="form-section">
+          <h3><i class="fas fa-file-contract"></i> Contract Terms</h3>
+          
+          <!-- Scope of Work -->
+          <div class="form-group">
+            <label for="{{ form.scope_of_work.id_for_label }}" class="form-label">
+              <i class="fas fa-tasks"></i> Scope of Work
+              <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" title="Define the complete scope of work for this project"></i>
+            </label>
+            {{ form.scope_of_work }}
+            <div class="char-counter" id="scope-counter">0 / 2000 characters</div>
+            
+            <div class="input-guide">
+              <h6><i class="fas fa-lightbulb"></i> How to write an effective Scope of Work:</h6>
+              <ul>
+                <li><strong>Be specific:</strong> Clearly define what work will be performed</li>
+                <li><strong>Include deliverables:</strong> List all expected outputs and results</li>
+                <li><strong>Set boundaries:</strong> Specify what is NOT included in the scope</li>
+                <li><strong>Define quality standards:</strong> Mention expected quality levels</li>
+                <li><strong>Include milestones:</strong> Break down work into measurable phases</li>
+              </ul>
+              <div class="example-box">
+                <strong>Example:</strong> "Develop a responsive e-commerce website with user authentication, product catalog, shopping cart, payment integration (Stripe), admin dashboard, and mobile optimization. Includes 3 rounds of revisions and basic SEO setup. Does not include content creation or ongoing maintenance."
+              </div>
+            </div>
+            
+            {% if form.scope_of_work.errors %}
+              <div class="text-danger">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ form.scope_of_work.errors }}
+              </div>
+            {% endif %}
+          </div>
+          
+          <!-- Payment Terms -->
+          <div class="form-group">
+            <label for="{{ form.payment_terms.id_for_label }}" class="form-label">
+              <i class="fas fa-dollar-sign"></i> Payment Terms
+              <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" title="Specify payment amount, schedule, and method"></i>
+            </label>
+            {{ form.payment_terms }}
+            <div class="char-counter" id="payment-counter">0 / 1000 characters</div>
+            
+            <div class="input-guide">
+              <h6><i class="fas fa-lightbulb"></i> Payment Terms Best Practices:</h6>
+              <ul>
+                <li><strong>Total amount:</strong> Specify the complete project cost</li>
+                <li><strong>Payment schedule:</strong> Define when payments are due</li>
+                <li><strong>Payment method:</strong> Specify how payments will be made</li>
+                <li><strong>Late payment terms:</strong> Include penalties for late payments</li>
+                <li><strong>Refund policy:</strong> Clarify refund conditions if applicable</li>
+              </ul>
+              <div class="example-box">
+                <strong>Example:</strong> "Total: $5,000. Payment schedule: 50% ($2,500) upfront, 25% ($1,250) at milestone completion, 25% ($1,250) upon final delivery. Payments via bank transfer or PayPal. Late payments incur 2% monthly fee."
+              </div>
+            </div>
+            
+            {% if form.payment_terms.errors %}
+              <div class="text-danger">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ form.payment_terms.errors }}
+              </div>
+            {% endif %}
+          </div>
+          
+          <!-- Deliverables -->
+          <div class="form-group">
+            <label for="{{ form.deliverables.id_for_label }}" class="form-label">
+              <i class="fas fa-box"></i> Deliverables
+              <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" title="List all items that will be delivered to the client"></i>
+            </label>
+            {{ form.deliverables }}
+            <div class="char-counter" id="deliverables-counter">0 / 1500 characters</div>
+            
+            <div class="input-guide">
+              <h6><i class="fas fa-lightbulb"></i> Deliverables Guidelines:</h6>
+              <ul>
+                <li><strong>Be comprehensive:</strong> List every item the client will receive</li>
+                <li><strong>Specify formats:</strong> Mention file types and formats</li>
+                <li><strong>Include documentation:</strong> User guides, technical docs, etc.</li>
+                <li><strong>Mention source files:</strong> If applicable (design files, code, etc.)</li>
+                <li><strong>Support period:</strong> Include any post-delivery support</li>
+              </ul>
+              <div class="example-box">
+                <strong>Example:</strong> "Complete website files (HTML, CSS, JS), WordPress theme files, admin login credentials, user manual (PDF), 30 days of technical support, source design files (PSD/Figma), and deployment guide."
+              </div>
+            </div>
+            
+            {% if form.deliverables.errors %}
+              <div class="text-danger">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ form.deliverables.errors }}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="form-section">
+          <h3><i class="fas fa-calendar-alt"></i> Timeline</h3>
+          
+          <!-- Start Date -->
+          <div class="form-group">
+            <label for="{{ form.start_date.id_for_label }}" class="form-label">
+              <i class="fas fa-play"></i> Start Date
+              <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" title="When will the work begin?"></i>
+            </label>
+            {{ form.start_date }}
+            
+            <div class="input-guide">
+              <h6><i class="fas fa-lightbulb"></i> Start Date Tips:</h6>
+              <ul>
+                <li><strong>Be realistic:</strong> Allow time for project setup and planning</li>
+                <li><strong>Consider availability:</strong> Account for both parties' schedules</li>
+                <li><strong>Buffer time:</strong> Add a few days for contract finalization</li>
+                <li><strong>Weekday start:</strong> Consider starting on a weekday for better communication</li>
+              </ul>
+            </div>
+            
+            {% if form.start_date.errors %}
+              <div class="text-danger">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ form.start_date.errors }}
+              </div>
+            {% endif %}
+          </div>
+          
+          <!-- End Date -->
+          <div class="form-group">
+            <label for="{{ form.end_date.id_for_label }}" class="form-label">
+              <i class="fas fa-flag-checkered"></i> End Date
+              <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" title="When should the project be completed?"></i>
+            </label>
+            {{ form.end_date }}
+            
+            <div class="input-guide">
+              <h6><i class="fas fa-lightbulb"></i> End Date Considerations:</h6>
+              <ul>
+                <li><strong>Realistic timeline:</strong> Allow adequate time for quality work</li>
+                <li><strong>Include revisions:</strong> Factor in time for feedback and changes</li>
+                <li><strong>Buffer for delays:</strong> Add 10-20% extra time for unexpected issues</li>
+                <li><strong>Testing time:</strong> Include time for testing and quality assurance</li>
+                <li><strong>Final delivery:</strong> Account for final review and handover</li>
+              </ul>
+            </div>
+            
+            {% if form.end_date.errors %}
+              <div class="text-danger">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ form.end_date.errors }}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="action-section">
+          <h4><i class="fas fa-cogs"></i> Contract Actions</h4>
+          <button type="submit" class="btn btn-primary">
+            <i class="fas fa-save"></i> Save Draft
+          </button>
+          
+          {% if object.is_draft %}
+            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#finalizeModal">
+              <i class="fas fa-check"></i> Finalize Contract
+            </button>
+          {% endif %}
+          
+          <a href="{% url 'jobs:contract_detail' object.pk %}" class="btn btn-outline-secondary">
+            <i class="fas fa-eye"></i> View Contract
+          </a>
+        </div>
+      </form>
+
+      <!-- Negotiation Chat Section -->
+      <div class="chat-section">
+        <h3><i class="fas fa-comments"></i> Negotiation Chat</h3>
+        <div class="coming-soon">
+          <i class="fas fa-rocket" style="font-size: 2rem; margin-bottom: 1rem; display: block;"></i>
+          <p><strong>Real-time negotiation chat coming soon!</strong></p>
+          <p>Soon you'll be able to discuss contract terms directly with your client/worker in real-time.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Finalize Contract Modal -->
+<div class="modal fade" id="finalizeModal" tabindex="-1" aria-labelledby="finalizeModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="finalizeModalLabel">
+          <i class="fas fa-check-circle"></i> Finalize Contract
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <div class="alert alert-warning" role="alert">
+          <i class="fas fa-exclamation-triangle"></i>
+          <strong>Important:</strong> Once finalized, this contract cannot be edited. Make sure all terms are correct before proceeding.
+        </div>
+        <p>Are you ready to finalize this contract? This will:</p>
+        <ul>
+          <li>Lock all contract terms</li>
+          <li>Send notification to the other party</li>
+          <li>Begin the formal contract process</li>
+          <li>Prevent further modifications</li>
+        </ul>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+          <i class="fas fa-times"></i> Cancel
+        </button>
+        <form method="post" action="{% url 'jobs:finalize_contract' object.pk %}" style="display:inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-success">
+            <i class="fas fa-check"></i> Yes, Finalize Contract
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Initialize tooltips
+    var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    var tooltipList = tooltipTriggerList.map(function (tooltipTriggerEl) {
+        return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+
+    // Character counters
+    function setupCharCounter(fieldId, counterId, maxLength) {
+        const field = document.getElementById(fieldId);
+        const counter = document.getElementById(counterId);
+        
+        if (field && counter) {
+            function updateCounter() {
+                const length = field.value.length;
+                counter.textContent = `${length} / ${maxLength} characters`;
+                
+                // Update counter color based on usage
+                counter.className = 'char-counter';
+                if (length > maxLength * 0.9) {
+                    counter.classList.add('danger');
+                } else if (length > maxLength * 0.7) {
+                    counter.classList.add('warning');
+                }
+            }
+            
+            field.addEventListener('input', updateCounter);
+            updateCounter(); // Initial count
+        }
+    }
+
+    // Setup character counters for each field
+    setupCharCounter('{{ form.scope_of_work.id_for_label }}', 'scope-counter', 2000);
+    setupCharCounter('{{ form.payment_terms.id_for_label }}', 'payment-counter', 1000);
+    setupCharCounter('{{ form.deliverables.id_for_label }}', 'deliverables-counter', 1500);
+
+    // Form validation enhancement
+    const form = document.getElementById('negotiationForm');
+    if (form) {
+        form.addEventListener('submit', function(e) {
+            const requiredFields = form.querySelectorAll('[required]');
+            let isValid = true;
+            
+            requiredFields.forEach(field => {
+                if (!field.value.trim()) {
+                    field.classList.add('is-invalid');
+                    isValid = false;
+                } else {
+                    field.classList.remove('is-invalid');
+                }
+            });
+            
+            if (!isValid) {
+                e.preventDefault();
+                // Scroll to first invalid field
+                const firstInvalid = form.querySelector('.is-invalid');
+                if (firstInvalid) {
+                    firstInvalid.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    firstInvalid.focus();
+                }
+            }
+        });
+    }
+
+    // Auto-save functionality (optional)
+    let autoSaveTimeout;
+    const formFields = document.querySelectorAll('#negotiationForm input, #negotiationForm textarea, #negotiationForm select');
+    
+    formFields.forEach(field => {
+        field.addEventListener('input', function() {
+            clearTimeout(autoSaveTimeout);
+            autoSaveTimeout = setTimeout(() => {
+                // Show auto-save indicator
+                const indicator = document.createElement('div');
+                indicator.className = 'alert alert-info auto-save-indicator';
+                indicator.innerHTML = '<i class="fas fa-save"></i> Auto-saving...';
+                indicator.style.position = 'fixed';
+                indicator.style.top = '20px';
+                indicator.style.right = '20px';
+                indicator.style.zIndex = '9999';
+                indicator.style.opacity = '0.9';
+                
+                document.body.appendChild(indicator);
+                
+                setTimeout(() => {
+                    indicator.remove();
+                }, 2000);
+            }, 3000); // Auto-save after 3 seconds of inactivity
+        });
+    });
+
+    // Date validation
+    const startDateField = document.getElementById('{{ form.start_date.id_for_label }}');
+    const endDateField = document.getElementById('{{ form.end_date.id_for_label }}');
+    
+    if (startDateField && endDateField) {
+        function validateDates() {
+            const startDate = new Date(startDateField.value);
+            const endDate = new Date(endDateField.value);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
+            // Start date should not be in the past
+            if (startDate < today) {
+                startDateField.setCustomValidity('Start date cannot be in the past');
+            } else {
+                startDateField.setCustomValidity('');
+            }
+            
+            // End date should be after start date
+            if (endDate <= startDate) {
+                endDateField.setCustomValidity('End date must be after start date');
+            } else {
+                endDateField.setCustomValidity('');
+            }
+        }
+        
+        startDateField.addEventListener('change', validateDates);
+        endDateField.addEventListener('change', validateDates);
+    }
+});
+</script>
+{% endblock js %}

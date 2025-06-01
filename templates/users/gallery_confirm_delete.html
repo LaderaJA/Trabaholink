@@ -1,0 +1,15 @@
+{% extends "mainpages/base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <h2>Delete Gallery Item</h2>
+  <div class="alert alert-warning">
+    <p>Are you sure you want to delete this gallery item?</p>
+  </div>
+  <img src="{{ object.image.url }}" alt="Gallery Image" style="max-width: 100%; height: auto;">
+  <form method="post">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-danger">Yes, Delete</button>
+      <a href="{% url 'profile' request.user.pk %}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+{% endblock %}

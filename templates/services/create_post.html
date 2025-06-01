@@ -1,0 +1,166 @@
+{% extends "mainpages/base.html" %}
+{% load static %}
+
+{% block css %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" crossorigin=""/>
+  <style>
+    #map { height: 400px; }
+    .location-status { font-size: 0.9em; color: green; }
+  </style>
+{% endblock %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Create Service Post</h2>
+  <form method="post" enctype="multipart/form-data" id="service-form">
+    {% csrf_token %}
+    
+    {{ form.non_field_errors }}
+
+    <div class="mb-3">
+      <label for="{{ form.headline.id_for_label }}" class="form-label">Service Headline</label>
+      {{ form.headline }}
+      {{ form.headline.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label for="{{ form.description.id_for_label }}" class="form-label">Service Description</label>
+      {{ form.description }}
+      {{ form.description.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label for="{{ form.availability.id_for_label }}" class="form-label">Availability</label>
+      {{ form.availability }}
+      {{ form.availability.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label for="{{ form.contact_number.id_for_label }}" class="form-label">Contact Number</label>
+      {{ form.contact_number }}
+      {{ form.contact_number.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label for="{{ form.email.id_for_label }}" class="form-label">Email Address</label>
+      {{ form.email }}
+      {{ form.email.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label for="{{ form.category.id_for_label }}" class="form-label">Category</label>
+      {{ form.category }}
+      {{ form.category.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label for="{{ form.address.id_for_label }}" class="form-label">Address</label>
+      {{ form.address }}
+      {{ form.address.errors }}
+    </div>
+
+    <div class="mb-3">
+      <label for="id_images" class="form-label">Upload Images</label>
+      <input type="file" name="images" id="id_images" multiple class="form-control">
+      <small class="form-text text-muted">You may select multiple images.</small>
+    </div>
+
+    <div class="mb-3">
+      <label for="{{ form.service_items.id_for_label }}" class="form-label">Service Items</label>
+      {{ form.service_items }}
+      <small class="form-text text-muted">
+        Use the format: Service Name|Price|Duration|Description, one per line.
+      </small>
+    </div>
+
+    <!-- Hidden fields for location -->
+    <input type="hidden" name="latitude" id="latitude" value="">
+    <input type="hidden" name="longitude" id="longitude" value="">
+
+    <!-- Button to trigger location modal -->
+    <div class="mb-3">
+      <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#locationModal">
+        <i class="fa fa-map-marker-alt"></i> Set Location
+      </button>
+      <span id="location-status" class="location-status" style="display: none;">Location set successfully!</span>
+    </div>
+
+    <button type="submit" class="btn btn-primary">Create Service</button>
+  </form>
+</div>
+
+<!-- Modal Map -->
+<div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-lg modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="locationModalLabel">Set Your Location</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="mb-2">Click on the map or drag the marker to update your location.</p>
+        <div id="map"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" id="saveLocationBtn" class="btn btn-primary" data-bs-dismiss="modal">Save Location</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" crossorigin=""></script>
+  <script>
+    let map, marker;
+    const latInput = document.getElementById('latitude');
+    const lngInput = document.getElementById('longitude');
+    const locationStatus = document.getElementById('location-status');
+    
+    // Set a default location (if desired)
+    const defaultLat = 14.5995;
+    const defaultLng = 120.9842;
+    
+    // Initialize the map when modal is shown
+    const locationModalEl = document.getElementById('locationModal');
+    locationModalEl.addEventListener('shown.bs.modal', function () {
+      const currentLat = parseFloat(latInput.value) || defaultLat;
+      const currentLng = parseFloat(lngInput.value) || defaultLng;
+      
+      if (!map) {
+        map = L.map('map').setView([currentLat, currentLng], 13);
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+          attribution: '&copy; OpenStreetMap contributors'
+        }).addTo(map);
+        marker = L.marker([currentLat, currentLng], { draggable: true }).addTo(map);
+
+        marker.on('dragend', function () {
+          const pos = marker.getLatLng();
+          latInput.value = pos.lat;
+          lngInput.value = pos.lng;
+        });
+        
+        map.on('click', function (e) {
+          marker.setLatLng(e.latlng);
+          latInput.value = e.latlng.lat;
+          lngInput.value = e.latlng.lng;
+        });
+      } else {
+        // Update map view if already initialized
+        map.setView([currentLat, currentLng], 13);
+        marker.setLatLng([currentLat, currentLng]);
+        map.invalidateSize();
+      }
+    });
+
+    document.getElementById('saveLocationBtn').addEventListener('click', function () {
+      const pos = marker.getLatLng();
+      latInput.value = pos.lat;
+      lngInput.value = pos.lng;
+      locationStatus.style.display = 'inline';
+      locationStatus.textContent = 'Location set successfully!';
+    });
+  </script>
+{% endblock %}

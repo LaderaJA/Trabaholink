@@ -1,0 +1,48 @@
+{% extends "mainpages/base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <h2>Posts</h2>
+  <!-- Filter Options -->
+  <form method="get" class="mb-3">
+    <label for="post-filter">Show:</label>
+    <select id="post-filter" name="type" class="form-select w-auto d-inline-block" onchange="this.form.submit()">
+      <option value="all" {% if filter_type == "all" %}selected{% endif %}>All Posts</option>
+      <option value="job" {% if filter_type == "job" %}selected{% endif %}>Job Posts Only</option>
+      <option value="service" {% if filter_type == "service" %}selected{% endif %}>Service Posts Only</option>
+    </select>
+    <noscript>
+      <button type="submit" class="btn btn-primary">Apply</button>
+    </noscript>
+  </form>
+  
+  {% if posts %}
+  <div class="row">
+    {% for post in posts %}
+    <div class="col-md-6 col-lg-4 mb-4">
+      <div class="card h-100 shadow-sm">
+        {% if post.post_type == "Job" and post.job_picture %}
+          <img src="{{ post.job_picture.url }}" class="card-img-top" alt="{{ post.title }}">
+        {% elif post.post_type == "Service" and post.image %}
+          <img src="{{ post.image.url }}" class="card-img-top" alt="{{ post.headline }}">
+        {% endif %}
+        <div class="card-body">
+          <h5 class="card-title">
+            {% if post.post_type == "Job" %}
+              [Job] {{ post.title }}
+            {% elif post.post_type == "Service" %}
+              [Service] {{ post.headline }}
+            {% endif %}
+          </h5>
+          <p class="card-text">{{ post.description|truncatechars:100 }}</p>
+          <p class="card-text"><small class="text-muted">Posted on {{ post.created_at|date:"M d, Y" }}</small></p>
+          <a href="{{ post.get_absolute_url }}" class="btn btn-primary">View Details</a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+    <p>No posts available.</p>
+  {% endif %}
+</div>
+{% endblock %}

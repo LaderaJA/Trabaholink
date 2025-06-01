@@ -1,8 +1,9 @@
+from django import forms
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views.generic import ListView, DetailView, DeleteView, TemplateView, CreateView, UpdateView
 from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse_lazy
-from users.models import CustomUser
+from users.models import CustomUser, Skill
 from messaging.models import Conversation
 from reports.models import Report
 from django.contrib import messages
@@ -220,3 +221,38 @@ def update_report_status(request):
     except Exception as e:
         print("Error in update_report_status:", e)
         return JsonResponse({"success": False, "message": "An error occurred while updating the status."})
+
+class PendingSkillListView(LoginRequiredMixin, ListView):
+    model = Skill
+    template_name = "admin_dashboard/pending_skill_list.html"
+    context_object_name = "skills"
+
+    def get_queryset(self):
+        user_pk = self.kwargs.get("pk")
+        return Skill.objects.filter(user__pk=user_pk, status="pending")
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context["user_obj"] = get_object_or_404(CustomUser, pk=self.kwargs.get("pk"))
+        return context
+
+class PendingSkillUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Skill
+        fields = ['status']
+        widgets = {
+            'status': forms.Select(attrs={'class': 'form-control'}),
+        }
+
+class PendingSkillUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
+    model = Skill
+    form_class = PendingSkillUpdateForm
+    template_name = "admin_dashboard/pending_skill_update.html"
+
+    def test_func(self):
+        # Optionally restrict update permission (for example, only staff users may update)
+        return self.request.user.is_staff  # or customize your test
+
+    def get_success_url(self):
+        skill = self.get_object()
+        return reverse_lazy('admin_dashboard:pending_skill_list', kwargs={'pk': skill.user.pk})

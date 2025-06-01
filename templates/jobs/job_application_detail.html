@@ -1,0 +1,822 @@
+{% extends "mainpages/base.html" %}
+{% block content %}
+<style>
+/* Enhanced CSS Variables */
+:root {
+  --primary-blue: #3b82f6;
+  --primary-blue-dark: #2563eb;
+  --primary-blue-light: #dbeafe;
+  --success-green: #10b981;
+  --success-green-light: #d1fae5;
+  --warning-yellow: #f59e0b;
+  --warning-yellow-light: #fef3c7;
+  --danger-red: #ef4444;
+  --danger-red-light: #fee2e2;
+  --text-dark: #111827;
+  --text-medium: #374151;
+  --text-light: #6b7280;
+  --text-white: #ffffff;
+  --background-white: #ffffff;
+  --background-gray: #f9fafb;
+  --background-gray-light: #f3f4f6;
+  --border-color: #e5e7eb;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Global Styles */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--background-gray);
+  line-height: 1.6;
+}
+
+/* Page Header */
+.application-header {
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+  color: var(--text-white);
+  padding: 3rem 0;
+  margin-bottom: 2rem;
+  border-radius: 0 0 2rem 2rem;
+  box-shadow: var(--shadow-xl);
+}
+
+.application-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.job-title {
+  font-size: 1.25rem;
+  opacity: 0.9;
+  margin: 0;
+  font-weight: 500;
+}
+
+/* Main Content Layout */
+.application-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.main-content {
+  background: var(--background-white);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Status Badge */
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  font-size: 0.875rem;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.025em;
+}
+
+.status-pending {
+  background: var(--warning-yellow-light);
+  color: var(--warning-yellow);
+  border: 1px solid var(--warning-yellow);
+}
+
+.status-accepted {
+  background: var(--success-green-light);
+  color: var(--success-green);
+  border: 1px solid var(--success-green);
+}
+
+.status-rejected {
+  background: var(--danger-red-light);
+  color: var(--danger-red);
+  border: 1px solid var(--danger-red);
+}
+
+.status-under-review {
+  background: var(--primary-blue-light);
+  color: var(--primary-blue);
+  border: 1px solid var(--primary-blue);
+}
+
+/* Content Sections */
+.content-section {
+  padding: 2rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.content-section:last-child {
+  border-bottom: none;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0 0 1.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.section-title i {
+  color: var(--primary-blue);
+  font-size: 1.125rem;
+}
+
+.section-content {
+  color: var(--text-medium);
+  line-height: 1.7;
+  font-size: 1rem;
+}
+
+.section-content.empty {
+  color: var(--text-light);
+  font-style: italic;
+  background: var(--background-gray-light);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border-left: 3px solid var(--border-color);
+}
+
+/* Info Cards */
+.info-card {
+  background: var(--background-white);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.info-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-title i {
+  color: var(--primary-blue);
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem;
+  background: var(--background-gray-light);
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.info-item:hover {
+  background: var(--primary-blue-light);
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+}
+
+.info-icon {
+  width: 2rem;
+  height: 2rem;
+  background: var(--primary-blue);
+  color: var(--text-white);
+  border-radius: 0.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.info-content {
+  flex: 1;
+}
+
+.info-label {
+  font-weight: 500;
+  color: var(--text-dark);
+  font-size: 0.875rem;
+  margin-bottom: 0.125rem;
+}
+
+.info-value {
+  color: var(--text-medium);
+  font-size: 0.875rem;
+}
+
+.info-value a {
+  color: var(--primary-blue);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.info-value a:hover {
+  text-decoration: underline;
+}
+
+/* Applicant Profile Card */
+.applicant-profile {
+  background: var(--background-white);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.profile-avatar {
+  width: 4rem;
+  height: 4rem;
+  background: var(--primary-blue);
+  color: var(--text-white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  margin: 0 auto 1rem;
+}
+
+.profile-name {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0 0 0.5rem 0;
+}
+
+.profile-link {
+  color: var(--primary-blue);
+  text-decoration: none;
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.profile-link:hover {
+  text-decoration: underline;
+}
+
+/* Application Timeline */
+.timeline-card {
+  background: var(--background-white);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+}
+
+.timeline-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  background: var(--background-gray-light);
+  border-radius: 0.5rem;
+  margin-bottom: 0.75rem;
+}
+
+.timeline-item:last-child {
+  margin-bottom: 0;
+}
+
+.timeline-icon {
+  width: 2rem;
+  height: 2rem;
+  background: var(--success-green);
+  color: var(--text-white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.timeline-content {
+  flex: 1;
+}
+
+.timeline-label {
+  font-weight: 500;
+  color: var(--text-dark);
+  font-size: 0.875rem;
+  margin-bottom: 0.125rem;
+}
+
+.timeline-date {
+  color: var(--text-light);
+  font-size: 0.75rem;
+}
+
+/* Action Buttons */
+.action-buttons {
+  background: var(--background-white);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  text-decoration: none;
+}
+
+.btn-secondary {
+  background: var(--background-white);
+  color: var(--text-medium);
+  border-color: var(--border-color);
+}
+
+.btn-secondary:hover {
+  background: var(--background-gray-light);
+  color: var(--text-dark);
+}
+
+.btn-outline-primary {
+  background: var(--background-white);
+  color: var(--primary-blue);
+  border-color: var(--primary-blue);
+}
+
+.btn-outline-primary:hover {
+  background: var(--primary-blue);
+  color: var(--text-white);
+}
+
+.btn-outline-danger {
+  background: var(--background-white);
+  color: var(--danger-red);
+  border-color: var(--danger-red);
+}
+
+.btn-outline-danger:hover {
+  background: var(--danger-red);
+  color: var(--text-white);
+}
+
+/* External Link Styling */
+.external-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--primary-blue);
+  text-decoration: none;
+  font-weight: 500;
+  padding: 0.5rem 1rem;
+  background: var(--primary-blue-light);
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.external-link:hover {
+  background: var(--primary-blue);
+  color: var(--text-white);
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .application-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .sidebar {
+    order: -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .application-title {
+    font-size: 2rem;
+  }
+  
+  .content-section {
+    padding: 1.5rem;
+  }
+  
+  .info-card {
+    padding: 1rem;
+  }
+  
+  .btn {
+    margin-bottom: 0.75rem;
+  }
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.info-card,
+.main-content {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Print Styles */
+@media print {
+  .action-buttons,
+  .btn {
+    display: none !important;
+  }
+  
+  .application-header {
+    background: none !important;
+    color: var(--text-dark) !important;
+    box-shadow: none !important;
+  }
+  
+  .application-content {
+    grid-template-columns: 1fr !important;
+  }
+}
+</style>
+
+<!-- Application Header -->
+<div class="application-header">
+  <div class="container">
+    <h1 class="application-title">
+      <i class="fa fa-file-alt"></i>
+      Job Application Details
+    </h1>
+    <p class="job-title">{{ application.job.title }}</p>
+  </div>
+</div>
+
+<div class="container">
+  <div class="application-content">
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Cover Letter Section -->
+      <div class="content-section">
+        <h3 class="section-title">
+          <i class="fa fa-pen"></i>
+          Cover Letter
+        </h3>
+        <div class="section-content {% if not application.cover_letter %}empty{% endif %}">
+          {% if application.cover_letter %}
+            {{ application.cover_letter|linebreaks }}
+          {% else %}
+            <i class="fa fa-info-circle" style="margin-right: 0.5rem;"></i>
+            No cover letter provided
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Rate & Timeline Section -->
+      <div class="content-section">
+        <h3 class="section-title">
+          <i class="fa fa-dollar-sign"></i>
+          Rate & Timeline
+        </h3>
+        
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <div class="info-item">
+              <div class="info-icon">
+                <i class="fa fa-money-bill-wave"></i>
+              </div>
+              <div class="info-content">
+                <div class="info-label">Proposed Rate</div>
+                <div class="info-value">
+                  {% if application.proposed_rate %}
+                    {{ application.proposed_rate }}
+                  {% else %}
+                    <span style="color: var(--text-light); font-style: italic;">Not provided</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div class="col-md-6 mb-3">
+            <div class="info-item">
+              <div class="info-icon">
+                <i class="fa fa-calendar-alt"></i>
+              </div>
+              <div class="info-content">
+                <div class="info-label">Available Start Date</div>
+                <div class="info-value">
+                  {% if application.available_start_date %}
+                    {{ application.available_start_date|date:"M d, Y" }}
+                  {% else %}
+                    <span style="color: var(--text-light); font-style: italic;">Not specified</span>
+                  {% endif %}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-icon">
+            <i class="fa fa-hourglass-half"></i>
+          </div>
+          <div class="info-content">
+            <div class="info-label">Expected Duration</div>
+            <div class="info-value">
+              {% if application.expected_duration %}
+                {{ application.expected_duration }}
+              {% else %}
+                <span style="color: var(--text-light); font-style: italic;">Not provided</span>
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Experience Section -->
+      <div class="content-section">
+        <h3 class="section-title">
+          <i class="fa fa-briefcase"></i>
+          Experience & Qualifications
+        </h3>
+        
+        <div class="section-content {% if not application.experience %}empty{% endif %}" style="margin-bottom: 1.5rem;">
+          <strong style="color: var(--text-dark); display: block; margin-bottom: 0.5rem;">Relevant Experience:</strong>
+          {% if application.experience %}
+            {{ application.experience|linebreaks }}
+          {% else %}
+            <i class="fa fa-info-circle" style="margin-right: 0.5rem;"></i>
+            No experience details provided
+          {% endif %}
+        </div>
+        
+        <div class="section-content {% if not application.certifications %}empty{% endif %}">
+          <strong style="color: var(--text-dark); display: block; margin-bottom: 0.5rem;">Certifications & Credentials:</strong>
+          {% if application.certifications %}
+            {{ application.certifications|linebreaks }}
+          {% else %}
+            <i class="fa fa-info-circle" style="margin-right: 0.5rem;"></i>
+            No certifications listed
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Additional Information Section -->
+      <div class="content-section">
+        <h3 class="section-title">
+          <i class="fa fa-plus-circle"></i>
+          Additional Information
+        </h3>
+        
+        <div style="margin-bottom: 1.5rem;">
+          <strong style="color: var(--text-dark); display: block; margin-bottom: 0.5rem;">Portfolio/Website Link:</strong>
+          {% if application.Other_link %}
+            <a href="{{ application.Other_link }}" target="_blank" class="external-link">
+              <i class="fa fa-external-link-alt"></i>
+              {{ application.Other_link }}
+            </a>
+          {% else %}
+            <div class="section-content empty">
+              <i class="fa fa-info-circle" style="margin-right: 0.5rem;"></i>
+              No portfolio link provided
+            </div>
+          {% endif %}
+        </div>
+        
+        <div class="section-content {% if not application.additional_notes %}empty{% endif %}">
+          <strong style="color: var(--text-dark); display: block; margin-bottom: 0.5rem;">Additional Notes:</strong>
+          {% if application.additional_notes %}
+            {{ application.additional_notes|linebreaks }}
+          {% else %}
+            <i class="fa fa-info-circle" style="margin-right: 0.5rem;"></i>
+            No additional notes provided
+          {% endif %}
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Applicant Profile -->
+      <div class="applicant-profile">
+        <div class="profile-avatar">
+          <i class="fa fa-user"></i>
+        </div>
+        <h4 class="profile-name">{{ application.worker.get_full_name|default:application.worker.username }}</h4>
+        <a href="{% url 'profile' application.worker.pk %}" class="profile-link">
+          <i class="fa fa-eye"></i>
+          View Full Profile
+        </a>
+      </div>
+
+      <!-- Application Status -->
+      <div class="info-card">
+        <h4 class="card-title">
+          <i class="fa fa-info-circle"></i>
+          Application Status
+        </h4>
+        
+        <div class="info-item">
+          <div class="info-icon">
+            <i class="fa fa-flag"></i>
+          </div>
+          <div class="info-content">
+            <div class="info-label">Current Status</div>
+            <div class="info-value">
+              <span class="status-badge status-{{ application.status|lower|cut:' '|cut:'_' }}">
+                {% if application.status == 'pending' %}
+                  <i class="fa fa-clock"></i>
+                {% elif application.status == 'accepted' %}
+                  <i class="fa fa-check"></i>
+                {% elif application.status == 'rejected' %}
+                  <i class="fa fa-times"></i>
+                {% else %}
+                  <i class="fa fa-eye"></i>
+                {% endif %}
+                {{ application.status|title }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Application Timeline -->
+      <div class="timeline-card">
+        <h4 class="card-title">
+          <i class="fa fa-history"></i>
+          Application Timeline
+        </h4>
+        
+        <div class="timeline-item">
+          <div class="timeline-icon">
+            <i class="fa fa-paper-plane"></i>
+          </div>
+          <div class="timeline-content">
+            <div class="timeline-label">Application Submitted</div>
+            <div class="timeline-date">{{ application.applied_at|date:"M d, Y \a\t g:i A" }}</div>
+          </div>
+        </div>
+        
+        {% if application.status != 'pending' %}
+          <div class="timeline-item">
+            <div class="timeline-icon" style="background: var(--primary-blue);">
+              <i class="fa fa-eye"></i>
+            </div>
+            <div class="timeline-content">
+              <div class="timeline-label">Status Updated</div>
+              <div class="timeline-date">{{ application.updated_at|date:"M d, Y \a\t g:i A"|default:"Recently" }}</div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <a href="{% url 'jobs:job_detail' application.job.pk %}" class="btn btn-secondary">
+          <i class="fa fa-arrow-left"></i> Back to Job
+        </a>
+
+        {% if request.user == application.job.owner %}
+          {% if application.job.contract %}
+            <a href="{% url 'jobs:contract_detail' application.job.contract.pk %}" class="btn btn-info">
+              <i class="fa fa-file-contract"></i> View Contract
+            </a>
+          {% else %}
+            <form method="post" action="{% url 'jobs:job_application_hire' application.pk %}" style="display:inline;">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-success">
+                <i class="fa fa-check"></i> Hire
+              </button>
+            </form>
+          {% endif %}
+          {% if application.status|lower != "accepted" %}
+          <form method="post" action="{% url 'jobs:job_application_deny' application.pk %}" style="display:inline; margin-left:10px;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">
+              <i class="fa fa-times"></i> Deny
+            </button>
+          </form>
+          {% endif %}
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="mb-3">
+  {% if application.status|lower == "accepted" %}
+    <span class="badge bg-success">Accepted</span>
+  {% elif application.status|lower == "rejected" %}
+    <span class="badge bg-danger">Rejected</span>
+  {% else %}
+    <span class="badge bg-warning text-dark">{{ application.status|title }}</span>
+  {% endif %}
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Add print functionality
+  const printBtn = document.createElement('button');
+  printBtn.className = 'btn btn-outline-primary';
+  printBtn.innerHTML = '<i class="fa fa-print"></i> Print Application';
+  printBtn.onclick = () => window.print();
+  
+  const actionButtons = document.querySelector('.action-buttons');
+  if (actionButtons) {
+    actionButtons.insertBefore(printBtn, actionButtons.lastElementChild);
+  }
+  
+  // Smooth scroll to sections
+  const sectionTitles = document.querySelectorAll('.section-title');
+  sectionTitles.forEach(title => {
+    title.style.cursor = 'pointer';
+    title.addEventListener('click', function() {
+      this.parentElement.scrollIntoView({ behavior: 'smooth' });
+    });
+  });
+  
+  // Copy link functionality for external links
+  const externalLinks = document.querySelectorAll('.external-link');
+  externalLinks.forEach(link => {
+    link.addEventListener('contextmenu', function(e) {
+      e.preventDefault();
+      navigator.clipboard.writeText(this.href).then(() => {
+        // Show temporary tooltip
+        const tooltip = document.createElement('div');
+        tooltip.textContent = 'Link copied!';
+        tooltip.style.cssText = `
+          position: absolute;
+          background: var(--success-green);
+          color: white;
+          padding: 0.5rem;
+          border-radius: 0.25rem;
+          font-size: 0.75rem;
+          z-index: 1000;
+          pointer-events: none;
+        `;
+        document.body.appendChild(tooltip);
+        
+        const rect = this.getBoundingClientRect();
+        tooltip.style.left = rect.left + 'px';
+        tooltip.style.top = (rect.top - 40) + 'px';
+        
+        setTimeout(() => {
+          document.body.removeChild(tooltip);
+        }, 2000);
+      });
+    });
+  });
+});
+</script>
+{% endblock %}

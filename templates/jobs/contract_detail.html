@@ -1,10 +1,658 @@
 {% extends 'mainpages/base.html' %}
+
+{% block css %}
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+<style>
+  /* Custom formal styling */
+  body {
+    background-color: #f8f9fa;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  }
+
+  .contract-container {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-top: 2rem;
+    margin-bottom: 2rem;
+  }
+
+  .contract-header {
+    background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+    color: white;
+    padding: 2.5rem 2rem;
+    border-bottom: 4px solid #3498db;
+  }
+
+  .contract-header h2 {
+    font-size: 2rem;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    letter-spacing: -0.5px;
+  }
+
+  .contract-parties {
+    display: flex;
+    gap: 2rem;
+    font-size: 1.1rem;
+    margin-top: 1rem;
+  }
+
+  .contract-parties strong {
+    color: #ecf0f1;
+  }
+
+  .contract-content {
+    padding: 2rem;
+  }
+
+  .status-section {
+    background: #f8f9fa;
+    padding: 1.5rem 2rem;
+    border-bottom: 1px solid #e9ecef;
+    margin: -2rem -2rem 2rem -2rem;
+  }
+
+  /* Enhanced Badge Styling */
+  .badge {
+    font-size: 0.9rem;
+    padding: 0.6rem 1.2rem;
+    border-radius: 25px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+    border: 2px solid transparent;
+  }
+
+  .bg-warning.text-dark {
+    background: linear-gradient(135deg, #f39c12, #e67e22) !important;
+    color: white !important;
+    border-color: #d68910;
+  }
+
+  .bg-success {
+    background: linear-gradient(135deg, #27ae60, #2ecc71) !important;
+    border-color: #229954;
+  }
+
+  .bg-primary {
+    background: linear-gradient(135deg, #3498db, #2980b9) !important;
+    border-color: #2471a3;
+  }
+
+  .bg-info {
+    background: linear-gradient(135deg, #17a2b8, #138496) !important;
+    border-color: #117a8b;
+  }
+
+  .bg-danger {
+    background: linear-gradient(135deg, #e74c3c, #c0392b) !important;
+    border-color: #a93226;
+  }
+
+  .bg-secondary {
+    background: linear-gradient(135deg, #6c757d, #5a6268) !important;
+    border-color: #545b62;
+  }
+
+  /* Terms Section */
+  .terms-section {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border-left: 4px solid #3498db;
+  }
+
+  .terms-section h4 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    font-size: 1.3rem;
+  }
+
+  .term-item {
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: white;
+    border-radius: 6px;
+    border-left: 3px solid #3498db;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .term-item strong {
+    color: #2c3e50;
+    font-weight: 600;
+    display: block;
+    margin-bottom: 0.5rem;
+  }
+
+  .term-item p {
+    margin: 0;
+    color: #5a6c7d;
+    line-height: 1.6;
+  }
+
+  /* Status Grid */
+  .status-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin: 2rem 0;
+  }
+
+  .status-card {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1.5rem;
+    text-align: center;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .status-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  }
+
+  .status-card strong {
+    color: #2c3e50;
+    font-size: 0.9rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .status-card p {
+    margin: 0.5rem 0 0 0;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: #3498db;
+  }
+
+  /* Progress Logs */
+  .progress-section {
+    margin: 2rem 0;
+  }
+
+  .progress-section h3 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #3498db;
+  }
+
+  .list-group-item {
+    border: none;
+    border-left: 4px solid #3498db;
+    margin-bottom: 0.75rem;
+    border-radius: 6px !important;
+    background: #f8f9fa;
+    padding: 1.25rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  }
+
+  .list-group-item strong {
+    color: #2c3e50;
+    font-weight: 600;
+  }
+
+  /* Audit Trail Table */
+  .audit-section {
+    margin: 2rem 0;
+  }
+
+  .audit-section h3 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid #3498db;
+  }
+
+  .table {
+    background: white;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+  }
+
+  .table thead th {
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    color: white;
+    border: none;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.9rem;
+    padding: 1rem;
+  }
+
+  .table tbody td {
+    padding: 1rem;
+    border-color: #e9ecef;
+    vertical-align: middle;
+  }
+
+  .table tbody tr:hover {
+    background-color: #f8f9fa;
+  }
+
+  /* Action Buttons */
+  .action-section {
+    background: #f8f9fa;
+    padding: 2rem;
+    border-radius: 8px;
+    margin: 2rem 0;
+    border-top: 4px solid #3498db;
+  }
+
+  .btn {
+    padding: 0.75rem 1.5rem;
+    font-weight: 600;
+    border-radius: 6px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-size: 0.9rem;
+    margin: 0.25rem;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+  }
+
+  .btn-danger {
+    background: linear-gradient(135deg, #e74c3c, #c0392b);
+    border-color: #a93226;
+  }
+
+  .btn-danger:hover {
+    background: linear-gradient(135deg, #c0392b, #a93226);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(231, 76, 60, 0.3);
+  }
+
+  .btn-warning {
+    background: linear-gradient(135deg, #f39c12, #e67e22);
+    border-color: #d68910;
+    color: white;
+  }
+
+  .btn-warning:hover {
+    background: linear-gradient(135deg, #e67e22, #d68910);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(243, 156, 18, 0.3);
+    color: white;
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    border-color: #2471a3;
+  }
+
+  .btn-primary:hover {
+    background: linear-gradient(135deg, #2980b9, #2471a3);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(52, 152, 219, 0.3);
+  }
+
+  .btn-success {
+    background: linear-gradient(135deg, #27ae60, #2ecc71);
+    border-color: #229954;
+  }
+
+  .btn-success:hover {
+    background: linear-gradient(135deg, #2ecc71, #229954);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(39, 174, 96, 0.3);
+  }
+
+  .btn-secondary {
+    background: linear-gradient(135deg, #6c757d, #5a6268);
+    border-color: #545b62;
+  }
+
+  .btn-secondary:hover {
+    background: linear-gradient(135deg, #5a6268, #545b62);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(108, 117, 125, 0.3);
+  }
+
+  /* Modal Enhancements */
+  .modal-content {
+    border-radius: 12px;
+    border: none;
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+  }
+
+  .modal-header {
+    background: linear-gradient(135deg, #2c3e50, #34495e);
+    color: white;
+    border-radius: 12px 12px 0 0;
+    border-bottom: none;
+  }
+
+  .modal-title {
+    font-weight: 600;
+    letter-spacing: -0.5px;
+  }
+
+  .btn-close {
+    filter: invert(1);
+  }
+
+  .modal-body {
+    padding: 2rem;
+    font-size: 1.1rem;
+    line-height: 1.6;
+    color: #5a6c7d;
+  }
+
+  .modal-footer {
+    padding: 1.5rem 2rem;
+    border-top: 1px solid #e9ecef;
+  }
+
+  /* Responsive Design */
+  @media (max-width: 768px) {
+    .contract-header {
+      padding: 2rem 1rem;
+    }
+
+    .contract-parties {
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .contract-content {
+      padding: 1rem;
+    }
+
+    .status-grid {
+      grid-template-columns: 1fr;
+    }
+
+    .terms-section {
+      padding: 1rem;
+    }
+
+    .action-section {
+      padding: 1rem;
+    }
+
+    .btn {
+      width: 100%;
+      margin: 0.25rem 0;
+    }
+
+    .table {
+      font-size: 0.9rem;
+    }
+
+    .table thead th,
+    .table tbody td {
+      padding: 0.75rem 0.5rem;
+    }
+  }
+
+  /* Print Styles */
+  @media print {
+    .contract-container {
+      box-shadow: none;
+      border: 1px solid #ddd;
+    }
+
+    .btn, .modal {
+      display: none !important;
+    }
+
+    .contract-header {
+      background: #2c3e50 !important;
+      -webkit-print-color-adjust: exact;
+    }
+  }
+</style>
+{% endblock css %}
+
 {% block content %}
 <div class="container">
-    <h2>Contract for {{ contract.job.title }}</h2>
-    <p><strong>Worker:</strong> {{ contract.worker.username }}</p>
-    <p><strong>Status:</strong> {{ contract.status }}</p>
-    <p><strong>Start Date:</strong> {{ contract.start_date }}</p>
-    <p><strong>End Date:</strong> {{ contract.end_date }}</p>
+  <div class="contract-container">
+    <div class="contract-header">
+      <h2>Contract for {{ contract.job.title }}</h2>
+      <div class="contract-parties">
+        <span><strong>Worker:</strong> {{ contract.worker.username }}</span>
+        <span><strong>Client:</strong> {{ contract.client.username }}</span>
+      </div>
+    </div>
+
+    <div class="contract-content">
+      <!-- Status Badge -->
+      <div class="status-section">
+        {% if contract.is_draft %}
+          <span class="badge bg-warning text-dark">Draft</span>
+        {% else %}
+          {% if contract.status == "Accepted" %}
+            <span class="badge bg-success">Accepted</span>
+          {% elif contract.status == "In Progress" %}
+            <span class="badge bg-primary">In Progress</span>
+          {% elif contract.status == "Submitted for Review" %}
+            <span class="badge bg-info">Submitted for Review</span>
+          {% elif contract.status == "Completed" %}
+            <span class="badge bg-success">Completed</span>
+          {% elif contract.status == "Cancelled" %}
+            <span class="badge bg-danger">Cancelled</span>
+          {% else %}
+            <span class="badge bg-secondary">{{ contract.status }}</span>
+          {% endif %}
+        {% endif %}
+      </div>
+      
+      <!-- Negotiated Terms -->
+      <div class="terms-section">
+        <h4>Contract Terms & Conditions</h4>
+        <div class="term-item">
+          <strong>Scope of Work:</strong>
+          <p>{{ contract.scope_of_work|default:"Not set" }}</p>
+        </div>
+        <div class="term-item">
+          <strong>Payment Terms:</strong>
+          <p>{{ contract.payment_terms|default:"Not set" }}</p>
+        </div>
+        <div class="term-item">
+          <strong>Deliverables:</strong>
+          <p>{{ contract.deliverables|default:"Not set" }}</p>
+        </div>
+        <div class="term-item">
+          <strong>Start Date:</strong>
+          <p>{{ contract.start_date|default:"Not set" }}</p>
+        </div>
+        <div class="term-item">
+          <strong>End Date:</strong>
+          <p>{{ contract.end_date|default:"Ongoing" }}</p>
+        </div>
+      </div>
+
+      <!-- Status Information Grid -->
+      <div class="status-grid">
+        <div class="status-card">
+          <strong>Payment Status</strong>
+          <p>{{ contract.payment_status }}</p>
+        </div>
+        <div class="status-card">
+          <strong>Revision Requested</strong>
+          <p>{{ contract.is_revision_requested|yesno:"Yes,No" }}</p>
+        </div>
+        <div class="status-card">
+          <strong>Client Rating</strong>
+          <p>{{ contract.rating_by_client|default:"N/A" }}</p>
+        </div>
+        <div class="status-card">
+          <strong>Created</strong>
+          <p>{{ contract.created_at|date:"M d, Y" }}</p>
+        </div>
+      </div>
+
+      <!-- Feedback Section -->
+      <div class="terms-section">
+        <h4>Feedback & Communication</h4>
+        <div class="term-item">
+          <strong>Feedback by Client:</strong>
+          <p>{{ contract.feedback_by_client|default:"N/A" }}</p>
+        </div>
+        <div class="term-item">
+          <strong>Feedback by Worker:</strong>
+          <p>{{ contract.feedback_by_worker|default:"N/A" }}</p>
+        </div>
+        <div class="term-item">
+          <strong>Last Updated:</strong>
+          <p>{{ contract.updated_at }}</p>
+        </div>
+      </div>
+
+      <!-- Progress Logs -->
+      <div class="progress-section">
+        <h3>Progress Logs</h3>
+        {% if progress_logs %}
+          <ul class="list-group">
+            {% for log in progress_logs %}
+              <li class="list-group-item">
+                <strong>{{ log.status }}</strong> - {{ log.message }}
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <div class="text-center text-muted py-4">
+            <em>No progress logs yet.</em>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Audit Trail History -->
+      <div class="audit-section">
+        <h3>Audit Trail History</h3>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>User</th>
+                <th>Action</th>
+                <th>Change Reason</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for record in contract.history.all %}
+                <tr>
+                  <td>{{ record.history_date|date:"M d, Y H:i" }}</td>
+                  <td>
+                    {% if record.history_user %}
+                      {{ record.history_user.username }}
+                    {% else %}
+                      System
+                    {% endif %}
+                  </td>
+                  <td>
+                    {% if record.history_type == "+" %}
+                      <span class="badge bg-success">Created</span>
+                    {% elif record.history_type == "~" %}
+                      <span class="badge bg-primary">Changed</span>
+                    {% elif record.history_type == "-" %}
+                      <span class="badge bg-danger">Deleted</span>
+                    {% else %}
+                      <span class="badge bg-secondary">Unknown</span>
+                    {% endif %}
+                  </td>
+                  <td>{{ record.history_change_reason|default:"-" }}</td>
+                </tr>
+              {% empty %}
+                <tr>
+                  <td colspan="4" class="text-center text-muted">No history records found.</td>
+                </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-section">
+        <h4 style="color: #2c3e50; margin-bottom: 1.5rem;">Contract Actions</h4>
+        
+        <!-- Cancel or Edit Options -->
+        {% if contract.status != "Cancelled" and request.user == contract.client %}
+          <form method="post" action="{% url 'jobs:contract_cancel' contract.pk %}" style="display: inline;">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-danger">Cancel Contract</button>
+          </form>
+        {% endif %}
+
+        {% if contract.is_draft %}
+          <a href="{% url 'jobs:contract_draft_edit' contract.pk %}" class="btn btn-warning">Edit Contract Draft</a>
+        {% endif %}
+
+        <!-- Worker Section: Accept Contract -->
+        {% if request.user == contract.worker and not contract.worker_accepted %}
+          <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#acceptContractModal">
+            Accept Contract
+          </button>
+        {% endif %}
+
+        <!-- Client Section: Finalize Contract -->
+        {% if request.user == contract.client and contract.worker_accepted and contract.is_draft %}
+          <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#finalizeContractModal">
+            Finalize Contract
+          </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Accept Contract Modal (for Worker) -->
+<div class="modal fade" id="acceptContractModal" tabindex="-1" aria-labelledby="acceptContractModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="acceptContractModalLabel">Accept Contract</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        By accepting, you agree to all the negotiated terms of this contract. Are you sure you wish to proceed?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form method="post" action="{% url 'jobs:accept_contract' contract.pk %}" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-primary">Accept Contract</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Finalize Contract Modal (for Client) -->
+<div class="modal fade" id="finalizeContractModal" tabindex="-1" aria-labelledby="finalizeContractModalLabel" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="finalizeContractModalLabel">Finalize Contract</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Your worker has accepted the contract. Finalizing will lock in the agreed terms. Do you want to finalize the contract?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <form method="post" action="{% url 'jobs:finalize_contract' contract.pk %}" style="display: inline;">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-success">Finalize Contract</button>
+        </form>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
+
+{% block js %}
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock js %}

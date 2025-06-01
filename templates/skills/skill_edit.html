@@ -1,0 +1,13 @@
+<!-- filepath: /home/jal/Desktop/Capstone Project/Trabaholink/templates/skills/skill_edit.html -->
+{% extends "mainpages/base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <h2>Edit Skill Verification</h2>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Update Skill</button>
+    <a href="{% url 'profile' request.user.pk %}" class="btn btn-secondary ms-2">Cancel</a>
+  </form>
+</div>
+{% endblock %}

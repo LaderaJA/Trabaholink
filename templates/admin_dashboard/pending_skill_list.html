@@ -1,0 +1,42 @@
+{% extends 'admin_dashboard/base.html' %}
+
+{% block content %}
+<div class="container mt-5">
+    <h2>Pending Skills for {{ user_obj.username }}</h2>
+    {% if skills %}
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Skill</th>
+                <th>Description</th>
+                <th>Proof</th>
+                <th>Status</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for skill in skills %}
+            <tr>
+                <td>{{ skill.name }}</td>
+                <td>{{ skill.description }}</td>
+                <td>
+                    {% if skill.proof %}
+                    <a href="{{ skill.proof.url }}" target="_blank">View</a>
+                    {% else %}
+                    N/A
+                    {% endif %}
+                </td>
+                <td>{{ skill.get_status_display }}</td>
+                <td>
+                    <a href="{% url 'admin_dashboard:pending_skill_update' skill.pk %}" class="btn btn-sm btn-primary">Change Status</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p class="text-muted">No pending skills for this user.</p>
+    {% endif %}
+    <a href="{% url 'admin_dashboard:user_list' %}" class="btn btn-secondary">Back to User List</a>
+</div>
+{% endblock %}

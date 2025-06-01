@@ -1,0 +1,13 @@
+{% extends "mainpages/base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <h2>Submit a New Skill Verification</h2>
+  <p>Enter the name of your skill, a brief description, and upload proof (e.g. certificate, license).</p>
+  <form method="POST" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Submit Skill Verification</button>
+    <a href="{% url 'profile' request.user.pk %}" class="btn btn-secondary ms-2">Cancel</a>
+  </form>
+</div>
+{% endblock %}

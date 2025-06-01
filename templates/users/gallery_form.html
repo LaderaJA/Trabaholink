@@ -1,0 +1,12 @@
+{% extends "mainpages/base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <h2>{% if object %}Edit Gallery Item{% else %}Add New Gallery Item{% endif %}</h2>
+  <form method="post" enctype="multipart/form-data">
+      {% csrf_token %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-primary">{% if object %}Update{% else %}Add{% endif %}</button>
+      <a href="{% url 'profile' request.user.pk %}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+{% endblock %}

@@ -3,39 +3,175 @@
 {% block css %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
 <style>
-    .form-container {
-        max-width: 600px;
-        margin: 50px auto;
-    }
+  .form-container { max-width: 800px; margin: 50px auto; }
+  .section-header { margin-top: 30px; margin-bottom: 10px; border-bottom: 2px solid #e0e0e0; padding-bottom: 5px; }
+  .add-link { display: inline-block; margin-top: 8px; font-size: 14px; text-decoration: underline; cursor: pointer; color: #0a66c2; }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="container form-container">
-    <div class="card shadow-sm">
-        <div class="card-header bg-primary text-white">
-            <h3>Edit Profile</h3>
-        </div>
-        <div class="card-body">
-            <form method="post" enctype="multipart/form-data">
-                {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="btn btn-primary">Update Profile</button>
-                <a href="{% url 'profile' user.pk %}" class="btn btn-secondary ms-2">Back to Profile</a>
-            </form>
-        </div>
+  <div class="card shadow-sm">
+    <div class="card-header bg-primary text-white">
+        <h3>Edit Profile &amp; CV Details</h3>
     </div>
+    <div class="card-body">
+      <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+          <!-- Render management forms for formsets -->
+          {{ education_formset.management_form }}
+          {{ experience_formset.management_form }}
+          
+          <!-- Personal Details Section -->
+          <div class="section-header">
+              <h4>Personal Details</h4>
+          </div>
+          <div class="form-group">
+              <label for="{{ form.first_name.id_for_label }}">First Name</label>
+              {{ form.first_name }}
+              <small class="form-text text-muted">Enter your given name.</small>
+              {% if form.first_name.errors %}
+                  <div class="text-danger">{{ form.first_name.errors }}</div>
+              {% endif %}
+          </div>
+          <div class="form-group">
+              <label for="{{ form.last_name.id_for_label }}">Last Name</label>
+              {{ form.last_name }}
+              <small class="form-text text-muted">Enter your surname.</small>
+              {% if form.last_name.errors %}
+                  <div class="text-danger">{{ form.last_name.errors }}</div>
+              {% endif %}
+          </div>
+          <div class="form-group">
+              <label for="{{ form.email.id_for_label }}">Email</label>
+              {{ form.email }}
+              <small class="form-text text-muted">Enter your email address (e.g. name@example.com).</small>
+              {% if form.email.errors %}
+                <div class="text-danger">{{ form.email.errors }}</div>
+              {% endif %}
+          </div>
+          <div class="form-group">
+              <label for="{{ form.contact_number.id_for_label }}">Contact Number</label>
+              {{ form.contact_number }}
+              <small class="form-text text-muted">Include your country code if applicable.</small>
+              {% if form.contact_number.errors %}
+                <div class="text-danger">{{ form.contact_number.errors }}</div>
+              {% endif %}
+          </div>
+          <div class="form-group">
+              <label for="{{ form.address.id_for_label }}">Address</label>
+              {{ form.address }}
+              <small class="form-text text-muted">Enter your mailing address.</small>
+              {% if form.address.errors %}
+                <div class="text-danger">{{ form.address.errors }}</div>
+              {% endif %}
+          </div>
+          <div class="form-group">
+              <label for="{{ form.gender.id_for_label }}">Gender</label>
+              {{ form.gender }}
+              <small class="form-text text-muted">Select your gender.</small>
+              {% if form.gender.errors %}
+                <div class="text-danger">{{ form.gender.errors }}</div>
+              {% endif %}
+          </div>
+          <div class="form-group">
+              <label for="{{ form.username.id_for_label }}">Username</label>
+              {{ form.username }}
+              <small class="form-text text-muted">Your unique username (cannot be changed).</small>
+              {% if form.username.errors %}
+                <div class="text-danger">{{ form.username.errors }}</div>
+              {% endif %}
+          </div>
+          
+          <hr>
+          <!-- Personal Summary Section -->
+          <div class="section-header">
+              <h4>Personal Summary</h4>
+          </div>
+          <div class="form-group">
+              <label for="{{ form.bio.id_for_label }}">Bio</label><br>
+              {{ form.bio }}
+              <small class="form-text text-muted">Provide a brief summary of yourself.</small>
+              {% if form.bio.errors %}
+                  <div class="text-danger">{{ form.bio.errors }}</div>
+              {% endif %}
+          </div>
+          
+          <hr>
+          <!-- Education Section -->
+          <div class="section-header">
+              <h4>Education</h4>
+              <p class="text-muted">Enter your educational background. Use the calendar to select dates.</p>
+          </div>
+          {% if education_formset %}
+              {% for edu_form in education_formset %}
+                  <div class="education-form border p-2 mb-2">
+                      {{ edu_form.as_p }}
+                  </div>
+              {% endfor %}
+          {% else %}
+              <p class="text-muted">No education details provided.</p>
+          {% endif %}
+          <a href="#" id="add-education" class="add-link">Add Education</a>
+          
+          <hr>
+          <!-- Work Experience Section -->
+          <div class="section-header">
+              <h4>Work Experience</h4>
+              <p class="text-muted">Enter your work experiences. The date fields will allow you to pick a date from the calendar.</p>
+          </div>
+          {% if experience_formset %}
+              {% for exp_form in experience_formset %}
+                  <div class="experience-form border p-2 mb-2">
+                      {{ exp_form.as_p }}
+                  </div>
+              {% endfor %}
+          {% else %}
+              <p class="text-muted">No work experience provided.</p>
+          {% endif %}
+          <a href="#" id="add-experience" class="add-link">Add Work Experience</a>
+          
+          <hr>
+          <button type="submit" class="btn btn-primary">Update Profile</button>
+          <a href="{% url 'profile' user.pk %}" class="btn btn-secondary ms-2">Back to Profile</a>
+      </form>
+      {% if form.errors %}
+        <div class="alert alert-danger">
+          {{ form.errors }}
+        </div>
+      {% endif %}
+      {% if education_formset.errors %}
+        <div class="alert alert-danger">
+          {{ education_formset.errors }}
+        </div>
+      {% endif %}
+      {% if experience_formset.errors %}
+        <div class="alert alert-danger">
+          {{ experience_formset.errors }}
+        </div>
+      {% endif %}
+    </div>
+  </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
 <script>
-  const input = document.querySelector('#skills-input');
-  const existingSkills = input.value.split(',').filter(s => s.trim()).map(skill => skill.trim());
+    // Initialize Tagify on the skills input field if used in the template.
+    const input = document.querySelector('#skills-input');
+    if (input) {
+      const tagify = new Tagify(input, {
+          originalInputValueFormat: values => values.map(item => item.value).join(',')
+      });
+    }
 
-  const tagify = new Tagify(input, {
-    originalInputValueFormat: values => values.map(item => item.value).join(',')  
-  });
-  tagify.addTags(existingSkills); 
+    document.getElementById("add-education").addEventListener("click", function(e) {
+        e.preventDefault();
+        alert("Add Education functionality is not implemented yet.");
+    });
+    document.getElementById("add-experience").addEventListener("click", function(e) {
+        e.preventDefault();
+        alert("Add Work Experience functionality is not implemented yet.");
+    });
 </script>
 {% endblock %}
 

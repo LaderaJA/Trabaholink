@@ -1,0 +1,65 @@
+{% extends "mainpages/base.html" %}
+{% load static %}
+
+
+{% block css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">  
+{% endblock%}
+{% block content %}
+<div class="container mt-5">
+  <h2>Set Your Notification Location</h2>
+  <p>Please set your location so we can notify you about jobs near you.</p>
+  
+  <form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <div id="map" style="height: 400px; margin-bottom: 1rem;"></div>
+    <button type="submit" class="btn btn-primary">Save Location</button>
+  </form>
+</div>
+{% endblock %}
+
+{% block js %}
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Set default coordinates to Bacoor Municipal Hall
+  let lat = 14.4311278;
+  let lng = 120.9682000;
+  
+  const locationField = document.getElementById("id_notification_location");
+  // If the location field has a saved value, extract it; otherwise, use the default.
+  if (locationField && locationField.value) {
+    console.log("DEBUG: Existing location value:", locationField.value);
+    const matches = locationField.value.match(/(?:SRID=\d+;)?POINT\s*\(\s*([-\d.]+)\s+([-\d.]+)\)/);
+    if (matches) {
+      lng = parseFloat(matches[1]);
+      lat = parseFloat(matches[2]);
+    }
+  } else {
+    console.log("DEBUG: No existing location value, using default.");
+  }
+  
+  // Initialize the map in the container with id 'map'
+  const map = L.map('map').setView([lat, lng], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors'
+  }).addTo(map);
+  
+  // Add a draggable marker
+  const marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+  marker.on('dragend', function(e) {
+    let pos = marker.getLatLng();
+    locationField.value = "POINT(" + pos.lng + " " + pos.lat + ")";
+    console.log("DEBUG: New position set:", locationField.value);
+  });
+  
+  // Update marker on map click
+  map.on('click', function(e) {
+    marker.setLatLng(e.latlng);
+    locationField.value = "POINT(" + e.latlng.lng + " " + e.latlng.lat + ")";
+    console.log("DEBUG: Map click updated location:", locationField.value);
+  });
+});
+</script>
+{% endblock %}

@@ -34,4 +34,8 @@ urlpatterns = [
     path('admin-announcements/create/', AnnouncementCreateView.as_view(), name='admin_announcement_create'),
     path('admin-announcements/edit/<int:pk>/', AnnouncementUpdateView.as_view(), name='admin_announcement_edit'),
     path('admin-announcements/delete/<int:pk>/', AnnouncementDeleteView.as_view(), name='admin_announcement_delete'),
+
+    # Pending Skills Management
+    path('user/<int:pk>/pending_skills/', views.PendingSkillListView.as_view(), name='pending_skill_list'),
+    path('skill/<int:pk>/update/', views.PendingSkillUpdateView.as_view(), name='pending_skill_update'),
 ]

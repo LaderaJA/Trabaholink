@@ -1,0 +1,701 @@
+{% extends 'mainpages/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+/* Enhanced CSS Variables */
+:root {
+  --primary-blue: #3b82f6;
+  --primary-blue-dark: #2563eb;
+  --primary-blue-light: #dbeafe;
+  --success-green: #10b981;
+  --success-green-light: #d1fae5;
+  --warning-yellow: #f59e0b;
+  --warning-yellow-light: #fef3c7;
+  --danger-red: #ef4444;
+  --danger-red-light: #fee2e2;
+  --text-dark: #111827;
+  --text-medium: #374151;
+  --text-light: #6b7280;
+  --text-white: #ffffff;
+  --background-white: #ffffff;
+  --background-gray: #f9fafb;
+  --background-gray-light: #f3f4f6;
+  --border-color: #e5e7eb;
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+}
+
+/* Global Styles */
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background-color: var(--background-gray);
+  line-height: 1.6;
+}
+
+/* Page Header */
+.service-header {
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+  color: var(--text-white);
+  padding: 3rem 0;
+  margin-bottom: 2rem;
+  border-radius: 0 0 2rem 2rem;
+  box-shadow: var(--shadow-xl);
+}
+
+.service-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 1rem 0;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.service-meta {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  font-size: 1rem;
+  opacity: 0.9;
+}
+
+.service-meta i {
+  font-size: 1.125rem;
+}
+
+/* Main Content Layout */
+.service-content {
+  display: grid;
+  grid-template-columns: 2fr 1fr;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.main-content {
+  background: var(--background-white);
+  border-radius: 1rem;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* Image Gallery */
+.image-gallery {
+  position: relative;
+  margin-bottom: 2rem;
+}
+
+.main-image {
+  width: 100%;
+  height: 400px;
+  object-fit: cover;
+  border-radius: 1rem 1rem 0 0;
+}
+
+.image-thumbnails {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 0.5rem;
+  padding: 1rem;
+  background: var(--background-gray-light);
+}
+
+.thumbnail {
+  width: 100%;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.thumbnail:hover,
+.thumbnail.active {
+  border-color: var(--primary-blue);
+  transform: scale(1.05);
+}
+
+.no-images {
+  height: 300px;
+  background: var(--background-gray-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--text-light);
+  font-size: 1.125rem;
+  border-radius: 1rem 1rem 0 0;
+}
+
+/* Content Sections */
+.content-section {
+  padding: 2rem;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-title i {
+  color: var(--primary-blue);
+  font-size: 1.125rem;
+}
+
+.description-text {
+  color: var(--text-medium);
+  line-height: 1.7;
+  font-size: 1rem;
+}
+
+/* Info Cards */
+.info-card {
+  background: var(--background-white);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s ease;
+}
+
+.info-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.card-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-title i {
+  color: var(--primary-blue);
+}
+
+.info-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 0.75rem;
+  padding: 0.75rem;
+  background: var(--background-gray-light);
+  border-radius: 0.5rem;
+  transition: all 0.2s ease;
+}
+
+.info-item:hover {
+  background: var(--primary-blue-light);
+}
+
+.info-item:last-child {
+  margin-bottom: 0;
+}
+
+.info-icon {
+  width: 2rem;
+  height: 2rem;
+  background: var(--primary-blue);
+  color: var(--text-white);
+  border-radius: 0.375rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  flex-shrink: 0;
+}
+
+.info-content {
+  flex: 1;
+}
+
+.info-label {
+  font-weight: 500;
+  color: var(--text-dark);
+  font-size: 0.875rem;
+  margin-bottom: 0.125rem;
+}
+
+.info-value {
+  color: var(--text-medium);
+  font-size: 0.875rem;
+}
+
+.info-value a {
+  color: var(--primary-blue);
+  text-decoration: none;
+  font-weight: 500;
+}
+
+.info-value a:hover {
+  text-decoration: underline;
+}
+
+/* Map Styling */
+.map-container {
+  background: var(--background-white);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+}
+
+#map {
+  height: 300px;
+  border-radius: 0.75rem;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.location-info {
+  margin-top: 1rem;
+  padding: 1rem;
+  background: var(--background-gray-light);
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  color: var(--text-medium);
+}
+
+/* Action Buttons */
+.action-buttons {
+  background: var(--background-white);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 0.875rem;
+  margin-bottom: 0.5rem;
+  width: 100%;
+  justify-content: center;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+  color: var(--text-white);
+}
+
+.btn-primary:hover {
+  color: var(--text-white);
+}
+
+.btn-secondary {
+  background: var(--background-white);
+  color: var(--text-medium);
+  border-color: var(--border-color);
+}
+
+.btn-secondary:hover {
+  background: var(--background-gray-light);
+  color: var(--text-dark);
+}
+
+.btn-warning {
+  background: linear-gradient(135deg, var(--warning-yellow) 0%, #d97706 100%);
+  color: var(--text-white);
+}
+
+.btn-warning:hover {
+  color: var(--text-white);
+}
+
+/* Posted Date */
+.posted-date {
+  background: var(--background-white);
+  border-radius: 1rem;
+  padding: 1rem;
+  box-shadow: var(--shadow-md);
+  border: 1px solid var(--border-color);
+  text-align: center;
+}
+
+.date-icon {
+  width: 3rem;
+  height: 3rem;
+  background: var(--primary-blue-light);
+  color: var(--primary-blue);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.5rem;
+  font-size: 1.25rem;
+}
+
+.date-text {
+  font-size: 0.875rem;
+  color: var(--text-light);
+  margin: 0;
+}
+
+.date-value {
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 0.875rem;
+  margin: 0.25rem 0 0 0;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .service-content {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  
+  .sidebar {
+    order: -1;
+  }
+}
+
+@media (max-width: 768px) {
+  .service-title {
+    font-size: 2rem;
+  }
+  
+  .service-meta {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .content-section {
+    padding: 1.5rem;
+  }
+  
+  .info-card {
+    padding: 1rem;
+  }
+  
+  .main-image {
+    height: 250px;
+  }
+  
+  .btn {
+    margin-bottom: 0.75rem;
+  }
+}
+
+/* Animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.info-card,
+.main-content {
+  animation: fadeInUp 0.5s ease-out;
+}
+
+/* Image Modal */
+.image-modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.9);
+  cursor: pointer;
+}
+
+.modal-content {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 90%;
+  max-height: 90%;
+  border-radius: 0.5rem;
+}
+
+.close-modal {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  color: white;
+  font-size: 2rem;
+  cursor: pointer;
+  z-index: 1001;
+}
+</style>
+
+<!-- Service Header -->
+<div class="service-header">
+  <div class="container">
+    <h1 class="service-title">{{ post.headline }}</h1>
+    <div class="service-meta">
+      <span>
+        <i class="fa fa-user"></i>
+        Posted by 
+        <a href="{% url 'profile' post.worker.pk %}" style="color: white; text-decoration: underline;">
+          {{ post.worker.get_full_name|default:post.worker.username }}
+        </a>
+      </span>
+      <span>
+        <i class="fa fa-calendar"></i>
+        {{ post.created_at|date:"M d, Y" }}
+      </span>
+    </div>
+  </div>
+</div>
+
+<div class="container">
+  <div class="service-content">
+    <!-- Main Content -->
+    <div class="main-content">
+      <!-- Image Gallery -->
+      {% if post.images.all %}
+        <div class="image-gallery">
+          <img src="{{ post.images.first.image.url }}" class="main-image" id="mainImage" alt="{{ post.headline }}" onclick="openImageModal(this.src)">
+          {% if post.images.all|length > 1 %}
+            <div class="image-thumbnails">
+              {% for image in post.images.all %}
+                <img src="{{ image.image.url }}" 
+                     class="thumbnail {% if forloop.first %}active{% endif %}" 
+                     alt="{{ post.headline }} image {{ forloop.counter }}"
+                     onclick="changeMainImage(this)">
+              {% endfor %}
+            </div>
+          {% endif %}
+        </div>
+      {% else %}
+        <div class="no-images">
+          <div>
+            <i class="fa fa-image" style="font-size: 3rem; margin-bottom: 1rem; display: block;"></i>
+            No images available for this service
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Service Description -->
+      <div class="content-section">
+        <h3 class="section-title">
+          <i class="fa fa-align-left"></i>
+          Service Description
+        </h3>
+        <div class="description-text">
+          {{ post.description|linebreaks }}
+        </div>
+      </div>
+    </div>
+
+    <!-- Sidebar -->
+    <div class="sidebar">
+      <!-- Contact Information -->
+      <div class="info-card">
+        <h4 class="card-title">
+          <i class="fa fa-address-card"></i>
+          Contact Information
+        </h4>
+        
+        {% if post.availability %}
+          <div class="info-item">
+            <div class="info-icon">
+              <i class="fa fa-clock"></i>
+            </div>
+            <div class="info-content">
+              <div class="info-label">Availability</div>
+              <div class="info-value">{{ post.availability }}</div>
+            </div>
+          </div>
+        {% endif %}
+        
+        {% if post.contact_number %}
+          <div class="info-item">
+            <div class="info-icon">
+              <i class="fa fa-phone"></i>
+            </div>
+            <div class="info-content">
+              <div class="info-label">Phone Number</div>
+              <div class="info-value">
+                <a href="tel:{{ post.contact_number }}">{{ post.contact_number }}</a>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+        
+        {% if post.email %}
+          <div class="info-item">
+            <div class="info-icon">
+              <i class="fa fa-envelope"></i>
+            </div>
+            <div class="info-content">
+              <div class="info-label">Email Address</div>
+              <div class="info-value">
+                <a href="mailto:{{ post.email }}">{{ post.email }}</a>
+              </div>
+            </div>
+          </div>
+        {% endif %}
+        
+        {% if post.address %}
+          <div class="info-item">
+            <div class="info-icon">
+              <i class="fa fa-map-marker-alt"></i>
+            </div>
+            <div class="info-content">
+              <div class="info-label">Service Address</div>
+              <div class="info-value">{{ post.address }}</div>
+            </div>
+          </div>
+        {% endif %}
+      </div>
+
+      <!-- Location Map -->
+      {% if post.location %}
+        <div class="map-container">
+          <h4 class="card-title">
+            <i class="fa fa-map"></i>
+            Service Location
+          </h4>
+          <div id="map"></div>
+          <div class="location-info">
+            <i class="fa fa-info-circle" style="color: var(--primary-blue); margin-right: 0.5rem;"></i>
+            <strong>Coordinates:</strong> {{ post.location.y|floatformat:6 }}, {{ post.location.x|floatformat:6 }}
+          </div>
+        </div>
+      {% endif %}
+
+      <!-- Posted Date -->
+      <div class="posted-date">
+        <div class="date-icon">
+          <i class="fa fa-calendar-alt"></i>
+        </div>
+        <div class="date-text">Posted on</div>
+        <div class="date-value">{{ post.created_at|date:"M d, Y" }}</div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="action-buttons">
+        <a href="{% url 'jobs:job_list' %}" class="btn btn-secondary">
+          <i class="fa fa-arrow-left"></i>
+          Back to Listings
+        </a>
+        
+        {% if request.user == post.worker %}
+          <a href="{% url 'services:servicepost_update' slug=post.slug %}" class="btn btn-primary">
+            <i class="fa fa-edit"></i>
+            Edit Service
+          </a>
+          <a href="{% url 'services:deactivate_service_post' slug=post.slug %}" 
+             class="btn btn-warning" 
+             onclick="return confirm('Are you sure you want to deactivate this post?');">
+            <i class="fa fa-pause-circle"></i>
+            Deactivate
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Image Modal -->
+<div id="imageModal" class="image-modal" onclick="closeImageModal()">
+  <span class="close-modal">&times;</span>
+  <img class="modal-content" id="modalImage">
+</div>
+
+{% if post.location %}
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    document.addEventListener("DOMContentLoaded", function(){
+      var lat = {{ post.location.y }};
+      var lng = {{ post.location.x }};
+      var map = L.map('map').setView([lat, lng], 15);
+      
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '&copy; OpenStreetMap contributors'
+      }).addTo(map);
+      
+      // Custom marker icon
+      var customIcon = L.divIcon({
+        html: '<i class="fa fa-map-marker-alt" style="color: #3b82f6; font-size: 2rem;"></i>',
+        iconSize: [30, 30],
+        className: 'custom-div-icon'
+      });
+      
+      L.marker([lat, lng], {icon: customIcon}).addTo(map)
+        .bindPopup(`
+          <div style="text-align: center; padding: 0.5rem;">
+            <strong style="color: #111827;">{{ post.headline }}</strong><br>
+            <span style="color: #6b7280; font-size: 0.875rem;">{{ post.address|default:"Service Location" }}</span>
+          </div>
+        `)
+        .openPopup();
+    });
+
+    // Image gallery functions
+    function changeMainImage(thumbnail) {
+      const mainImage = document.getElementById('mainImage');
+      const allThumbnails = document.querySelectorAll('.thumbnail');
+      
+      // Update main image
+      mainImage.src = thumbnail.src;
+      
+      // Update active thumbnail
+      allThumbnails.forEach(thumb => thumb.classList.remove('active'));
+      thumbnail.classList.add('active');
+    }
+
+    function openImageModal(imageSrc) {
+      const modal = document.getElementById('imageModal');
+      const modalImg = document.getElementById('modalImage');
+      modal.style.display = 'block';
+      modalImg.src = imageSrc;
+    }
+
+    function closeImageModal() {
+      document.getElementById('imageModal').style.display = 'none';
+    }
+
+    // Close modal with Escape key
+    document.addEventListener('keydown', function(event) {
+      if (event.key === 'Escape') {
+        closeImageModal();
+      }
+    });
+  </script>
+{% endif %}
+{% endblock %}

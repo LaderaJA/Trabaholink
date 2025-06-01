@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser, Skill
+from .models import CustomUser, Skill, CompletedJobGallery
 
 # Custom Registration Form
 class CustomUserRegistrationForm(UserCreationForm):
@@ -39,6 +39,14 @@ class UserProfileForm(forms.ModelForm):
     username = forms.CharField(
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter username'})
     )
+    first_name = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your first name'}),
+        required=True
+    )
+    last_name = forms.CharField(
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your last name'}),
+        required=True
+    )
     email = forms.EmailField(
         widget=forms.EmailInput(attrs={'class': 'form-control', 'placeholder': 'Enter your email'})
     )
@@ -50,24 +58,81 @@ class UserProfileForm(forms.ModelForm):
         required=False,
         widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Write something about yourself...', 'rows': 3})
     )
-
-    skills = forms.CharField(
+    address = forms.CharField(
         required=False,
-        widget=forms.TextInput(attrs={
-            'class': 'form-control',
-            'placeholder': 'Add skills...',
-            'id': 'skills-input'
-        })
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your address'})
     )
-
+    gender = forms.ChoiceField(
+        choices=[('male', 'Male'), ('female', 'Female'), ('other', 'Other')],
+        required=False,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
 
     class Meta:
         model = CustomUser
-        fields = ['profile_picture', 'username', 'email', 'contact_number', 'bio']  # Removed 'skills' from fields
+        fields = [
+            'profile_picture',
+            'username',
+            'first_name',
+            'last_name',
+            'email',
+            'contact_number',
+            'bio',
+            'address',
+            'gender'
+        ]
 
     def save(self, commit=True):
         user = super().save(commit=False)
-        # skills field is handled separately in the view
         if commit:
             user.save()
         return user
+
+# Skill Verification Form
+class SkillVerificationForm(forms.ModelForm):
+    class Meta:
+        model = Skill
+        fields = ['name', 'description', 'proof']
+        widgets = {
+            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your skill, e.g. Driving'}),
+            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Brief description'}),
+            'proof': forms.FileInput(attrs={'class': 'form-control'}),
+        }
+
+# Completed Job Gallery Form
+class CompletedJobGalleryForm(forms.ModelForm):
+    class Meta:
+        model = CompletedJobGallery
+        fields = ['image', 'description']
+        widgets = {
+            'description': forms.Textarea(attrs={
+                'class': 'form-control',
+                'rows': 3,
+                'placeholder': 'Enter a description...'
+            }),
+        }
+
+# User Location Form
+class UserLocationForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['notification_location']
+        widgets = {
+            'notification_location': forms.HiddenInput()
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.instance and self.instance.notification_location:
+            # Set the initial value using the WKT representation
+            self.fields['notification_location'].initial = self.instance.notification_location.wkt
+
+# Identity Verification Form
+class IdentityVerificationForm(forms.ModelForm):
+    class Meta:
+        model = CustomUser
+        fields = ['identity_document']
+        widgets = {
+            # Optionally use ClearableFileInput or custom widget
+            'identity_document': forms.ClearableFileInput(attrs={'class': 'form-control'}),
+        }

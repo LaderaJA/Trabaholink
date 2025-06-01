@@ -1,0 +1,13 @@
+{% extends 'mainpages/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+  <h2>Delete Service Post</h2>
+  <p>Are you sure you want to delete <strong>{{ post.headline }}</strong>?</p>
+  <form method="post">
+    {% csrf_token %}
+    <button type="submit" class="btn btn-danger">Yes, delete</button>
+    <a href="{% url 'services:servicepost_detail' post.slug %}" class="btn btn-secondary">Cancel</a>
+  </form>
+</div>
+{% endblock %}

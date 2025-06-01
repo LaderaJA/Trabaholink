@@ -1,5 +1,9 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% block title %}Job Details - {{ job.title }}{% endblock %}
+{%block css%}<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">{% endblock %}
+
+
 
 {% block content %}
 <style>
@@ -433,6 +437,184 @@
     display: block;
   }
 
+  /* Enhanced Job Extra Details Section */
+  .job-extra-details {
+    background-color: var(--background-white);
+    border-radius: 16px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: var(--shadow-lg);
+    border: 1px solid var(--border-color);
+  }
+
+  .job-extra-details h3 {
+    color: var(--text-dark);
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 2rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid var(--border-color);
+  }
+
+  .job-extra-details h3 i {
+    color: var(--primary-blue);
+    font-size: 1.25rem;
+  }
+
+  .details-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .detail-item {
+    padding: 1.5rem;
+    background: linear-gradient(135deg, var(--background-gray-light) 0%, var(--background-white) 100%);
+    border-radius: 12px;
+    border-left: 4px solid var(--primary-blue);
+    transition: all 0.3s ease;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .detail-item:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-left-width: 6px;
+  }
+
+  .detail-item::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, var(--primary-blue-light) 0%, transparent 70%);
+    border-radius: 0 0 0 60px;
+    opacity: 0.1;
+  }
+
+  .detail-label {
+    font-weight: 600;
+    color: var(--text-dark);
+    margin-bottom: 0.75rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .detail-label i {
+    color: var(--primary-blue);
+    font-size: 1rem;
+    width: 16px;
+    text-align: center;
+  }
+
+  .detail-value {
+    color: var(--text-medium);
+    font-size: 1rem;
+    line-height: 1.6;
+    position: relative;
+    z-index: 1;
+  }
+
+  .detail-value.highlight {
+    color: var(--text-dark);
+    font-weight: 600;
+  }
+
+  .detail-value.success {
+    color: var(--success-green);
+    font-weight: 600;
+  }
+
+  .detail-value.warning {
+    color: var(--warning-orange);
+    font-weight: 600;
+  }
+
+  .detail-value.danger {
+    color: var(--danger-red);
+    font-weight: 600;
+  }
+
+  /* Special styling for boolean values */
+  .boolean-value {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  .boolean-value.yes {
+    background-color: var(--success-green);
+    color: var(--text-white);
+  }
+
+  .boolean-value.no {
+    background-color: var(--danger-red-light);
+    color: var(--danger-red);
+    border: 1px solid var(--danger-red);
+  }
+
+  .boolean-value i {
+    font-size: 0.875rem;
+  }
+
+  /* Urgency badges */
+  .urgency-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border-radius: 20px;
+    font-size: 0.875rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.025em;
+  }
+
+  .urgency-badge.low {
+    background-color: var(--success-green-light);
+    color: var(--success-green);
+    border: 1px solid var(--success-green);
+  }
+
+  .urgency-badge.medium {
+    background-color: var(--warning-yellow-light);
+    color: var(--warning-orange);
+    border: 1px solid var(--warning-orange);
+  }
+
+  .urgency-badge.high {
+    background-color: var(--danger-red-light);
+    color: var(--danger-red);
+    border: 1px solid var(--danger-red);
+  }
+
+  .urgency-badge.urgent {
+    background-color: var(--danger-red);
+    color: var(--text-white);
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+
   /* Enhanced Buttons */
   .btn {
     padding: 0.75rem 1.5rem;
@@ -808,6 +990,11 @@
       gap: 1rem;
     }
 
+    .details-grid {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+
     .job-images-gallery {
       grid-template-columns: 1fr;
       padding: 0.5rem;
@@ -836,6 +1023,10 @@
     }
 
     .applicants-section {
+      padding: 1.5rem 1rem;
+    }
+
+    .job-extra-details {
       padding: 1.5rem 1rem;
     }
 
@@ -883,6 +1074,10 @@
       padding: 1.5rem;
     }
 
+    .detail-item {
+      padding: 1rem;
+    }
+
     .table th,
     .table td {
       padding: 0.5rem 0.25rem;
@@ -912,247 +1107,2137 @@
       left: 10px;
     }
   }
+
+  /* Formal Document Styles */
+.document-header {
+  background: linear-gradient(135deg, var(--background-white) 0%, var(--background-gray-light) 100%);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-lg);
+}
+
+.document-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.875rem;
+}
+
+.document-id, .document-date {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.document-meta .label {
+  font-weight: 500;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  font-size: 0.75rem;
+}
+
+.document-meta .value {
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 0.875rem;
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: var(--success-green);
+  color: var(--text-white);
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.status-badge.active i {
+  animation: pulse 2s infinite;
+}
+
+.document-title-section {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.document-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 0.5rem 0;
+  line-height: 1.2;
+}
+
+.document-subtitle {
+  font-size: 1.125rem;
+  color: var(--text-medium);
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.document-summary {
+  background: var(--background-white);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  padding: 1.5rem;
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+}
+
+.summary-item {
+  text-align: center;
+}
+
+.summary-label {
+  font-size: 0.75rem;
+  font-weight: 500;
+  color: var(--text-light);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-bottom: 0.5rem;
+}
+
+.summary-value {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.summary-value.budget {
+  font-size: 1.5rem;
+  color: var(--success-green);
+}
+
+/* Document Body */
+.document-body {
+  background: var(--background-white);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
+}
+
+.document-section {
+  border-bottom: 1px solid var(--border-color);
+}
+
+.document-section:last-child {
+  border-bottom: none;
+}
+
+.section-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 2rem;
+  background: var(--background-gray-light);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.section-number {
+  width: 3rem;
+  height: 3rem;
+  background: var(--primary-blue);
+  color: var(--text-white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.section-info {
+  flex: 1;
+}
+
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 0.25rem 0;
+}
+
+.section-subtitle {
+  font-size: 0.875rem;
+  color: var(--text-medium);
+  margin: 0;
+}
+
+.section-content {
+  padding: 2rem;
+}
+
+/* Content Blocks */
+.content-block {
+  margin-bottom: 2rem;
+}
+
+.content-block:last-child {
+  margin-bottom: 0;
+}
+
+.content-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.content-title i {
+  color: var(--primary-blue);
+}
+
+.content-text {
+  color: var(--text-medium);
+  line-height: 1.7;
+  font-size: 1rem;
+  white-space: pre-line;
+}
+
+/* Specifications Grid */
+.specifications-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 2rem;
+}
+
+.spec-group {
+  background: var(--background-gray-light);
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.spec-group-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.spec-group-title i {
+  color: var(--primary-blue);
+}
+
+.spec-items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.spec-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: var(--background-white);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.spec-label {
+  font-weight: 500;
+  color: var(--text-medium);
+  font-size: 0.875rem;
+}
+
+.spec-value {
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 0.875rem;
+  text-align: right;
+}
+
+.spec-value.highlight {
+  color: var(--primary-blue);
+}
+
+/* Priority and Provision Status */
+.priority-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.priority-badge.low {
+  background: var(--success-green-light);
+  color: var(--success-green);
+}
+
+.priority-badge.medium {
+  background: var(--warning-yellow-light);
+  color: var(--warning-orange);
+}
+
+.priority-badge.high, .priority-badge.urgent {
+  background: var(--danger-red-light);
+  color: var(--danger-red);
+}
+
+.provision-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  font-size: 0.875rem;
+}
+
+.provision-status.provided {
+  color: var(--success-green);
+}
+
+.provision-status.not-provided {
+  color: var(--danger-red);
+}
+
+/* Compensation Section */
+.compensation-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.budget-display {
+  background: linear-gradient(135deg, var(--success-green) 0%, var(--success-green-dark) 100%);
+  color: var(--text-white);
+  padding: 2rem;
+  border-radius: 12px;
+  text-align: center;
+}
+
+.budget-label {
+  font-size: 0.875rem;
+  opacity: 0.9;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.budget-amount {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.budget-note {
+  font-size: 0.75rem;
+  opacity: 0.8;
+}
+
+.payment-terms {
+  background: var(--background-gray-light);
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.terms-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.terms-title i {
+  color: var(--primary-blue);
+}
+
+.terms-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.term-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.75rem;
+  background: var(--background-white);
+  border-radius: 6px;
+  border: 1px solid var(--border-color);
+}
+
+.term-label {
+  font-weight: 500;
+  color: var(--text-medium);
+  font-size: 0.875rem;
+}
+
+.term-value {
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 0.875rem;
+}
+
+/* Formal Image Gallery */
+.image-gallery-formal {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+}
+
+.formal-image-item {
+  background: var(--background-white);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.formal-image-item:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.formal-image {
+  width: 100%;
+  height: 200px;
+  object-fit: cover;
+}
+
+.image-caption {
+  padding: 1rem;
+  background: var(--background-gray-light);
+  border-top: 1px solid var(--border-color);
+}
+
+.image-number {
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 0.875rem;
+}
+
+.image-description {
+  color: var(--text-medium);
+  font-size: 0.875rem;
+  margin-left: 0.5rem;
+}
+
+/* Location Section */
+.location-info-formal {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+  align-items: start;
+}
+
+.location-details {
+  background: var(--background-gray-light);
+  border-radius: 8px;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+}
+
+.location-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.location-title i {
+  color: var(--primary-blue);
+}
+
+.address-line {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+}
+
+.coordinates {
+  font-size: 0.875rem;
+  color: var(--text-light);
+}
+
+.map-container-formal {
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* Application Section */
+.application-info {
+  display: grid;
+  grid-template-columns: 1fr 2fr;
+  gap: 2rem;
+  align-items: center;
+}
+
+.application-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.stat-item {
+  text-align: center;
+  padding: 1rem;
+  background: var(--background-gray-light);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--primary-blue);
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: var(--text-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Formal Buttons */
+.btn-formal {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  margin-right: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.btn-formal:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+  text-decoration: none;
+}
+
+.btn-apply {
+  background: var(--success-green);
+  color: var(--text-white);
+  border-color: var(--success-green);
+}
+
+.btn-apply:hover {
+  background: var(--success-green-dark);
+  border-color: var(--success-green-dark);
+  color: var(--text-white);
+}
+
+.btn-contact {
+  background: var(--primary-blue);
+  color: var(--text-white);
+  border-color: var(--primary-blue);
+}
+
+.btn-contact:hover {
+  background: var(--primary-blue-dark);
+  border-color: var(--primary-blue-dark);
+  color: var(--text-white);
+}
+
+.btn-edit {
+  background: var(--accent-yellow);
+  color: var(--text-dark);
+  border-color: var(--accent-yellow);
+}
+
+.btn-edit:hover {
+  background: var(--accent-yellow-dark);
+  border-color: var(--accent-yellow-dark);
+  color: var(--text-white);
+}
+
+.btn-delete {
+  background: var(--danger-red);
+  color: var(--text-white);
+  border-color: var(--danger-red);
+}
+
+.btn-delete:hover {
+  background: var(--danger-red-dark);
+  border-color: var(--danger-red-dark);
+  color: var(--text-white);
+}
+
+.btn-applied {
+  background: var(--background-gray-light);
+  color: var(--text-medium);
+  border-color: var(--border-color);
+  cursor: not-allowed;
+}
+
+.login-required {
+  grid-column: 1 / -1;
+  text-align: center;
+  padding: 2rem;
+  background: var(--background-gray-light);
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+}
+
+.login-message {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  color: var(--text-medium);
+  font-size: 1rem;
+}
+
+.login-message a {
+  color: var(--primary-blue);
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.login-message a:hover {
+  text-decoration: underline;
+}
+
+/* Responsive Design for Formal Layout */
+@media (max-width: 768px) {
+  .document-meta {
+    flex-direction: column;
+    gap: 1rem;
+    text-align: center;
+  }
+
+  .document-title {
+    font-size: 2rem;
+  }
+
+  .summary-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1rem;
+  }
+
+  .specifications-grid,
+  .compensation-grid,
+  .location-info-formal,
+  .application-info {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .section-header {
+    flex-direction: column;
+    text-align: center;
+    gap: 1rem;
+  }
+
+  .spec-item,
+  .term-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .spec-value,
+  .term-value {
+    text-align: left;
+  }
+
+  .btn-formal {
+    width: 100%;
+    justify-content: center;
+    margin-right: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .document-header,
+  .section-content {
+    padding: 1rem;
+  }
+
+  .summary-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .budget-amount {
+    font-size: 2rem;
+  }
+
+  .image-gallery-formal {
+    grid-template-columns: 1fr;
+  }
+}
+/* Formal Document Styles End */
+
+/* Applicant Management Styles */
+.applicant-overview {
+  margin-bottom: 2rem;
+}
+
+.overview-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: var(--background-white);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.stat-icon {
+  width: 3rem;
+  height: 3rem;
+  background: var(--primary-blue);
+  color: var(--text-white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.stat-icon.pending {
+  background: var(--warning-orange);
+}
+
+.stat-icon.accepted {
+  background: var(--success-green);
+}
+
+.stat-icon.rejected {
+  background: var(--danger-red);
+}
+
+.stat-info {
+  flex: 1;
+}
+
+.stat-number {
+  font-size: 2rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin-bottom: 0.25rem;
+}
+
+.stat-label {
+  font-size: 0.875rem;
+  color: var(--text-medium);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+/* Applicant Filters */
+.applicant-filters {
+  display: flex;
+  align-items: center;
+  gap: 2rem;
+  padding: 1.5rem;
+  background: var(--background-gray-light);
+  border-radius: 8px;
+  margin-bottom: 2rem;
+  border: 1px solid var(--border-color);
+}
+
+.filter-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.filter-label {
+  font-size: 0.875rem;
+  font-weight: 500;
+  color: var(--text-dark);
+}
+
+.filter-select {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--background-white);
+  color: var(--text-dark);
+  font-size: 0.875rem;
+  min-width: 150px;
+}
+
+.bulk-action-btn {
+  padding: 0.75rem 1.5rem;
+  background: var(--primary-blue);
+  color: var(--text-white);
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 1.5rem;
+}
+
+.bulk-action-btn:hover {
+  background: var(--primary-blue-dark);
+  transform: translateY(-1px);
+}
+
+/* Bulk Actions Panel */
+.bulk-actions-panel {
+  background: var(--primary-blue-light);
+  border: 1px solid var(--primary-blue);
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 2rem;
+}
+
+.bulk-actions-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.bulk-actions-info {
+  font-weight: 500;
+  color: var(--primary-blue-dark);
+}
+
+.bulk-actions-buttons {
+  display: flex;
+  gap: 1rem;
+}
+
+.bulk-btn {
+  padding: 0.5rem 1rem;
+  border: none;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.bulk-btn.accept {
+  background: var(--success-green);
+  color: var(--text-white);
+}
+
+.bulk-btn.reject {
+  background: var(--danger-red);
+  color: var(--text-white);
+}
+
+.bulk-btn.message {
+  background: var(--primary-blue);
+  color: var(--text-white);
+}
+
+.bulk-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-sm);
+}
+
+/* Applications Container */
+.applications-container {
+  background: var(--background-white);
+  border: 1px solid var(--border-color);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.applications-table-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1.5rem;
+  background: var(--background-gray-light);
+  border-bottom: 1px solid var(--border-color);
+}
+
+.applications-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.applications-title i {
+  color: var(--primary-blue);
+}
+
+.export-btn {
+  padding: 0.5rem 1rem;
+  background: var(--background-white);
+  color: var(--text-medium);
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.export-btn:hover {
+  background: var(--background-gray-light);
+  border-color: var(--primary-blue);
+}
+
+/* Applications Table */
+.applications-table-wrapper {
+  overflow-x: auto;
+}
+
+.applications-table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.applications-table th {
+  background: var(--background-gray-light);
+  padding: 1rem;
+  text-align: left;
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 0.875rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.applications-table td {
+  padding: 1rem;
+  border-bottom: 1px solid var(--border-color-light);
+  vertical-align: top;
+}
+
+.application-row:hover {
+  background: var(--background-gray-light);
+}
+
+.application-row:last-child td {
+  border-bottom: none;
+}
+
+/* Table Columns */
+.checkbox-column {
+  width: 40px;
+  text-align: center;
+}
+
+.applicant-column {
+  min-width: 200px;
+}
+
+.rate-column,
+.date-column,
+.duration-column,
+.status-column,
+.applied-column {
+  min-width: 120px;
+}
+
+.actions-column {
+  width: 80px;
+  text-align: center;
+}
+
+/* Applicant Info */
+.applicant-info {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.applicant-avatar {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.applicant-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.avatar-placeholder {
+  width: 100%;
+  height: 100%;
+  background: var(--primary-blue);
+  color: var(--text-white);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 1rem;
+}
+
+.applicant-details {
+  flex: 1;
+  min-width: 0;
+}
+
+.applicant-name {
+  margin-bottom: 0.25rem;
+}
+
+.profile-link {
+  color: var(--text-dark);
+  text-decoration: none;
+  font-weight: 500;
+  font-size: 0.875rem;
+}
+
+.profile-link:hover {
+  color: var(--primary-blue);
+  text-decoration: underline;
+}
+
+.applicant-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+}
+
+.rating {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.rating i {
+  color: #fbbf24;
+  font-size: 0.75rem;
+}
+
+.rating-count {
+  font-size: 0.75rem;
+  color: var(--text-light);
+  margin-left: 0.25rem;
+}
+
+.experience-level {
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+
+/* Rate Info */
+.rate-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.rate-amount {
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 0.875rem;
+}
+
+.rate-comparison {
+  font-size: 0.75rem;
+}
+
+.rate-status {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.rate-status.within-budget {
+  color: var(--success-green);
+}
+
+.rate-status.over-budget {
+  color: var(--warning-orange);
+}
+
+.rate-not-specified {
+  color: var(--text-light);
+  font-style: italic;
+  font-size: 0.875rem;
+}
+
+/* Date Info */
+.start-date {
+  font-weight: 500;
+  color: var(--text-dark);
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.date-relative {
+  font-size: 0.75rem;
+}
+
+.availability {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.availability.immediate {
+  color: var(--success-green);
+}
+
+.availability.future {
+  color: var(--text-medium);
+}
+
+.date-not-specified,
+.duration-not-specified {
+  color: var(--text-light);
+  font-style: italic;
+  font-size: 0.875rem;
+}
+
+/* Duration */
+.duration-estimate {
+  font-weight: 500;
+  color: var(--text-dark);
+  font-size: 0.875rem;
+}
+
+/* Status Badge */
+.application-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.application-status-badge.pending {
+  background: var(--warning-yellow-light);
+  color: var(--warning-orange);
+}
+
+.application-status-badge.accepted {
+  background: var(--success-green-light);
+  color: var(--success-green);
+}
+
+.application-status-badge.rejected {
+  background: var(--danger-red-light);
+  color: var(--danger-red);
+}
+
+.application-status-badge.under_review {
+  background: var(--primary-blue-light);
+  color: var(--primary-blue);
+}
+
+/* Applied Time */
+.applied-time {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.applied-date {
+  font-weight: 500;
+  color: var(--text-dark);
+  font-size: 0.875rem;
+  margin-bottom: 0.25rem;
+}
+
+.applied-relative {
+  font-size: 0.75rem;
+  color: var(--text-light);
+}
+
+/* Action Buttons */
+.action-buttons-group {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+  position: relative;
+}
+
+.action-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--border-color);
+  background: var(--background-white);
+  color: var(--text-medium);
+  border-radius: 6px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.action-btn:hover {
+  background: var(--primary-blue);
+  color: var(--text-white);
+}
+
+.action-btn.view:hover {
+  background: var(--success-green);
+  border-color: var(--success-green);
+}
+
+/* Action Dropdown */
+.action-dropdown {
+  position: relative;
+}
+
+.action-menu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  background: var(--background-white);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  box-shadow: var(--shadow-lg);
+  min-width: 180px;
+  z-index: 100;
+  display: none;
+}
+
+.action-menu.show {
+  display: block;
+}
+
+.menu-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  color: var(--text-medium);
+  text-decoration: none;
+  font-size: 0.875rem;
+  border: none;
+  background: none;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.menu-item:hover {
+  background: var(--background-gray-light);
+  color: var(--text-dark);
+}
+
+.menu-item.accept:hover {
+  background: var(--success-green-light);
+  color: var(--success-green);
+}
+
+.menu-item.reject:hover {
+  background: var(--danger-red-light);
+  color: var(--danger-red);
+}
+
+.menu-item.message:hover {
+  background: var(--primary-blue-light);
+  color: var(--primary-blue);
+}
+
+.menu-item:first-child {
+  border-radius: 8px 8px 0 0;
+}
+
+.menu-item:last-child {
+  border-radius: 0 0 8px 8px;
+}
+
+/* No Applications State */
+.no-applications {
+  text-align: center;
+  padding: 4rem 2rem;
+  background: var(--background-gray-light);
+  border-radius: 12px;
+  border: 1px solid var(--border-color);
+}
+
+.no-applications-icon {
+  font-size: 4rem;
+  color: var(--text-light);
+  margin-bottom: 2rem;
+  opacity: 0.5;
+}
+
+.no-applications-content h4 {
+  color: var(--text-dark);
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+.no-applications-content p {
+  color: var(--text-medium);
+  margin-bottom: 2rem;
+  max-width: 500px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.improvement-tips {
+  list-style: none;
+  padding: 0;
+  margin: 0 0 2rem 0;
+  max-width: 400px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.improvement-tips li {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem 0;
+  color: var(--text-medium);
+  font-size: 0.875rem;
+}
+
+.improvement-tips i {
+  color: var(--primary-blue);
+  font-size: 1rem;
+  width: 16px;
+}
+
+.promotion-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+/* Responsive Design */
+@media (max-width: 1024px) {
+  .overview-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .applicant-filters {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 1rem;
+  }
+  
+  .filter-group {
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+  }
+  
+  .bulk-actions-content {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .bulk-actions-buttons {
+    justify-content: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .overview-stats {
+    grid-template-columns: 1fr;
+  }
+  
+  .applications-table th,
+  .applications-table td {
+    padding: 0.75rem 0.5rem;
+    font-size: 0.875rem;
+  }
+  
+  .applicant-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .rate-column,
+  .date-column,
+  .duration-column,
+  .applied-column {
+    min-width: 100px;
+  }
+  
+  .action-buttons-group {
+    flex-direction: column;
+  }
+  
+  .promotion-actions {
+    flex-direction: column;
+  }
+  
+  .applications-table-header {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: stretch;
+  }
+}
+
+/* Applicant Management Styles End */
 </style>
 
 <div class="job-details-container">
-  <div class="job-card">
-    <div class="job-header">
-      <h2 class="job-title">
-        <i class="fa fa-briefcase"></i>
-        {{ job.title }}
-      </h2>
+  <!-- Formal Document Header -->
+  <div class="document-header">
+    <div class="document-meta">
+      <div class="document-id">
+        <span class="label">Job ID:</span>
+        <span class="value">JOB-{{ job.pk|stringformat:"04d" }}</span>
+      </div>
+      <div class="document-date">
+        <span class="label">Posted:</span>
+        <span class="value">{{ job.created_at|date:"F j, Y" }}</span>
+      </div>
+      <div class="document-status">
+        <span class="status-badge active">
+          <i class="fa fa-circle"></i>
+          Active Posting
+        </span>
+      </div>
     </div>
+    
+    <div class="document-title-section">
+      <h1 class="document-title">{{ job.title }}</h1>
+      <div class="document-subtitle">Professional Service Request</div>
+    </div>
+    
+    <div class="document-summary">
+      <div class="summary-grid">
+        <div class="summary-item">
+          <div class="summary-label">Project Budget</div>
+          <div class="summary-value budget">₱{{ job.budget|floatformat:0 }}</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Service Category</div>
+          <div class="summary-value">{{ job.category }}</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Location</div>
+          <div class="summary-value">{{ job.municipality }}, {{ job.barangay }}</div>
+        </div>
+        <div class="summary-item">
+          <div class="summary-label">Workers Needed</div>
+          <div class="summary-value">{{ job.number_of_workers }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
 
-    <div class="job-image-container">
-      {% if job.jobimage_set.exists %}
-        <div class="job-images-gallery">
-          {% for job_image in job.jobimage_set.all %}
-            <div class="job-image-item" onclick="openImageModal({{ forloop.counter0 }})">
-              <img src="{{ job_image.image.url }}" class="job-image" alt="{{ job.title }} - Job Image {{ forloop.counter }}">
-              <div class="zoom-icon">
-                <i class="fa fa-search-plus"></i>
+  <!-- Formal Document Body -->
+  <div class="document-body">
+    
+    <!-- Section 1: Project Overview -->
+    <section class="document-section">
+      <div class="section-header">
+        <div class="section-number">01</div>
+        <div class="section-info">
+          <h2 class="section-title">Project Overview</h2>
+          <p class="section-subtitle">Detailed description of the required services</p>
+        </div>
+      </div>
+      
+      <div class="section-content">
+        <div class="content-block">
+          <h3 class="content-title">
+            <i class="fa fa-file-text"></i>
+            Project Description
+          </h3>
+          <div class="content-text">{{ job.description }}</div>
+        </div>
+        
+        <div class="content-block">
+          <h3 class="content-title">
+            <i class="fa fa-tasks"></i>
+            Scope of Work
+          </h3>
+          <div class="content-text">{{ job.tasks }}</div>
+        </div>
+        
+        <div class="content-block">
+          <h3 class="content-title">
+            <i class="fa fa-star"></i>
+            Required Qualifications
+          </h3>
+          <div class="content-text">{{ job.required_skills }}</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 2: Project Specifications -->
+    <section class="document-section">
+      <div class="section-header">
+        <div class="section-number">02</div>
+        <div class="section-info">
+          <h2 class="section-title">Project Specifications</h2>
+          <p class="section-subtitle">Timeline, schedule, and technical requirements</p>
+        </div>
+      </div>
+      
+      <div class="section-content">
+        <div class="specifications-grid">
+          <div class="spec-group">
+            <h4 class="spec-group-title">
+              <i class="fa fa-clock"></i>
+              Timeline & Schedule
+            </h4>
+            <div class="spec-items">
+              <div class="spec-item">
+                <span class="spec-label">Project Duration:</span>
+                <span class="spec-value">{{ job.duration }}</span>
               </div>
-              <div class="image-overlay">
-                <span>Image {{ forloop.counter }} of {{ job.jobimage_set.count }}</span>
-                <span>Click to zoom</span>
+              <div class="spec-item">
+                <span class="spec-label">Work Schedule:</span>
+                <span class="spec-value">{{ job.schedule }}</span>
+              </div>
+              {% if job.start_datetime %}
+              <div class="spec-item">
+                <span class="spec-label">Start Date:</span>
+                <span class="spec-value highlight">{{ job.start_datetime|date:"F j, Y, g:i a" }}</span>
+              </div>
+              {% endif %}
+              <div class="spec-item">
+                <span class="spec-label">Priority Level:</span>
+                <span class="spec-value">
+                  <span class="priority-badge {{ job.urgency|lower }}">
+                    {{ job.urgency|title }}
+                  </span>
+                </span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="spec-group">
+            <h4 class="spec-group-title">
+              <i class="fa fa-cogs"></i>
+              Resources & Equipment
+            </h4>
+            <div class="spec-items">
+              <div class="spec-item">
+                <span class="spec-label">Tools Provided:</span>
+                <span class="spec-value">
+                  <span class="provision-status {{ job.tools_provided|yesno:'provided,not-provided' }}">
+                    <i class="fa fa-{{ job.tools_provided|yesno:'check,times' }}"></i>
+                    {{ job.tools_provided|yesno:"Provided by Client,Bring Your Own" }}
+                  </span>
+                </span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Materials Provided:</span>
+                <span class="spec-value">
+                  <span class="provision-status {{ job.materials_provided|yesno:'provided,not-provided' }}">
+                    <i class="fa fa-{{ job.materials_provided|yesno:'check,times' }}"></i>
+                    {{ job.materials_provided|yesno:"Provided by Client,Bring Your Own" }}
+                  </span>
+                </span>
+              </div>
+              <div class="spec-item">
+                <span class="spec-label">Team Size:</span>
+                <span class="spec-value">{{ job.number_of_workers }} Professional{{ job.number_of_workers|pluralize }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 3: Compensation & Terms -->
+    <section class="document-section">
+      <div class="section-header">
+        <div class="section-number">03</div>
+        <div class="section-info">
+          <h2 class="section-title">Compensation & Terms</h2>
+          <p class="section-subtitle">Payment structure and financial arrangements</p>
+        </div>
+      </div>
+      
+      <div class="section-content">
+        <div class="compensation-grid">
+          <div class="compensation-main">
+            <div class="budget-display">
+              <div class="budget-label">Total Project Budget</div>
+              <div class="budget-amount">₱{{ job.budget|floatformat:0 }}</div>
+              <div class="budget-note">Inclusive of all services and deliverables</div>
+            </div>
+          </div>
+          
+          <div class="compensation-details">
+            <div class="payment-terms">
+              <h4 class="terms-title">
+                <i class="fa fa-credit-card"></i>
+                Payment Terms
+              </h4>
+              <div class="terms-list">
+                <div class="term-item">
+                  <span class="term-label">Payment Method:</span>
+                  <span class="term-value">{{ job.payment_method }}</span>
+                </div>
+                {% if job.payment_schedule %}
+                <div class="term-item">
+                  <span class="term-label">Payment Schedule:</span>
+                  <span class="term-value">{{ job.payment_schedule }}</span>
+                </div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 4: Visual Documentation -->
+    {% if job.jobimage_set.exists %}
+    <section class="document-section">
+      <div class="section-header">
+        <div class="section-number">04</div>
+        <div class="section-info">
+          <h2 class="section-title">Visual Documentation</h2>
+          <p class="section-subtitle">Reference images and project visualization</p>
+        </div>
+      </div>
+      
+      <div class="section-content">
+        <div class="image-gallery-formal">
+          {% for job_image in job.jobimage_set.all %}
+            <div class="formal-image-item" onclick="openImageModal({{ forloop.counter0 }})">
+              <img src="{{ job_image.image.url }}" class="formal-image" alt="{{ job.title }} - Reference Image {{ forloop.counter }}">
+              <div class="image-caption">
+                <span class="image-number">Figure {{ forloop.counter }}</span>
+                <span class="image-description">Project Reference Image</span>
               </div>
             </div>
           {% endfor %}
         </div>
-      {% else %}
-        <div class="no-image">
-          <i class="fa fa-image"></i>
-          <span>No images available</span>
-        </div>
-      {% endif %}
-    </div>
+      </div>
+    </section>
+    {% endif %}
 
-    <div class="job-content">
-      <div class="job-info-grid">
-        <div class="job-info-item category">
-          <div class="job-info-label">
-            <i class="fa fa-tag"></i>
-            Category
-          </div>
-          <div class="job-info-value">{{ job.category }}</div>
-        </div>
+    <!-- Section 5: Location & Logistics -->
+    <section class="document-section">
+      <div class="section-header">
 
-        <div class="job-info-item budget">
-          <div class="job-info-label">
-            <i class="fa fa-peso-sign"></i>
-            Budget
-          </div>
-          <div class="job-info-value">₱{{ job.budget|floatformat:0 }}</div>
-        </div>
 
-        <div class="job-info-item location">
-          <div class="job-info-label">
-            <i class="fa fa-map-marker-alt"></i>
-            Location
-          </div>
-          <div class="job-info-value">{{ job.municipality }}, {{ job.barangay }}</div>
+
+        <div class="section-number">05</div>
+        <div class="section-info">
+          <h2 class="section-title">Location & Logistics</h2>
+          <p class="section-subtitle">Service location and accessibility information</p>
         </div>
       </div>
-
-      <div class="job-description">
-        <strong>
-          <i class="fa fa-file-text"></i>
-          Job Description
-        </strong>
-        {{ job.description }}
+      
+      <div class="section-content">
+        <div class="location-info-formal">
+          <div class="location-details">
+            <h4 class="location-title">
+              <i class="fa fa-map-marker-alt"></i>
+              Service Location
+            </h4>
+            <div class="location-address">
+              <div class="address-line">{{ job.municipality }}, {{ job.barangay }}</div>
+              <div class="coordinates">
+                <span>Coordinates: {{ job.latitude|floatformat:6 }}, {{ job.longitude|floatformat:6 }}</span>
+              </div>
+            </div>
+          </div>
+          
+          <div class="map-container-formal">
+            <div id="map"></div>
+          </div>
+        </div>
       </div>
+    </section>
 
-      <div class="job-actions">
-        {% if user.is_authenticated %}
-          {% if user == job.owner %}
-            <!-- Job Owner Actions -->
-            <a href="{% url 'jobs:job_edit' job.pk %}" class="btn btn-warning">
-              <i class="fa fa-edit"></i>
-              Edit Job
-            </a>
-            <a href="{% url 'jobs:job_delete' job.pk %}" class="btn btn-danger">
-              <i class="fa fa-trash"></i>
-              Delete Job
-            </a>
-          {% else %}
-            <!-- Job Seeker Actions -->
-            <div class="application-count">
-              <i class="fa fa-users"></i>
-              {{ job.applications.count }} Application{{ job.applications.count|pluralize }}
+    <!-- Application Section -->
+    <section class="document-section application-section">
+      <div class="section-header">
+        <div class="section-number">06</div>
+        <div class="section-info">
+          <h2 class="section-title">Application Process</h2>
+          <p class="section-subtitle">How to submit your proposal for this project</p>
+        </div>
+      </div>
+      
+      <div class="section-content">
+        <div class="application-info">
+          <div class="application-stats">
+            <div class="stat-item">
+              <div class="stat-number">{{ job.applications.count }}</div>
+              <div class="stat-label">Application{{ job.applications.count|pluralize }} Received</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-number">{{ job.created_at|timesince }}</div>
+              <div class="stat-label">Since Posted</div>
+            </div>
+          </div>
+          
+          <div class="application-actions">
+            {% if user.is_authenticated %}
+              {% if user == job.owner %}
+                <!-- Job Owner Actions -->
+                <div class="owner-actions">
+                  <a href="{% url 'jobs:job_edit' job.pk %}" class="btn-formal btn-edit">
+                    <i class="fa fa-edit"></i>
+                    <span>Edit Posting</span>
+                  </a>
+                  <a href="{% url 'jobs:job_delete' job.pk %}" class="btn-formal btn-delete">
+                    <i class="fa fa-trash"></i>
+                    <span>Remove Posting</span>
+                  </a>
+                </div>
+              {% else %}
+                <!-- Job Seeker Actions -->
+                <div class="applicant-actions">
+                  {% if has_applied %}
+                    <button class="btn-formal btn-applied" disabled>
+                      <i class="fa fa-check-circle"></i>
+                      <span>Application Submitted</span>
+                    </button>
+                  {% else %}
+                    <a href="{% url 'jobs:job_apply' job.pk %}" class="btn-formal btn-apply">
+                      <i class="fa fa-paper-plane"></i>
+                      <span>Submit Application</span>
+                    </a>
+                  {% endif %}
+                  
+                  <a href="{% url 'messaging:start_conversation_with_user' username=job.owner.username %}" class="btn-formal btn-contact">
+                    <i class="fa fa-envelope"></i>
+                    <span>Contact Client</span>
+                  </a>
+                </div>
+              {% endif %}
+            {% else %}
+              <div class="login-required">
+                <div class="login-message">
+                  <i class="fa fa-lock"></i>
+                  <span>Please <a href="{% url 'login' %}">sign in</a> to submit an application for this project.</span>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Section 7: Applicant Management (Only for Job Owner) -->
+    {% if user == job.owner %}
+    <section class="document-section">
+      <div class="section-header">
+        <div class="section-number">07</div>
+        <div class="section-info">
+          <h2 class="section-title">Applicant Management</h2>
+          <p class="section-subtitle">Review and manage submitted applications</p>
+        </div>
+      </div>
+      
+      <div class="section-content">
+        <!-- Applicant Statistics -->
+        <div class="applicant-overview">
+          <div class="overview-stats">
+            <div class="stat-card">
+              <div class="stat-icon">
+                <i class="fa fa-users"></i>
+              </div>
+              <div class="stat-info">
+                <div class="stat-number">{{ job.applications.count }}</div>
+                <div class="stat-label">Total Applications</div>
+              </div>
             </div>
             
-            {% if has_applied %}
-              <button class="btn btn-success" disabled>
-                <i class="fa fa-check"></i>
-                Already Applied
-              </button>
-            {% else %}
-              <a href="{% url 'jobs:job_apply' job.pk %}" class="btn btn-success">
-                <i class="fa fa-paper-plane"></i>
-                Apply for Job
-              </a>
-            {% endif %}
+            <div class="stat-card">
+              <div class="stat-icon pending">
+                <i class="fa fa-clock"></i>
+              </div>
+              <div class="stat-info">
+                <div class="stat-number">{{ job.applications.pending.count }}</div>
+                <div class="stat-label">Pending Review</div>
+              </div>
+            </div>
             
-            <a href="{% url 'messaging:start_conversation_with_user' username=job.owner.username %}" class="btn btn-primary">
-              <i class="fa fa-envelope"></i>
-              Message Owner
-            </a>
-          {% endif %}
-        {% else %}
-          <div class="login-prompt">
-            <i class="fa fa-sign-in-alt"></i>
-            <a href="{% url 'login' %}">Login</a> to apply or manage this job.
+            <div class="stat-card">
+              <div class="stat-icon accepted">
+                <i class="fa fa-check"></i>
+              </div>
+              <div class="stat-info">
+                <div class="stat-number">{{ job.applications.accepted.count }}</div>
+                <div class="stat-label">Accepted</div>
+              </div>
+            </div>
+            
+            <div class="stat-card">
+              <div class="stat-icon rejected">
+                <i class="fa fa-times"></i>
+              </div>
+              <div class="stat-info">
+                <div class="stat-number">{{ job.applications.rejected.count }}</div>
+                <div class="stat-label">Rejected</div>
+              </div>
+            </div>
           </div>
-        {% endif %}
-      </div>
-    </div>
-  </div>
-
-  <div class="map-container">
-    <div class="map-title">
-      <i class="fa fa-map-marked-alt"></i>
-      Job Location
-    </div>
-    <div id="map"></div>
-    <div class="coordinates-info">
-      <span><strong>Latitude:</strong> {{ job.latitude }}</span>
-      <span><strong>Longitude:</strong> {{ job.longitude }}</span>
-    </div>
-  </div>
-
-  {% if user.is_authenticated and user == job.owner %}
-    <div class="applicants-section">
-      <div class="applicants-header">
-        <h3>
-          <i class="fa fa-users"></i>
-          Job Applicants
-        </h3>
-        <p>Manage and review applications for this job posting.</p>
-      </div>
-
-      <!-- Search and Filter -->
-      <form method="get" class="search-form">
-        <div class="search-input-group">
-          <label for="search">Search Applicants</label>
-          <input type="text" id="search" name="search" value="{{ search_query }}" placeholder="Search by username or email..." class="form-control" />
         </div>
-        <button type="submit" class="btn btn-primary">
-          <i class="fa fa-search"></i>
-          Search
-        </button>
-      </form>
 
-      {% if applicants %}
-        <div class="table-container">
-          <table class="table">
-            <thead>
-              <tr>
-                <th>#</th>
-                <th>Applicant</th>
-                <th>Email</th>
-                <th>Applied Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {% for application in applicants %}
+        <!-- Application Filters -->
+        <div class="applicant-filters">
+          <div class="filter-group">
+            <label for="statusFilter" class="filter-label">Filter by Status:</label>
+            <select id="statusFilter" class="filter-select" onchange="filterApplications()">
+              <option value="all">All Applications</option>
+              <option value="pending">Pending Review</option>
+              <option value="accepted">Accepted</option>
+              <option value="rejected">Rejected</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <label for="sortBy" class="filter-label">Sort by:</label>
+            <select id="sortBy" class="filter-select" onchange="sortApplications()">
+              <option value="newest">Newest First</option>
+              <option value="oldest">Oldest First</option>
+              <option value="rate-high">Highest Rate</option>
+              <option value="rate-low">Lowest Rate</option>
+            </select>
+          </div>
+          
+          <div class="filter-group">
+            <button class="bulk-action-btn" onclick="toggleBulkActions()">
+              <i class="fa fa-tasks"></i>
+              Bulk Actions
+            </button>
+          </div>
+        </div>
+
+        <!-- Bulk Actions Panel -->
+        <div id="bulkActionsPanel" class="bulk-actions-panel" style="display: none;">
+          <div class="bulk-actions-content">
+            <div class="bulk-actions-info">
+              <span id="selectedCount">0</span> application(s) selected
+            </div>
+            <div class="bulk-actions-buttons">
+              <button class="bulk-btn accept" onclick="bulkAccept()">
+                <i class="fa fa-check"></i>
+                Accept Selected
+              </button>
+              <button class="bulk-btn reject" onclick="bulkReject()">
+                <i class="fa fa-times"></i>
+                Reject Selected
+              </button>
+              <button class="bulk-btn message" onclick="bulkMessage()">
+                <i class="fa fa-envelope"></i>
+                Message Selected
+              </button>
+            </div>
+          </div>
+        </div>
+
+        {% if job.applications.exists %}
+        <!-- Applications Table -->
+        <div class="applications-container">
+          <div class="applications-table-header">
+            <div class="table-header-left">
+              <h4 class="applications-title">
+                <i class="fa fa-file-alt"></i>
+                Submitted Applications
+              </h4>
+            </div>
+            <div class="table-header-right">
+              <button class="export-btn" onclick="exportApplications()">
+                <i class="fa fa-download"></i>
+                Export List
+              </button>
+            </div>
+          </div>
+          
+          <div class="applications-table-wrapper">
+            <table class="applications-table">
+              <thead>
                 <tr>
-                  <td>{{ forloop.counter }}</td>
-                  <td>
-                    <a href="{% url 'profile' application.worker.id %}" class="text-decoration-none">
-                      <strong>{{ application.worker.username }}</strong>
-                    </a>
+                  <th class="checkbox-column">
+                    <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                  </th>
+                  <th class="applicant-column">Applicant</th>
+                  <th class="rate-column">Proposed Rate</th>
+                  <th class="date-column">Start Date</th>
+                  <th class="duration-column">Duration</th>
+                  <th class="status-column">Status</th>
+                  <th class="applied-column">Applied</th>
+                  <th class="actions-column">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="applicationsTableBody">
+                {% for application in job.applications.all %}
+                <tr class="application-row" data-status="{{ application.status|lower }}" data-rate="{{ application.proposed_rate|default:0 }}" data-date="{{ application.applied_at|date:'Y-m-d H:i:s' }}">
+                  <td class="checkbox-column">
+                    <input type="checkbox" class="application-checkbox" value="{{ application.pk }}">
                   </td>
-                  <td>{{ application.worker.email }}</td>
-                  <td>{{ application.created_at|date:"M d, Y" }}</td>
-                  <td class="actions-cell">
-                    <a href="{% url 'profile' application.worker.id %}" class="btn btn-info btn-sm">
-                      <i class="fa fa-user"></i>
-                      Profile
-                    </a>
-                    <a href="{% url 'messaging:start_conversation_with_user' username=application.worker.username %}" class="btn btn-primary btn-sm">
-                      <i class="fa fa-envelope"></i>
-                      Message
-                    </a>
-                    <form method="post" action="{% url 'jobs:deny_application' application.id %}" style="display:inline;">
-                      {% csrf_token %}
-                      <button type="submit" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to deny this application?')">
-                        <i class="fa fa-times"></i>
-                        Deny
+                  
+                  <td class="applicant-column">
+                    <div class="applicant-info">
+                      <div class="applicant-avatar">
+                        {% if application.worker.profile.profile_picture %}
+                          <img src="{{ application.worker.profile.profile_picture.url }}" alt="{{ application.worker.get_full_name|default:application.worker.username }}">
+                        {% else %}
+                          <div class="avatar-placeholder">
+                            {{ application.worker.first_name|first|default:application.worker.username|first|upper }}
+                          </div>
+                        {% endif %}
+                      </div>
+                      <div class="applicant-details">
+                        <div class="applicant-name">
+                          <a href="{% url 'profile' application.worker.pk %}" class="profile-link">
+                            {{ application.worker.get_full_name|default:application.worker.username }}
+                          </a>
+                        </div>
+                        <div class="applicant-meta">
+                          {% if application.worker.profile.rating %}
+                            <div class="rating">
+                              {% for i in "12345" %}
+                                <i class="fa fa-star{% if forloop.counter > application.worker.profile.rating %}-o{% endif %}"></i>
+                              {% endfor %}
+                              <span class="rating-count">({{ application.worker.profile.rating }})</span>
+                            </div>
+                          {% endif %}
+                          <div class="experience-level">
+                            {% if application.worker.profile.experience_years %}
+                              {{ application.worker.profile.experience_years }} years experience
+                            {% else %}
+                              New freelancer
+                            {% endif %}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </td>
+                  
+                  <td class="rate-column">
+                    <div class="rate-info">
+                      {% if application.proposed_rate %}
+                        <div class="rate-amount">{{ application.proposed_rate }}</div>
+                        <div class="rate-comparison">
+                          {% if application.proposed_rate|cut:"₱"|cut:","|floatformat:0|add:0 <= job.budget %}
+                            <span class="rate-status within-budget">
+                              <i class="fa fa-check-circle"></i>
+                              Within budget
+                            </span>
+                          {% else %}
+                            <span class="rate-status over-budget">
+                              <i class="fa fa-exclamation-triangle"></i>
+                              Over budget
+                            </span>
+                          {% endif %}
+                        </div>
+                      {% else %}
+                        <span class="rate-not-specified">Rate not specified</span>
+                      {% endif %}
+                    </div>
+                  </td>
+                  
+                  <td class="date-column">
+                    {% if application.available_start_date %}
+                      <div class="start-date">{{ application.available_start_date|date:"M j, Y" }}</div>
+                      <div class="date-relative">
+                        {% if application.available_start_date <= today %}
+                          <span class="availability immediate">
+                            <i class="fa fa-bolt"></i>
+                            Available now
+                          </span>
+                        {% else %}
+                          <span class="availability future">
+                            <i class="fa fa-calendar"></i>
+                            In {{ application.available_start_date|timeuntil }}
+                          </span>
+                        {% endif %}
+                      </div>
+                    {% else %}
+                      <span class="date-not-specified">Not specified</span>
+                    {% endif %}
+                  </td>
+                  
+                  <td class="duration-column">
+                    {% if application.expected_duration %}
+                      <div class="duration-estimate">{{ application.expected_duration }}</div>
+                    {% else %}
+                      <span class="duration-not-specified">Not specified</span>
+                    {% endif %}
+                  </td>
+                  
+                  <td class="status-column">
+                    <div class="status-badge-container">
+                      <span class="application-status-badge {{ application.status|lower }}">
+                        {% if application.status == 'pending' %}
+                          <i class="fa fa-clock"></i>
+                        {% elif application.status == 'accepted' %}
+                          <i class="fa fa-check"></i>
+                        {% elif application.status == 'rejected' %}
+                          <i class="fa fa-times"></i>
+                        {% elif application.status == 'under_review' %}
+                          <i class="fa fa-eye"></i>
+                        {% endif %}
+                        {{ application.status|title }}
+                      </span>
+                    </div>
+                  </td>
+                  
+                  <td class="applied-column">
+                    <div class="applied-time">
+                      <div class="applied-date">{{ application.applied_at|date:"M j" }}</div>
+                      <div class="applied-relative">{{ application.applied_at|timesince }} ago</div>
+                    </div>
+                  </td>
+                  
+                  <td class="actions-column">
+                    <div class="action-buttons-group">
+                      <button class="action-btn view" onclick="viewApplication({{ application.pk }})" title="View Application" style="background-color: #059669;">
+                        <i class="fa fa-eye"></i>
                       </button>
-                    </form>
+                      
+                      <div class="action-dropdown">
+                        <button class="action-btn dropdown-toggle" onclick="toggleActionMenu({{ application.pk }})" title="More Actions">
+                          <i class="fa fa-ellipsis-v"></i>
+                        </button>
+                        <div class="action-menu" id="actionMenu{{ application.pk }}">
+                          {% if application.status == 'pending' %}
+                            <form method="post" action="{% url 'jobs:update_application_status' application.pk %}" style="display: inline;">
+                              {% csrf_token %}
+                              <input type="hidden" name="status" value="accepted">
+                              <button type="submit" class="menu-item accept">
+                                <i class="fa fa-check"></i>
+                                Accept Application
+                              </button>
+                            </form>
+                            <form method="post" action="{% url 'jobs:update_application_status' application.pk %}" style="display: inline;">
+                              {% csrf_token %}
+                              <input type="hidden" name="status" value="rejected">
+                              <button type="submit" class="menu-item reject">
+                                <i class="fa fa-times"></i>
+                                Reject Application
+                              </button>
+                            </form>
+                          {% endif %}
+                          
+                          <a href="{% url 'messaging:start_conversation_with_user' username=application.worker.username %}" class="menu-item message">
+                            <i class="fa fa-envelope"></i>
+                            Send Message
+                          </a>
+                          
+                          <a href="{% url 'profile' application.worker.pk %}" class="menu-item profile">
+                            <i class="fa fa-user"></i>
+                            View Profile
+                          </a>
+                          
+                          {% if application.Other_link %}
+                            <a href="{{ application.Other_link }}" target="_blank" class="menu-item portfolio">
+                              <i class="fa fa-external-link-alt"></i>
+                              View Portfolio
+                            </a>
+                          {% endif %}
+                        </div>
+                      </div>
+                    </div>
                   </td>
                 </tr>
-              {% endfor %}
-            </tbody>
-          </table>
-        </div>
-
-        <!-- Enhanced Pagination -->
-        {% if applicants.has_other_pages %}
-          <div class="pagination-container">
-            <nav aria-label="Applicants pagination">
-              <ul class="pagination">
-                {% if applicants.has_previous %}
-                  <li class="page-item">
-                    <a class="page-link" href="?page={{ applicants.previous_page_number }}&search={{ search_query }}" aria-label="Previous page">
-                      <i class="fa fa-chevron-left"></i>
-                    </a>
-                  </li>
-                {% endif %}
-                
-                {% for num in applicants.paginator.page_range %}
-                  {% if num == applicants.number %}
-                    <li class="page-item active">
-                      <span class="page-link">{{ num }}</span>
-                    </li>
-                  {% elif num > applicants.number|add:'-3' and num < applicants.number|add:'3' %}
-                    <li class="page-item">
-                      <a class="page-link" href="?page={{ num }}&search={{ search_query }}">{{ num }}</a>
-                    </li>
-                  {% endif %}
                 {% endfor %}
-                
-                {% if applicants.has_next %}
-                  <li class="page-item">
-                    <a class="page-link" href="?page={{ applicants.next_page_number }}&search={{ search_query }}" aria-label="Next page">
-                      <i class="fa fa-chevron-right"></i>
-                    </a>
-                  </li>
-                {% endif %}
-              </ul>
-            </nav>
+              </tbody>
+            </table>
           </div>
-        {% endif %}
-      {% else %}
-        <div class="no-applicants">
-          <i class="fa fa-inbox"></i>
-          <h4>No applicants yet</h4>
-          <p>Applications will appear here once people start applying for this job.</p>
         </div>
-      {% endif %}
-    </div>
-  {% endif %}
+        
+        {% else %}
+        <!-- No Applications State -->
+        <div class="no-applications">
+          <div class="no-applications-icon">
+            <i class="fa fa-inbox"></i>
+          </div>
+          <div class="no-applications-content">
+            <h4>No Applications Yet</h4>
+            <p>Your job posting hasn't received any applications yet. Here are some tips to attract more applicants:</p>
+            <ul class="improvement-tips">
+              <li><i class="fa fa-lightbulb"></i> Add more detailed project descriptions</li>
+              <li><i class="fa fa-images"></i> Include reference images or examples</li>
+              <li><i class="fa fa-dollar-sign"></i> Review your budget to ensure it's competitive</li>
+              <li><i class="fa fa-share"></i> Share your job posting on social media</li>
+            </ul>
+            <div class="promotion-actions">
+              <a href="{% url 'jobs:job_edit' job.pk %}" class="btn-formal btn-edit">
+                <i class="fa fa-edit"></i>
+                <span>Improve Posting</span>
+              </a>
+              <button class="btn-formal btn-share" onclick="shareJobPosting()">
+                <i class="fa fa-share"></i>
+                <span>Share Job</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        {% endif %}
+      </div>
+    </section>
+    {% endif %}
+  </div>
 </div>
 
 <!-- Image Modal/Lightbox -->
@@ -1184,7 +3269,7 @@
 </div>
 
 <!-- Include Leaflet.js -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 
 <script>
@@ -1554,6 +3639,177 @@
       observer.observe(applicantsSection);
     }
   });
+
+// Applicant Management Functions
+let selectedApplications = new Set();
+
+function filterApplications() {
+  const status = document.getElementById('statusFilter').value;
+  const rows = document.querySelectorAll('.application-row');
+  
+  rows.forEach(row => {
+    const rowStatus = row.dataset.status;
+    if (status === 'all' || rowStatus === status) {
+      row.style.display = '';
+    } else {
+      row.style.display = 'none';
+    }
+  });
+  
+  updateVisibleCount();
+}
+
+function sortApplications() {
+  const sortBy = document.getElementById('sortBy').value;
+  const tbody = document.getElementById('applicationsTableBody');
+  const rows = Array.from(tbody.querySelectorAll('.application-row'));
+  
+  rows.sort((a, b) => {
+    switch(sortBy) {
+      case 'newest':
+        return new Date(b.dataset.date) - new Date(a.dataset.date);
+      case 'oldest':
+        return new Date(a.dataset.date) - new Date(b.dataset.date);
+      case 'rate-high':
+        return parseFloat(b.dataset.rate) - parseFloat(a.dataset.rate);
+      case 'rate-low':
+        return parseFloat(a.dataset.rate) - parseFloat(b.dataset.rate);
+      default:
+        return 0;
+    }
+  });
+  
+  rows.forEach(row => tbody.appendChild(row));
+}
+
+function toggleBulkActions() {
+  const panel = document.getElementById('bulkActionsPanel');
+  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+}
+
+function toggleSelectAll() {
+  const selectAll = document.getElementById('selectAll');
+  const checkboxes = document.querySelectorAll('.application-checkbox');
+  
+  checkboxes.forEach(checkbox => {
+    checkbox.checked = selectAll.checked;
+    if (selectAll.checked) {
+      selectedApplications.add(checkbox.value);
+    } else {
+      selectedApplications.delete(checkbox.value);
+    }
+  });
+  
+  updateSelectedCount();
+}
+
+function updateSelectedCount() {
+  const count = selectedApplications.size;
+  document.getElementById('selectedCount').textContent = count;
+  
+  const bulkButtons = document.querySelectorAll('.bulk-btn');
+  bulkButtons.forEach(btn => {
+    btn.disabled = count === 0;
+  });
+}
+
+function viewApplication(applicationId) {
+    // Generate a URL template using a dummy value (e.g., 0).
+    const urlTemplate = "{% url 'jobs:job_application_detail' 0 %}";
+    // Replace the dummy value with the actual applicationId.
+    window.location.href = urlTemplate.replace('0', applicationId);
+}
+
+function toggleActionMenu(applicationId) {
+  const menu = document.getElementById(`actionMenu${applicationId}`);
+  
+  // Close all other menus
+  document.querySelectorAll('.action-menu').forEach(m => {
+    if (m !== menu) m.classList.remove('show');
+  });
+  
+  menu.classList.toggle('show');
+}
+
+function bulkAccept() {
+  if (selectedApplications.size === 0) return;
+  
+  if (confirm(`Accept ${selectedApplications.size} application(s)?`)) {
+    // Implementation would send AJAX request to bulk update
+    console.log('Bulk accept:', Array.from(selectedApplications));
+  }
+}
+
+function bulkReject() {
+  if (selectedApplications.size === 0) return;
+  
+  if (confirm(`Reject ${selectedApplications.size} application(s)?`)) {
+    // Implementation would send AJAX request to bulk update
+    console.log('Bulk reject:', Array.from(selectedApplications));
+  }
+}
+
+function bulkMessage() {
+  if (selectedApplications.size === 0) return;
+  
+  // Implementation would open messaging interface
+  console.log('Bulk message:', Array.from(selectedApplications));
+}
+
+function exportApplications() {
+  // Implementation would generate and download CSV/Excel
+  console.log('Export applications');
+}
+
+function shareJobPosting() {
+  if (navigator.share) {
+    navigator.share({
+      title: document.title,
+      url: window.location.href
+    });
+  } else {
+    // Fallback: copy to clipboard
+    navigator.clipboard.writeText(window.location.href).then(() => {
+      alert('Job link copied to clipboard!');
+    });
+  }
+}
+
+// Event listeners
+document.addEventListener('DOMContentLoaded', function() {
+  // Handle application checkbox changes
+  document.querySelectorAll('.application-checkbox').forEach(checkbox => {
+    checkbox.addEventListener('change', function() {
+      if (this.checked) {
+        selectedApplications.add(this.value);
+      } else {
+        selectedApplications.delete(this.value);
+      }
+      updateSelectedCount();
+      
+      // Update select all checkbox
+      const selectAll = document.getElementById('selectAll');
+      const totalCheckboxes = document.querySelectorAll('.application-checkbox').length;
+      selectAll.checked = selectedApplications.size === totalCheckboxes;
+    });
+  });
+  
+  // Close action menus when clicking outside
+  document.addEventListener('click', function(e) {
+    if (!e.target.closest('.action-dropdown')) {
+      document.querySelectorAll('.action-menu').forEach(menu => {
+        menu.classList.remove('show');
+      });
+    }
+  });
+  
+  updateSelectedCount();
+});
+
+function updateVisibleCount() {
+  const visibleRows = document.querySelectorAll('.application-row:not([style*="display: none"])').length;
+  console.log(`Showing ${visibleRows} applications`);
+}
 </script>
 
 {% endblock %}

@@ -2,7 +2,6 @@
 {% load static %}
 
 {% block content %}
-<!-- LinkedIn-style Profile Page -->
 <div class="profile-container">
     <!-- Background header -->
     <div class="profile-background"></div>
@@ -128,6 +127,9 @@
                             <a href="{% url 'privacy_settings' %}" class="action-item">
                                 <i class="bi bi-eye me-2"></i>Privacy Settings
                             </a>
+                            <a href="{% url 'set_location' %}" class="action-item">
+                                <i class="bi bi-geo-alt me-2"></i>Set Notification Location
+                            </a>
                             <a href="{% url 'profile_delete' user.pk %}" class="action-item danger">
                                 <i class="bi bi-trash me-2"></i>Delete Account
                             </a>
@@ -143,6 +145,9 @@
                     <button class="tab-button active" data-tab="about">About</button>
                     <button class="tab-button" data-tab="activity">Activity</button>
                     <button class="tab-button" data-tab="jobs">Jobs</button>
+                    <button class="tab-button" data-tab="skills">Skills</button>
+                    <!-- Add Gallery button -->
+                    <button class="tab-button" data-tab="gallery">Gallery</button>
                 </div>
                 
                 <!-- Tab Content -->
@@ -150,42 +155,92 @@
                     <!-- About Me -->
                     <div class="profile-card">
                         <div class="card-header">
-                            <h3>About Me</h3>
+                            <h3>My CV / About Me</h3>
                             {% if user.pk == request.user.pk %}
-                            <a href="{% url 'profile_edit' %}" class="btn-icon">
-                                <i class="bi bi-pencil"></i>
-                            </a>
+                                <a href="{% url 'profile_edit' %}" class="btn btn-outline-secondary btn-sm">
+                                    <i class="bi bi-pencil"></i> Edit CV
+                                </a>
                             {% endif %}
                         </div>
                         <div class="card-body">
-                            {% if user.bio %}
-                                <p>{{ user.bio }}</p>
-                            {% else %}
-                                <p class="text-muted">Tell others about yourself by adding a bio.</p>
-                            {% endif %}
+                            <!-- Personal Details Section -->
+                            <section>
+                                <h4>Personal Details</h4>
+                                <p><strong>Name:</strong> {{ user.first_name }} {{ user.last_name }}</p>
+                                <p><strong>Email:</strong> {{ user.email }}</p>
+                                <p><strong>Contact Number:</strong> {{ user.contact_number|default:"Not provided" }}</p>
+                                <p><strong>Address:</strong> {{ user.address|default:"Not provided" }}</p>
+                                <p><strong>Gender:</strong> {{ user.get_gender_display|default:"Not provided" }}</p>
+                            </section>
+                            <hr>
+                            <!-- Personal Summary Section -->
+                            <section>
+                                <h4>Personal Summary</h4>
+                                {% if user.bio %}
+                                    <p>{{ user.bio }}</p>
+                                {% else %}
+                                    <p class="text-muted">Add a brief summary about yourself.</p>
+                                {% endif %}
+                            </section>
+                            <hr>
+                            <!-- Education Section -->
+                            <section>
+                                <h4>Education</h4>
+                                {% if user.education.all %}
+                                    <ul class="list-group">
+                                        {% for edu in user.education.all %}
+                                            <li class="list-group-item">
+                                                <strong>{{ edu.degree }}</strong> from {{ edu.institution }}<br>
+                                                <small>
+                                                    {{ edu.start_date|date:"M Y" }} - 
+                                                    {% if edu.end_date %}{{ edu.end_date|date:"M Y" }}{% else %}Present{% endif %}
+                                                </small>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <p class="text-muted">No education details provided.</p>
+                                {% endif %}
+                            </section>
+                            <hr>
+                            <!-- Work Experience Section -->
+                            <section>
+                                <h4>Work Experience</h4>
+                                {% if user.experiences.all %}
+                                    <ul class="list-group">
+                                        {% for exp in user.experiences.all %}
+                                            <li class="list-group-item">
+                                                <strong>{{ exp.job_title }}</strong> at {{ exp.company }}<br>
+                                                <small>
+                                                    {{ exp.start_date|date:"M Y" }} - 
+                                                    {% if exp.end_date %}{{ exp.end_date|date:"M Y" }}{% else %}Present{% endif %}
+                                                </small>
+                                                <p>{{ exp.description }}</p>
+                                            </li>
+                                        {% endfor %}
+                                    </ul>
+                                {% else %}
+                                    <p class="text-muted">No work experiences provided.</p>
+                                {% endif %}
+                            </section>
+                            <hr>
+                            <!-- Skills Section -->
+                            <section>
+                                <h4>Skills</h4>
+                                {% if user.skill_verifications.all %}
+                                    <div class="skills-container">
+                                        {% for skill in user.skill_verifications.all %}
+                                            <span class="skill-badge">{{ skill.name }}</span>
+                                        {% endfor %}
+                                    </div>
+                                {% else %}
+                                    <p class="text-muted">No skills provided.</p>
+                                {% endif %}
+                            </section>
                         </div>
                     </div>
                     
-                    <!-- Skills -->
-                    <div class="profile-card">
-                        <div class="card-header">
-                            <h3>Skills</h3>
-                            <a href="{% url 'profile_edit' %}" class="btn-icon">
-                                <i class="bi bi-plus"></i>
-                            </a>
-                        </div>
-                        <div class="card-body">
-                            {% if user.skills.all %}
-                                <div class="skills-container">
-                                    {% for skill in user.skills.all %}
-                                        <span class="skill-badge">{{ skill.name }}</span>
-                                    {% endfor %}
-                                </div>
-                            {% else %}
-                                <p class="text-muted">Add skills to showcase your expertise.</p>
-                            {% endif %}
-                        </div>
-                    </div>
+
                 </div>
                 
                 <div class="tab-content" id="activity-tab" style="display: none;">
@@ -222,7 +277,7 @@
                 </div>
                 
                 <div class="tab-content" id="jobs-tab" style="display: none;">
-                    <!-- Posted Jobs -->
+                    <!-- Posted Jobs Section -->
                     <div class="profile-card">
                         <div class="card-header">
                             <h3>Your Posted Jobs</h3>
@@ -236,22 +291,15 @@
                                     {% for job in posted_jobs %}
                                         <li class="list-group-item">
                                             <h4 class="job-title">
-                                                <a href="{% url 'jobs:job_detail' job.id %}">
-                                                    {{ job.title }}
-                                                </a>
+                                                <a href="{% url 'jobs:job_detail' job.id %}">{{ job.title }}</a>
                                             </h4>
                                             <p class="job-details">
-                                                <i class="bi bi-geo-alt me-1"></i>{{ job.municipality }},
-                                                {{ job.barangay }}
+                                                <i class="bi bi-geo-alt me-1"></i>{{ job.municipality }}, {{ job.barangay }}
                                                 <i class="bi bi-clock ms-3 me-1"></i>{{ job.created_at|date:"M d, Y" }}
                                             </p>
                                             <div class="job-actions">
-                                                <a href="{% url 'jobs:job_edit' job.id %}" class="btn btn-sm btn-outline-secondary">
-                                                    Edit
-                                                </a>
-                                                <a href="{% url 'jobs:job_delete' job.id %}" class="btn btn-sm btn-outline-danger">
-                                                    Delete
-                                                </a>
+                                                <a href="{% url 'jobs:job_edit' job.id %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                                <a href="{% url 'jobs:job_delete' job.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
                                             </div>
                                         </li>
                                     {% endfor %}
@@ -261,35 +309,121 @@
                             {% endif %}
                         </div>
                     </div>
+                    
+                    <!-- Job Applications Section -->
+                    <div class="profile-card mt-4">
+                        <div class="card-header">
+                            <h3>Your Job Applications</h3>
+                        </div>
+                        <div class="card-body">
+                            {% if user.job_applications.all %}
+                                <ul class="list-group">
+                                    {% for application in user.job_applications.all %}
+                                      <li class="list-group-item d-flex justify-content-between align-items-center">
+                                          <div>
+                                              <strong>{{ application.job.title }}</strong>
+                                              <br>
+                                              <small>Applied on: {{ application.applied_at|date:"M d, Y" }}</small>
+                                              <br>
+                                              <!-- Display status badge -->
+                                              {% if application.status|lower == "accepted" %}
+                                                  <span class="badge bg-success">Accepted</span>
+                                                    {% if application.job.contract %}
+                                                        <a href="{% url 'jobs:contract_detail' application.job.contract.pk %}" class="btn btn-sm btn-outline-info ms-2">
+                                                            View Contract
+                                                        </a>
+                                                    {% endif %}
+                                              {% elif application.status|lower == "rejected" %}
+                                                  <span class="badge bg-danger">Rejected</span>
+                                              {% else %}
+                                                  <span class="badge bg-warning text-dark">{{ application.status|title }}</span>
+                                              {% endif %}
+                                          </div>
+                                      </li>
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="text-muted">You haven't applied to any jobs yet.</p>
+                            {% endif %}
+                        </div>
+                    </div>
                 </div>
                 
-                <!-- Recent Applications -->
-                <div class="profile-card">
-                    <div class="card-header">
-                        <h3>Recent Applications</h3>
-                    </div>
-                    <div class="card-body">
-                        {% if recent_applications %}
-                            <ul class="list-group">
-                                {% for application in recent_applications %}
-                                    <li class="list-group-item">
-                                        <h4 class="job-title">
-                                            <a href="{% url 'jobs:job_detail' application.job.id %}">
-                                                {{ application.job.title }}
-                                        </a>
-                                        </h4>
-                                        <p class="job-details">
-                                            <i class="bi bi-geo-alt me-1"></i>{{ application.job.municipality }},
-                                            {{ application.job.barangay }}
-                                            <i class="bi bi-clock ms-3 me-1"></i>{{ application.applied_at|date:"M d, Y" }}
-                                        </p>
+                <div class="tab-content" id="skills-tab" style="display: none;">
+                    <div class="profile-card">
+                        <div class="card-header">
+                            <h3>Skill List</h3>
+                            {% if user.pk == request.user.pk %}
+                            <a href="{% url 'submit_skill_verification' %}" class="btn btn-sm btn-warning"> + Add a Skill for Verification</a>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                            {% if user.skill_verifications.all %}
+                                <ul class="list-group">
+                                    {% for skill in user.skill_verifications.all %}
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <div>
+                                          <strong>{{ skill.name }}</strong><br>
+                                          <small>{{ skill.description|truncatechars:50 }}</small>
+                                          <br>
+                                          <small class="text-muted">Submitted at: {{ skill.submitted_at|date:"M d, Y" }}</small>
+                                        </div>
+                                        <div>
+                                          {% if skill.status == "verified" %}
+                                            <span class="badge bg-success">Verified</span>
+                                          {% elif skill.status == "rejected" %}
+                                            <span class="badge bg-danger">Rejected</span>
+                                          {% else %}
+                                            <span class="badge bg-warning">Pending</span>
+                                          {% endif %}
+                                        </div>
+                                        <div>
+                                            <a href="{% url 'skill_detail' skill.id %}" class="btn btn-sm btn-outline-primary">View</a>
+                                            {% if user.pk == request.user.pk %}
+                                            <a href="{% url 'skill_edit' skill.id %}" class="btn btn-sm btn-outline-secondary">Edit</a>
+                                            <a href="{% url 'skill_delete' skill.id %}" class="btn btn-sm btn-outline-danger">Delete</a>
+                                            {% endif %}
+                                        </div>
                                     </li>
-                                {% endfor %}
-                            </ul>
-                        {% else %}
-                            <p class="text-muted">You haven't applied for any jobs recently.</p>
-                        {% endif %}
+                                    {% endfor %}
+                                </ul>
+                            {% else %}
+                                <p class="text-muted">No skills submitted for verification.</p>
+                            {% endif %}
+                        </div>
                     </div>
+                </div>
+                
+                <div class="tab-content" id="gallery-tab" style="display: none;">
+                    <!-- Gallery Section -->
+                    <div class="profile-card">
+                        <div class="card-header">
+                            <h3>Completed Jobs Gallery</h3>
+                            {% if user.pk == request.user.pk %}
+                            <a href="{% url 'gallery_add' %}" class="btn btn-outline-secondary btn-sm">
+                               <i class="bi bi-plus"></i> Add New
+                            </a>
+                            {% endif %}
+                        </div>
+                        <div class="card-body">
+                          {% if user.completed_jobs.all %}
+                          <div class="gallery-container" style="display:flex;flex-wrap:wrap;gap:16px;">
+                            {% for item in user.completed_jobs.all %}
+                              <div class="gallery-item" style="width:200px;border:1px solid #ddd;padding:8px;border-radius:8px;">
+                                <img src="{{ item.image.url }}" alt="Gallery Image" style="width:100%;height:auto;">
+                                <p>{{ item.description }}</p>
+                                {% if user.pk == request.user.pk %}
+                                <a href="{% url 'gallery_edit' item.pk %}" class="btn btn-outline-secondary btn-sm">Edit</a>
+                                <a href="{% url 'gallery_delete' item.pk %}" class="btn btn-outline-danger btn-sm">Delete</a>
+                                {% endif %}
+                              </div>
+                            {% endfor %}
+                          </div>
+                          {% else %}
+                          <p class="text-muted">No gallery items yet.</p>
+                          {% endif %}
+                        </div>
+                      </div>
                 </div>
             </div>
         </div>
@@ -876,6 +1010,39 @@
     .bg-dark {
         background-color: #343a40 !important;
         color: #fff !important;
+    }
+    
+    /* Gallery */
+    .gallery-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+        gap: 16px;
+    }
+    
+    .gallery-item {
+        position: relative;
+        overflow: hidden;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: transform 0.2s;
+    }
+    
+    .gallery-item:hover {
+        transform: scale(1.05);
+    }
+    
+    .gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .gallery-item-actions {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        display: flex;
+        gap: 8px;
     }
 </style>
 

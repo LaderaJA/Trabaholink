@@ -1,0 +1,14 @@
+{% extends 'mainpages/base.html' %}
+{% block content %}
+<div class="container mt-5">
+  <h2>Identity Verification</h2>
+  <p>Please upload your government-issued ID to verify your identity. This step is optional and you can skip it.</p>
+  
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="btn btn-primary">Submit ID</button>
+    <a href="{% url 'skip_identity_verification' %}" class="btn btn-secondary">Skip</a>
+  </form>
+</div>
+{% endblock %}

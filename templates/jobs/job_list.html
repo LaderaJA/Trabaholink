@@ -2,373 +2,14 @@
 {% load static %}
 
 {% block content %}
-<div class="jobs-list-container">
-    <!-- Hero section with search bar -->
-    <div class="search-hero">
-        <div class="container">
-            <div class="hero-content">
-                <h1 class="hero-title">Find Your Perfect Job</h1>
-                <p class="hero-subtitle">Discover opportunities that match your skills and location</p>
-            </div>
-
-            <!-- Simple Search Bar -->
-            <form method="get" action="{% url 'jobs:job_list' %}" class="simple-search-form">
-                <div class="search-bar-container">
-                    <div class="main-search-input">
-                        <div class="search-input-wrapper">
-                            <i class="fa fa-search search-icon"></i>
-                            <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Search jobs, skills, or companies..." class="form-control search-input">
-                        </div>
-                        <button type="submit" class="btn btn-primary search-btn">
-                            <i class="fa fa-search"></i>
-                            <span class="btn-text">Search</span>
-                        </button>
-                    </div>
-
-                    <div class="advanced-search-toggle">
-                        <button type="button" id="advanced-search-btn" class="btn btn-link">
-                            <i class="fa fa-sliders-h"></i>
-                            <span>Filters</span>
-                            <i class="fa fa-chevron-down toggle-icon"></i>
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Advanced Search Panel (hidden by default) -->
-                <div id="advanced-search-panel" class="advanced-search-panel" style="display: none;">
-                    <div class="panel-header">
-                        <h3>Advanced Filters</h3>
-                        <p>Refine your search to find the perfect job</p>
-                    </div>
-                    <div class="row">
-                        <div class="col-md-6 col-lg-3">
-                            <div class="form-group">
-                                <label for="category"><i class="fa fa-tag"></i> Category</label>
-                                <select name="category" id="category" class="form-control">
-                                    <option value="">All Categories</option>
-                                    {% for category in categories %}
-                                    <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"i" %}selected{% endif %}>
-                                        {{ category.name }}
-                                    </option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3">
-                            <div class="form-group">
-                                <label for="municipality"><i class="fa fa-city"></i> Municipality</label>
-                                <input type="text" name="municipality" id="municipality" value="{{ request.GET.municipality|default:'' }}" class="form-control" placeholder="Enter municipality">
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3">
-                            <div class="form-group">
-                                <label for="barangay"><i class="fa fa-map-marker-alt"></i> Barangay</label>
-                                <input type="text" name="barangay" id="barangay" value="{{ request.GET.barangay|default:'' }}" class="form-control" placeholder="Enter barangay">
-                            </div>
-                        </div>
-                        <div class="col-md-6 col-lg-3">
-                            <div class="form-group">
-                                <label><i class="fa fa-peso-sign"></i> Budget Range</label>
-                                <div class="budget-range">
-                                    <input type="number" name="min_budget" value="{{ request.GET.min_budget|default:'' }}" class="form-control" placeholder="Min ₱">
-                                    <span class="range-separator">to</span>
-                                    <input type="number" name="max_budget" value="{{ request.GET.max_budget|default:'' }}" class="form-control" placeholder="Max ₱">
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="advanced-search-actions">
-                        <button type="submit" class="btn btn-primary">
-                            <i class="fa fa-filter"></i> Apply Filters
-                        </button>
-                        <a href="{% url 'jobs:job_list' %}" class="btn btn-outline-secondary">
-                            <i class="fa fa-times"></i> Clear All
-                        </a>
-                    </div>
-                </div>
-            </form>
-        </div>
-    </div>
-
-    <!-- Job listings section -->
-    <div class="container">
-        <div class="job-list-header">
-            <div class="row align-items-center">
-                <div class="col-md-8">
-                    <div class="results-info">
-                        <h2 class="results-title">
-                            {% if request.GET.q %}
-                                <i class="fa fa-search"></i>
-                                Search results for "{{ request.GET.q }}"
-                            {% else %}
-                                <i class="fa fa-briefcase"></i>
-                                Available Jobs
-                            {% endif %}
-                        </h2>
-                        <p class="results-count">
-                            <span class="count-number">{{ page_obj.paginator.count }}</span> 
-                            job{{ page_obj.paginator.count|pluralize }} found
-                        </p>
-                    </div>
-                </div>
-                <div class="col-md-4">
-                    <div class="job-list-actions">
-                        <!-- Post a New Job Button -->
-                        {% if user.is_authenticated %}
-                        <a href="{% url 'jobs:job_create' %}" class="btn btn-success post-job-btn">
-                            <i class="fa fa-plus-circle"></i> 
-                            <span>Post Job</span>
-                        </a>
-                        {% else %}
-                        <a href="{% url 'login' %}" class="btn btn-outline-primary post-job-btn">
-                            <i class="fa fa-plus-circle"></i> 
-                            <span>Post Job</span>
-                        </a>
-                        {% endif %}
-                        
-                        <!-- Location Button -->
-                        <button type="button" class="btn btn-outline-primary location-btn" data-bs-toggle="modal" data-bs-target="#locationModal">
-                            <i class="fa fa-map-marker-alt"></i>
-                            <span>Set Location</span>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Sorting and View Options -->
-            <div class="list-controls">
-                <div class="sorting-options">
-                    <label for="sort-select">
-                        <i class="fa fa-sort"></i> Sort by:
-                    </label>
-                    <select id="sort-select" class="form-control" onchange="applySorting(this.value)">
-                        <option value="date_desc" {% if request.GET.sort == 'date_desc' or not request.GET.sort %}selected{% endif %}>Newest First</option>
-                        <option value="date_asc" {% if request.GET.sort == 'date_asc' %}selected{% endif %}>Oldest First</option>
-                        <option value="budget_desc" {% if request.GET.sort == 'budget_desc' %}selected{% endif %}>Budget: High to Low</option>
-                        <option value="budget_asc" {% if request.GET.sort == 'budget_asc' %}selected{% endif %}>Budget: Low to High</option>
-                        {% if user_location %}
-                        <option value="distance" {% if request.GET.sort == 'distance' %}selected{% endif %}>Nearest First</option>
-                        {% endif %}
-                    </select>
-                </div>
-            </div>
-        </div>
-
-        <!-- Job Cards Grid -->
-        <div class="row job-cards-container">
-            {% for job in jobs %}
-            <div class="col-md-6 col-xl-4 mb-4">
-                <div class="job-card">
-                    <div class="job-card-header">
-                        <div class="card-top">
-                            <div class="category-badge" style="background-color: {% if job.category.color %}{{ job.category.color }}{% else %}#1e4d8c{% endif %}">
-                                {{ job.category.name }}
-                            </div>
-                            <div class="job-actions">
-                                <button class="btn-favorite" title="Save job">
-                                    <i class="fa fa-heart"></i>
-                                </button>
-                            </div>
-                        </div>
-                        <h3 class="job-title">
-                            <a href="{% url 'jobs:job_detail' job.id %}">{{ job.title }}</a>
-                        </h3>
-                        <div class="job-meta">
-                            <span class="job-location">
-                                <i class="fa fa-map-marker-alt"></i> {{ job.municipality }}
-                            </span>
-                            <span class="job-date">
-                                <i class="fa fa-calendar-alt"></i> {{ job.created_at|date:"M d, Y" }}
-                            </span>
-                        </div>
-                    </div>
-                    
-                    <div class="job-card-body">
-                        <div class="job-image-container">
-                            {% if job.jobimage_set.exists %}
-                            <img src="{{ job.jobimage_set.first.image.url }}" class="job-image" alt="{{ job.title }} - Job Image">
-                            {% else %}
-                            <div class="no-image">
-                                <i class="fa fa-image"></i>
-                                <span>No image available</span>
-                            </div>
-                            {% endif %}
-                        </div>
-                        <p class="job-description">{{ job.description|truncatechars:120 }}</p>
-                    </div>
-                    
-                    <div class="job-card-footer">
-                        <div class="footer-left">
-                            <div class="job-budget">₱{{ job.budget|floatformat:0 }}</div>
-                            {% if job.distance_km %}
-                            <div class="job-distance">
-                                <i class="fa fa-location-arrow"></i>
-                                {{ job.distance_km }} km away
-                            </div>
-                            {% endif %}
-                        </div>
-                        <a href="{% url 'jobs:job_detail' job.id %}" class="btn btn-primary btn-sm view-details-btn">
-                            View Details
-                            <i class="fa fa-arrow-right"></i>
-                        </a>
-                    </div>
-                </div>
-            </div>
-            {% empty %}
-            <div class="col-12">
-                <div class="no-jobs-found">
-                    <div class="no-jobs-icon">
-                        <i class="fa fa-search"></i>
-                    </div>
-                    <h3>No jobs found</h3>
-                    <p>We couldn't find any jobs matching your criteria. Try adjusting your search filters or browse all available opportunities.</p>
-                    <div class="no-jobs-actions">
-                        <a href="{% url 'jobs:job_list' %}" class="btn btn-primary">View All Jobs</a>
-                        {% if user.is_authenticated %}
-                        <a href="{% url 'jobs:job_create' %}" class="btn btn-outline-primary">Post a Job</a>
-                        {% endif %}
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
-        </div>
-
-        <!-- Pagination -->
-        {% if is_paginated %}
-        <div class="pagination-container">
-            <nav aria-label="Job listings pagination">
-                <ul class="pagination">
-                    {% if page_obj.has_previous %}
-                    <li class="page-item">
-                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page=1" aria-label="First page">
-                            <i class="fa fa-angle-double-left"></i>
-                        </a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}" aria-label="Previous page">
-                            <i class="fa fa-angle-left"></i>
-                        </a>
-                    </li>
-                    {% endif %}
-
-                    {% for num in page_obj.paginator.page_range %}
-                        {% if page_obj.number == num %}
-                        <li class="page-item active">
-                            <span class="page-link">{{ num }}</span>
-                        </li>
-                        {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                        <li class="page-item">
-                            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
-                        </li>
-                        {% endif %}
-                    {% endfor %}
-
-                    {% if page_obj.has_next %}
-                    <li class="page-item">
-                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}" aria-label="Next page">
-                            <i class="fa fa-angle-right"></i>
-                        </a>
-                    </li>
-                    <li class="page-item">
-                        <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}" aria-label="Last page">
-                            <i class="fa fa-angle-double-right"></i>
-                        </a>
-                    </li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
-        {% endif %}
-    </div>
-</div>
-
-<!-- Location Modal -->
-<div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title">
-                    <i class="fa fa-map-marker-alt"></i>
-                    Set Your Location
-                </h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body">
-                <p class="modal-description">Set your location to find jobs near you and see distance information.</p>
-                
-                <div class="location-options">
-                    <button id="useCurrentLocation" class="btn btn-primary location-option-btn">
-                        <i class="fa fa-crosshairs"></i>
-                        <div class="btn-content">
-                            <span class="btn-title">Use Current Location</span>
-                            <span class="btn-subtitle">Automatically detect your location</span>
-                        </div>
-                    </button>
-                    
-                    <button id="enterManualLocationBtn" class="btn btn-outline-primary location-option-btn">
-                        <i class="fa fa-edit"></i>
-                        <div class="btn-content">
-                            <span class="btn-title">Enter Manually</span>
-                            <span class="btn-subtitle">Type your address</span>
-                        </div>
-                    </button>
-                    
-                    <button class="btn btn-outline-secondary location-option-btn" data-bs-dismiss="modal">
-                        <i class="fa fa-times"></i>
-                        <div class="btn-content">
-                            <span class="btn-title">Not Now</span>
-                            <span class="btn-subtitle">Skip location setting</span>
-                        </div>
-                    </button>
-                </div>
-
-                <div id="manualLocationFields" class="manual-location-form d-none">
-                    <h6>Enter Your Address</h6>
-                    <div class="form-group">
-                        <input type="text" id="manual_municipality" class="form-control" placeholder="Municipality/City">
-                    </div>
-                    <div class="form-group">
-                        <input type="text" id="manual_barangay" class="form-control" placeholder="Barangay">
-                    </div>
-                    <div class="form-group">
-                        <input type="text" id="manual_street" class="form-control" placeholder="Street (optional)">
-                    </div>
-                    <div class="form-group">
-                        <input type="text" id="manual_number" class="form-control" placeholder="House No. (optional)">
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer d-none" id="manualSaveFooter">
-                <button type="button" class="btn btn-success" id="saveManualLocation">
-                    <i class="fa fa-save"></i> Save Location
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-
-<!-- Hidden inputs for storing geolocation data -->
-<form id="filter-form" method="get" action="{% url 'jobs:job_list' %}">
-    <input type="hidden" name="lat" id="lat" value="{{ request.GET.lat }}">
-    <input type="hidden" name="lng" id="lng" value="{{ request.GET.lng }}">
-    {% for key, value in request.GET.items %}
-        {% if key != 'lat' and key != 'lng' %}
-            <input type="hidden" name="{{ key }}" value="{{ value }}">
-        {% endif %}
-    {% endfor %}
-</form>
-
 <style>
-/* Enhanced Color Variables */
+/* Enhanced CSS Variables */
 :root {
-  --primary-blue: #2563eb;
-  --primary-blue-dark: #1d4ed8;
-  --primary-blue-light: #3b82f6;
-  --secondary-blue: #1e40af;
-  --accent-yellow: #f59e0b;
-  --accent-yellow-dark: #d97706;
+  --primary-blue: #3b82f6;
+  --primary-blue-dark: #2563eb;
+  --accent-orange: #f97316;
+  --accent-orange-dark: #ea580c;
   --success-green: #10b981;
-  --success-green-dark: #059669;
   --text-dark: #111827;
   --text-medium: #374151;
   --text-light: #6b7280;
@@ -377,519 +18,214 @@
   --background-gray: #f9fafb;
   --background-gray-light: #f3f4f6;
   --border-color: #e5e7eb;
-  --border-color-light: #f3f4f6;
   --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
   --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
 }
 
 /* Global Styles */
 body {
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--background-gray);
-  color: var(--text-dark);
-  line-height: 1.6;
+  margin: 0;
+  padding: 0;
 }
 
-.container {
-  max-width: 1200px;
-  padding: 0 20px;
-}
-
-/* Enhanced Button Styles */
-.btn {
-  border-radius: 8px;
-  font-weight: 500;
-  padding: 10px 20px;
-  transition: all 0.2s ease;
-  text-transform: none;
-  letter-spacing: 0.025em;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  border: 1px solid transparent;
-}
-
-.btn-primary {
-  background-color: var(--primary-blue);
-  border-color: var(--primary-blue);
+/* Hero Section */
+.hero-section {
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
   color: var(--text-white);
-}
-
-.btn-primary:hover {
-  background-color: var(--primary-blue-dark);
-  border-color: var(--primary-blue-dark);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-
-.btn-success {
-  background-color: var(--success-green);
-  border-color: var(--success-green);
-  color: var(--text-white);
-}
-
-.btn-success:hover {
-  background-color: var(--success-green-dark);
-  border-color: var(--success-green-dark);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-
-.btn-outline-primary {
-  color: var(--primary-blue);
-  border-color: var(--primary-blue);
-  background-color: transparent;
-}
-
-.btn-outline-primary:hover {
-  background-color: var(--primary-blue);
-  color: var(--text-white);
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
-}
-
-.btn-outline-secondary {
-  color: var(--text-medium);
-  border-color: var(--border-color);
-  background-color: transparent;
-}
-
-.btn-outline-secondary:hover {
-  background-color: var(--background-gray-light);
-  border-color: var(--text-medium);
-  color: var(--text-dark);
-}
-
-.btn-link {
-  color: var(--primary-blue);
-  text-decoration: none;
-  background-color: transparent;
-  border: none;
-  padding: 8px 16px;
-}
-
-.btn-link:hover {
-  background-color: rgba(37, 99, 235, 0.1);
-  color: var(--primary-blue-dark);
-}
-
-/* Form Controls */
-.form-control {
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-  padding: 12px 16px;
-  font-size: 14px;
-  transition: all 0.2s ease;
-  background-color: var(--background-white);
-}
-
-.form-control:focus {
-  border-color: var(--primary-blue);
-  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-  outline: none;
-}
-
-/* Enhanced Hero Section */
-.search-hero {
-  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
-  padding: 80px 0;
-  margin-bottom: 40px;
-  color: var(--text-white);
-  position: relative;
-  overflow: hidden;
-}
-
-.search-hero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-  opacity: 0.1;
-}
-
-.hero-content {
+  padding: 3rem 0;
   text-align: center;
-  margin-bottom: 40px;
-  position: relative;
-  z-index: 1;
 }
 
 .hero-title {
+  font-size: 2.5rem;
   font-weight: 700;
-  font-size: 3rem;
-  margin-bottom: 16px;
+  margin-bottom: 0.5rem;
   text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .hero-subtitle {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
   opacity: 0.9;
-  font-weight: 400;
+  margin-bottom: 2rem;
 }
 
-/* Enhanced Search Form */
-.simple-search-form {
-  max-width: 900px;
+/* Search Bar */
+.search-container {
+  max-width: 600px;
   margin: 0 auto;
-  position: relative;
-  z-index: 1;
-}
-
-.search-bar-container {
   display: flex;
-  align-items: stretch;
-  gap: 16px;
-  background: var(--background-white);
-  border-radius: 16px;
-  padding: 8px;
-  box-shadow: var(--shadow-xl);
-  backdrop-filter: blur(10px);
-}
-
-.main-search-input {
-  display: flex;
-  flex: 1;
-  gap: 8px;
-}
-
-.search-input-wrapper {
-  position: relative;
-  flex: 1;
-}
-
-.search-icon {
-  position: absolute;
-  left: 16px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-light);
-  z-index: 1;
+  background-color: var(--background-white);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-lg);
 }
 
 .search-input {
-  border-radius: 12px;
-  height: 56px;
-  font-size: 16px;
+  flex: 1;
+  padding: 1rem 1.5rem;
   border: none;
-  box-shadow: none;
-  padding-left: 48px;
-  background-color: var(--background-gray-light);
+  font-size: 1rem;
+  outline: none;
+  background: transparent;
 }
 
-.search-input:focus {
-  background-color: var(--background-white);
-  border: 1px solid var(--primary-blue);
+.search-input::placeholder {
+  color: var(--text-light);
 }
 
 .search-btn {
-  border-radius: 12px;
-  height: 56px;
-  background-color: var(--accent-yellow);
-  border-color: var(--accent-yellow);
-  min-width: 120px;
-  color: var(--text-dark);
-  font-weight: 600;
-}
-
-.search-btn:hover {
-  background-color: var(--accent-yellow-dark);
-  border-color: var(--accent-yellow-dark);
+  background: linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-orange-dark) 100%);
   color: var(--text-white);
-}
-
-.advanced-search-toggle button {
-  color: var(--primary-blue);
-  background-color: var(--background-gray-light);
-  border-radius: 12px;
-  padding: 16px 20px;
-  font-size: 14px;
   border: none;
-  height: 56px;
-  white-space: nowrap;
-}
-
-.advanced-search-toggle button:hover {
-  background-color: rgba(37, 99, 235, 0.1);
-}
-
-.toggle-icon {
-  transition: transform 0.2s ease;
-}
-
-.toggle-icon.rotated {
-  transform: rotate(180deg);
-}
-
-/* Enhanced Advanced Search Panel */
-.advanced-search-panel {
-  background-color: var(--background-white);
-  border-radius: 16px;
-  padding: 32px;
-  margin-top: 16px;
-  box-shadow: var(--shadow-lg);
-  color: var(--text-dark);
-  border: 1px solid var(--border-color-light);
-}
-
-.panel-header {
-  text-align: center;
-  margin-bottom: 32px;
-}
-
-.panel-header h3 {
-  font-size: 1.5rem;
+  padding: 1rem 2rem;
   font-weight: 600;
-  margin-bottom: 8px;
-  color: var(--text-dark);
-}
-
-.panel-header p {
-  color: var(--text-light);
-  margin: 0;
-}
-
-.advanced-search-panel label {
-  font-weight: 500;
-  color: var(--text-dark);
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 8px;
-}
-
-.advanced-search-panel label i {
-  color: var(--primary-blue);
-  width: 16px;
-}
-
-.budget-range {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.range-separator {
-  color: var(--text-light);
-  font-weight: 500;
-}
-
-.advanced-search-actions {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  margin-top: 32px;
-}
-
-/* Enhanced Job List Header */
-.job-list-header {
-  margin-bottom: 32px;
-  padding-bottom: 24px;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.results-info {
-  margin-bottom: 16px;
-}
-
-.results-title {
-  color: var(--text-dark);
-  font-weight: 700;
-  font-size: 1.75rem;
-  margin-bottom: 8px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.results-title i {
-  color: var(--primary-blue);
-}
-
-.results-count {
-  color: var(--text-light);
-  margin: 0;
-  font-size: 1rem;
-}
-
-.count-number {
-  font-weight: 600;
-  color: var(--text-medium);
-}
-
-.job-list-actions {
-  display: flex;
-  align-items: center;
-  justify-content: flex-end;
-  gap: 12px;
-  margin-bottom: 16px;
-}
-
-.post-job-btn,
-.location-btn {
-  white-space: nowrap;
-  padding: 12px 20px;
-  font-weight: 600;
-}
-
-.list-controls {
-  display: flex;
-  justify-content: flex-end;
-  align-items: center;
-}
-
-.sorting-options {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.sorting-options label {
-  color: var(--text-medium);
-  font-size: 14px;
-  font-weight: 500;
-  display: flex;
-  align-items: center;
-  gap: 6px;
-}
-
-.sorting-options select {
-  width: auto;
-  min-width: 200px;
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 8px 16px;
-  font-size: 14px;
-  background-color: var(--background-white);
-}
-
-/* Enhanced Job Cards */
-.job-cards-container {
-  margin-bottom: 40px;
-}
-
-.job-card {
-  height: 100%;
-  border-radius: 16px;
-  overflow: hidden;
-  box-shadow: var(--shadow-sm);
-  transition: all 0.3s ease;
-  display: flex;
-  flex-direction: column;
-  background-color: var(--background-white);
-  border: 1px solid var(--border-color);
-  position: relative;
-}
-
-.job-card:hover {
-  transform: translateY(-8px);
-  box-shadow: var(--shadow-xl);
-  border-color: var(--primary-blue);
-}
-
-.job-card-header {
-  padding: 24px;
-  border-bottom: 1px solid var(--border-color-light);
-}
-
-.card-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 16px;
-}
-
-.category-badge {
-  display: inline-block;
-  padding: 6px 12px;
-  border-radius: 20px;
-  color: var(--text-white);
-  font-size: 12px;
-  background-color: var(--primary-blue);
-  font-weight: 500;
-  letter-spacing: 0.5px;
-}
-
-.job-actions {
-  display: flex;
-  gap: 8px;
-}
-
-.btn-favorite {
-  background: none;
-  border: none;
-  color: var(--text-light);
-  font-size: 18px;
   cursor: pointer;
-  padding: 8px;
-  border-radius: 50%;
   transition: all 0.2s ease;
 }
 
-.btn-favorite:hover {
-  color: #ef4444;
-  background-color: rgba(239, 68, 68, 0.1);
+.search-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
 }
 
-.job-title {
-  font-size: 18px;
-  margin-bottom: 12px;
-  line-height: 1.3;
+/* Main Content */
+.main-content {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem;
 }
 
-.job-title a {
-  color: var(--text-dark);
-  text-decoration: none;
-  font-weight: 600;
-}
-
-.job-title a:hover {
-  color: var(--primary-blue);
-}
-
-.job-meta {
+/* Section Header */
+.section-header {
   display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
   flex-wrap: wrap;
-  gap: 16px;
-  font-size: 13px;
-  color: var(--text-light);
+  gap: 1rem;
 }
 
-.job-meta span {
+.section-title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin: 0;
+}
+
+.section-actions {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 500;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-size: 0.875rem;
+}
+
+.btn:hover {
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+  text-decoration: none;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+  color: var(--text-white);
+}
+
+.btn-primary:hover {
+  color: var(--text-white);
+}
+
+.btn-outline {
+  background-color: var(--background-white);
+  color: var(--text-medium);
+  border-color: var(--border-color);
+}
+
+.btn-outline:hover {
+  background-color: var(--background-gray-light);
+  color: var(--text-dark);
+}
+
+/* Sort Controls */
+.sort-controls {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 0.5rem;
 }
 
-.job-meta i {
-  color: var(--primary-blue);
+.sort-label {
+  font-size: 0.875rem;
+  color: var(--text-medium);
+  font-weight: 500;
 }
 
-.job-card-body {
-  padding: 24px;
-  flex: 1;
+.sort-select {
+  padding: 0.5rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background-color: var(--background-white);
+  color: var(--text-dark);
+  font-size: 0.875rem;
+  cursor: pointer;
+}
+
+.sort-select:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+/* Job Cards Grid */
+.jobs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+/* Job Card */
+.job-card {
+  background-color: var(--background-white);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+  border: 1px solid var(--border-color);
+}
+
+.job-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
 }
 
 .job-image-container {
-  margin-bottom: 16px;
-  height: 160px;
+  width: 100%;
+  height: 200px;
   overflow: hidden;
-  border-radius: 12px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
   background-color: var(--background-gray-light);
+  position: relative;
 }
 
 .job-image {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.5s ease;
+  transition: transform 0.3s ease;
 }
 
 .job-card:hover .job-image {
@@ -897,668 +233,1050 @@ body {
 }
 
 .no-image {
-  color: var(--text-light);
-  font-style: italic;
-  font-size: 14px;
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  justify-content: center;
+  height: 100%;
+  color: var(--text-light);
+  font-size: 0.875rem;
 }
 
 .no-image i {
-  font-size: 24px;
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
   opacity: 0.5;
+}
+
+.job-card-content {
+  padding: 1.5rem;
+}
+
+.job-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+}
+
+.job-title a {
+  color: inherit;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.job-title a:hover {
+  color: var(--primary-blue);
+  text-decoration: none;
+}
+
+.job-meta {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.875rem;
+  color: var(--text-light);
+}
+
+.job-meta span {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 
 .job-description {
   color: var(--text-medium);
-  font-size: 14px;
   line-height: 1.6;
+  margin-bottom: 1.5rem;
+  font-size: 0.875rem;
 }
 
-.job-card-footer {
-  padding: 20px 24px;
-  background-color: var(--background-gray-light);
-  border-top: 1px solid var(--border-color-light);
+.job-footer {
   display: flex;
-  align-items: center;
   justify-content: space-between;
+  align-items: center;
 }
 
-.footer-left {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.job-budget {
+.job-price {
+  font-size: 1.25rem;
   font-weight: 700;
   color: var(--success-green);
-  font-size: 18px;
-}
-
-.job-distance {
-  font-size: 13px;
-  color: var(--text-light);
-  display: flex;
-  align-items: center;
-  gap: 4px;
 }
 
 .view-details-btn {
-  padding: 8px 16px;
-  font-size: 13px;
-  border-radius: 8px;
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+  color: var(--text-white);
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 0.875rem;
   font-weight: 500;
+  transition: all 0.2s ease;
 }
 
-/* Enhanced No Jobs Found */
-.no-jobs-found {
+.view-details-btn:hover {
+  color: var(--text-white);
+  text-decoration: none;
+  transform: translateY(-1px);
+  box-shadow: var(--shadow-md);
+}
+
+/* Empty State */
+.empty-state {
   text-align: center;
-  padding: 80px 40px;
-  background-color: var(--background-white);
-  border-radius: 16px;
-  margin: 40px 0;
-  border: 1px solid var(--border-color);
-  box-shadow: var(--shadow-sm);
+  padding: 4rem 2rem;
+  color: var(--text-light);
 }
 
-.no-jobs-icon {
+.empty-state i {
   font-size: 4rem;
-  color: var(--text-light);
-  margin-bottom: 24px;
+  margin-bottom: 1rem;
+  opacity: 0.5;
 }
 
-.no-jobs-found h3 {
-  color: var(--text-dark);
-  margin-bottom: 16px;
-  font-weight: 600;
-  font-size: 24px;
+.empty-state h3 {
+  color: var(--text-medium);
+  margin-bottom: 0.5rem;
 }
 
-.no-jobs-found p {
-  color: var(--text-light);
-  margin-bottom: 32px;
-  max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
-  line-height: 1.6;
-}
-
-.no-jobs-actions {
-  display: flex;
-  justify-content: center;
-  gap: 16px;
-  flex-wrap: wrap;
-}
-
-/* Enhanced Pagination */
+/* Pagination */
 .pagination-container {
   display: flex;
   justify-content: center;
-  margin: 40px 0;
+  margin-top: 3rem;
 }
 
 .pagination {
   display: flex;
-  gap: 4px;
+  gap: 0.25rem;
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.pagination .page-item {
+.page-item {
   margin: 0;
 }
 
-.pagination .page-link {
+.page-link {
   color: var(--text-medium);
   border: 1px solid var(--border-color);
-  border-radius: 8px;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 500;
-  transition: all 0.2s ease;
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
   text-decoration: none;
-  background-color: var(--background-white);
-}
-
-.pagination .page-item.active .page-link {
-  background-color: var(--primary-blue);
-  border-color: var(--primary-blue);
-  color: var(--text-white);
-}
-
-.pagination .page-link:hover {
-  background-color: var(--primary-blue);
-  color: var(--text-white);
-  border-color: var(--primary-blue);
-  transform: translateY(-1px);
-}
-
-/* Enhanced Modal */
-.modal-content {
-  border-radius: 16px;
-  border: none;
-  box-shadow: var(--shadow-xl);
-  overflow: hidden;
-}
-
-.modal-header {
-  background-color: var(--primary-blue);
-  color: var(--text-white);
-  padding: 24px;
-  border-bottom: none;
-}
-
-.modal-title {
-  font-weight: 600;
-  font-size: 20px;
-  display: flex;
-  align-items: center;
-  gap: 12px;
-}
-
-.modal-body {
-  padding: 32px 24px;
-}
-
-.modal-description {
-  text-align: center;
-  color: var(--text-medium);
-  margin-bottom: 32px;
-  line-height: 1.6;
-}
-
-.location-options {
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.location-option-btn {
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  padding: 20px;
-  text-align: left;
-  border-radius: 12px;
   transition: all 0.2s ease;
+  background-color: var(--background-white);
+  font-size: 0.875rem;
 }
 
-.location-option-btn i {
-  font-size: 20px;
-  width: 24px;
-  flex-shrink: 0;
-}
-
-.btn-content {
-  display: flex;
-  flex-direction: column;
-  gap: 4px;
-}
-
-.btn-title {
-  font-weight: 600;
-  font-size: 16px;
-}
-
-.btn-subtitle {
-  font-size: 14px;
-  opacity: 0.7;
-}
-
-.manual-location-form {
-  margin-top: 24px;
-  padding-top: 24px;
-  border-top: 1px solid var(--border-color);
-}
-
-.manual-location-form h6 {
-  margin-bottom: 16px;
-  font-weight: 600;
-  color: var(--text-dark);
-}
-
-.manual-location-form .form-group {
-  margin-bottom: 16px;
-}
-
-.modal-footer {
-  border-top: none;
-  padding: 16px 24px 24px;
-}
-
-.btn-close {
+.page-item.active .page-link {
+  background-color: var(--primary-blue);
+  border-color: var(--primary-blue);
   color: var(--text-white);
-  opacity: 0.8;
 }
 
-.btn-close:hover {
-  opacity: 1;
+.page-link:hover {
+  background-color: var(--primary-blue);
+  color: var(--text-white);
+  border-color: var(--primary-blue);
+  text-decoration: none;
 }
 
 /* Responsive Design */
-@media (max-width: 1200px) {
-  .hero-title {
-    font-size: 2.5rem;
-  }
-}
-
-@media (max-width: 992px) {
-  .search-hero {
-    padding: 60px 0;
+@media (max-width: 768px) {
+  .hero-section {
+    padding: 2rem 0;
   }
   
   .hero-title {
     font-size: 2rem;
   }
   
-  .hero-subtitle {
-    font-size: 1.125rem;
-  }
-  
-  .job-list-actions {
-    justify-content: stretch;
-  }
-  
-  .post-job-btn,
-  .location-btn {
-    flex: 1;
-    justify-content: center;
-  }
-}
-
-@media (max-width: 768px) {
-  .search-bar-container {
+  .search-container {
     flex-direction: column;
-    padding: 16px;
-    gap: 16px;
-  }
-  
-  .main-search-input {
-    flex-direction: column;
-    gap: 12px;
-  }
-  
-  .search-input {
-    width: 100%;
+    border-radius: 8px;
   }
   
   .search-btn {
-    width: 100%;
-    justify-content: center;
+    border-radius: 0 0 8px 8px;
   }
   
-  .advanced-search-toggle button {
-    width: 100%;
-    justify-content: center;
+  .main-content {
+    padding: 1rem;
   }
   
-  .job-list-actions {
+  .section-header {
     flex-direction: column;
     align-items: stretch;
-    gap: 12px;
-    margin-top: 16px;
   }
   
-  .list-controls {
-    justify-content: stretch;
-    margin-top: 16px;
-  }
-  
-  .sorting-options {
-    width: 100%;
+  .section-actions {
     justify-content: space-between;
   }
   
-  .sorting-options select {
-    flex: 1;
-    max-width: none;
+  .jobs-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
   }
   
-  .advanced-search-actions {
+  .job-card-content {
+    padding: 1rem;
+  }
+  
+  .job-footer {
     flex-direction: column;
-    gap: 12px;
-  }
-  
-  .advanced-search-actions button,
-  .advanced-search-actions a {
-    width: 100%;
-    justify-content: center;
-  }
-  
-  .job-list-header h2 {
-    font-size: 1.5rem;
-  }
-  
-  .no-jobs-actions {
-    flex-direction: column;
-    align-items: center;
-  }
-  
-  .no-jobs-actions .btn {
-    width: 100%;
-    max-width: 300px;
-    justify-content: center;
-  }
-  
-  .location-options {
-    gap: 12px;
-  }
-  
-  .location-option-btn {
-    padding: 16px;
-  }
-}
-
-@media (max-width: 576px) {
-  .hero-title {
-    font-size: 1.75rem;
-  }
-  
-  .hero-subtitle {
-    font-size: 1rem;
-  }
-  
-  .job-card-header {
-    padding: 20px;
-  }
-  
-  .job-card-body {
-    padding: 20px;
-  }
-  
-  .job-card-footer {
-    padding: 16px 20px;
-    flex-direction: column;
+    gap: 1rem;
     align-items: stretch;
-    gap: 12px;
-  }
-  
-  .footer-left {
-    align-items: center;
-    text-align: center;
   }
   
   .view-details-btn {
-    width: 100%;
-    justify-content: center;
+    text-align: center;
+  }
+}
+
+/* Tab Navigation */
+.tab-navigation {
+  display: flex;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.custom-tabs {
+  border-bottom: 2px solid var(--border-color);
+  margin-bottom: 0;
+  display: inline-flex;
+}
+
+.custom-tabs .nav-link {
+  border: none;
+  border-bottom: 3px solid transparent;
+  background: none;
+  color: var(--text-medium);
+  font-weight: 500;
+  padding: 1rem 1.5rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.custom-tabs .nav-link:hover {
+  border-color: var(--primary-blue);
+  color: var(--primary-blue);
+  background: none;
+}
+
+.custom-tabs .nav-link.active {
+  color: var(--primary-blue);
+  border-bottom-color: var(--primary-blue);
+  background: none;
+}
+
+.custom-tabs .nav-link i {
+  font-size: 1rem;
+}
+
+/* Modal Styles */
+.modal-content {
+  border-radius: 12px;
+  border: none;
+  box-shadow: var(--shadow-lg);
+}
+
+.modal-header {
+  border-bottom: 1px solid var(--border-color);
+  padding: 1.5rem;
+}
+
+.modal-title {
+  color: var(--text-dark);
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.location-options {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.location-option-btn {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  background: var(--background-white);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  width: 100%;
+  text-align: left;
+}
+
+.location-option-btn:hover {
+  border-color: var(--primary-blue);
+  background: var(--background-gray-light);
+}
+
+.location-option-btn.manual-location {
+  cursor: default;
+}
+
+.option-icon {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+  color: var(--text-white);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.option-content {
+  flex: 1;
+}
+
+.option-content h6 {
+  margin: 0 0 0.25rem 0;
+  color: var(--text-dark);
+  font-weight: 600;
+}
+
+.manual-inputs {
+  margin-top: 0.5rem;
+}
+
+.manual-inputs .form-control {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.5rem 0.75rem;
+}
+
+.manual-inputs .form-control:focus {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+#locationStatus .alert {
+  margin: 0;
+  padding: 0.75rem 1rem;
+  border-radius: 6px;
+  border: none;
+}
+
+.alert-info {
+  background-color: rgba(59, 130, 246, 0.1);
+  color: var(--primary-blue);
+}
+
+.alert-success {
+  background-color: rgba(16, 185, 129, 0.1);
+  color: var(--success-green);
+}
+
+.alert-danger {
+  background-color: rgba(239, 68, 68, 0.1);
+  color: var(--danger-red);
+}
+
+/* Advanced Search Panel */
+.advanced-search-toggle {
+  margin-top: 1rem;
+}
+
+.advanced-search-toggle .btn {
+  background-color: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  color: var(--text-white);
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.advanced-search-toggle .btn:hover {
+  background-color: rgba(255, 255, 255, 0.2);
+  color: var(--text-white);
+}
+
+.toggle-icon {
+  margin-left: 0.5rem;
+  transition: transform 0.3s ease;
+}
+
+.toggle-icon.rotated {
+  transform: rotate(180deg);
+}
+
+.advanced-search-panel {
+  background-color: var(--background-white);
+  border-radius: 12px;
+  margin-top: 1rem;
+  padding: 2rem;
+  box-shadow: var(--shadow-lg);
+  border: 1px solid var(--border-color);
+}
+
+.panel-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.panel-header h3 {
+  color: var(--text-dark);
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+.panel-header p {
+  color: var(--text-light);
+  margin: 0;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.form-group label i {
+  color: var(--primary-blue);
+}
+
+.form-control {
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  padding: 0.75rem 1rem;
+  font-size: 0.875rem;
+  transition: all 0.2s ease;
+}
+
+.form-control:focus {
+  border-color: var(--primary-blue);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  outline: none;
+}
+
+.budget-range {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.budget-range .form-control {
+  flex: 1;
+}
+
+.range-separator {
+  color: var(--text-light);
+  font-size: 0.875rem;
+  font-weight: 500;
+}
+
+.advanced-search-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Distance Display */
+.job-distance {
+  color: var(--success-green) !important;
+  font-weight: 500;
+}
+
+.job-distance i {
+  color: var(--success-green);
+}
+
+/* Responsive adjustments for advanced search */
+@media (max-width: 768px) {
+  .advanced-search-panel {
+    padding: 1rem;
   }
   
   .budget-range {
     flex-direction: column;
-    gap: 8px;
+    align-items: stretch;
   }
   
   .range-separator {
-    display: none;
+    text-align: center;
+    padding: 0.25rem 0;
   }
   
-  .pagination .page-link {
-    width: 36px;
-    height: 36px;
-    font-size: 14px;
+  .advanced-search-actions {
+    flex-direction: column;
   }
 }
 </style>
 
-<script>
-function applySorting(sortValue) {
-    const currentUrl = new URL(window.location.href);
-    const searchParams = currentUrl.searchParams;
-
-    // Update sort parameter
-    searchParams.set('sort', sortValue);
-
-    // Keep the page at 1 when sorting changes
-    searchParams.set('page', '1');
-
-    // Redirect to the new URL
-    window.location.href = currentUrl.toString();
-}
-
-// Get CSRF token for AJAX requests
-function getCookie(name) {
-    let cookieValue = null;
-    if (document.cookie && document.cookie !== '') {
-        const cookies = document.cookie.split(';');
-        for (let i = 0; i < cookies.length; i++) {
-            const cookie = cookies[i].trim();
-            if (cookie.substring(0, name.length + 1) === (name + '=')) {
-                cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
-                break;
-            }
-        }
-    }
-    return cookieValue;
-}
-
-document.addEventListener('DOMContentLoaded', function() {
-    // Toggle advanced search panel with enhanced animation
-    const advancedSearchBtn = document.getElementById('advanced-search-btn');
-    const advancedSearchPanel = document.getElementById('advanced-search-panel');
-    const toggleIcon = advancedSearchBtn.querySelector('.toggle-icon');
-
-    advancedSearchBtn.addEventListener('click', function() {
-        const isHidden = advancedSearchPanel.style.display === 'none';
-        
-        if (isHidden) {
-            advancedSearchPanel.style.display = 'block';
-            advancedSearchPanel.style.opacity = '0';
-            advancedSearchPanel.style.transform = 'translateY(-10px)';
-            
-            // Animate in
-            setTimeout(() => {
-                advancedSearchPanel.style.transition = 'all 0.3s ease';
-                advancedSearchPanel.style.opacity = '1';
-                advancedSearchPanel.style.transform = 'translateY(0)';
-            }, 10);
-            
-            advancedSearchBtn.innerHTML = '<i class="fa fa-sliders-h"></i><span>Filters</span><i class="fa fa-chevron-up toggle-icon"></i>';
-        } else {
-            advancedSearchPanel.style.transition = 'all 0.3s ease';
-            advancedSearchPanel.style.opacity = '0';
-            advancedSearchPanel.style.transform = 'translateY(-10px)';
-            
-            setTimeout(() => {
-                advancedSearchPanel.style.display = 'none';
-            }, 300);
-            
-            advancedSearchBtn.innerHTML = '<i class="fa fa-sliders-h"></i><span>Filters</span><i class="fa fa-chevron-down toggle-icon"></i>';
-        }
-    });
-
-    // Show advanced panel if any of the advanced filters are active
-    {% if request.GET.category or request.GET.municipality or request.GET.barangay or request.GET.min_budget or request.GET.max_budget %}
-        advancedSearchPanel.style.display = 'block';
-        advancedSearchBtn.innerHTML = '<i class="fa fa-sliders-h"></i><span>Filters</span><i class="fa fa-chevron-up toggle-icon"></i>';
-    {% endif %}
-
-    // Enhanced favorite button functionality
-    document.querySelectorAll('.btn-favorite').forEach(button => {
-        button.addEventListener('click', function(e) {
-            e.preventDefault();
-            const icon = this.querySelector('i');
-            
-            if (icon.classList.contains('fa-heart')) {
-                icon.classList.remove('fa-heart');
-                icon.classList.add('fas', 'fa-heart');
-                this.style.color = '#ef4444';
-                this.title = 'Remove from favorites';
-            } else {
-                icon.classList.remove('fas', 'fa-heart');
-                icon.classList.add('fa-heart');
-                this.style.color = '';
-                this.title = 'Save job';
-            }
-        });
-    });
-
-    // Handle "Use My Current Location" button with loading state
-    document.getElementById("useCurrentLocation").addEventListener("click", function () {
-        const button = this;
-        const originalContent = button.innerHTML;
-        
-        // Show loading state
-        button.innerHTML = '<i class="fa fa-spinner fa-spin"></i><div class="btn-content"><span class="btn-title">Getting Location...</span><span class="btn-subtitle">Please wait</span></div>';
-        button.disabled = true;
-        
-        if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-                function (position) {
-                    document.getElementById("lat").value = position.coords.latitude;
-                    document.getElementById("lng").value = position.coords.longitude;
-                    
-                    // Show success state briefly
-                    button.innerHTML = '<i class="fa fa-check"></i><div class="btn-content"><span class="btn-title">Location Found!</span><span class="btn-subtitle">Redirecting...</span></div>';
-                    
-                    setTimeout(() => {
-                        document.getElementById("filter-form").submit();
-                    }, 1000);
-                },
-                function (error) {
-                    // Reset button state
-                    button.innerHTML = originalContent;
-                    button.disabled = false;
-                    
-                    let errorMessage = "Error getting location: ";
-                    switch(error.code) {
-                        case error.PERMISSION_DENIED:
-                            errorMessage += "Location access denied by user.";
-                            break;
-                        case error.POSITION_UNAVAILABLE:
-                            errorMessage += "Location information is unavailable.";
-                            break;
-                        case error.TIMEOUT:
-                            errorMessage += "Location request timed out.";
-                            break;
-                        default:
-                            errorMessage += "An unknown error occurred.";
-                            break;
-                    }
-                    alert(errorMessage);
-                }
-            );
-        } else {
-            button.innerHTML = originalContent;
-            button.disabled = false;
-            alert("Geolocation is not supported by your browser.");
-        }
-    });
-
-    // Handle "Enter Manually" button
-    document.getElementById("enterManualLocationBtn").addEventListener("click", function () {
-        document.getElementById("manualLocationFields").classList.remove("d-none");
-        document.getElementById("manualSaveFooter").classList.remove("d-none");
-        
-        // Focus on first input
-        document.getElementById("manual_municipality").focus();
-    });
-
-    // Handle "Save Manual Location" button with enhanced validation
-    document.getElementById("saveManualLocation").addEventListener("click", function () {
-        const button = this;
-        const originalContent = button.innerHTML;
-        
-        const city = document.getElementById("manual_municipality").value.trim();
-        const barangay = document.getElementById("manual_barangay").value.trim();
-        const street = document.getElementById("manual_street").value.trim();
-        const number = document.getElementById("manual_number").value.trim();
-
-        // Validation
-        if (!city) {
-            alert("Please enter a municipality/city.");
-            document.getElementById("manual_municipality").focus();
-            return;
-        }
-
-        const fullAddress = [number, street, barangay, city].filter(Boolean).join(", ");
-        
-        // Show loading state
-        button.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Finding Location...';
-        button.disabled = true;
-
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}&countrycodes=ph&limit=1`)
-            .then(response => response.json())
-            .then(data => {
-                if (data && data.length > 0) {
-                    document.getElementById("lat").value = data[0].lat;
-                    document.getElementById("lng").value = data[0].lon;
-                    
-                    // Show success state
-                    button.innerHTML = '<i class="fa fa-check"></i> Location Found!';
-                    
-                    setTimeout(() => {
-                        document.getElementById("filter-form").submit();
-                    }, 1000);
-                } else {
-                    // Reset button state
-                    button.innerHTML = originalContent;
-                    button.disabled = false;
-                    alert("Address not found. Please check your input and try again.");
-                }
-            })
-            .catch(error => {
-                // Reset button state
-                button.innerHTML = originalContent;
-                button.disabled = false;
-                alert("Error finding location. Please check your internet connection and try again.");
-            });
-    });
-
-    // Store user location in the backend (if endpoint exists)
-    function storeUserLocation(lat, lng) {
-        fetch('/set-location/', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRFToken': getCookie('csrftoken')
-            },
-            body: JSON.stringify({ lat: lat, lng: lng })
-        }).catch(error => {
-            console.log('Location storage endpoint not available');
-        });
-    }
-
-    // Enhanced search input with debounced suggestions (if you want to add this feature)
-    const searchInput = document.querySelector('.search-input');
-    let searchTimeout;
+<!-- Hero Section -->
+<div class="hero-section">
+  <div class="container">
+    <h1 class="hero-title" id="hero-title">Find Your Perfect Job</h1>
+    <p class="hero-subtitle" id="hero-subtitle">Discover opportunities that match your skills and location</p>
     
-    searchInput.addEventListener('input', function() {
-        clearTimeout(searchTimeout);
-        searchTimeout = setTimeout(() => {
-            // You can add search suggestions here
-            console.log('Search query:', this.value);
-        }, 300);
+    <!-- Search Bar -->
+    <form method="get" action="{% url 'jobs:job_list' %}" id="search-form">
+      <div class="search-container">
+        <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Search jobs, skills, or companies..." class="search-input" id="search-input">
+        <button type="submit" class="search-btn">Search</button>
+      </div>
+      
+      <!-- Hidden inputs to preserve tab state -->
+      <input type="hidden" name="tab" id="active-tab" value="{{ request.GET.tab|default:'jobs' }}">
+      
+      <!-- Advanced Search Toggle -->
+      <div class="advanced-search-toggle text-center mt-3">
+        <button type="button" id="advanced-search-btn" class="btn btn-outline-light">
+          <i class="fa fa-sliders-h"></i>
+          <span>Advanced Filters</span>
+          <i class="fa fa-chevron-down toggle-icon"></i>
+        </button>
+      </div>
+
+      <!-- Advanced Search Panel -->
+      <div id="advanced-search-panel" class="advanced-search-panel" style="display: none;">
+        <div class="panel-header">
+          <h3>Advanced Filters</h3>
+          <p>Refine your search to find the perfect job</p>
+        </div>
+        <div class="row">
+          <div class="col-md-6 col-lg-3">
+            <div class="form-group">
+              <label for="category"><i class="fa fa-tag"></i> Category</label>
+              <select name="category" id="category" class="form-control">
+                <option value="">All Categories</option>
+                {% for category in categories %}
+                <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"i" %}selected{% endif %}>
+                  {{ category.name }}
+                </option>
+                {% endfor %}
+              </select>
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3">
+            <div class="form-group">
+              <label for="municipality"><i class="fa fa-city"></i> Municipality</label>
+              <input type="text" name="municipality" id="municipality" value="{{ request.GET.municipality|default:'' }}" class="form-control" placeholder="Enter municipality">
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3">
+            <div class="form-group">
+              <label for="barangay"><i class="fa fa-map-marker-alt"></i> Barangay</label>
+              <input type="text" name="barangay" id="barangay" value="{{ request.GET.barangay|default:'' }}" class="form-control" placeholder="Enter barangay">
+            </div>
+          </div>
+          <div class="col-md-6 col-lg-3">
+            <div class="form-group">
+              <label><i class="fa fa-peso-sign"></i> Budget Range</label>
+              <div class="budget-range">
+                <input type="number" name="min_budget" value="{{ request.GET.min_budget|default:'' }}" class="form-control" placeholder="Min ₱">
+                <span class="range-separator">to</span>
+                <input type="number" name="max_budget" value="{{ request.GET.max_budget|default:'' }}" class="form-control" placeholder="Max ₱">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="advanced-search-actions">
+          <button type="submit" class="btn btn-primary">
+            <i class="fa fa-filter"></i> Apply Filters
+          </button>
+          <a href="{% url 'jobs:job_list' %}" class="btn btn-outline-secondary">
+            <i class="fa fa-times"></i> Clear All
+          </a>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Tab Navigation -->
+<div class="tab-navigation">
+  <ul class="nav nav-tabs custom-tabs" id="postTabs" role="tablist">
+    <li class="nav-item" role="presentation">
+      <button class="nav-link {% if request.GET.tab != 'services' %}active{% endif %}" id="jobs-tab" data-bs-toggle="tab" data-bs-target="#jobs" type="button" role="tab" aria-controls="jobs" aria-selected="{% if request.GET.tab != 'services' %}true{% else %}false{% endif %}" data-tab-type="jobs">
+        <i class="fa fa-briefcase"></i>
+        Job Posts
+      </button>
+    </li>
+    <li class="nav-item" role="presentation">
+      <button class="nav-link {% if request.GET.tab == 'services' %}active{% endif %}" id="services-tab" data-bs-toggle="tab" data-bs-target="#services" type="button" role="tab" aria-controls="services" aria-selected="{% if request.GET.tab == 'services' %}true{% else %}false{% endif %}" data-tab-type="services">
+        <i class="fa fa-tools"></i>
+        Service Posts
+      </button>
+    </li>
+  </ul>
+</div>
+
+<!-- Main Content -->
+<div class="main-content">
+  <!-- Tab Content -->
+  <div class="tab-content" id="postTabsContent">
+    <!-- Jobs Tab -->
+    <div class="tab-pane fade {% if active_tab != 'services' %}show active{% endif %}" id="jobs" role="tabpanel" aria-labelledby="jobs-tab">
+      <!-- Section Header -->
+      <div class="section-header">
+        <h2 class="section-title">Available Jobs <span class="text-muted">({{ jobs_count }})</span></h2>
+        <div class="section-actions">
+          {% if user.is_authenticated %}
+          <a href="{% url 'jobs:job_create' %}" class="btn btn-primary">
+            <i class="fa fa-plus"></i>
+            Post Job
+          </a>
+          {% endif %}
+          <button class="btn btn-outline" data-bs-toggle="modal" data-bs-target="#locationModal">
+            <i class="fa fa-map-marker-alt"></i>
+            Set Location
+          </button>
+          <div class="sort-controls">
+            <span class="sort-label">Sort by:</span>
+            <select class="sort-select" onchange="sortJobs(this.value)">
+              <option value="date_desc" {% if request.GET.sort == 'date_desc' or not request.GET.sort %}selected{% endif %}>Newest First</option>
+              <option value="date_asc" {% if request.GET.sort == 'date_asc' %}selected{% endif %}>Oldest First</option>
+              <option value="budget_desc" {% if request.GET.sort == 'budget_desc' %}selected{% endif %}>Highest Budget</option>
+              <option value="budget_asc" {% if request.GET.sort == 'budget_asc' %}selected{% endif %}>Lowest Budget</option>
+              {% if request.GET.lat and request.GET.lng %}
+              <option value="distance" {% if request.GET.sort == 'distance' %}selected{% endif %}>Nearest First</option>
+              {% endif %}
+            </select>
+          </div>
+        </div>
+      </div>
+
+      <!-- Jobs Grid -->
+      <div class="jobs-grid">
+        {% for job in jobs %}
+        <div class="job-card">
+          <div class="job-image-container">
+            {% if job.jobimage_set.exists %}
+            <img src="{{ job.jobimage_set.first.image.url }}" class="job-image" alt="{{ job.title }}">
+            {% else %}
+            <div class="no-image">
+              <i class="fa fa-image"></i>
+              <span>No image available</span>
+            </div>
+            {% endif %}
+          </div>
+          
+          <div class="job-card-content">
+            <h3 class="job-title">
+              <a href="{% url 'jobs:job_detail' job.id %}">{{ job.title }}</a>
+            </h3>
+            
+            <div class="job-meta">
+              <span>
+                <i class="fa fa-map-marker-alt"></i>
+                {{ job.municipality }}{% if job.barangay %}, {{ job.barangay }}{% endif %}
+              </span>
+              <span>
+                <i class="fa fa-calendar-alt"></i>
+                {{ job.created_at|date:"M d, Y" }}
+              </span>
+              {% if job.distance_km %}
+              <span class="job-distance">
+                <i class="fa fa-location-arrow"></i>
+                {{ job.distance_km|floatformat:1 }} km away
+              </span>
+              {% endif %}
+            </div>
+            
+            <p class="job-description">{{ job.description|truncatechars:120 }}</p>
+            
+            <div class="job-footer">
+              <div class="job-price">₱{{ job.budget|floatformat:0 }}</div>
+              <a href="{% url 'jobs:job_detail' job.id %}" class="view-details-btn">
+                View Details
+              </a>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+          <i class="fa fa-briefcase"></i>
+          <h3>No jobs found</h3>
+          <p>Try adjusting your search criteria or check back later for new opportunities.</p>
+        </div>
+        {% endfor %}
+      </div>
+
+      <!-- Pagination for Jobs -->
+      {% if is_paginated %}
+      <div class="pagination-container">
+        <nav aria-label="Job listings pagination">
+          <ul class="pagination">
+            {% if page_obj.has_previous %}
+            <li class="page-item">
+              <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page=1">
+                <i class="fa fa-angle-double-left"></i>
+              </a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">
+                <i class="fa fa-angle-left"></i>
+              </a>
+            </li>
+            {% endif %}
+
+            {% for num in page_obj.paginator.page_range %}
+                {% if page_obj.number == num %}
+                <li class="page-item active">
+                  <span class="page-link">{{ num }}</span>
+                </li>
+                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+                <li class="page-item">
+                  <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
+                </li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page_obj.has_next %}
+            <li class="page-item">
+              <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">
+                <i class="fa fa-angle-right"></i>
+              </a>
+            </li>
+            <li class="page-item">
+              <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}">
+                <i class="fa fa-angle-double-right"></i>
+              </a>
+            </li>
+            {% endif %}
+          </ul>
+        </nav>
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Services Tab -->
+    <div class="tab-pane fade {% if active_tab == 'services' %}show active{% endif %}" id="services" role="tabpanel" aria-labelledby="services-tab">
+      <!-- Section Header -->
+      <div class="section-header">
+        <h2 class="section-title">Available Services <span class="text-muted">({{ services_count }})</span></h2>
+        <div class="section-actions">
+          {% if user.is_authenticated %}
+          <a href="{% url 'services:servicepost_create' %}" class="btn btn-primary">
+            <i class="fa fa-plus"></i>
+            Post Service
+          </a>
+          {% endif %}
+          <button class="btn btn-outline" data-bs-toggle="modal" data-bs-target="#locationModal">
+            <i class="fa fa-map-marker-alt"></i>
+            Set Location
+          </button>
+        </div>
+      </div>
+
+      <!-- Services Grid -->
+      <div class="jobs-grid">
+        {% for service in services %}
+        <div class="job-card">
+          <div class="job-image-container">
+            {% with service.images.first as service_image %}
+              {% if service_image %}
+                <img src="{{ service_image.image.url }}" class="job-image" alt="{{ service.headline }}">
+              {% else %}
+              <div class="no-image">
+                <i class="fa fa-tools"></i>
+                <span>No image available</span>
+              </div>
+              {% endif %}
+            {% endwith %}
+          </div>
+          
+          <div class="job-card-content">
+            <h3 class="job-title">
+              <a href="{{ service.get_absolute_url }}">[Service] {{ service.headline }}</a>
+            </h3>
+            
+            <div class="job-meta">
+              <span>
+                <i class="fa fa-calendar-alt"></i>
+                {{ service.created_at|date:"M d, Y" }}
+              </span>
+              {% if service.distance %}
+              <span class="job-distance">
+                <i class="fa fa-location-arrow"></i>
+                {{ service.distance.km|floatformat:1 }} km away
+              </span>
+              {% endif %}
+            </div>
+            
+            <p class="job-description">{{ service.description|truncatechars:120 }}</p>
+            
+            <div class="job-footer">
+              <div class="job-price">Service</div>
+              <a href="{{ service.get_absolute_url }}" class="view-details-btn">
+                View Details
+              </a>
+            </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+          <i class="fa fa-tools"></i>
+          <h3>No services found</h3>
+          <p>Check back later for new service opportunities.</p>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Location Modal -->
+<div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="locationModalLabel">
+          <i class="fa fa-map-marker-alt"></i>
+          Set Your Location
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted mb-3">Choose how you'd like to set your location to find jobs near you.</p>
+        
+        <div class="location-options">
+          <button type="button" class="location-option-btn" onclick="getCurrentLocation()">
+            <div class="option-icon">
+              <i class="fa fa-crosshairs"></i>
+            </div>
+            <div class="option-content">
+              <h6>Use Current Location</h6>
+              <small class="text-muted">Automatically detect your location</small>
+            </div>
+          </button>
+          
+          <div class="location-option-btn manual-location">
+            <div class="option-icon">
+              <i class="fa fa-edit"></i>
+            </div>
+            <div class="option-content">
+              <h6>Enter Manually</h6>
+              <div class="manual-inputs">
+                <input type="text" class="form-control mb-2" id="manualCity" placeholder="Enter city/municipality">
+                <input type="text" class="form-control" id="manualBarangay" placeholder="Enter barangay (optional)">
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        <div id="locationStatus" class="mt-3" style="display: none;">
+          <div class="alert alert-info">
+            <i class="fa fa-spinner fa-spin"></i>
+            <span id="statusText">Getting your location...</span>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="applyManualLocation()">Apply Location</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script>
+// Update hero text based on active tab
+function updateHeroText(tabType) {
+  const heroTitle = document.getElementById('hero-title');
+  const heroSubtitle = document.getElementById('hero-subtitle');
+  const searchInput = document.getElementById('search-input');
+  
+  if (tabType === 'services') {
+    heroTitle.textContent = 'Find Professional Services';
+    heroSubtitle.textContent = 'Discover skilled professionals ready to help with your needs';
+    searchInput.placeholder = 'Search services, skills, or providers...';
+  } else {
+    heroTitle.textContent = 'Find Your Perfect Job';
+    heroSubtitle.textContent = 'Discover opportunities that match your skills and location';
+    searchInput.placeholder = 'Search jobs, skills, or companies...';
+  }
+}
+
+// Handle tab switching
+document.addEventListener('DOMContentLoaded', function() {
+  const tabButtons = document.querySelectorAll('.nav-link[data-tab-type]');
+  const activeTabInput = document.getElementById('active-tab');
+  
+  tabButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const tabType = this.getAttribute('data-tab-type');
+      activeTabInput.value = tabType;
+      
+      // Refresh the page with the selected tab
+      const url = new URL(window.location);
+      url.searchParams.set('tab', tabType);
+      window.location.href = url.toString();
     });
-
-    // Add smooth scrolling to job cards when they come into view
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
-    };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.transform = 'translateY(0)';
-            }
-        });
-    }, observerOptions);
-
-    // Observe job cards for animation
-    document.querySelectorAll('.job-card').forEach((card, index) => {
-        card.style.opacity = '0';
-        card.style.transform = 'translateY(20px)';
-        card.style.transition = `opacity 0.6s ease ${index * 0.1}s, transform 0.6s ease ${index * 0.1}s`;
-        observer.observe(card);
-    });
+  });
+  
+  // Call updateHeroText with current active tab on page load
+  updateHeroText(activeTabInput.value);
 });
 </script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Existing tab switch listeners...
+  const tabButtons = document.querySelectorAll('.nav-link[data-tab-type]');
+  const activeTabInput = document.getElementById('active-tab');
+  
+  tabButtons.forEach(button => {
+    button.addEventListener('click', function() {
+      const tabType = this.getAttribute('data-tab-type');
+      activeTabInput.value = tabType;
+      
+      // Refresh the page with the selected tab
+      const url = new URL(window.location);
+      url.searchParams.set('tab', tabType);
+      window.location.href = url.toString();
+    });
+  });
+  
+  // Call updateHeroText with current active tab on page load
+  updateHeroText(activeTabInput.value);
+});
+</script>
+
+<script>
+// Update sort functionality to preserve filters and tab
+function sortJobs(sortBy) {
+  const url = new URL(window.location);
+  url.searchParams.set('sort', sortBy);
+  window.location.href = url.toString();
+}
+
+// Update location functions to preserve filters and tab
+function getCurrentLocation() {
+  const statusDiv = document.getElementById('locationStatus');
+  const activeTab = document.getElementById('active-tab').value;
+  
+  statusDiv.style.display = 'block';
+  statusDiv.innerHTML = '<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> <span>Getting your location...</span></div>';
+
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function(position) {
+        const lat = position.coords.latitude;
+        const lng = position.coords.longitude;
+        
+        // Create URL with current filters and new location
+        const url = new URL(window.location);
+        url.searchParams.set('lat', lat);
+        url.searchParams.set('lng', lng);
+        url.searchParams.set('tab', activeTab);
+        
+        statusDiv.innerHTML = '<div class="alert alert-success"><i class="fa fa-check-circle"></i> <span>Location detected successfully!</span></div>';
+        
+        setTimeout(() => {
+          const modal = bootstrap.Modal.getInstance(document.getElementById('locationModal'));
+          modal.hide();
+          window.location.href = url.toString();
+        }, 1500);
+      },
+      function(error) {
+        let errorMessage = 'Unable to get your location. ';
+        switch(error.code) {
+          case error.PERMISSION_DENIED:
+            errorMessage += 'Please allow location access.';
+            break;
+          case error.POSITION_UNAVAILABLE:
+            errorMessage += 'Location information unavailable.';
+            break;
+          case error.TIMEOUT:
+            errorMessage += 'Location request timed out.';
+            break;
+          default:
+            errorMessage += 'An unknown error occurred.';
+            break;
+        }
+        
+        statusDiv.innerHTML = `<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> <span>${errorMessage}</span></div>`;
+      }
+    );
+  } else {
+    statusDiv.innerHTML = '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> <span>Geolocation is not supported by this browser.</span></div>';
+  }
+}
+
+function applyManualLocation() {
+  const city = document.getElementById('manualCity').value.trim();
+  const barangay = document.getElementById('manualBarangay').value.trim();
+  const activeTab = document.getElementById('active-tab').value;
+  
+  if (!city) {
+    alert('Please enter a city or municipality.');
+    return;
+  }
+  
+  // Create URL with current filters and manual location
+  const url = new URL(window.location);
+  url.searchParams.set('municipality', city);
+  if (barangay) {
+    url.searchParams.set('barangay', barangay);
+  }
+  url.searchParams.delete('lat');
+  url.searchParams.delete('lng');
+  url.searchParams.set('tab', activeTab);
+  
+  const modal = bootstrap.Modal.getInstance(document.getElementById('locationModal'));
+  modal.hide();
+  window.location.href = url.toString();
+}
+</script>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+  const toggleBtn = document.getElementById("advanced-search-btn");
+  const advancedPanel = document.getElementById("advanced-search-panel");
+  
+  if (toggleBtn && advancedPanel) {
+    toggleBtn.addEventListener("click", function() {
+      // Toggle display from none to block (and vice versa)
+      if (advancedPanel.style.display === "none" || advancedPanel.style.display === "") {
+        advancedPanel.style.display = "block";
+        // Optionally rotate a toggle icon, if present
+        let icon = toggleBtn.querySelector(".toggle-icon");
+        if (icon) {
+          icon.classList.add("rotated");
+        }
+      } else {
+        advancedPanel.style.display = "none";
+        let icon = toggleBtn.querySelector(".toggle-icon");
+        if (icon) {
+          icon.classList.remove("rotated");
+        }
+      }
+    });
+  }
+});
+</script>
+
 {% endblock %}
