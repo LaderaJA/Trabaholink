@@ -103,33 +103,103 @@
               <h4>Education</h4>
               <p class="text-muted">Enter your educational background. Use the calendar to select dates.</p>
           </div>
-          {% if education_formset %}
-              {% for edu_form in education_formset %}
-                  <div class="education-form border p-2 mb-2">
-                      {{ edu_form.as_p }}
+          {{ education_formset.management_form }}
+          {% for form in education_formset %}
+              <div class="education-form border p-3 mb-3">
+                  {{ form.id }}
+                  <div class="row">
+                      <div class="col-md-6">
+                          <div class="form-group">
+                              {{ form.degree.label_tag }}
+                              {{ form.degree }}
+                              {{ form.degree.errors }}
+                          </div>
+                      </div>
+                      <div class="col-md-6">
+                          <div class="form-group">
+                              {{ form.institution.label_tag }}
+                              {{ form.institution }}
+                              {{ form.institution.errors }}
+                          </div>
+                      </div>
                   </div>
-              {% endfor %}
-          {% else %}
-              <p class="text-muted">No education details provided.</p>
-          {% endif %}
-          <a href="#" id="add-education" class="add-link">Add Education</a>
+                  <div class="row">
+                      <div class="col-md-6">
+                          <div class="form-group">
+                              {{ form.start_date.label_tag }}
+                              {{ form.start_date }}
+                              {{ form.start_date.errors }}
+                          </div>
+                      </div>
+                      <div class="col-md-6">
+                          <div class="form-group">
+                              {{ form.end_date.label_tag }}
+                              {{ form.end_date }}
+                              {{ form.end_date.errors }}
+                          </div>
+                      </div>
+                  </div>
+                  <div class="form-group">
+                      {{ form.description.label_tag }}
+                      {{ form.description }}
+                      {{ form.description.errors }}
+                  </div>
+                  {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
+              </div>
+          {% endfor %}
+          <button type="button" class="btn btn-outline-secondary btn-sm" id="add-education">Add Education</button>
           
           <hr>
           <!-- Work Experience Section -->
           <div class="section-header">
               <h4>Work Experience</h4>
-              <p class="text-muted">Enter your work experiences. The date fields will allow you to pick a date from the calendar.</p>
+              <p class="text-muted">Enter your work experiences.</p>
           </div>
-          {% if experience_formset %}
-              {% for exp_form in experience_formset %}
-                  <div class="experience-form border p-2 mb-2">
-                      {{ exp_form.as_p }}
+          {{ experience_formset.management_form }}
+          {% for form in experience_formset %}
+              <div class="experience-form border p-3 mb-3">
+                  {{ form.id }}
+                  <div class="row">
+                      <div class="col-md-6">
+                          <div class="form-group">
+                              {{ form.job_title.label_tag }}
+                              {{ form.job_title }}
+                              {{ form.job_title.errors }}
+                          </div>
+                      </div>
+                      <div class="col-md-6">
+                          <div class="form-group">
+                              {{ form.company.label_tag }}
+                              {{ form.company }}
+                              {{ form.company.errors }}
+                          </div>
+                      </div>
                   </div>
-              {% endfor %}
-          {% else %}
-              <p class="text-muted">No work experience provided.</p>
-          {% endif %}
-          <a href="#" id="add-experience" class="add-link">Add Work Experience</a>
+                  <div class="row">
+                      <div class="col-md-6">
+                          <div class="form-group">
+                              {{ form.start_date.label_tag }}
+                              {{ form.start_date }}
+                              {{ form.start_date.errors }}
+                          </div>
+                      </div>
+                      <div class="col-md-6">
+                          <div class="form-group">
+                              {{ form.end_date.label_tag }}
+                              {{ form.end_date }}
+                              {{ form.end_date.errors }}
+                          </div>
+                      </div>
+                  </div>
+                  <div class="form-group">
+                      {{ form.description.label_tag }}
+                      {{ form.description }}
+                      {{ form.description.errors }}
+                  </div>
+                  {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
+              </div>
+          {% endfor %}
+          <button type="button" class="btn btn-outline-secondary btn-sm" id="add-experience">Add Work Experience</button>
           
           <hr>
           <button type="submit" class="btn btn-primary">Update Profile</button>
@@ -164,14 +234,48 @@
       });
     }
 
-    document.getElementById("add-education").addEventListener("click", function(e) {
-        e.preventDefault();
-        alert("Add Education functionality is not implemented yet.");
-    });
-    document.getElementById("add-experience").addEventListener("click", function(e) {
-        e.preventDefault();
-        alert("Add Work Experience functionality is not implemented yet.");
+    document.addEventListener('DOMContentLoaded', function() {
+        // Add Education Form
+        document.getElementById('add-education').addEventListener('click', function(e) {
+            e.preventDefault();
+            const formCount = document.getElementById('id_education-TOTAL_FORMS');
+            const formNum = parseInt(formCount.value);
+            const newForm = document.createElement('div');
+            newForm.className = 'education-form border p-3 mb-3';
+            newForm.innerHTML = document.querySelector('.education-form').innerHTML
+                .replace(/education-\d+-/g, `education-${formNum}-`)
+                .replace(/\[\d+\]/g, `[${formNum}]`)
+                .replace(/value="[^"]*"/g, '')
+                .replace(/checked/g, '');
+            document.querySelector('#add-education').parentNode.insertBefore(newForm, document.querySelector('#add-education'));
+            formCount.value = formNum + 1;
+        });
+
+        // Add Experience Form
+        document.getElementById('add-experience').addEventListener('click', function(e) {
+            e.preventDefault();
+            const formCount = document.getElementById('id_experience-TOTAL_FORMS');
+            const formNum = parseInt(formCount.value);
+            const newForm = document.createElement('div');
+            newForm.className = 'experience-form border p-3 mb-3';
+            newForm.innerHTML = document.querySelector('.experience-form').innerHTML
+                .replace(/experience-\d+-/g, `experience-${formNum}-`)
+                .replace(/\[\d+\]/g, `[${formNum}]`)
+                .replace(/value="[^"]*"/g, '')
+                .replace(/checked/g, '');
+            document.querySelector('#add-experience').parentNode.insertBefore(newForm, document.querySelector('#add-experience'));
+            formCount.value = formNum + 1;
+        });
+
+        // Handle form submission
+        document.querySelector('form').addEventListener('submit', function() {
+            // Update total form count before submission
+            const educationForms = document.querySelectorAll('.education-form');
+            document.getElementById('id_education-TOTAL_FORMS').value = educationForms.length;
+            
+            const experienceForms = document.querySelectorAll('.experience-form');
+            document.getElementById('id_experience-TOTAL_FORMS').value = experienceForms.length;
+        });
     });
 </script>
 {% endblock %}
-

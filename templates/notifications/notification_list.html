@@ -9,7 +9,7 @@
     {% if notifications %}
     <ul class="notification-list list-group shadow-sm">
         {% for notification in notifications %}
-        <a href="{{ notification.target_url }}"
+        <a href="{{ notification.target_url_with_read }}"
            class="list-group-item list-group-item-action d-flex align-items-center {% if not notification.is_read %}unread{% endif %}"
            style="text-decoration:none; position:relative;">
             <div class="notif-icon me-3">

@@ -90,9 +90,34 @@ class UserProfileForm(forms.ModelForm):
 
 # Skill Verification Form
 class SkillVerificationForm(forms.ModelForm):
+    skill_name = forms.CharField(
+        label='Skill Name',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your skill, e.g. Driving',
+            'id': 'id_skill_name'
+        })
+    )
+    description = forms.CharField(
+        label='Description',
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 3,
+            'placeholder': 'Brief description',
+            'id': 'id_description'
+        })
+    )
+    proof = forms.FileField(
+        label='Upload Proof',
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'id': 'id_proof'
+        })
+    )
+
     class Meta:
         model = Skill
-        fields = ['name', 'description', 'proof']
+        fields = ['skill_name', 'description', 'proof']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your skill, e.g. Driving'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Brief description'}),
@@ -116,16 +141,16 @@ class CompletedJobGalleryForm(forms.ModelForm):
 class UserLocationForm(forms.ModelForm):
     class Meta:
         model = CustomUser
-        fields = ['notification_location']
+        fields = ['location']
         widgets = {
-            'notification_location': forms.HiddenInput()
+            'location': forms.HiddenInput(attrs={'id': 'id_location'})
         }
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        if self.instance and self.instance.notification_location:
+        if self.instance and self.instance.location:
             # Set the initial value using the WKT representation
-            self.fields['notification_location'].initial = self.instance.notification_location.wkt
+            self.fields['location'].initial = self.instance.location.wkt
 
 # Identity Verification Form
 class IdentityVerificationForm(forms.ModelForm):

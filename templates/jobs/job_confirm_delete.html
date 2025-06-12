@@ -1,12 +1,163 @@
 {% extends 'mainpages/base.html' %}
 {% block content %}
-<div class="container">
-    <h2>Delete Job</h2>
-    <p>Are you sure you want to delete "{{ job.title }}"?</p>
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Yes, Delete</button>
-        <a href="{% url 'jobs:job_list' %}" class="btn btn-secondary">Cancel</a>
-    </form>
+<style>
+  .delete-container {
+    max-width: 500px;
+    margin: 60px auto;
+    padding: 40px;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    text-align: center;
+  }
+  
+  .warning-icon {
+    width: 60px;
+    height: 60px;
+    background: #fef2f2;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+  }
+  
+  .warning-triangle {
+    width: 0;
+    height: 0;
+    border-left: 12px solid transparent;
+    border-right: 12px solid transparent;
+    border-bottom: 20px solid #ef4444;
+    position: relative;
+  }
+  
+  .warning-triangle::after {
+    content: '!';
+    position: absolute;
+    top: 8px;
+    left: -3px;
+    color: white;
+    font-weight: bold;
+    font-size: 12px;
+  }
+  
+  .delete-title {
+    font-size: 1.5rem;
+    color: #1f2937;
+    margin-bottom: 15px;
+    font-weight: 600;
+  }
+  
+  .delete-message {
+    color: #6b7280;
+    margin-bottom: 8px;
+    line-height: 1.5;
+  }
+  
+  .job-title {
+    color: #1f2937;
+    font-weight: 600;
+    margin-bottom: 30px;
+    padding: 12px;
+    background: #f9fafb;
+    border-radius: 6px;
+    border-left: 4px solid #ef4444;
+  }
+  
+  .button-group {
+    display: flex;
+    gap: 12px;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  
+  .btn-delete {
+    background-color: #ef4444;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  
+  .btn-delete:hover {
+    background-color: #dc2626;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(239, 68, 68, 0.3);
+  }
+  
+  .btn-cancel {
+    background-color: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  
+  .btn-cancel:hover {
+    background-color: #e5e7eb;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .warning-text {
+    background: #fef3cd;
+    border: 1px solid #fbbf24;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 25px;
+    color: #92400e;
+    font-size: 0.875rem;
+  }
+  
+  @media (max-width: 640px) {
+    .delete-container {
+      margin: 20px;
+      padding: 30px 20px;
+    }
+    
+    .button-group {
+      flex-direction: column;
+    }
+    
+    .btn-delete,
+    .btn-cancel {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>
+
+<div class="delete-container">
+  <div class="warning-icon">
+    <div class="warning-triangle"></div>
+  </div>
+  
+  <h2 class="delete-title">Delete Job</h2>
+  
+  <p class="delete-message">Are you sure you want to delete this job posting?</p>
+  
+  <div class="job-title">"{{ job.title }}"</div>
+  
+  <div class="warning-text">
+    ⚠️ This action cannot be undone. The job posting will be permanently removed.
+  </div>
+  
+  <form method="post">
+    {% csrf_token %}
+    <div class="button-group">
+      <button type="submit" class="btn-delete">Yes, Delete Job</button>
+      <a href="{% url 'jobs:job_list' %}" class="btn-cancel">Cancel</a>
+    </div>
+  </form>
 </div>
 {% endblock %}

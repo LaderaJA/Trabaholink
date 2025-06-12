@@ -48,6 +48,56 @@ class CustomUser(AbstractUser):
 
     def __str__(self):
         return self.username
+        
+    def get_location_display(self):
+        """Return a human-readable location from the coordinates"""
+        if not self.location:
+            print("DEBUG: No location data available")
+            return "Location not specified"
+        
+        try:
+            print(f"DEBUG: Raw location data: {self.location}")
+            print(f"DEBUG: Location type: {type(self.location)}")
+            
+            from geopy.geocoders import Nominatim
+            from geopy.exc import GeocoderTimedOut, GeocoderServiceError
+            
+            # Get the coordinates
+            lat = float(self.location.y)
+            lon = float(self.location.x)
+            print(f"DEBUG: Coordinates - Lat: {lat}, Lon: {lon}")
+            
+            # Initialize geocoder with a more specific user agent and timeout
+            geolocator = Nominatim(
+                user_agent="traba_holink_app/1.0",
+                timeout=10
+            )
+            
+            # Try to get the address
+            try:
+                print("DEBUG: Attempting to reverse geocode...")
+                location = geolocator.reverse(f"{lat}, {lon}", exactly_one=True, language='en')
+                if location and hasattr(location, 'address'):
+                    print(f"DEBUG: Found address: {location.address}")
+                    return location.address
+                else:
+                    print("DEBUG: No address found for coordinates")
+            except (GeocoderTimedOut, GeocoderServiceError) as e:
+                print(f"DEBUG: Geocoding error: {str(e)}")
+            except Exception as e:
+                print(f"DEBUG: Unexpected error during geocoding: {str(e)}")
+            
+            # If reverse geocoding fails, return coordinates in a cleaner format
+            coords = f"{lat:.6f}°N, {lon:.6f}°E"
+            print(f"DEBUG: Returning coordinates: {coords}")
+            return coords
+            
+        except ImportError as e:
+            print(f"DEBUG: Geopy import error: {str(e)}")
+            return f"{self.location.y:.6f}°N, {self.location.x:.6f}°E"
+        except Exception as e:
+            print(f"DEBUG: Unexpected error in get_location_display: {str(e)}")
+            return "Location not available"
     
     def get_profile_picture_url(self):
         if self.profile_picture:

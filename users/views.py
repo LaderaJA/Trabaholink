@@ -8,7 +8,7 @@ from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.views import View
-from django.views.generic import CreateView, UpdateView, DetailView, DeleteView
+from django.views.generic import CreateView, UpdateView, DetailView, DeleteView, FormView
 from django.forms import inlineformset_factory, DateInput
 from django.utils.decorators import method_decorator
 from django.core.exceptions import PermissionDenied
@@ -107,22 +107,26 @@ class UserLogoutView(LogoutView):
 
 # Change Password View
 @method_decorator(login_required, name='dispatch')
-class ChangePasswordView(UpdateView):
+class ChangePasswordView(FormView):
     template_name = "users/change_password.html"
     form_class = PasswordChangeForm
-
-    def get_object(self):
-        return self.request.user
+    success_url = reverse_lazy('profile_edit')
 
     def get_form_kwargs(self):
         kwargs = super().get_form_kwargs()
         kwargs['user'] = self.request.user
+        if self.request.method == 'POST':
+            kwargs['data'] = self.request.POST
         return kwargs
 
     def form_valid(self, form):
         user = form.save()
-        update_session_auth_hash(self.request, user)
-        return redirect('profile')
+        update_session_auth_hash(self.request, user)  # Important to keep the user logged in
+        messages.success(self.request, 'Your password was successfully updated!')
+        return super().form_valid(form)
+        
+    def get_success_url(self):
+        return reverse('profile_edit', kwargs={'pk': self.request.user.pk})
 
 # Privacy Settings View
 @method_decorator(login_required, name='dispatch')
@@ -156,10 +160,55 @@ class UserProfileDetailView(DetailView):
 
 # Profile Update View
 @method_decorator(login_required, name='dispatch')
-class UserProfileUpdateView(UpdateView):
+class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
     model = CustomUser
     form_class = UserProfileForm
     template_name = "users/profile_edit.html"
+
+    def get_object(self, queryset=None):
+        return self.request.user
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.request.POST:
+            context['education_formset'] = EducationFormSet(self.request.POST, self.request.FILES, instance=self.object, prefix='education')
+            context['experience_formset'] = ExperienceFormSet(self.request.POST, self.request.FILES, instance=self.object, prefix='experience')
+        else:
+            context['education_formset'] = EducationFormSet(instance=self.object, prefix='education')
+            context['experience_formset'] = ExperienceFormSet(instance=self.object, prefix='experience')
+        return context
+
+    def form_valid(self, form):
+        context = self.get_context_data()
+        education_formset = context['education_formset']
+        experience_formset = context['experience_formset']
+        
+        if education_formset.is_valid() and experience_formset.is_valid():
+            self.object = form.save()
+            education_formset.instance = self.object
+            education_formset.save()
+            experience_formset.instance = self.object
+            experience_formset.save()
+            messages.success(self.request, 'Your profile has been updated successfully!')
+            return super().form_valid(form)
+        else:
+            return self.render_to_response(self.get_context_data(form=form))
+
+    def get_success_url(self):
+        return reverse_lazy('profile', kwargs={'pk': self.object.pk})
+
+# Skill Verification View
+@method_decorator(login_required, name='dispatch')
+class SkillVerificationView(CreateView):
+    model = Skill
+    form_class = SkillVerificationForm
+    template_name = "skills/submit_skill_verification.html"
+    success_url = reverse_lazy('profile')
+
+    def form_valid(self, form):
+        form.instance.user = self.request.user
+        messages.success(self.request, "Skill verification submitted successfully!")
+        return super().form_valid(form)
 
     def get_object(self):
         # Update current user only
@@ -323,18 +372,22 @@ class UserLocationUpdateView(LoginRequiredMixin, UpdateView):
     
     def form_valid(self, form):
         user = form.save(commit=False)
-        loc = self.request.POST.get('notification_location')
+        loc = form.cleaned_data.get('location')
         print("DEBUG: Posted location is:", loc)  # Debugging output in console
+        
         if loc:
             try:
-                user.notification_location = GEOSGeometry(loc)
-                print("DEBUG: Parsed location:", user.notification_location.wkt)
+                # The form field already handles the WKT to GEOS conversion
+                user.location = loc
+                print("DEBUG: Parsed location:", user.location.wkt if user.location else "None")
             except Exception as e:
                 print("DEBUG: Error parsing location:", e)
-                form.add_error('notification_location', "Invalid location format.")
+                form.add_error('location', "Invalid location format.")
                 return self.form_invalid(form)
+                
         user.save()
-        print("DEBUG: User saved with location:", user.notification_location.wkt if user.notification_location else "None")
+        print("DEBUG: User saved with location:", user.location.wkt if user.location else "None")
+        messages.success(self.request, 'Your location has been updated successfully!')
         return redirect(self.get_success_url())
 
     def get_success_url(self):

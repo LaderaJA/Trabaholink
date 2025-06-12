@@ -1,65 +1,230 @@
 {% extends "mainpages/base.html" %}
 {% load static %}
 
-
 {% block css %}
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">  
-{% endblock%}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+  integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+  crossorigin=""/>
+<style>
+  #map {
+    height: 60vh;
+    min-height: 400px;
+    width: 100%;
+    margin: 1rem 0;
+    border-radius: 8px;
+    border: 1px solid #ddd;
+    z-index: 1;
+  }
+  .leaflet-container {
+    font-family: inherit;
+    height: 100%;
+    width: 100%;
+  }
+  .leaflet-top, .leaflet-bottom {
+    z-index: 1000;
+  }
+</style>
+{% endblock %}
+
 {% block content %}
 <div class="container mt-5">
-  <h2>Set Your Notification Location</h2>
-  <p>Please set your location so we can notify you about jobs near you.</p>
-  
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <div id="map" style="height: 400px; margin-bottom: 1rem;"></div>
-    <button type="submit" class="btn btn-primary">Save Location</button>
-  </form>
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="mb-0">Set Your Location</h2>
+        </div>
+        <div class="card-body">
+          <p class="text-muted mb-4">Drag the marker to set your location. This will help us show you relevant jobs in your area.</p>
+          
+          <form method="post" id="location-form">
+            {% csrf_token %}
+            {{ form.location }}
+            <div id="map"></div>
+            <div class="mt-3 text-end">
+              <button type="submit" class="btn btn-primary">
+                <i class="bi bi-geo-alt-fill me-2"></i>Save Location
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </div>
 {% endblock %}
 
 {% block js %}
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
+  integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
+  crossorigin=""></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Set default coordinates to Bacoor Municipal Hall
-  let lat = 14.4311278;
-  let lng = 120.9682000;
-  
-  const locationField = document.getElementById("id_notification_location");
-  // If the location field has a saved value, extract it; otherwise, use the default.
-  if (locationField && locationField.value) {
-    console.log("DEBUG: Existing location value:", locationField.value);
-    const matches = locationField.value.match(/(?:SRID=\d+;)?POINT\s*\(\s*([-\d.]+)\s+([-\d.]+)\)/);
-    if (matches) {
-      lng = parseFloat(matches[1]);
-      lat = parseFloat(matches[2]);
-    }
-  } else {
-    console.log("DEBUG: No existing location value, using default.");
+  // Ensure the map container is visible and has dimensions
+  const mapElement = document.getElementById('map');
+  if (!mapElement) {
+    console.error('Map container not found');
+    return;
   }
   
-  // Initialize the map in the container with id 'map'
-  const map = L.map('map').setView([lat, lng], 13);
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '© OpenStreetMap contributors'
+  // Force a reflow to ensure the container has dimensions
+  mapElement.style.display = 'none';
+  mapElement.offsetHeight; // Trigger reflow
+  mapElement.style.display = 'block';
+  // Default coordinates (Bacoor Municipal Hall, Cavite, Philippines)
+  let defaultLat = 14.431342964466943;
+  let defaultLng = 120.96791156108834;
+  let zoomLevel = 15; 
+  
+  const locationField = document.getElementById("id_location");
+  let currentLat = defaultLat;
+  let currentLng = defaultLng;
+  
+  // Parse existing location if available
+  if (locationField && locationField.value) {
+    console.log("DEBUG: Existing location value:", locationField.value);
+    const matches = locationField.value.match(/SRID=4326;POINT\s*\(\s*([-\d.]+)\s+([-\d.]+)\)/i);
+    if (matches) {
+      currentLng = parseFloat(matches[1]);
+      currentLat = parseFloat(matches[2]);
+      console.log("DEBUG: Parsed coordinates:", currentLat, currentLng);
+    } else {
+      console.log("DEBUG: Could not parse location, using default.");
+    }
+  } else {
+    console.log("DEBUG: No existing location, using default.");
+  }
+  
+  // Initialize the map with better error handling
+  const map = L.map('map', {
+    center: [currentLat, currentLng],
+    zoom: zoomLevel,
+    zoomControl: false
+  });
+
+  // Add zoom control with a nice position
+  L.control.zoom({
+    position: 'topright'
   }).addTo(map);
+
+  // Add OpenStreetMap tiles with error handling and retry
+  const osm = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 19,
+    errorTileUrl: 'https://maps.wikimedia.org/osm-intl/{z}/{x}/{y}.png',
+    detectRetina: true
+  }).on('tileerror', function(error) {
+    console.warn('Error loading map tiles:', error);
+  }).addTo(map);
+
+  // Add a fallback tile layer
+  const esri = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
+    attribution: 'Tiles © Esri',
+    maxZoom: 19
+  });
+
+  // Layer control
+  const baseLayers = {
+    'OpenStreetMap': osm,
+    'Esri': esri
+  };
+  
+  L.control.layers(baseLayers).addTo(map);
   
   // Add a draggable marker
-  const marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+  const marker = L.marker([currentLat, currentLng], {
+    draggable: true,
+    autoPan: true
+  }).addTo(map);
+  
+  // Update the hidden field when marker is dragged
   marker.on('dragend', function(e) {
-    let pos = marker.getLatLng();
-    locationField.value = "POINT(" + pos.lng + " " + pos.lat + ")";
-    console.log("DEBUG: New position set:", locationField.value);
+    const newLat = marker.getLatLng().lat;
+    const newLng = marker.getLatLng().lng;
+    updateLocationField(newLat, newLng);
+    
+    // Optional: Reverse geocode to get address
+    // reverseGeocode(newLat, newLng);
   });
   
+  // Update location when map is clicked
+  map.on('click', function(e) {
+    marker.setLatLng(e.latlng);
+    updateLocationField(e.latlng.lat, e.latlng.lng);
+  });
+  
+  // Function to update the hidden field with the new location
+  function updateLocationField(lat, lng) {
+    const wktValue = `SRID=4326;POINT (${lng} ${lat})`;
+    locationField.value = wktValue;
+    console.log("DEBUG: Updated location:", wktValue);
+  }
+  
+  // Optional: Add a button to use current location
+  L.control.locate({
+    position: 'topleft',
+    strings: {
+      title: 'Show me where I am',
+      popup: 'You are within {distance} {unit} from this point',
+      outsideMapBoundsMsg: 'You seem located outside the boundaries of the map'
+    },
+    locateOptions: {
+      maxZoom: 16,
+      enableHighAccuracy: true
+    }
+  }).addTo(map);
+  
+  // Initialize with current location if available
+  if (navigator.geolocation) {
+    navigator.geolocation.getCurrentPosition(
+      function(position) {
+        const userLat = position.coords.latitude;
+        const userLng = position.coords.longitude;
+        marker.setLatLng([userLat, userLng]);
+        map.setView([userLat, userLng], 15);
+        updateLocationField(userLat, userLng);
+      },
+      function(error) {
+        console.warn('Geolocation error:', error);
+        // Set default position if geolocation fails
+        const defaultLat = 14.5995; // Default to Manila coordinates
+        const defaultLng = 120.9842;
+        marker.setLatLng([defaultLat, defaultLng]);
+        map.setView([defaultLat, defaultLng], 12);
+        updateLocationField(defaultLat, defaultLng);
+      },
+      {
+        enableHighAccuracy: true,
+        timeout: 5000,
+        maximumAge: 0
+      }
+    );
+  }
+
   // Update marker on map click
   map.on('click', function(e) {
     marker.setLatLng(e.latlng);
-    locationField.value = "POINT(" + e.latlng.lng + " " + e.latlng.lat + ")";
+    updateLocationField(e.latlng.lat, e.latlng.lng);
     console.log("DEBUG: Map click updated location:", locationField.value);
   });
+
+  // Initial position update
+  function updateMarkerPosition() {
+    const pos = marker.getLatLng();
+    updateLocationField(pos.lat, pos.lng);
+    console.log("DEBUG: New position set:", locationField.value);
+  }
+
+  // Call update when marker is dragged
+  marker.on('dragend', updateMarkerPosition);
+  
+  // Initial update
+  updateMarkerPosition();
+  
+  // Trigger map resize after a short delay to ensure proper rendering
+  setTimeout(function() {
+    map.invalidateSize();
+  }, 100);
 });
 </script>
 {% endblock %}

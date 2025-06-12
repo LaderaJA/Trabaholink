@@ -132,4 +132,4 @@ def deactivate_service_post(request, slug):
     post.is_active = False
     post.save()
     messages.info(request, "Service post has been deactivated.")
-    return redirect("services:servicepost_list")
+    return redirect("jobs:job_list")

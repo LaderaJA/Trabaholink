@@ -1,14 +1,129 @@
 {% extends 'mainpages/base.html' %}
 {% block content %}
-<div class="container mt-5">
-  <h2>Identity Verification</h2>
-  <p>Please upload your government-issued ID to verify your identity. This step is optional and you can skip it.</p>
+<style>
+  .verify-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 40px 20px;
+    text-align: center;
+  }
+  
+  .verify-title {
+    font-size: 2rem;
+    color: #1a1a1a;
+    margin-bottom: 15px;
+    font-weight: normal;
+  }
+  
+  .verify-subtitle {
+    color: #4b5563;
+    margin-bottom: 30px;
+    line-height: 1.5;
+  }
+  
+  .file-input-container {
+    margin-bottom: 10px;
+    text-align: left;
+    max-width: 400px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .file-input-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #4b5563;
+    font-size: 0.9rem;
+  }
+  
+  .file-input {
+    width: 100%;
+    border: 1px solid #d1d5db;
+    padding: 10px;
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
+  
+  .file-formats {
+    text-align: center;
+    color: #6b7280;
+    font-size: 0.875rem;
+    margin-bottom: 30px;
+  }
+  
+  .verify-button {
+    background-color: transparent;
+    color: #1a1a1a;
+    border: 1px solid #1a1a1a;
+    padding: 12px 24px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border-radius: 4px;
+    font-size: 0.9rem;
+  }
+  
+  .verify-button:hover {
+    background-color: #f3f4f6;
+  }
+  
+  .skip-link {
+    display: block;
+    margin-top: 20px;
+    color: #3b82f6;
+    text-decoration: none;
+    font-size: 0.9rem;
+  }
+  
+  .skip-link:hover {
+    text-decoration: underline;
+  }
+  
+  .security-notice {
+    margin-top: 40px;
+    color: #4b5563;
+    text-align: left;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  
+  .security-title {
+    font-weight: 500;
+    margin-bottom: 5px;
+    font-size: 0.9rem;
+  }
+  
+  .security-text {
+    color: #6b7280;
+    font-size: 0.875rem;
+    line-height: 1.4;
+  }
+</style>
+
+<!-- Main Content -->
+<div class="verify-container">
+  <h1 class="verify-title">Verify Your Identity</h1>
+  <p class="verify-subtitle">Upload a government-issued ID to complete your verification. This helps us keep your account secure.</p>
   
   <form method="post" enctype="multipart/form-data">
     {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit" class="btn btn-primary">Submit ID</button>
-    <a href="{% url 'skip_identity_verification' %}" class="btn btn-secondary">Skip</a>
+    
+    <div class="file-input-container">
+      <label class="file-input-label">Identity document:</label>
+      {{ form.as_p }}
+    </div>
+    
+    <p class="file-formats">Accepted formats: JPG, PNG, PDF (Max 10MB)</p>
+    
+    <button type="submit" class="verify-button">Verify Identity</button>
   </form>
+  
+  <a href="{% url 'skip_identity_verification' %}" class="skip-link">Skip verification for now</a>
+  
+  <div class="security-notice">
+    <p class="security-title">Your data is protected</p>
+    <p class="security-text">All uploads are encrypted and stored securely. We never share your personal information.</p>
+  </div>
 </div>
 {% endblock %}

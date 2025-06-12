@@ -74,6 +74,14 @@ class Notification(models.Model):
             return reverse('jobs:finalize_contract', args=[self.object_id])
         return "#"
 
+    @property
+    def target_url_with_read(self):
+        """Returns the target URL with an additional read parameter"""
+        base_url = self.target_url
+        if base_url != "#":
+            return f"{base_url}?notification_id={self.id}"
+        return base_url
+
     def mark_as_read(self):
         self.is_read = True
         self.save(update_fields=['is_read'])

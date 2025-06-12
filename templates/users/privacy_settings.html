@@ -1,0 +1,118 @@
+{% extends "mainpages/base.html" %}
+{% load static %}
+
+{% block css %}
+<style>
+  .privacy-option {
+    background: #fff;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    border: 1px solid #e9ecef;
+  }
+  .privacy-option h5 {
+    color: #333;
+    margin-bottom: 1rem;
+    font-weight: 600;
+  }
+  .form-check {
+    margin-bottom: 1rem;
+  }
+  .form-check-label {
+    color: #495057;
+    cursor: pointer;
+  }
+  .btn-save {
+    background-color: #0d6efd;
+    color: white;
+    padding: 0.5rem 2rem;
+    border-radius: 6px;
+    font-weight: 500;
+  }
+  .btn-save:hover {
+    background-color: #0b5ed7;
+    color: white;
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="mb-0">Privacy Settings</h2>
+        <a href="{% url 'profile_edit' pk=user.pk %}" class="btn btn-outline-secondary">
+          <i class="bi bi-arrow-left me-1"></i> Back to Profile
+        </a>
+      </div>
+
+      <form method="post" class="privacy-settings-form">
+        {% csrf_token %}
+        
+        <div class="privacy-option">
+          <h5>Profile Visibility</h5>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="profile_visibility" id="public" value="public" checked>
+            <label class="form-check-label" for="public">
+              Public - Anyone can view my profile
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="profile_visibility" id="connections" value="connections">
+            <label class="form-check-label" for="connections">
+              Connections Only - Only my connections can view my profile
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="profile_visibility" id="private" value="private">
+            <label class="form-check-label" for="private">
+              Private - Only I can view my profile
+            </label>
+          </div>
+        </div>
+
+        <div class="privacy-option">
+          <h5>Contact Information</h5>
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="show_email" name="show_email" checked>
+            <label class="form-check-label" for="show_email">Show my email address on my profile</label>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="show_phone" name="show_phone" checked>
+            <label class="form-check-label" for="show_phone">Show my phone number on my profile</label>
+          </div>
+        </div>
+
+        <div class="privacy-option">
+          <h5>Activity Privacy</h5>
+          <div class="form-check form-switch mb-3">
+            <input class="form-check-input" type="checkbox" id="activity_feed" name="activity_feed" checked>
+            <label class="form-check-label" for="activity_feed">Show my activity in the public feed</label>
+          </div>
+          <div class="form-check form-switch">
+            <input class="form-check-input" type="checkbox" id="search_engines" name="search_engines">
+            <label class="form-check-label" for="search_engines">Allow search engines to index my profile</label>
+          </div>
+        </div>
+
+        <div class="d-flex justify-content-end mt-4">
+          <button type="submit" class="btn btn-primary btn-save">
+            <i class="bi bi-save me-2"></i>Save Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block js %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  // Add any client-side validation or interactions here
+  console.log('Privacy settings page loaded');
+});
+</script>
+{% endblock %}

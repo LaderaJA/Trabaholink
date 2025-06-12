@@ -1,7 +1,7 @@
 from users.views import (
     RegisterView, UserLoginView, UserLogoutView, UserProfileDetailView,
     UserProfileUpdateView, UserProfileDeleteView, ChangePasswordView,
-    PrivacySettingsView, submit_skill_verification
+    PrivacySettingsView, SkillVerificationView
 )
 from . import views
 from django.urls import path
@@ -14,7 +14,7 @@ urlpatterns = [
     path('login/', UserLoginView.as_view(), name='login'),
     path('logout/', UserLogoutView.as_view(), name='logout'),
     path('profile/<int:pk>/', UserProfileDetailView.as_view(), name='profile'),
-    path('profile/edit/', UserProfileUpdateView.as_view(), name='profile_edit'),
+    path('profile/<int:pk>/edit/', UserProfileUpdateView.as_view(), name='profile_edit'),
     path('profile/<int:pk>/delete/', UserProfileDeleteView.as_view(), name='profile_delete'),
     path('change_password/', ChangePasswordView.as_view(), name='change_password'),
     path('privacy_settings/', PrivacySettingsView.as_view(), name='privacy_settings'),
@@ -25,7 +25,7 @@ urlpatterns = [
     path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
     path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
 
-    path('submit/', views.submit_skill_verification, name='submit_skill_verification'),
+    path('submit/', SkillVerificationView.as_view(), name='submit_skill_verification'),
     path('skill/<int:pk>/', views.SkillDetailView.as_view(), name='skill_detail'),
     path('skill/<int:pk>/edit/', views.SkillUpdateView.as_view(), name='skill_edit'),
     path('skill/<int:pk>/delete/', views.SkillDeleteView.as_view(), name='skill_delete'),

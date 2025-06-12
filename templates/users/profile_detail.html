@@ -17,7 +17,7 @@
                         <img src="{% static 'images/default_profile.png' %}" class="profile-picture" alt="Default Profile">
                     {% endif %}
                     <div class="profile-picture-edit">
-                        <a href="{% url 'profile_edit' %}" class="text-white">
+                        <a href="{% url 'profile_edit' request.user.pk %}" class="text-white">
                             <i class="bi bi-camera-fill"></i>
                         </a>
                     </div>
@@ -29,17 +29,17 @@
                     <h1 class="profile-name">{{ user.get_full_name|default:user.username }}</h1>
                     <p class="profile-location">
                         <i class="bi bi-geo-alt-fill"></i>
-                        {{ user.location|default:"Location not specified" }}
+                        {{ user.get_location_display }}
                     </p>
                 </div>
                 
                 {% if user.pk == request.user.pk %}
                     <div class="profile-actions">
-                        <a href="{% url 'profile_edit' %}" class="btn btn-primary-outline">
+                        <a href="{% url 'profile_edit' request.user.pk %}" class="btn btn-primary-outline">
                             <i class="bi bi-pencil-square me-2"></i>Edit Profile
                         </a>
                         <a href="{% url 'jobs:job_create' %}" class="btn btn-primary">
-                            <i class="bi bi-briefcase-fill me-2"></i>Post a Job
+                            <i class="bi bi-briefcase-fill me-2"></i>Create a Post
                         </a>
                     </div>
                 {% endif %}
@@ -157,7 +157,7 @@
                         <div class="card-header">
                             <h3>My CV / About Me</h3>
                             {% if user.pk == request.user.pk %}
-                                <a href="{% url 'profile_edit' %}" class="btn btn-outline-secondary btn-sm">
+                                <a href="{% url 'profile_edit' request.user.pk %}" class="btn btn-outline-secondary btn-sm">
                                     <i class="bi bi-pencil"></i> Edit CV
                                 </a>
                             {% endif %}

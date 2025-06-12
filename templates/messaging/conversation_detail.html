@@ -1042,12 +1042,14 @@ body {
 <!-- Enhanced JavaScript Configuration -->
 <script>
     window.chatConfig = {
-        conversationId: "{{ conversation.id }}",
+        conversationId: "{{ conversation.id }}",  
         currentUserId: "{{ request.user.id }}",
         receiverId: "{% if request.user.id == conversation.user1.id %}{{ conversation.user2.id }}{% else %}{{ conversation.user1.id }}{% endif %}",
         apiBaseUrl: "{% url 'messaging:fetch_messages' conversation.id %}"
     };
-    
+</script>
+
+<script>
     // Enhanced functionality
     document.addEventListener('DOMContentLoaded', function() {
         const sidebar = document.getElementById('chat-sidebar');
@@ -1178,62 +1180,6 @@ body {
                 this.style.transform = 'translateY(0) scale(1)';
             });
         });
-
-        // Enhanced message input functionality
-        const messageInput = document.getElementById('message-input');
-        const sendButton = document.querySelector('.send-button');
-        
-        if (messageInput) {
-            // Auto-resize textarea
-            messageInput.addEventListener('input', function() {
-                this.style.height = 'auto';
-                this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-                
-                // Enable/disable send button based on content
-                if (sendButton) {
-                    if (this.value.trim()) {
-                        sendButton.style.opacity = '1';
-                        sendButton.disabled = false;
-                    } else {
-                        sendButton.style.opacity = '0.5';
-                        sendButton.disabled = true;
-                    }
-                }
-            });
-            
-            // Send message on Enter (but allow Shift+Enter for new line)
-            messageInput.addEventListener('keydown', function(e) {
-                if (e.key === 'Enter' && !e.shiftKey) {
-                    e.preventDefault();
-                    if (this.value.trim()) {
-                        // Trigger send message (integrate with your Vue.js app)
-                        console.log('Sending message:', this.value);
-                        this.value = '';
-                        this.style.height = 'auto';
-                        if (sendButton) {
-                            sendButton.style.opacity = '0.5';
-                            sendButton.disabled = true;
-                        }
-                    }
-                }
-            });
-        }
-        
-        if (sendButton) {
-            sendButton.style.opacity = '0.5';
-            sendButton.disabled = true;
-            
-            sendButton.addEventListener('click', function() {
-                if (messageInput && messageInput.value.trim()) {
-                    // Trigger send message (integrate with your Vue.js app)
-                    console.log('Sending message:', messageInput.value);
-                    messageInput.value = '';
-                    messageInput.style.height = 'auto';
-                    this.style.opacity = '0.5';
-                    this.disabled = true;
-                }
-            });
-        }
     });
 </script>
 
