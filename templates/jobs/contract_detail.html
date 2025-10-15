@@ -11,6 +11,27 @@
 {% block content %}
 <div class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
     <div class="max-w-5xl mx-auto space-y-8">
+        <!-- Breadcrumb -->
+        <nav aria-label="Contract breadcrumb" class="text-sm text-gray-600">
+            <ol class="flex flex-wrap items-center gap-2">
+                <li>
+                    <a href="{% url 'jobs:home' %}" class="text-indigo-600 hover:text-indigo-700">Home</a>
+                    <span class="text-gray-400">/</span>
+                </li>
+                <li>
+                    {% if user == contract.worker %}
+                    <a href="{% url 'jobs:worker_dashboard' %}" class="text-indigo-600 hover:text-indigo-700">Dashboard</a>
+                    {% elif user == contract.client %}
+                    <a href="{% url 'jobs:employer_dashboard' %}" class="text-indigo-600 hover:text-indigo-700">Dashboard</a>
+                    {% else %}
+                    <span class="text-gray-500">Dashboard</span>
+                    {% endif %}
+                    <span class="text-gray-400">/</span>
+                </li>
+                <li class="text-gray-500">Contract Details</li>
+            </ol>
+        </nav>
+
         <!-- Header -->
         <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
             <div class="px-6 py-5 border-b border-gray-200 flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
@@ -84,8 +105,12 @@
                         Edit Terms
                     </a>
                     {% if user == contract.client and not contract.finalized_by_employer %}
-                    <form method="post" action="{% url 'jobs:accept_contract_terms' contract.pk %}" onsubmit="return confirmAcceptContract('client')" class="inline-flex">
+                    <form method="post" action="{% url 'jobs:accept_contract_terms' contract.pk %}" onsubmit="return confirmAcceptContract('client')" class="inline-flex flex-col gap-2">
                         {% csrf_token %}
+                        <label class="inline-flex items-start gap-2 text-xs text-gray-600">
+                            <input type="checkbox" name="agree_terms" value="on" required class="mt-0.5 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                            <span>I confirm that I have reviewed and agree to the contract terms.</span>
+                        </label>
                         <button type="submit" class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-indigo-700 bg-white border border-indigo-200 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             <i class="bi bi-check-circle"></i>
                             Accept (Client)
@@ -93,8 +118,12 @@
                     </form>
                     {% endif %}
                     {% if user == contract.worker and not contract.finalized_by_worker %}
-                    <form method="post" action="{% url 'jobs:accept_contract_terms' contract.pk %}" onsubmit="return confirmAcceptContract('worker')" class="inline-flex">
+                    <form method="post" action="{% url 'jobs:accept_contract_terms' contract.pk %}" onsubmit="return confirmAcceptContract('worker')" class="inline-flex flex-col gap-2">
                         {% csrf_token %}
+                        <label class="inline-flex items-start gap-2 text-xs text-gray-600">
+                            <input type="checkbox" name="agree_terms" value="on" required class="mt-0.5 h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                            <span>I confirm that I have reviewed and agree to the contract terms.</span>
+                        </label>
                         <button type="submit" class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-indigo-700 bg-white border border-indigo-200 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             <i class="bi bi-check-circle"></i>
                             Accept (Worker)
@@ -367,24 +396,20 @@
                         </form>
                         {% endif %}
                     {% elif contract.status == 'In Progress' %}
-                        <a href="{% url 'jobs:contract_progress' contract.pk %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
+                        <a href="{% url 'jobs:job_tracking' contract.pk %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
                             <i class="bi bi-graph-up"></i>
                             Track Progress
                         </a>
                         {% if user == contract.worker %}
-                        <a href="{% url 'jobs:progresslog_add' contract.pk %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                        <a href="{% url 'jobs:job_tracking' contract.pk %}#progress-form" class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
                             <i class="bi bi-plus-circle"></i>
                             Add Update
                         </a>
+                        <a href="{% url 'jobs:job_tracking' contract.pk %}#progress-form" class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
+                            <i class="bi bi-check-circle"></i>
+                            Submit for Review
+                        </a>
                         {% endif %}
-                        <form method="post" action="{% url 'jobs:contract_edit' contract.pk %}">
-                            {% csrf_token %}
-                            <input type="hidden" name="status" value="Submitted for Review">
-                            <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
-                                <i class="bi bi-check-circle"></i>
-                                Submit for Review
-                            </button>
-                        </form>
                     {% elif contract.status == 'Submitted for Review' and user == contract.client %}
                         <form method="post" action="{% url 'jobs:finalize_contract' contract.pk %}">
                             {% csrf_token %}

@@ -25,7 +25,7 @@ from admin_dashboard.moderation_utils import check_for_banned_words
 from notifications.models import Notification
 from services.models import ServicePost
 
-from .forms import ContractDraftForm, JobApplicationForm, JobForm, JobImageForm, ProgressLogForm
+from .forms import ContractDraftForm, JobApplicationForm, JobForm, JobImageForm
 from .models import (Contract, Feedback, Job, JobApplication, JobCategory,
                      JobImage, JobOffer, ProgressLog)
 from .utils import get_users_who_applied
@@ -692,96 +692,6 @@ class ContractUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def get_success_url(self):
         return reverse_lazy("jobs:contract_detail", kwargs={"pk": self.object.pk})
     
-class ContractProgressView(LoginRequiredMixin, DetailView):
-    """
-    View for tracking contract progress with all progress logs
-    """
-    model = Contract
-    template_name = "jobs/contract_progress.html"
-    context_object_name = "contract"
-    
-    def get_queryset(self):
-        # Only allow client or worker to access
-        return Contract.objects.filter(
-            Q(client=self.request.user) | Q(worker=self.request.user)
-        )
-    
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        contract = self.get_object()
-        
-        # Get all progress logs ordered by date (field is 'timestamp', not 'created_at')
-        context['progress_logs'] = contract.progress_logs.all().order_by('-timestamp')
-        
-        # Calculate progress percentage based on dates
-        if contract.start_date and contract.end_date:
-            total_days = (contract.end_date - contract.start_date).days
-            if contract.started_at:
-                elapsed_days = (timezone.now().date() - contract.started_at.date()).days
-                context['progress_percentage'] = min(100, int((elapsed_days / total_days) * 100)) if total_days > 0 else 0
-            else:
-                context['progress_percentage'] = 0
-        else:
-            context['progress_percentage'] = 0
-        
-        return context
-
-    def post(self, request, *args, **kwargs):
-        self.object = self.get_object()
-        contract = self.object
-        action = request.POST.get("action")
-
-        if action == "start_work":
-            if request.user != contract.worker:
-                messages.error(request, "Only the assigned worker can start this job.")
-                return redirect("jobs:contract_detail", pk=contract.pk)
-
-            if contract.status not in ["Finalized", "Accepted"]:
-                messages.warning(request, "This contract must be finalized before work can start.")
-                return redirect("jobs:contract_detail", pk=contract.pk)
-
-            if contract.status == "In Progress":
-                messages.info(request, "Work on this contract has already started.")
-                return redirect("jobs:job_tracking", pk=contract.pk)
-
-            contract.start_work()
-
-            Notification.objects.create(
-                user=contract.client,
-                message=f"{contract.worker.get_full_name() or contract.worker.username} has started work on '{contract.job.title}'.",
-                notif_type="job_started",
-                object_id=contract.pk
-            )
-
-            messages.success(request, "Great! The contract is now marked as In Progress.")
-            return redirect("jobs:job_tracking", pk=contract.pk)
-
-        return redirect("jobs:contract_detail", pk=contract.pk)
-
-class ProgressLogCreateView(LoginRequiredMixin, CreateView):
-    model = ProgressLog
-    form_class = ProgressLogForm
-    template_name = "jobs/progresslog_form.html"
-
-    def form_valid(self, form):
-        contract_pk = self.kwargs.get("contract_pk")
-        if not contract_pk:
-            messages.error(self.request, "Contract identifier missing.")
-            return redirect("jobs:job_list")
-        contract = get_object_or_404(Contract, pk=contract_pk)
-        progress_log = form.save(commit=False)
-        progress_log.contract = contract
-        progress_log.updated_by = self.request.user
-        progress_log.save()
-        messages.success(self.request, "Progress log added successfully.")
-        # Use the contract_pk from the URL since it must be valid
-        return redirect(reverse("jobs:contract_detail", kwargs={"pk": contract_pk}))
-
-    def get_context_data(self, **kwargs):
-        context = super().get_context_data(**kwargs)
-        context['contract_pk'] = self.kwargs.get("contract_pk")
-        return context
-
 # Draft contract update view
 class ContractDraftUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     model = Contract
@@ -1494,6 +1404,10 @@ def accept_contract_terms(request, pk):
         messages.error(request, "Contract is not in negotiation phase.")
         return redirect("jobs:contract_detail", pk=pk)
     
+    if request.POST.get("agree_terms") != "on":
+        messages.error(request, "Please acknowledge the agreement before accepting the contract.")
+        return redirect("jobs:contract_detail", pk=pk)
+
     # Mark acceptance
     if request.user == contract.worker:
         contract.finalized_by_worker = True
@@ -1570,7 +1484,12 @@ class JobTrackingView(LoginRequiredMixin, DetailView):
         context['has_activity'] = progress_updates.exists() or progress_logs.exists()
         context['is_worker'] = self.request.user == contract.worker
         context['is_employer'] = self.request.user == contract.client
-        
+        context['can_start'] = context['is_worker'] and contract.status in {"Finalized", "Accepted"}
+        context['can_post_progress'] = context['is_worker'] and contract.status == "In Progress"
+        context['can_mark_completed'] = context['is_worker'] and contract.status == "In Progress"
+        context['show_revision_request'] = context['is_worker'] and contract.is_revision_requested
+        context['show_employer_review_actions'] = context['is_employer'] and contract.status == "Awaiting Review"
+
         return context
 
 

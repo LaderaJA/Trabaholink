@@ -624,10 +624,19 @@
                         {% endif %}
                     </div>
 
-                    <div style="margin-top: 0.75rem;">
+                    <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
                         <a href="{% url 'jobs:job_application_detail' application.pk %}" class="btn-action btn-primary-custom">
                             <i class="bi bi-eye"></i> View Details
                         </a>
+                        {% if application.status|lower == 'negotiation' %}
+                        {% with negotiation_contract=application.current_contract %}
+                        {% if negotiation_contract %}
+                        <a href="{% url 'jobs:contract_negotiation' negotiation_contract.pk %}" class="btn-action btn-warning">
+                            <i class="bi bi-pencil-square"></i> Negotiate Contract
+                        </a>
+                        {% endif %}
+                        {% endwith %}
+                        {% endif %}
                     </div>
                 </div>
                 {% empty %}

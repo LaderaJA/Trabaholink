@@ -10,6 +10,31 @@
 
 {% block content %}
 <div class="container mx-auto px-4 py-8 max-w-6xl">
+    <!-- Breadcrumb -->
+    <nav aria-label="Job tracking breadcrumb" class="mb-6 text-sm text-gray-600">
+        <ol class="flex flex-wrap items-center gap-2">
+            <li>
+                <a href="{% url 'jobs:home' %}" class="text-blue-600 hover:text-blue-700">Home</a>
+                <span class="text-gray-400">/</span>
+            </li>
+            <li>
+                {% if is_worker %}
+                <a href="{% url 'jobs:worker_dashboard' %}" class="text-blue-600 hover:text-blue-700">Dashboard</a>
+                {% elif is_employer %}
+                <a href="{% url 'jobs:employer_dashboard' %}" class="text-blue-600 hover:text-blue-700">Dashboard</a>
+                {% else %}
+                <span class="text-gray-500">Dashboard</span>
+                {% endif %}
+                <span class="text-gray-400">/</span>
+            </li>
+            <li>
+                <a href="{% url 'jobs:contract_detail' contract.pk %}" class="text-blue-600 hover:text-blue-700">Contract</a>
+                <span class="text-gray-400">/</span>
+            </li>
+            <li class="text-gray-500">Job Tracking</li>
+        </ol>
+    </nav>
+
     <!-- Header -->
     <div class="bg-white rounded-lg shadow-md p-6 mb-6">
         <div class="flex justify-between items-start mb-4">
@@ -48,13 +73,13 @@
         <div class="lg:col-span-2">
             <!-- Worker Actions -->
             {% if is_worker %}
-                {% if contract.is_revision_requested %}
+                {% if show_revision_request %}
                 <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 mb-6">
                     <h2 class="text-lg font-semibold mb-2">Revision Requested</h2>
                     <p>The employer has requested additional work or revisions. Please review their notes in the progress feed and update your progress before resubmitting.</p>
                 </div>
                 {% endif %}
-                {% if contract.status == 'Finalized' %}
+                {% if can_start %}
                 <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                     <h2 class="text-xl font-bold text-gray-800 mb-4">Ready to Start?</h2>
                     <form method="post" action="{% url 'jobs:start_contract_work' contract.pk %}" 
@@ -69,11 +94,11 @@
                 </div>
                 {% endif %}
 
-                {% if contract.status == 'In Progress' %}
+                {% if can_post_progress %}
                 <!-- Post Progress Update -->
                 <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                     <h2 class="text-xl font-bold text-gray-800 mb-4">Post Progress Update</h2>
-                    <form method="post" action="{% url 'jobs:post_progress_update' contract.pk %}" enctype="multipart/form-data">
+                    <form id="progress-form" method="post" action="{% url 'jobs:post_progress_update' contract.pk %}" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="mb-4">
                             <label for="update_text" class="block text-sm font-medium text-gray-700 mb-2">
@@ -101,6 +126,7 @@
                 </div>
 
                 <!-- Mark as Completed -->
+                {% if can_mark_completed %}
                 <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                     <h2 class="text-xl font-bold text-gray-800 mb-4">Job Complete?</h2>
                     <form method="post" action="{% url 'jobs:mark_job_completed' contract.pk %}" 
@@ -113,10 +139,11 @@
                     </form>
                 </div>
                 {% endif %}
+                {% endif %}
             {% endif %}
 
             <!-- Employer Actions -->
-            {% if is_employer and contract.status == 'Awaiting Review' %}
+            {% if show_employer_review_actions %}
             <div class="bg-white rounded-lg shadow-md p-6 mb-6">
                 <h2 class="text-xl font-bold text-gray-800 mb-4">Review Complete Work</h2>
                 <p class="text-gray-600 mb-4">The worker has marked this job as completed. End the job if everything looks good or request revisions if more work is needed.</p>
@@ -151,6 +178,7 @@
                 
                 {% if has_activity %}
                     <div class="space-y-4">
+                        <!-- Worker updates -->
                         {% for update in progress_updates %}
                         <div class="border-l-4 border-blue-500 pl-4 py-3 bg-gray-50 rounded-r-lg">
                             <div class="flex items-start justify-between mb-2">
@@ -178,8 +206,13 @@
                                 📅 {{ update.created_at|date:"F d, Y - g:i A" }}
                             </p>
                         </div>
+                        {% empty %}
+                        <div class="text-center py-8 border border-dashed border-blue-200 rounded-lg bg-blue-50/50">
+                            <p class="text-gray-500">No progress updates from the worker yet.</p>
+                        </div>
                         {% endfor %}
 
+                        <!-- Employer/system logs -->
                         {% for log in progress_logs %}
                         <div class="border-l-4 border-red-500 pl-4 py-3 bg-red-50 rounded-r-lg">
                             <div class="flex items-start justify-between mb-2">
@@ -204,13 +237,17 @@
                                 📅 {{ log.timestamp|date:"F d, Y - g:i A" }}
                             </p>
                         </div>
+                        {% empty %}
+                        <div class="text-center py-8 border border-dashed border-red-200 rounded-lg bg-red-50/50">
+                            <p class="text-gray-500">No employer or system actions yet.</p>
+                        </div>
                         {% endfor %}
                     </div>
                 {% else %}
                     <div class="text-center py-12">
                         <div class="text-6xl mb-4">📋</div>
                         <p class="text-gray-500 text-lg">No progress activity yet</p>
-                        {% if is_worker and contract.status == 'In Progress' %}
+                        {% if can_post_progress %}
                         <p class="text-gray-400 text-sm mt-2">Post your first update above!</p>
                         {% endif %}
                     </div>

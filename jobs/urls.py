@@ -4,11 +4,11 @@ from .views import (
     JobListView, JobDetailView, JobCreateView, JobUpdateView, JobDeleteView, 
     JobApplicationDetailView, JobApplicationUpdateView, JobApplicationDeleteView, 
     JobApplicationCreateView, ContractDetailView, set_user_location, JobApplicationHireView, 
-    JobApplicationDenyView, ContractUpdateView, ProgressLogCreateView, ContractDraftUpdateView, 
+    JobApplicationDenyView, ContractUpdateView, ContractDraftUpdateView, 
     finalize_contract, cancel_contract, accept_contract, EmployerDashboardView, WorkerDashboardView,
     # JobOfferDetailView, accept_job_offer, reject_job_offer, create_job_offer,  # DEPRECATED
     ContractSignView,
-    HomePageView, reconsider_application, ContractProgressView,
+    HomePageView, reconsider_application,
     # New redesigned workflow views
     accept_application_new, ContractNegotiationView, accept_contract_terms,
     JobTrackingView, post_progress_update, mark_job_completed, end_job, oppose_job_completion, feedback_form,
@@ -56,8 +56,6 @@ urlpatterns = [
     path('contract/<int:pk>/edit/', ContractUpdateView.as_view(), name="contract_edit"),
     path('contract/<int:pk>/draft/edit/', ContractDraftUpdateView.as_view(), name="contract_draft_edit"),
     path('contract/<int:pk>/draft/', ContractDetailView.as_view(), name="contract_draft_detail"),
-    path('contract/<int:contract_pk>/progresslog/add/', ProgressLogCreateView.as_view(), name="progresslog_add"),
-    path('contract/<int:pk>/progress/', ContractProgressView.as_view(), name="contract_progress"),
     path('contract/<int:pk>/cancel/', cancel_contract, name="contract_cancel"),
     path('contract/<int:pk>/accept/', accept_contract, name="accept_contract"),
     path('contract/<int:pk>/finalize/', finalize_contract, name="finalize_contract"),

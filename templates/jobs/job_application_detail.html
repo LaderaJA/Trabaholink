@@ -433,7 +433,7 @@ body {
                 {% endif %}
               </span>
               {% if application.status|lower == 'negotiation' %}
-              {% with negotiation_contract=application.contract|default:application.job.contract %}
+              {% with negotiation_contract=application.current_contract %}
               {% if negotiation_contract %}
               <div style="margin-top: 0.75rem;">
                 <a href="{% url 'jobs:contract_negotiation' negotiation_contract.pk %}" class="btn btn-warning" style="display: inline-flex; align-items: center; gap: 0.4rem;">
@@ -449,7 +449,7 @@ body {
       </div>
 
       <!-- Contract Status (if exists) -->
-      {% if application.contract %}
+      {% if application.current_contract %}
       <div class="card-section">
         <h3 class="section-title">
           <i class="bi bi-file-earmark-check-fill"></i>
@@ -461,19 +461,19 @@ body {
             <strong>Contract Created</strong>
             <p style="margin: 0.25rem 0 0 0; font-size: 0.875rem;">
               A contract has been created for this application. 
-              {% if application.contract.status == 'Negotiation' %}
+              {% if application.current_contract.status == 'Negotiation' %}
                 Currently in negotiation phase.
-              {% elif application.contract.status == 'Finalized' %}
+              {% elif application.current_contract.status == 'Finalized' %}
                 Contract has been finalized and is ready to start.
-              {% elif application.contract.status == 'In Progress' %}
+              {% elif application.current_contract.status == 'In Progress' %}
                 Work is currently in progress.
-              {% elif application.contract.status == 'Completed' %}
+              {% elif application.current_contract.status == 'Completed' %}
                 Job has been completed.
               {% endif %}
             </p>
           </div>
         </div>
-        <a href="{% url 'jobs:contract_detail' application.contract.pk %}" class="btn btn-primary">
+        <a href="{% url 'jobs:contract_detail' application.current_contract.pk %}" class="btn btn-primary">
           <i class="bi bi-file-earmark-text-fill"></i> View Contract
         </a>
       </div>
@@ -521,14 +521,14 @@ body {
         </div>
         {% endif %}
 
-        {% if application.contract %}
+        {% if application.current_contract %}
         <div class="timeline-item">
           <div class="timeline-icon" style="background: var(--success);">
             <i class="bi bi-file-earmark-check-fill"></i>
           </div>
           <div class="timeline-content">
             <div class="timeline-label">Contract Created</div>
-            <div class="timeline-date">{{ application.contract.created_at|date:"M d, Y g:i A" }}</div>
+            <div class="timeline-date">{{ application.current_contract.created_at|date:"M d, Y g:i A" }}</div>
           </div>
         </div>
         {% endif %}
@@ -547,20 +547,20 @@ body {
 
         {% if request.user == application.job.owner %}
           <!-- Employer Actions -->
-          {% if application.contract %}
+          {% if application.current_contract %}
             <!-- Contract exists -->
-            <a href="{% url 'jobs:contract_detail' application.contract.pk %}" class="btn btn-primary">
+            <a href="{% url 'jobs:contract_detail' application.current_contract.pk %}" class="btn btn-primary">
               <i class="bi bi-file-earmark-text-fill"></i> View Contract
             </a>
             
-            {% if application.contract.status == 'Negotiation' %}
-            <a href="{% url 'jobs:contract_negotiation' application.contract.pk %}" class="btn btn-success">
+            {% if application.current_contract.status == 'Negotiation' %}
+            <a href="{% url 'jobs:contract_negotiation' application.current_contract.pk %}" class="btn btn-success">
               <i class="bi bi-pencil-square"></i> Negotiate Terms
             </a>
             {% endif %}
 
-            {% if application.contract.status == 'In Progress' %}
-            <a href="{% url 'jobs:job_tracking' application.contract.pk %}" class="btn btn-success">
+            {% if application.current_contract.status == 'In Progress' %}
+            <a href="{% url 'jobs:job_tracking' application.current_contract.pk %}" class="btn btn-success">
               <i class="bi bi-eye-fill"></i> Track Progress
             </a>
             {% endif %}
@@ -590,7 +590,7 @@ body {
 
         {% elif request.user == application.worker %}
           <!-- Worker Actions -->
-          {% with worker_contract=application.contract|default:application.job.contract %}
+          {% with worker_contract=application.current_contract %}
             {% if worker_contract and worker_contract.worker_id == application.worker_id %}
               <a href="{% url 'jobs:contract_detail' worker_contract.pk %}" class="btn btn-primary">
                 <i class="bi bi-file-earmark-text-fill"></i> View Contract

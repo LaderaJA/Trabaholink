@@ -412,10 +412,14 @@
                     </button>
                 </form>
                 {% elif application.status == 'Negotiation' or application.status == 'Accepted' %}
-                <a href="{% url 'jobs:contract_negotiation' application.job.contract.pk %}" 
+                {% with negotiation_contract=application.current_contract %}
+                {% if negotiation_contract %}
+                <a href="{% url 'jobs:contract_negotiation' negotiation_contract.pk %}" 
                    class="btn btn-primary">
                     <i class="bi bi-file-text"></i> View Contract
                 </a>
+                {% endif %}
+                {% endwith %}
                 {% endif %}
             </div>
         </div>

@@ -728,6 +728,86 @@
         display: flex !important;
       }
     }
+
+    .tl-profile-dropdown {
+      position: absolute;
+      right: 0;
+      top: calc(100% + 0.75rem);
+      background: #ffffff;
+      border-radius: 12px;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+      padding: 0.75rem 0;
+      min-width: 220px;
+      display: none;
+      z-index: 2000;
+    }
+
+    .tl-profile-dropdown.show {
+      display: block;
+    }
+
+    .tl-profile-dropdown a,
+    .tl-profile-dropdown button {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      width: 100%;
+      padding: 0.65rem 1.25rem;
+      font-size: 0.95rem;
+      background: transparent;
+      border: none;
+      text-align: left;
+      color: #1f2937;
+      transition: background 0.2s ease, color 0.2s ease;
+    }
+
+    .tl-profile-dropdown a:hover,
+    .tl-profile-dropdown button:hover {
+      background: #eef2ff;
+      color: #4c1d95;
+    }
+
+    .tl-profile-button {
+      background: none;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: inherit;
+      cursor: pointer;
+      padding: 0.5rem 0.75rem;
+    }
+
+    .tl-profile-button .profile-avatar {
+      height: 36px;
+      width: 36px;
+      border-radius: 999px;
+      background: #e0e7ff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      color: #3730a3;
+    }
+
+    .tl-profile-button .profile-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
+    @media (max-width: 992px) {
+      .tl-profile-menu {
+        width: 100%;
+      }
+
+      .tl-profile-dropdown {
+        position: static;
+        margin-top: 0.5rem;
+        min-width: unset;
+        width: 100%;
+        box-shadow: 0 5px 20px rgba(15, 23, 42, 0.1);
+      }
+    }
   </style>
   {% block css %}{% endblock %}
 </head>
@@ -796,24 +876,40 @@
                 {% endif %}
               </button>
             </li>
-            <li class="tl-nav-item me-3">
-              <a
-                class="tl-nav-link"
-                href="{% url 'profile' user.pk %}"
-                title="Profile"
-              >
-                <i class="bi bi-person-circle nav-icon"></i>
-                <span class="nav-text">Profile</span>
-              </a>
-            </li>
-            <li class="tl-nav-item">
-              <form method="post" action="{% url 'logout' %}" id="logoutForm" style="display: inline; margin: 0;">
-                {% csrf_token %}
-                <button type="button" onclick="confirmLogout()" class="btn btn-link tl-nav-link" style="padding: 0.5rem 1rem; border: none; background: none; text-align: left; width: 100%;">
-                  <i class="bi bi-box-arrow-right nav-icon"></i>
-                  <span class="nav-text">Logout</span>
-                </button>
-              </form>
+            <li class="tl-nav-item tl-profile-menu position-relative">
+              <button class="tl-profile-button" id="profileMenuBtn" type="button" aria-expanded="false" aria-haspopup="true">
+                <span class="profile-avatar">
+                  <i class="bi bi-person-circle"></i>
+                </span>
+                <span class="profile-name">{{ request.user.get_short_name|default:request.user.username }}</span>
+                <i class="bi bi-caret-down-fill" style="font-size: 0.75rem;"></i>
+              </button>
+
+              <div class="tl-profile-dropdown" id="profileDropdown" role="menu" aria-label="Profile options">
+                <a href="{% url 'profile' user.pk %}" class="dropdown-item" role="menuitem">
+                  <i class="bi bi-person"></i>
+                  <span>View Profile</span>
+                </a>
+                {% if user.role == 'worker' %}
+                <a href="{% url 'jobs:worker_dashboard' %}" class="dropdown-item" role="menuitem">
+                  <i class="bi bi-speedometer2"></i>
+                  <span>Worker Dashboard</span>
+                </a>
+                {% endif %}
+                {% if user.role == 'client' or user.role == 'admin' or user.is_staff %}
+                <a href="{% url 'jobs:employer_dashboard' %}" class="dropdown-item" role="menuitem">
+                  <i class="bi bi-briefcase"></i>
+                  <span>Employer Dashboard</span>
+                </a>
+                {% endif %}
+                <form method="post" action="{% url 'logout' %}" id="logoutForm" style="margin: 0;">
+                  {% csrf_token %}
+                  <button type="button" onclick="confirmLogout()" role="menuitem">
+                    <i class="bi bi-box-arrow-right"></i>
+                    <span>Logout</span>
+                  </button>
+                </form>
+              </div>
             </li>
             {% else %}
             <li class="tl-nav-item me-3">
@@ -1286,6 +1382,43 @@
         document.getElementById('logoutForm').submit();
       }
     }
+
+    document.addEventListener('DOMContentLoaded', function () {
+      const profileBtn = document.getElementById('profileMenuBtn');
+      const profileDropdown = document.getElementById('profileDropdown');
+
+      if (!profileBtn || !profileDropdown) {
+        return;
+      }
+
+      function toggleProfileMenu(event) {
+        event.stopPropagation();
+        const isOpen = profileDropdown.classList.contains('show');
+        profileDropdown.classList.toggle('show', !isOpen);
+        profileBtn.setAttribute('aria-expanded', String(!isOpen));
+      }
+
+      function closeProfileMenu() {
+        if (profileDropdown.classList.contains('show')) {
+          profileDropdown.classList.remove('show');
+          profileBtn.setAttribute('aria-expanded', 'false');
+        }
+      }
+
+      profileBtn.addEventListener('click', toggleProfileMenu);
+
+      document.addEventListener('click', function (event) {
+        if (!profileDropdown.contains(event.target) && !profileBtn.contains(event.target)) {
+          closeProfileMenu();
+        }
+      });
+
+      document.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') {
+          closeProfileMenu();
+        }
+      });
+    });
   </script>
   
   <!-- Report Form Handling -->

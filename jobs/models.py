@@ -148,13 +148,20 @@ class JobApplication(models.Model):
     @property
     def current_contract(self):
         """Return contract linked to this application, if any."""
-        try:
-            return self.contract
-        except Contract.DoesNotExist:
-            return self.job.contracts.filter(application=self).first() or \
-                   self.job.contracts.filter(worker=self.worker).order_by('-created_at').first()
-        except AttributeError:
-            return None
+        contract = getattr(self, "contract", None)
+        if contract:
+            return contract
+
+        # Query for a contract explicitly linked to this application first
+        contract = Contract.objects.filter(application=self).order_by('-created_at').first()
+        if contract:
+            return contract
+
+        # Only attempt legacy fallback for non-pending applications
+        if self.status.lower() in {"negotiation", "accepted", "in progress", "awaiting review", "completed"}:
+            return Contract.objects.filter(job=self.job, worker=self.worker).order_by('-created_at').first()
+
+        return None
 
 
 class JobOffer(models.Model):

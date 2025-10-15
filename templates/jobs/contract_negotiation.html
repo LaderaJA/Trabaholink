@@ -11,6 +11,31 @@
 {% block content %}
 <div class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
     <div class="max-w-5xl mx-auto">
+        <!-- Breadcrumb -->
+        <nav aria-label="Contract negotiation breadcrumb" class="text-sm text-gray-600 mb-6">
+            <ol class="flex flex-wrap items-center gap-2">
+                <li>
+                    <a href="{% url 'jobs:home' %}" class="text-indigo-600 hover:text-indigo-700">Home</a>
+                    <span class="text-gray-400">/</span>
+                </li>
+                <li>
+                    {% if request.user == contract.worker %}
+                    <a href="{% url 'jobs:worker_dashboard' %}" class="text-indigo-600 hover:text-indigo-700">Dashboard</a>
+                    {% elif request.user == contract.client %}
+                    <a href="{% url 'jobs:employer_dashboard' %}" class="text-indigo-600 hover:text-indigo-700">Dashboard</a>
+                    {% else %}
+                    <span class="text-gray-500">Dashboard</span>
+                    {% endif %}
+                    <span class="text-gray-400">/</span>
+                </li>
+                <li>
+                    <a href="{% url 'jobs:contract_detail' contract.pk %}" class="text-indigo-600 hover:text-indigo-700">Contract</a>
+                    <span class="text-gray-400">/</span>
+                </li>
+                <li class="text-gray-500">Negotiation</li>
+            </ol>
+        </nav>
+
         <!-- Header Section -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
             <div class="px-6 py-5 border-b border-gray-200">

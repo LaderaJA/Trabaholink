@@ -622,7 +622,7 @@
                             <i class="bi bi-eye"></i> View Details
                         </a>
                         {% if application.status|lower == 'negotiation' %}
-                            {% with negotiation_contract=application.contract|default:application.job.contract %}
+                            {% with negotiation_contract=application.current_contract %}
                                 {% if negotiation_contract and negotiation_contract.worker_id == application.worker_id %}
                                 <a href="{% url 'jobs:contract_negotiation' negotiation_contract.pk %}" class="btn-action btn-warning">
                                     <i class="bi bi-pencil-square"></i> Negotiate Terms
