@@ -1,0 +1,378 @@
+{% extends 'admin_dashboard/dashboard_base.html' %}
+
+{% block title %}Job Details - {{ job.title }}{% endblock %}
+{% block page_title %}Job Post Details{% endblock %}
+
+{% block breadcrumb_items %}
+<li><i data-lucide="chevron-right" class="w-4 h-4 inline"></i></li>
+<li><a href="/admin/jobs/" class="hover:text-trabaholink-blue">Jobs</a></li>
+<li><i data-lucide="chevron-right" class="w-4 h-4 inline"></i></li>
+<li class="text-gray-800">{{ job.title|truncatewords:5 }}</li>
+{% endblock %}
+
+{% block content %}
+<!-- Job Header -->
+<div class="bg-white rounded-xl shadow-md p-6 mb-6">
+    <div class="flex items-start justify-between">
+        <div class="flex-1">
+            <div class="flex items-center gap-3 mb-3">
+                <h1 class="text-3xl font-bold text-gray-900">{{ job.title }}</h1>
+                <span class="px-3 py-1 text-sm font-semibold rounded-full
+                    {% if job.is_active %}bg-green-100 text-green-800
+                    {% else %}bg-red-100 text-red-800{% endif %}">
+                    {% if job.is_active %}Active{% else %}Inactive{% endif %}
+                </span>
+            </div>
+            
+            <div class="flex items-center gap-6 text-gray-600">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="user" class="w-4 h-4"></i>
+                    <span class="text-sm">Posted by <a href="{% url 'admin_dashboard:user_detail' job.owner.pk %}" class="text-trabaholink-blue hover:underline font-medium">{{ job.owner.username }}</a></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                    <span class="text-sm">{{ job.created_at|date:"F d, Y" }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i data-lucide="map-pin" class="w-4 h-4"></i>
+                    <span class="text-sm">{{ job.municipality|default:"Location not specified" }}</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Action Buttons -->
+        <div class="flex items-center gap-2">
+            <button onclick="toggleJobStatus({{ job.pk }}, {{ job.is_active|yesno:'true,false' }})" 
+                    class="px-4 py-2 {% if job.is_active %}bg-red-500{% else %}bg-green-500{% endif %} text-white rounded-lg hover:opacity-90 transition flex items-center gap-2">
+                <i data-lucide="{% if job.is_active %}x-circle{% else %}check-circle{% endif %}" class="w-4 h-4"></i>
+                {% if job.is_active %}Deactivate{% else %}Activate{% endif %}
+            </button>
+            
+            <button onclick="archiveJob({{ job.pk }})" class="px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition flex items-center gap-2">
+                <i data-lucide="archive" class="w-4 h-4"></i>
+                Archive
+            </button>
+            
+            <button onclick="deleteJob({{ job.pk }})" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                Delete
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Job Details Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+    <!-- Main Content -->
+    <div class="lg:col-span-2 space-y-6">
+        <!-- Description -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i data-lucide="file-text" class="w-5 h-5 text-trabaholink-blue"></i>
+                Job Description
+            </h3>
+            <div class="prose max-w-none text-gray-700">
+                {{ job.description|linebreaks }}
+            </div>
+        </div>
+        
+        <!-- Job Images -->
+        {% if job.images.all %}
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i data-lucide="image" class="w-5 h-5 text-trabaholink-blue"></i>
+                Images
+            </h3>
+            <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {% for image in job.images.all %}
+                <div class="aspect-square rounded-lg overflow-hidden bg-gray-100">
+                    <img src="{{ image.url }}" alt="Job image" class="w-full h-full object-cover hover:scale-110 transition cursor-pointer" onclick="openImageModal('{{ image.url }}')">
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Applicants -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i data-lucide="users" class="w-5 h-5 text-trabaholink-blue"></i>
+                Applicants ({{ applicants_count }})
+            </h3>
+            
+            {% if applicants %}
+            <div class="space-y-3">
+                {% for applicant in applicants %}
+                <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 bg-trabaholink-blue rounded-full flex items-center justify-center text-white font-bold">
+                            {{ applicant.username.0|upper }}
+                        </div>
+                        <div>
+                            <p class="font-medium text-gray-800">{{ applicant.get_full_name|default:applicant.username }}</p>
+                            <p class="text-sm text-gray-500">Applied {{ applicant.applied_at|timesince }} ago</p>
+                        </div>
+                    </div>
+                    <a href="{% url 'admin_dashboard:user_detail' applicant.pk %}" class="text-trabaholink-blue hover:text-trabaholink-dark-blue text-sm font-medium">
+                        View Profile →
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <div class="text-center py-8 text-gray-500">
+                <i data-lucide="users" class="w-12 h-12 mx-auto mb-3 text-gray-300"></i>
+                <p>No applicants yet</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Related Reports -->
+        {% if related_reports %}
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i data-lucide="flag" class="w-5 h-5 text-red-500"></i>
+                Related Reports ({{ related_reports.count }})
+            </h3>
+            <div class="space-y-3">
+                {% for report in related_reports %}
+                <div class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition">
+                    <div class="flex items-start justify-between">
+                        <div class="flex-1">
+                            <div class="flex items-center gap-2 mb-2">
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full
+                                    {% if report.status == 'pending' %}bg-yellow-100 text-yellow-800
+                                    {% elif report.status == 'reviewed' %}bg-blue-100 text-blue-800
+                                    {% else %}bg-green-100 text-green-800{% endif %}">
+                                    {{ report.get_status_display }}
+                                </span>
+                            </div>
+                            <p class="text-sm text-gray-700">{{ report.reported_content|truncatewords:15 }}</p>
+                            <p class="text-xs text-gray-500 mt-1">Reported by {{ report.user.username }} • {{ report.created_at|timesince }} ago</p>
+                        </div>
+                        <a href="{% url 'admin_dashboard:report_detail' report.pk %}" class="px-3 py-1.5 bg-trabaholink-blue text-white text-sm rounded-lg hover:bg-trabaholink-dark-blue transition">
+                            View
+                        </a>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="space-y-6">
+        <!-- Job Information -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i data-lucide="info" class="w-5 h-5 text-trabaholink-blue"></i>
+                Job Information
+            </h3>
+            <div class="space-y-3">
+                <div>
+                    <p class="text-sm text-gray-500">Category</p>
+                    <p class="text-gray-800 font-medium">{{ job.get_category_display|default:"Uncategorized" }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Job Type</p>
+                    <p class="text-gray-800 font-medium">{{ job.job_type|default:"Not specified" }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Budget</p>
+                    <p class="text-gray-800 font-medium">{{ job.budget|default:"Not specified" }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Duration</p>
+                    <p class="text-gray-800 font-medium">{{ job.duration|default:"Not specified" }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Job ID</p>
+                    <p class="text-gray-800 font-medium">#{{ job.pk }}</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Location Map -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i data-lucide="map" class="w-5 h-5 text-trabaholink-blue"></i>
+                Location
+            </h3>
+            <div class="aspect-video bg-gray-100 rounded-lg flex items-center justify-center mb-3">
+                <div class="text-center text-gray-500">
+                    <i data-lucide="map-pin" class="w-12 h-12 mx-auto mb-2 text-gray-300"></i>
+                    <p class="text-sm">Map preview</p>
+                    <p class="text-xs">{{ job.municipality }}</p>
+                </div>
+            </div>
+            <p class="text-sm text-gray-600">
+                <i data-lucide="map-pin" class="w-4 h-4 inline mr-1"></i>
+                {{ job.municipality|default:"Location not specified" }}
+            </p>
+        </div>
+        
+        <!-- Poster Information -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i data-lucide="user" class="w-5 h-5 text-trabaholink-blue"></i>
+                Posted By
+            </h3>
+            <div class="flex items-center gap-3 mb-4">
+                <div class="w-12 h-12 bg-trabaholink-blue rounded-full flex items-center justify-center text-white font-bold text-lg">
+                    {{ job.owner.username.0|upper }}
+                </div>
+                <div>
+                    <p class="font-medium text-gray-800">{{ job.owner.get_full_name|default:job.owner.username }}</p>
+                    <p class="text-sm text-gray-500">@{{ job.owner.username }}</p>
+                </div>
+            </div>
+            <a href="{% url 'admin_dashboard:user_detail' job.owner.pk %}" class="block w-full px-4 py-2 bg-trabaholink-blue text-white text-center rounded-lg hover:bg-trabaholink-dark-blue transition">
+                View Profile
+            </a>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i data-lucide="zap" class="w-5 h-5 text-trabaholink-blue"></i>
+                Quick Actions
+            </h3>
+            <div class="space-y-2">
+                <button onclick="contactPoster()" class="w-full px-4 py-2 bg-gray-100 text-gray-800 rounded-lg hover:bg-gray-200 transition text-sm flex items-center justify-center gap-2">
+                    <i data-lucide="mail" class="w-4 h-4"></i>
+                    Contact Poster
+                </button>
+                <button onclick="flagJob({{ job.pk }})" class="w-full px-4 py-2 bg-yellow-100 text-yellow-800 rounded-lg hover:bg-yellow-200 transition text-sm flex items-center justify-center gap-2">
+                    <i data-lucide="flag" class="w-4 h-4"></i>
+                    Flag for Review
+                </button>
+                <a href="/jobs/{{ job.pk }}/" target="_blank" class="block w-full px-4 py-2 bg-trabaholink-blue text-white text-center rounded-lg hover:bg-trabaholink-dark-blue transition text-sm">
+                    <i data-lucide="external-link" class="w-4 h-4 inline mr-1"></i>
+                    View on Site
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Image Modal -->
+<div id="imageModal" class="hidden fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4" onclick="closeImageModal()">
+    <div class="max-w-4xl w-full">
+        <img id="modalImage" src="" alt="Job image" class="w-full h-auto rounded-lg">
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Toggle job status
+    function toggleJobStatus(jobId, isActive) {
+        const action = isActive ? 'deactivate' : 'activate';
+        if (confirm(`Are you sure you want to ${action} this job?`)) {
+            fetch(`/admin/jobs/${jobId}/toggle/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Failed to update job status');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+        }
+    }
+    
+    // Archive job
+    function archiveJob(jobId) {
+        if (confirm('Archive this job post?')) {
+            fetch(`/admin/jobs/${jobId}/archive/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Job archived successfully');
+                    location.reload();
+                } else {
+                    alert('Failed to archive job');
+                }
+            });
+        }
+    }
+    
+    // Delete job
+    function deleteJob(jobId) {
+        if (confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
+            fetch(`/admin/jobs/${jobId}/delete/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    window.location.href = '/admin/jobs/';
+                } else {
+                    alert('Failed to delete job');
+                }
+            });
+        }
+    }
+    
+    // Flag job
+    function flagJob(jobId) {
+        const reason = prompt('Enter reason for flagging:');
+        if (reason) {
+            fetch(`/admin/jobs/${jobId}/flag/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ reason: reason })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Job flagged for review');
+                } else {
+                    alert('Failed to flag job');
+                }
+            });
+        }
+    }
+    
+    // Contact poster
+    function contactPoster() {
+        alert('Email notification will be sent to {{ job.posted_by.email }}');
+    }
+    
+    // Image modal
+    function openImageModal(imageUrl) {
+        document.getElementById('modalImage').src = imageUrl;
+        document.getElementById('imageModal').classList.remove('hidden');
+    }
+    
+    function closeImageModal() {
+        document.getElementById('imageModal').classList.add('hidden');
+    }
+    
+    // Initialize Lucide icons
+    lucide.createIcons();
+</script>
+{% endblock %}

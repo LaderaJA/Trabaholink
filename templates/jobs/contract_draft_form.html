@@ -1,13 +1,12 @@
 {% extends 'mainpages/base.html' %}
+{% load static %}
+
+{% block title %}Negotiate Contract - {{ object.job.title }} - TrabahoLink{% endblock %}
 
 {% block css %}
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
 <style>
-  /* Custom formal styling */
   body {
-    background-color: #f8f9fa;
-    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background: #f3f4f6 !important;
   }
 
   .negotiation-container {
@@ -370,6 +369,252 @@
   .tooltip-icon:hover {
     color: #2980b9;
   }
+
+  /* Revision History */
+  .revision-history {
+    background: #f8f9fa;
+    border-radius: 8px;
+    padding: 2rem;
+    margin: 2rem 0;
+    border-left: 4px solid #e67e22;
+  }
+
+  .revision-history h3 {
+    color: #2c3e50;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .revision-item {
+    background: white;
+    border: 1px solid #e9ecef;
+    border-radius: 6px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .revision-item:hover {
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border-color: #3498db;
+  }
+
+  .revision-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 0.5rem;
+  }
+
+  .revision-user {
+    font-weight: 600;
+    color: #2c3e50;
+  }
+
+  .revision-date {
+    font-size: 0.85rem;
+    color: #6c757d;
+  }
+
+  .revision-changes {
+    font-size: 0.9rem;
+    color: #5a6c7d;
+    padding-left: 1rem;
+    border-left: 2px solid #3498db;
+  }
+
+  /* Progress Indicator */
+  .negotiation-progress {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .progress-steps {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+  }
+
+  .progress-step {
+    flex: 1;
+    text-align: center;
+    position: relative;
+  }
+
+  .progress-step::before {
+    content: '';
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    width: 100%;
+    height: 2px;
+    background: #d1d5db;
+    z-index: 0;
+  }
+
+  .progress-step:last-child::before {
+    display: none;
+  }
+
+  .step-circle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: white;
+    border: 3px solid #d1d5db;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    position: relative;
+    z-index: 1;
+    margin-bottom: 0.5rem;
+  }
+
+  .progress-step.active .step-circle {
+    background: #3498db;
+    border-color: #3498db;
+    color: white;
+  }
+
+  .progress-step.completed .step-circle {
+    background: #27ae60;
+    border-color: #27ae60;
+    color: white;
+  }
+
+  .step-label {
+    font-size: 0.85rem;
+    color: #6c757d;
+    font-weight: 500;
+  }
+
+  .progress-step.active .step-label {
+    color: #3498db;
+    font-weight: 600;
+  }
+
+  /* Auto-save indicator */
+  .auto-save-status {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: white;
+    border: 2px solid #27ae60;
+    border-radius: 8px;
+    padding: 0.75rem 1.25rem;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    display: none;
+    align-items: center;
+    gap: 0.5rem;
+    z-index: 9999;
+    animation: slideIn 0.3s ease;
+  }
+
+  .auto-save-status.saving {
+    border-color: #f39c12;
+  }
+
+  .auto-save-status.saved {
+    border-color: #27ae60;
+  }
+
+  .auto-save-status.error {
+    border-color: #e74c3c;
+  }
+
+  @keyframes slideIn {
+    from {
+      transform: translateX(400px);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+
+  /* Field comparison */
+  .field-changed {
+    position: relative;
+  }
+
+  .field-changed::after {
+    content: 'Modified';
+    position: absolute;
+    top: -8px;
+    right: 10px;
+    background: #f39c12;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 8px;
+    border-radius: 10px;
+    font-weight: 600;
+  }
+
+  /* Negotiation tips */
+  .negotiation-tips {
+    background: linear-gradient(135deg, #fff5e6 0%, #ffe8cc 100%);
+    border: 1px solid #f39c12;
+    border-radius: 8px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .negotiation-tips h4 {
+    color: #d68910;
+    font-weight: 600;
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .tip-item {
+    display: flex;
+    align-items: start;
+    gap: 0.75rem;
+    margin-bottom: 0.75rem;
+  }
+
+  .tip-item i {
+    color: #f39c12;
+    margin-top: 0.25rem;
+  }
+
+  /* Quick actions */
+  .quick-actions {
+    background: white;
+    border: 2px solid #e9ecef;
+    border-radius: 8px;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+  }
+
+  .quick-action-btn {
+    padding: 0.5rem 1rem;
+    background: #f8f9fa;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .quick-action-btn:hover {
+    background: #3498db;
+    color: white;
+    border-color: #3498db;
+  }
 </style>
 {% endblock css %}
 
@@ -385,6 +630,53 @@
     </div>
 
     <div class="negotiation-content">
+      <!-- Negotiation Progress -->
+      <div class="negotiation-progress">
+        <div class="progress-steps">
+          <div class="progress-step {% if object.is_draft %}active{% else %}completed{% endif %}">
+            <div class="step-circle">
+              {% if object.is_draft %}<i class="fas fa-edit"></i>{% else %}<i class="fas fa-check"></i>{% endif %}
+            </div>
+            <div class="step-label">Negotiate Terms</div>
+          </div>
+          <div class="progress-step {% if not object.is_draft and not object.client_accepted and not object.worker_accepted %}active{% elif object.client_accepted or object.worker_accepted %}completed{% endif %}">
+            <div class="step-circle">
+              {% if object.client_accepted or object.worker_accepted %}<i class="fas fa-check"></i>{% else %}2{% endif %}
+            </div>
+            <div class="step-label">Sign Contract</div>
+          </div>
+          <div class="progress-step {% if object.client_accepted and object.worker_accepted %}completed{% endif %}">
+            <div class="step-circle">
+              {% if object.client_accepted and object.worker_accepted %}<i class="fas fa-check"></i>{% else %}3{% endif %}
+            </div>
+            <div class="step-label">Start Work</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Negotiation Tips -->
+      {% if object.is_draft %}
+      <div class="negotiation-tips">
+        <h4><i class="fas fa-lightbulb"></i> Negotiation Tips</h4>
+        <div class="tip-item">
+          <i class="fas fa-check-circle"></i>
+          <span><strong>Be Clear:</strong> Specify all requirements and expectations upfront to avoid misunderstandings.</span>
+        </div>
+        <div class="tip-item">
+          <i class="fas fa-check-circle"></i>
+          <span><strong>Be Fair:</strong> Propose reasonable terms that benefit both parties for a successful partnership.</span>
+        </div>
+        <div class="tip-item">
+          <i class="fas fa-check-circle"></i>
+          <span><strong>Communicate:</strong> Use the chat feature to discuss complex terms before finalizing.</span>
+        </div>
+        <div class="tip-item">
+          <i class="fas fa-check-circle"></i>
+          <span><strong>Review Carefully:</strong> Read all sections thoroughly before signing the contract.</span>
+        </div>
+      </div>
+      {% endif %}
+
       <!-- Status Badge -->
       <div class="status-section">
         {% if object.is_draft %}
@@ -415,6 +707,24 @@
             <i class="fas fa-exclamation-triangle"></i>
             {{ form.non_field_errors }}
           </div>
+        {% endif %}
+
+        <!-- Quick Actions -->
+        {% if object.is_draft %}
+        <div class="quick-actions">
+          <button type="button" class="quick-action-btn" onclick="insertTemplate('scope')">
+            <i class="fas fa-magic"></i> Use Scope Template
+          </button>
+          <button type="button" class="quick-action-btn" onclick="insertTemplate('payment')">
+            <i class="fas fa-magic"></i> Use Payment Template
+          </button>
+          <button type="button" class="quick-action-btn" onclick="insertTemplate('deliverables')">
+            <i class="fas fa-magic"></i> Use Deliverables Template
+          </button>
+          <button type="button" class="quick-action-btn" onclick="clearAllFields()">
+            <i class="fas fa-eraser"></i> Clear All
+          </button>
+        </div>
         {% endif %}
         
         <div class="form-section">
@@ -583,11 +893,46 @@
             </button>
           {% endif %}
           
-          <a href="{% url 'jobs:contract_detail' object.pk %}" class="btn btn-outline-secondary">
+          <a href="{% url 'jobs:contract_negotiation' object.pk %}" class="btn btn-outline-secondary">
             <i class="fas fa-eye"></i> View Contract
           </a>
         </div>
       </form>
+
+      <!-- Revision History -->
+      {% if object.history.all %}
+      <div class="revision-history">
+        <h3><i class="fas fa-history"></i> Revision History</h3>
+        <p style="color: #6c757d; font-size: 0.9rem; margin-bottom: 1rem;">Track all changes made to this contract during negotiation</p>
+        {% for record in object.history.all|slice:":5" %}
+        <div class="revision-item">
+          <div class="revision-header">
+            <span class="revision-user">
+              <i class="fas fa-user-circle"></i> 
+              {{ record.history_user.get_full_name|default:record.history_user.username }}
+            </span>
+            <span class="revision-date">
+              <i class="fas fa-clock"></i> {{ record.history_date|date:"M d, Y - g:i A" }}
+            </span>
+          </div>
+          <div class="revision-changes">
+            {% if record.history_type == '+' %}
+              <i class="fas fa-plus-circle" style="color: #27ae60;"></i> Contract created
+            {% elif record.history_type == '~' %}
+              <i class="fas fa-edit" style="color: #f39c12;"></i> Contract updated
+            {% else %}
+              <i class="fas fa-info-circle" style="color: #3498db;"></i> Contract modified
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+        {% if object.history.all.count > 5 %}
+        <p style="text-align: center; margin-top: 1rem; color: #6c757d; font-size: 0.85rem;">
+          <i class="fas fa-ellipsis-h"></i> Showing 5 most recent changes ({{ object.history.all.count }} total)
+        </p>
+        {% endif %}
+      </div>
+      {% endif %}
 
       <!-- Negotiation Chat Section -->
       <div class="chat-section">
@@ -600,6 +945,12 @@
       </div>
     </div>
   </div>
+</div>
+
+<!-- Auto-save Status Indicator -->
+<div class="auto-save-status" id="autoSaveStatus">
+  <i class="fas fa-circle-notch fa-spin" id="saveIcon"></i>
+  <span id="saveText">Saving...</span>
 </div>
 
 <!-- Finalize Contract Modal -->
@@ -644,6 +995,140 @@
 {% block js %}
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+// Template insertion functions
+function insertTemplate(type) {
+    const templates = {
+        scope: `Project Scope:
+- Define specific tasks and deliverables
+- List all features and functionalities
+- Specify quality standards and requirements
+- Include number of revision rounds
+- Define what is NOT included in scope
+
+Milestones:
+1. Phase 1: [Description] - [Timeline]
+2. Phase 2: [Description] - [Timeline]
+3. Final Delivery: [Description] - [Timeline]`,
+        
+        payment: `Total Project Cost: ₱[Amount]
+
+Payment Schedule:
+- Upfront Payment: [%] (₱[Amount]) - Upon contract signing
+- Milestone 1: [%] (₱[Amount]) - Upon [milestone completion]
+- Milestone 2: [%] (₱[Amount]) - Upon [milestone completion]
+- Final Payment: [%] (₱[Amount]) - Upon project completion and approval
+
+Payment Method: [Bank Transfer/PayPal/GCash/etc.]
+
+Terms:
+- Payments due within [X] days of invoice
+- Late payments subject to [X]% monthly fee
+- Refund policy: [Specify conditions]`,
+        
+        deliverables: `Final Deliverables:
+1. [Item 1] - Format: [file type]
+2. [Item 2] - Format: [file type]
+3. [Item 3] - Format: [file type]
+
+Documentation:
+- User manual/guide (PDF)
+- Technical documentation
+- Setup/installation instructions
+
+Source Files:
+- All original design files
+- Source code (if applicable)
+- Assets and resources
+
+Support:
+- [X] days of post-delivery technical support
+- [X] rounds of revisions included
+- Bug fixes within [X] days of delivery`
+    };
+    
+    const fieldMap = {
+        scope: '{{ form.scope_of_work.id_for_label }}',
+        payment: '{{ form.payment_terms.id_for_label }}',
+        deliverables: '{{ form.deliverables.id_for_label }}'
+    };
+    
+    const field = document.getElementById(fieldMap[type]);
+    if (field && confirm('This will replace the current content. Continue?')) {
+        field.value = templates[type];
+        field.dispatchEvent(new Event('input'));
+        field.focus();
+    }
+}
+
+function clearAllFields() {
+    if (confirm('Are you sure you want to clear all fields? This cannot be undone.')) {
+        const fields = ['{{ form.scope_of_work.id_for_label }}', '{{ form.payment_terms.id_for_label }}', '{{ form.deliverables.id_for_label }}'];
+        fields.forEach(fieldId => {
+            const field = document.getElementById(fieldId);
+            if (field) {
+                field.value = '';
+                field.dispatchEvent(new Event('input'));
+            }
+        });
+    }
+}
+
+// Auto-save functionality
+let autoSaveTimer;
+let hasUnsavedChanges = false;
+
+function showAutoSaveStatus(status, message) {
+    const statusDiv = document.getElementById('autoSaveStatus');
+    const icon = document.getElementById('saveIcon');
+    const text = document.getElementById('saveText');
+    
+    statusDiv.className = 'auto-save-status ' + status;
+    statusDiv.style.display = 'flex';
+    text.textContent = message;
+    
+    if (status === 'saving') {
+        icon.className = 'fas fa-circle-notch fa-spin';
+    } else if (status === 'saved') {
+        icon.className = 'fas fa-check-circle';
+    } else if (status === 'error') {
+        icon.className = 'fas fa-exclamation-circle';
+    }
+    
+    if (status !== 'saving') {
+        setTimeout(() => {
+            statusDiv.style.display = 'none';
+        }, 3000);
+    }
+}
+
+function autoSaveForm() {
+    if (!hasUnsavedChanges) return;
+    
+    showAutoSaveStatus('saving', 'Saving draft...');
+    
+    const formData = new FormData(document.getElementById('negotiationForm'));
+    
+    fetch(window.location.href, {
+        method: 'POST',
+        body: formData,
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+        }
+    })
+    .then(response => {
+        if (response.ok) {
+            showAutoSaveStatus('saved', 'Draft saved!');
+            hasUnsavedChanges = false;
+        } else {
+            showAutoSaveStatus('error', 'Save failed');
+        }
+    })
+    .catch(error => {
+        showAutoSaveStatus('error', 'Save failed');
+        console.error('Auto-save error:', error);
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize tooltips
     var tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
@@ -708,31 +1193,30 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    // Auto-save functionality (optional)
-    let autoSaveTimeout;
+    // Enhanced auto-save functionality
     const formFields = document.querySelectorAll('#negotiationForm input, #negotiationForm textarea, #negotiationForm select');
     
     formFields.forEach(field => {
         field.addEventListener('input', function() {
-            clearTimeout(autoSaveTimeout);
-            autoSaveTimeout = setTimeout(() => {
-                // Show auto-save indicator
-                const indicator = document.createElement('div');
-                indicator.className = 'alert alert-info auto-save-indicator';
-                indicator.innerHTML = '<i class="fas fa-save"></i> Auto-saving...';
-                indicator.style.position = 'fixed';
-                indicator.style.top = '20px';
-                indicator.style.right = '20px';
-                indicator.style.zIndex = '9999';
-                indicator.style.opacity = '0.9';
-                
-                document.body.appendChild(indicator);
-                
-                setTimeout(() => {
-                    indicator.remove();
-                }, 2000);
-            }, 3000); // Auto-save after 3 seconds of inactivity
+            hasUnsavedChanges = true;
+            clearTimeout(autoSaveTimer);
+            autoSaveTimer = setTimeout(() => {
+                autoSaveForm();
+            }, 5000); // Auto-save after 5 seconds of inactivity
         });
+    });
+    
+    // Warn before leaving with unsaved changes
+    window.addEventListener('beforeunload', function(e) {
+        if (hasUnsavedChanges) {
+            e.preventDefault();
+            e.returnValue = '';
+        }
+    });
+    
+    // Mark form as saved on submit
+    document.getElementById('negotiationForm').addEventListener('submit', function() {
+        hasUnsavedChanges = false;
     });
 
     // Date validation
@@ -764,6 +1248,27 @@ document.addEventListener('DOMContentLoaded', function() {
         startDateField.addEventListener('change', validateDates);
         endDateField.addEventListener('change', validateDates);
     }
+    
+    // Keyboard shortcuts
+    document.addEventListener('keydown', function(e) {
+        // Ctrl/Cmd + S to save
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+            e.preventDefault();
+            document.getElementById('negotiationForm').submit();
+        }
+    });
+    
+    // Field change tracking
+    const originalValues = {};
+    formFields.forEach(field => {
+        originalValues[field.id] = field.value;
+        
+        field.addEventListener('blur', function() {
+            if (this.value !== originalValues[this.id] && originalValues[this.id]) {
+                this.parentElement.classList.add('field-changed');
+            }
+        });
+    });
 });
 </script>
 {% endblock js %}

@@ -1,0 +1,487 @@
+{% extends 'mainpages/base.html' %}
+{% load static %}
+
+{% block title %}My Services - Trabaholink{% endblock %}
+
+{% block content %}
+<style>
+:root {
+  --primary-blue: #3b82f6;
+  --primary-blue-dark: #2563eb;
+}
+
+.services-header {
+  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
+  color: white;
+  padding: 3rem 0;
+  margin-bottom: 2rem;
+  border-radius: 0 0 2rem 2rem;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card {
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+  border-left: 4px solid;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.stat-card.total { border-left-color: #3b82f6; }
+.stat-card.pending { border-left-color: #f59e0b; }
+.stat-card.approved { border-left-color: #10b981; }
+.stat-card.rejected { border-left-color: #ef4444; }
+
+.service-card {
+  background: white;
+  border-radius: 1rem;
+  overflow: hidden;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s;
+  height: 100%;
+}
+
+.service-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.service-image {
+  height: 200px;
+  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+}
+
+.status-pending { background: #fef3c7; color: #92400e; }
+.status-approved { background: #d1fae5; color: #065f46; }
+.status-rejected { background: #fee2e2; color: #991b1b; }
+.status-flagged { background: #fed7aa; color: #9a3412; }
+
+.btn-primary {
+  background: var(--primary-blue);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover {
+  background: var(--primary-blue-dark);
+  color: white;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  border: 1px solid #e5e7eb;
+  color: #374151;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.btn-outline:hover {
+  background: #f3f4f6;
+  color: #374151;
+  text-decoration: none;
+}
+
+.btn-danger {
+  border: 1px solid #ef4444;
+  color: #ef4444;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+}
+
+.btn-danger:hover {
+  background: #ef4444;
+  color: white;
+  text-decoration: none;
+}
+</style>
+
+<!-- Services Header -->
+<div class="services-header">
+  <div class="container">
+    <div class="d-flex justify-content-between align-items-center">
+      <div>
+        <h1 class="mb-2">My Services</h1>
+        <p class="mb-0" style="opacity: 0.9;">Manage your service offerings</p>
+      </div>
+      <a href="{% url 'services:servicepost_create' %}" class="btn-primary">
+        <i class="fa fa-plus"></i>
+        Create New Service
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- Stats Cards -->
+<div class="container mb-5">
+  <div class="row g-4">
+    <div class="col-md-3">
+      <div class="stat-card total">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <p class="text-muted mb-1" style="font-size: 0.875rem;">Total Services</p>
+            <h3 class="mb-0" style="font-size: 2rem; font-weight: 700;">{{ total_count }}</h3>
+          </div>
+          <div style="width: 48px; height: 48px; background: rgba(59, 130, 246, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <i class="fa fa-wrench" style="font-size: 1.5rem; color: #3b82f6;"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3">
+      <div class="stat-card pending">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <p class="text-muted mb-1" style="font-size: 0.875rem;">Pending Review</p>
+            <h3 class="mb-0" style="font-size: 2rem; font-weight: 700; color: #f59e0b;">{{ pending_count }}</h3>
+          </div>
+          <div style="width: 48px; height: 48px; background: rgba(245, 158, 11, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <i class="fa fa-clock" style="font-size: 1.5rem; color: #f59e0b;"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3">
+      <div class="stat-card approved">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <p class="text-muted mb-1" style="font-size: 0.875rem;">Approved</p>
+            <h3 class="mb-0" style="font-size: 2rem; font-weight: 700; color: #10b981;">{{ approved_count }}</h3>
+          </div>
+          <div style="width: 48px; height: 48px; background: rgba(16, 185, 129, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <i class="fa fa-check-circle" style="font-size: 1.5rem; color: #10b981;"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <div class="col-md-3">
+      <div class="stat-card rejected">
+        <div class="d-flex justify-content-between align-items-center">
+          <div>
+            <p class="text-muted mb-1" style="font-size: 0.875rem;">Rejected</p>
+            <h3 class="mb-0" style="font-size: 2rem; font-weight: 700; color: #ef4444;">{{ rejected_count }}</h3>
+          </div>
+          <div style="width: 48px; height: 48px; background: rgba(239, 68, 68, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center;">
+            <i class="fa fa-times-circle" style="font-size: 1.5rem; color: #ef4444;"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Services Grid -->
+<div class="container mb-5">
+  <div class="row g-4">
+    {% for service in services %}
+    <div class="col-md-6 col-lg-4">
+      <div class="service-card" data-lat="{{ service.location.y }}" data-lng="{{ service.location.x }}">
+        <!-- Service Image -->
+        <div style="position: relative; width: 100%; height: 220px; overflow: hidden; background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);">
+          {% if service.images.first %}
+            <img src="{{ service.images.first.image.url }}" 
+                 alt="{{ service.headline }}" 
+                 style="width: 100%; height: 100%; object-fit: cover; object-position: center;">
+          {% else %}
+            <div style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;">
+              <i class="fa fa-wrench" style="font-size: 3.5rem; color: #3b82f6; opacity: 0.4;"></i>
+            </div>
+          {% endif %}
+          
+          <!-- Status Badge Overlay -->
+          <div style="position: absolute; top: 0.75rem; right: 0.75rem;">
+            <span class="status-badge status-{{ service.status }}" style="box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+              {{ service.get_status_display }}
+            </span>
+          </div>
+        </div>
+        
+        <!-- Service Content -->
+        <div style="padding: 1.5rem;">
+          <!-- Title -->
+          <h4 style="font-size: 1.25rem; font-weight: 600; margin: 0 0 0.75rem 0; color: #111827; line-height: 1.4; min-height: 2.8rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+            {{ service.headline }}
+          </h4>
+          
+          <!-- Description -->
+          <p class="text-muted mb-3" style="font-size: 0.875rem; line-height: 1.5; min-height: 3rem; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">
+            {{ service.description|truncatewords:20 }}
+          </p>
+          
+          <!-- Info Row -->
+          <div class="d-flex justify-content-between align-items-center mb-3" style="padding: 0.75rem; background: #f9fafb; border-radius: 0.5rem;">
+            <div>
+              {% if service.pricing %}
+              <div style="font-size: 1.5rem; font-weight: 700; color: #3b82f6; line-height: 1;">
+                ₱{{ service.pricing }}
+              </div>
+              {% else %}
+              <div style="font-size: 0.875rem; color: #6b7280;">
+                Price not set
+              </div>
+              {% endif %}
+            </div>
+            <div class="text-end">
+              <div style="font-size: 0.75rem; color: #6b7280;">
+                <i class="fa fa-calendar"></i> {{ service.created_at|date:"M d, Y" }}
+              </div>
+              <div style="font-size: 0.75rem; color: #6b7280; margin-top: 0.25rem;">
+                <i class="fa fa-tag"></i> {{ service.category.name|default:"Uncategorized" }}
+              </div>
+              <div class="distance-display" style="font-size: 0.75rem; color: #3b82f6; margin-top: 0.25rem; display: none;">
+                <i class="fa fa-map-marker-alt"></i> <span>Calculating...</span>
+              </div>
+            </div>
+          </div>
+          
+          <!-- Status Alert -->
+          {% if service.status == 'pending' %}
+          <div class="alert alert-warning py-2 px-3 mb-3" style="font-size: 0.75rem; margin-bottom: 1rem;">
+            <i class="fa fa-clock"></i> <strong>Pending:</strong> Waiting for admin approval
+          </div>
+          {% elif service.status == 'rejected' %}
+          <div class="alert alert-danger py-2 px-3 mb-3" style="font-size: 0.75rem; margin-bottom: 1rem;">
+            <i class="fa fa-times-circle"></i> <strong>Rejected:</strong> Please review and resubmit
+          </div>
+          {% elif service.status == 'flagged' %}
+          <div class="alert alert-warning py-2 px-3 mb-3" style="font-size: 0.75rem; margin-bottom: 1rem;">
+            <i class="fa fa-flag"></i> <strong>Flagged:</strong> Under review
+          </div>
+          {% elif service.status == 'approved' %}
+          <div class="alert alert-success py-2 px-3 mb-3" style="font-size: 0.75rem; margin-bottom: 1rem;">
+            <i class="fa fa-check-circle"></i> <strong>Live:</strong> Visible to clients
+          </div>
+          {% endif %}
+          
+          <!-- Action Buttons -->
+          <div class="d-grid gap-2">
+            <a href="{% url 'services:servicepost_detail' service.slug %}" class="btn btn-primary btn-sm">
+              <i class="fa fa-eye"></i> View Details
+            </a>
+            <div class="d-flex gap-2">
+              <a href="{% url 'services:servicepost_update' service.slug %}" class="btn btn-outline-secondary btn-sm flex-fill">
+                <i class="fa fa-edit"></i> Edit
+              </a>
+              <a href="{% url 'services:servicepost_delete' service.slug %}" class="btn btn-outline-danger btn-sm flex-fill">
+                <i class="fa fa-trash"></i> Delete
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    {% empty %}
+    <div class="col-12">
+      <div style="text-align: center; padding: 4rem 2rem; background: white; border-radius: 1rem; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);">
+        <i class="fa fa-wrench" style="font-size: 4rem; color: #cbd5e0; margin-bottom: 1rem;"></i>
+        <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">No services yet</h3>
+        <p class="text-muted mb-4">Start by creating your first service offering</p>
+        <a href="{% url 'services:servicepost_create' %}" class="btn-primary">
+          <i class="fa fa-plus"></i> Create Service
+        </a>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+</div>
+
+<!-- Pagination -->
+{% if is_paginated %}
+<div class="container mb-5">
+  <nav aria-label="Page navigation">
+    <ul class="pagination justify-content-center">
+      {% if page_obj.has_previous %}
+      <li class="page-item">
+        <a class="page-link" href="?page=1">First</a>
+      </li>
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.previous_page_number }}">Previous</a>
+      </li>
+      {% endif %}
+      
+      <li class="page-item active">
+        <span class="page-link">Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}</span>
+      </li>
+      
+      {% if page_obj.has_next %}
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.next_page_number }}">Next</a>
+      </li>
+      <li class="page-item">
+        <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}">Last</a>
+      </li>
+      {% endif %}
+    </ul>
+  </nav>
+</div>
+{% endif %}
+
+<script>
+// LocationManager - Auto-detect and display distances
+const LocationManager = {
+    CACHE_KEY: 'trabaholink_user_location',
+    CACHE_DURATION: 24 * 60 * 60 * 1000, // 24 hours
+    
+    getCachedLocation() {
+        const cached = localStorage.getItem(this.CACHE_KEY);
+        if (!cached) return null;
+        
+        try {
+            const location = JSON.parse(cached);
+            if (Date.now() - location.timestamp > this.CACHE_DURATION) {
+                localStorage.removeItem(this.CACHE_KEY);
+                return null;
+            }
+            return location;
+        } catch (e) {
+            return null;
+        }
+    },
+    
+    async getCurrentLocation() {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                reject(new Error('Geolocation not supported'));
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const location = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        timestamp: Date.now()
+                    };
+                    localStorage.setItem(this.CACHE_KEY, JSON.stringify(location));
+                    resolve(location);
+                },
+                (error) => {
+                    console.log('Location error:', error.message);
+                    reject(error);
+                },
+                { 
+                    enableHighAccuracy: false,
+                    timeout: 10000,
+                    maximumAge: 300000 // 5 minutes
+                }
+            );
+        });
+    },
+    
+    calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Earth's radius in km
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    },
+    
+    formatDistance(km) {
+        if (km < 1) {
+            return Math.round(km * 1000) + 'm away';
+        } else if (km < 10) {
+            return km.toFixed(1) + 'km away';
+        } else {
+            return Math.round(km) + 'km away';
+        }
+    },
+    
+    async initializeDistances() {
+        try {
+            // Try to get cached location first
+            let location = this.getCachedLocation();
+            
+            // If no cache, get current location
+            if (!location) {
+                console.log('Getting current location...');
+                location = await this.getCurrentLocation();
+            }
+            
+            if (location) {
+                console.log('User location:', location);
+                this.updateDistances(location);
+            }
+        } catch (error) {
+            console.log('Could not get location:', error.message);
+            // Hide all distance displays if location unavailable
+            document.querySelectorAll('.distance-display').forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+    },
+    
+    updateDistances(userLocation) {
+        const serviceCards = document.querySelectorAll('[data-lat][data-lng]');
+        
+        serviceCards.forEach(card => {
+            const serviceLat = parseFloat(card.dataset.lat);
+            const serviceLng = parseFloat(card.dataset.lng);
+            
+            if (!isNaN(serviceLat) && !isNaN(serviceLng)) {
+                const distance = this.calculateDistance(
+                    userLocation.latitude,
+                    userLocation.longitude,
+                    serviceLat,
+                    serviceLng
+                );
+                
+                const distanceDisplay = card.querySelector('.distance-display');
+                if (distanceDisplay) {
+                    distanceDisplay.textContent = this.formatDistance(distance);
+                    distanceDisplay.style.display = 'inline';
+                    distanceDisplay.style.color = '#3b82f6';
+                    distanceDisplay.style.fontWeight = '600';
+                }
+            }
+        });
+    }
+};
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    LocationManager.initializeDistances();
+});
+</script>
+{% endblock %}

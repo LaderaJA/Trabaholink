@@ -1,0 +1,297 @@
+{% extends 'admin_dashboard/dashboard_base.html' %}
+
+{% block title %}Announcements{% endblock %}
+{% block page_title %}Announcement Management{% endblock %}
+
+{% block breadcrumb_items %}
+<li><i data-lucide="chevron-right" class="w-4 h-4 inline"></i></li>
+<li class="text-gray-800">Announcements</li>
+{% endblock %}
+
+{% block content %}
+<!-- Stats & Actions -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm mb-1">Total Announcements</p>
+                <h3 class="text-2xl font-bold text-gray-800">{{ announcements.count }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-trabaholink-blue/10 rounded-full flex items-center justify-center">
+                <i data-lucide="megaphone" class="w-6 h-6 text-trabaholink-blue"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm mb-1">Active</p>
+                <h3 class="text-2xl font-bold text-green-600">{{ active_count }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm mb-1">Scheduled</p>
+                <h3 class="text-2xl font-bold text-blue-600">{{ scheduled_count }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <i data-lucide="clock" class="w-6 h-6 text-blue-600"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <a href="{% url 'admin_dashboard:admin_announcement_create' %}" 
+           class="flex items-center justify-center h-full gap-2 text-trabaholink-blue hover:text-trabaholink-dark-blue transition">
+            <i data-lucide="plus-circle" class="w-8 h-8"></i>
+            <span class="font-semibold">New Announcement</span>
+        </a>
+    </div>
+</div>
+
+<!-- Announcements List -->
+<div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <div class="p-6 border-b border-gray-200 flex items-center justify-between">
+        <h3 class="text-lg font-bold text-gray-800">All Announcements</h3>
+        <div class="flex items-center gap-3">
+            <input type="text" id="announcementSearch" placeholder="Search announcements..." 
+                   class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+            <select id="statusFilter" class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="scheduled">Scheduled</option>
+                <option value="expired">Expired</option>
+            </select>
+        </div>
+    </div>
+    
+    <div class="divide-y divide-gray-200">
+        {% for announcement in announcements %}
+        <div class="p-6 hover:bg-gray-50 transition announcement-item" 
+             data-title="{{ announcement.title|lower }}" 
+             data-status="{% if announcement.is_active %}active{% else %}inactive{% endif %}">
+            <div class="flex items-start gap-4">
+                <!-- Icon -->
+                <div class="w-12 h-12 bg-trabaholink-cyan/20 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="megaphone" class="w-6 h-6 text-trabaholink-blue"></i>
+                </div>
+                
+                <!-- Content -->
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-start justify-between mb-2">
+                        <div>
+                            <h4 class="text-lg font-semibold text-gray-800">{{ announcement.title }}</h4>
+                            <p class="text-sm text-gray-500">
+                                Created {{ announcement.created_at|timesince }} ago
+                                {% if announcement.updated_at != announcement.created_at %}
+                                • Updated {{ announcement.updated_at|timesince }} ago
+                                {% endif %}
+                            </p>
+                        </div>
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full
+                            {% if announcement.is_active %}bg-green-100 text-green-800
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {% if announcement.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </div>
+                    
+                    <p class="text-sm text-gray-700 mb-3 line-clamp-2">{{ announcement.content|truncatewords:30 }}</p>
+                    
+                    <!-- Metrics -->
+                    <div class="flex items-center gap-4 mb-3 text-sm text-gray-500">
+                        <span class="flex items-center gap-1">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                            {{ announcement.views|default:0 }} views
+                        </span>
+                        <span class="flex items-center gap-1">
+                            <i data-lucide="calendar" class="w-4 h-4"></i>
+                            {{ announcement.created_at|date:"M d, Y" }}
+                        </span>
+                    </div>
+                    
+                    <!-- Actions -->
+                    <div class="flex items-center gap-2">
+                        <a href="{% url 'admin_dashboard:admin_announcement_update' announcement.pk %}" 
+                           class="inline-flex items-center gap-2 px-3 py-1.5 bg-trabaholink-blue text-white text-sm rounded-lg hover:bg-trabaholink-dark-blue transition">
+                            <i data-lucide="edit" class="w-4 h-4"></i>
+                            Edit
+                        </a>
+                        
+                        <button onclick="toggleAnnouncementStatus({{ announcement.pk }}, {{ announcement.is_active|yesno:'true,false' }})" 
+                                class="inline-flex items-center gap-2 px-3 py-1.5 {% if announcement.is_active %}bg-gray-500{% else %}bg-green-500{% endif %} text-white text-sm rounded-lg hover:opacity-90 transition">
+                            <i data-lucide="{% if announcement.is_active %}pause-circle{% else %}play-circle{% endif %}" class="w-4 h-4"></i>
+                            {% if announcement.is_active %}Deactivate{% else %}Activate{% endif %}
+                        </button>
+                        
+                        <a href="{% url 'admin_dashboard:admin_announcement_delete' announcement.pk %}" 
+                           class="inline-flex items-center gap-2 px-3 py-1.5 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition"
+                           onclick="return confirm('Are you sure you want to delete this announcement?')">
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            Delete
+                        </a>
+                        
+                        <button onclick="viewAnnouncementDetails({{ announcement.pk }})" 
+                                class="inline-flex items-center gap-2 px-3 py-1.5 border border-gray-300 text-gray-700 text-sm rounded-lg hover:bg-gray-50 transition">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                            View Details
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="p-12 text-center text-gray-500">
+            <i data-lucide="megaphone" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
+            <p class="text-lg font-medium">No announcements yet</p>
+            <p class="text-sm mb-4">Create your first announcement to get started</p>
+            <a href="{% url 'admin_dashboard:admin_announcement_create' %}" 
+               class="inline-flex items-center gap-2 px-4 py-2 bg-trabaholink-blue text-white rounded-lg hover:bg-trabaholink-dark-blue transition">
+                <i data-lucide="plus-circle" class="w-4 h-4"></i>
+                Create Announcement
+            </a>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Announcement Details Modal -->
+<div id="detailsModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+        <div class="p-6 border-b border-gray-200 flex items-center justify-between sticky top-0 bg-white">
+            <h3 class="text-lg font-bold text-gray-800">Announcement Details</h3>
+            <button onclick="closeDetailsModal()" class="text-gray-400 hover:text-gray-600">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div id="modalContent" class="p-6">
+            <!-- Content will be loaded dynamically -->
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Search functionality
+    document.getElementById('announcementSearch').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const items = document.querySelectorAll('.announcement-item');
+        
+        items.forEach(item => {
+            const title = item.dataset.title;
+            if (title.includes(searchTerm)) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+    
+    // Filter functionality
+    document.getElementById('statusFilter').addEventListener('change', function(e) {
+        const status = e.target.value;
+        const items = document.querySelectorAll('.announcement-item');
+        
+        items.forEach(item => {
+            const itemStatus = item.dataset.status;
+            if (!status || itemStatus === status) {
+                item.style.display = '';
+            } else {
+                item.style.display = 'none';
+            }
+        });
+    });
+    
+    // Toggle announcement status
+    function toggleAnnouncementStatus(announcementId, isActive) {
+        const action = isActive ? 'deactivate' : 'activate';
+        if (confirm(`Are you sure you want to ${action} this announcement?`)) {
+            fetch(`/admin/announcements/${announcementId}/toggle/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Failed to update announcement status');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+        }
+    }
+    
+    // View announcement details
+    function viewAnnouncementDetails(announcementId) {
+        fetch(`/admin_dashboard/announcements/${announcementId}/details/`, {
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const announcement = data.announcement;
+                document.getElementById('modalContent').innerHTML = `
+                    <div class="space-y-4">
+                        <div>
+                            <h4 class="text-2xl font-bold text-gray-800 mb-2">${announcement.title}</h4>
+                            <div class="flex items-center gap-4 text-sm text-gray-500">
+                                <span class="flex items-center gap-1">
+                                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                                    ${announcement.created_at}
+                                </span>
+                                <span class="flex items-center gap-1">
+                                    <i data-lucide="eye" class="w-4 h-4"></i>
+                                    ${announcement.views} views
+                                </span>
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full ${announcement.is_active ? 'bg-green-100 text-green-800' : 'bg-gray-100 text-gray-800'}">
+                                    ${announcement.is_active ? 'Active' : 'Inactive'}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="prose max-w-none">
+                            <p class="text-gray-700 whitespace-pre-wrap">${announcement.content}</p>
+                        </div>
+                        ${announcement.image ? `
+                        <div>
+                            <img src="${announcement.image}" alt="${announcement.title}" class="w-full rounded-lg">
+                        </div>
+                        ` : ''}
+                    </div>
+                `;
+                document.getElementById('detailsModal').classList.remove('hidden');
+                lucide.createIcons();
+            } else {
+                alert('Failed to load announcement details');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred');
+        });
+    }
+    
+    function closeDetailsModal() {
+        document.getElementById('detailsModal').classList.add('hidden');
+    }
+    
+    // Initialize Lucide icons
+    lucide.createIcons();
+</script>
+{% endblock %}

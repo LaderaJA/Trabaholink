@@ -1,276 +1,414 @@
 {% extends "mainpages/base.html" %}
-{% load static %}
-
-{% block css %}
-<style>
-:root {
-  --primary-blue: #3b82f6;
-  --primary-blue-dark: #2563eb;
-  --primary-blue-light: #dbeafe;
-  --success-green: #10b981;
-  --success-green-light: #d1fae5;
-  --warning-yellow: #f59e0b;
-  --warning-yellow-light: #fef3c7;
-  --danger-red: #ef4444;
-  --danger-red-light: #fee2e2;
-  --text-dark: #111827;
-  --text-medium: #374151;
-  --text-light: #6b7280;
-  --text-white: #ffffff;
-  --background-white: #ffffff;
-  --background-gray: #f9fafb;
-  --background-gray-light: #f3f4f6;
-  --border-color: #e5e7eb;
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --transition: all 0.2s ease-in-out;
-}
-
-/* Form Container */
-.form-container {
-  max-width: 800px;
-  margin: 2rem auto;
-  padding: 2rem;
-  background: var(--background-white);
-  border-radius: 1.25rem;
-  box-shadow: var(--shadow-md);
-  transition: var(--transition);
-}
-
-.form-container:hover {
-  transform: translateY(-5px);
-  box-shadow: var(--shadow-lg);
-}
-
-/* Form Header */
-.form-header {
-  text-align: center;
-  margin-bottom: 2.5rem;
-  padding-bottom: 1.5rem;
-  border-bottom: 3px solid var(--primary-blue);
-}
-
-.form-header h2 {
-  font-size: 2.25rem;
-  font-weight: 700;
-  color: var(--text-dark);
-  margin-bottom: 0.75rem;
-}
-
-.form-header p {
-  color: var(--text-medium);
-  font-size: 1.1rem;
-}
-
-/* Form Sections */
-.form-section {
-  margin-bottom: 2.5rem;
-  padding: 1.5rem;
-  background: var(--background-gray-light);
-  border-radius: 0.875rem;
-  box-shadow: var(--shadow-sm);
-  transition: var(--transition);
-}
-
-.form-section:hover {
-  transform: translateY(-3px);
-  box-shadow: var(--shadow-md);
-}
-
-.section-title {
-  color: var(--text-dark);
-  font-size: 1.5rem;
-  font-weight: 600;
-  margin-bottom: 1.25rem;
-  display: inline-block;
-}
-
-.section-title::after {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 0;
-  width: 40px;
-  height: 3px;
-  background: var(--primary-blue);
-  border-radius: 2px;
-}
-
-/* Form Controls */
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-label {
-  color: var(--text-dark);
-  font-weight: 500;
-  margin-bottom: 0.5rem;
-  display: block;
-}
-
-.form-control {
-  background-color: var(--background-white);
-  border: 2px solid var(--border-color);
-  border-radius: 0.75rem;
-  padding: 1rem 1.25rem;
-  transition: var(--transition);
-  font-size: 1rem;
-}
-
-.form-control:focus {
-  background-color: var(--background-white);
-  border-color: var(--primary-blue);
-  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-  outline: none;
-}
-
-.form-control::placeholder {
-  color: var(--text-light);
-}
-
-.form-text {
-  color: var(--text-medium);
-  font-size: 0.875rem;
-  margin-top: 0.5rem;
-}
-
-/* Buttons */
-.btn-primary {
-  background: var(--primary-blue);
-  color: var(--text-white);
-  padding: 0.875rem 1.75rem;
-  border-radius: 0.625rem;
-  font-weight: 600;
-  transition: var(--transition);
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-primary::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
-  transition: var(--transition);
-}
-
-.btn-primary:hover {
-  background: var(--primary-blue-dark);
-  transform: translateY(-2px);
-}
-
-.btn-primary:hover::before {
-  background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
-}
-
-.btn-secondary {
-  border: 2px solid var(--primary-blue);
-  color: var(--primary-blue);
-  padding: 0.875rem 1.75rem;
-  border-radius: 0.625rem;
-  font-weight: 600;
-  transition: var(--transition);
-  position: relative;
-  overflow: hidden;
-}
-
-.btn-secondary::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0));
-  transition: var(--transition);
-}
-
-.btn-secondary:hover {
-  background: var(--primary-blue);
-  color: var(--text-white);
-  transform: translateY(-2px);
-}
-
-.btn-secondary:hover::before {
-  background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0));
-}
-
-/* Error Handling */
-.errorlist {
-  color: var(--danger-red);
-  font-size: 0.875rem;
-  margin-top: 0.25rem;
-  padding: 0.5rem;
-  background: var(--danger-red-light);
-  border-radius: 0.5rem;
-  border: 1px solid var(--danger-red);
-}
-
-/* Responsive Design */
-@media (max-width: 768px) {
-  .form-container {
-    margin: 1rem;
-    padding: 1.5rem;
-  }
-
-  .form-header h2 {
-    font-size: 1.75rem;
-  }
-
-  .form-section {
-    padding: 1rem;
-  }
-}
-</style>
-{% endblock %}
-
 {% block content %}
-<div class="form-container">
-  <div class="form-header">
-    <h2>Submit a New Skill Verification</h2>
-    <p>Enter the name of your skill, a brief description, and upload proof (e.g. certificate, license).</p>
-  </div>
-
-  <form method="POST" enctype="multipart/form-data">
-    {% csrf_token %}
+<style>
+  .skill-edit-container {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 0 20px;
+  }
+  
+  .page-header {
+    text-align: center;
+    margin-bottom: 40px;
+  }
+  
+  .page-title {
+    font-size: 2rem;
+    color: #1f2937;
+    margin-bottom: 10px;
+    font-weight: 600;
+  }
+  
+  .page-subtitle {
+    color: #6b7280;
+    font-size: 1rem;
+  }
+  
+  .form-card {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    padding: 40px;
+    margin-bottom: 20px;
+  }
+  
+  .form-group {
+    margin-bottom: 25px;
+  }
+  
+  .form-group label {
+    display: block;
+    margin-bottom: 8px;
+    color: #374151;
+    font-weight: 500;
+    font-size: 0.9rem;
+  }
+  
+  .form-group input,
+  .form-group select,
+  .form-group textarea {
+    width: 100%;
+    padding: 12px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    font-size: 1rem;
+    transition: all 0.2s;
+    background: white;
+  }
+  
+  .form-group input:focus,
+  .form-group select:focus,
+  .form-group textarea:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  }
+  
+  .form-group textarea {
+    resize: vertical;
+    min-height: 100px;
+  }
+  
+  .file-upload-area {
+    border: 2px dashed #d1d5db;
+    border-radius: 8px;
+    padding: 20px;
+    text-align: center;
+    transition: all 0.2s;
+    background: #f9fafb;
+  }
+  
+  .file-upload-area:hover {
+    border-color: #3b82f6;
+    background: #eff6ff;
+  }
+  
+  .file-upload-icon {
+    width: 40px;
+    height: 40px;
+    background: #e5e7eb;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 10px;
+  }
+  
+  .file-upload-text {
+    color: #6b7280;
+    font-size: 0.875rem;
+  }
+  
+  .button-group {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    margin-top: 30px;
+  }
+  
+  .btn-primary {
+    background-color: #3b82f6;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  
+  .btn-primary:hover {
+    background-color: #2563eb;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 8px rgba(59, 130, 246, 0.3);
+  }
+  
+  .btn-secondary {
+    background-color: #f3f4f6;
+    color: #374151;
+    border: 1px solid #d1d5db;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-decoration: none;
+    display: inline-block;
+  }
+  
+  .btn-secondary:hover {
+    background-color: #e5e7eb;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  .help-text {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-top: 5px;
+  }
+  
+  .skill-icon {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+  }
+  
+  .skill-icon-text {
+    color: white;
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+  
+  @media (max-width: 640px) {
+    .skill-edit-container {
+      margin: 20px auto;
+      padding: 0 15px;
+    }
     
-    {{ form.non_field_errors }}
+    .form-card {
+      padding: 25px 20px;
+    }
+    
+    .button-group {
+      flex-direction: column;
+    }
+    
+    .btn-primary,
+    .btn-secondary {
+      width: 100%;
+      text-align: center;
+    }
+  }
+</style>
 
-    <div class="form-section">
-      <div class="section-title">Skill Information</div>
+<div class="skill-edit-container">
+  <div class="page-header">
+    <div class="skill-icon">
+      <div class="skill-icon-text">✓</div>
+    </div>
+    <h2 class="page-title">Edit Skill Verification</h2>
+    <p class="page-subtitle">Update your skill information and verification documents</p>
+  </div>
+  
+  <div class="form-card">
+    <form method="POST" enctype="multipart/form-data" id="skillVerificationForm" class="skill-verification-form" novalidate>
+      {% csrf_token %}
+      <input type="hidden" name="MAX_FILE_SIZE" value="5242880"> <!-- 5MB max file size -->
+      
+      <!-- Debug: Display form errors -->
+      {% if form.errors %}
+      <div class="alert alert-danger">
+        <strong>Form errors:</strong>
+        <ul>
+        {% for field, errors in form.errors.items %}
+          <li>{{ field }}: {{ errors|join:", " }}</li>
+        {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      
+      <!-- Debug: Display non-field errors -->
+      {% if form.non_field_errors %}
+      <div class="alert alert-danger">
+        <strong>Errors:</strong>
+        <ul>
+        {% for error in form.non_field_errors %}
+          <li>{{ error }}</li>
+        {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
       
       <div class="form-group">
-        <label for="id_skill_name" class="form-label">Skill Name</label>
-        {{ form.skill_name }}
-        {{ form.skill_name.errors }}
+        <label for="id_name">Skill Name</label>
+        <input 
+          type="text" 
+          name="name" 
+          id="id_name" 
+          class="form-control"
+          placeholder="Enter your skill, e.g. Driving"
+          autocomplete="skill"
+          value="{{ form.name.value|default:'' }}"
+          required
+        >
+        {% if form.name.errors %}
+          <div class="text-danger">{{ form.name.errors }}</div>
+        {% endif %}
       </div>
-
-      <div class="form-group">
-        <label for="id_description" class="form-label">Description</label>
-        {{ form.description }}
-        {{ form.description.errors }}
-      </div>
-    </div>
-
-    <div class="form-section">
-      <div class="section-title">Verification Proof</div>
       
       <div class="form-group">
-        <label for="id_proof" class="form-label">Upload Proof</label>
-        {{ form.proof }}
-        {{ form.proof.errors }}
-        <small class="form-text">Supported formats: PDF, JPG, PNG (Max 5MB)</small>
+        <label for="id_description">Description</label>
+        <textarea 
+          name="description" 
+          id="id_description" 
+          class="form-control" 
+          rows="3" 
+          placeholder="Brief description"
+          autocomplete="off"
+        >{{ form.description.value|default:'' }}</textarea>
+        {% if form.description.errors %}
+          <div class="text-danger">{{ form.description.errors }}</div>
+        {% endif %}
       </div>
-    </div>
-
-    <div class="text-center mt-4">
-      <button type="submit" class="btn btn-primary">Submit Verification</button>
-      <a href="{% url 'profile' request.user.pk %}" class="btn btn-secondary ms-2">Cancel</a>
-    </div>
-  </form>
+      
+      <div class="form-group">
+        <label for="id_proof">Upload Proof</label>
+        <input 
+          type="file" 
+          name="proof" 
+          id="id_proof" 
+          class="form-control"
+          accept=".pdf,.jpg,.jpeg,.png"
+          {% if not form.instance.pk %}required{% endif %}
+        >
+        <small class="form-text text-muted">Accepted file types: PDF, JPG, PNG (max 5MB)</small>
+        {% if form.proof.errors %}
+          <div class="text-danger">{{ form.proof.errors }}</div>
+        {% endif %}
+      </div>
+      
+      <!-- Debug: Display form data -->
+      <div class="alert alert-info" style="display: none;">
+        <strong>Debug Info:</strong>
+        <pre>{{ form.data|pprint }}</pre>
+      </div>
+      
+      <div class="help-text">
+        💡 Tip: Upload certificates, portfolios, or other documents that demonstrate your expertise in this skill.
+      </div>
+      
+      <div class="button-group text-center mt-4">
+        <button type="submit" class="btn btn-primary btn-lg" id="skillSubmitBtn">
+          <i class="fas fa-save me-2"></i>{{ form.instance.pk|yesno:'Update Skill,Submit Skill' }}
+        </button>
+        <a href="{% url 'profile' request.user.pk %}" class="btn btn-secondary btn-lg ms-2">
+          <i class="fas fa-times me-2"></i>Cancel
+        </a>
+      </div>
+      
+      <!-- Hidden debug info -->
+      <div id="skillDebugInfo" style="display: none; margin-top: 20px; padding: 10px; background: #f8f9fa; border: 1px solid #ddd; border-radius: 4px;">
+        <h5>Debug Info</h5>
+        <pre id="skillDebugOutput"></pre>
+      </div>
+      
+      <script>
+      (function() {
+        // Use a self-executing function to avoid polluting global scope
+        document.addEventListener('DOMContentLoaded', function() {
+          // Disable HTML5 validation for all forms except ours
+          document.querySelectorAll('form:not(#skillVerificationForm)').forEach(form => {
+            form.setAttribute('novalidate', '');
+            form.addEventListener('submit', function(e) {
+              // Only prevent default if this is not our form
+              if (e.target.id !== 'skillVerificationForm') {
+                e.preventDefault();
+                return false;
+              }
+            });
+          });
+          // Use a more specific ID to avoid conflicts
+          const form = document.getElementById('skillVerificationForm');
+          if (!form) return;
+          
+          // Add namespaced event handlers
+          const debugInfo = document.getElementById('skillDebugInfo');
+          const debugOutput = document.getElementById('skillDebugOutput');
+          const submitBtn = document.getElementById('skillSubmitBtn');
+          
+          // Make sure we don't interfere with other forms
+          form.setAttribute('data-skill-form', 'true');
+          
+          // Toggle debug info on double-click of submit button
+          if (submitBtn) {
+            submitBtn.addEventListener('dblclick', function(e) {
+              e.preventDefault();
+              e.stopPropagation();
+              if (debugInfo) {
+                debugInfo.style.display = debugInfo.style.display === 'none' ? 'block' : 'none';
+                
+                // Show form data in debug output
+                if (debugInfo.style.display === 'block' && debugOutput) {
+                  const formData = new FormData(form);
+                  debugOutput.textContent = JSON.stringify(Object.fromEntries(formData), null, 2);
+                }
+              }
+              return false;
+            }, true); // Use capture phase to ensure we get the event first
+          }
+          
+          // Handle form submission
+          form.addEventListener('submit', function(e) {
+            // Only handle our form
+            if (e.target !== form) return true;
+            
+            console.log('Skill form submission started');
+            
+            // Prevent default form submission
+            e.preventDefault();
+            
+            // Validate form
+            if (!validateSkillForm()) {
+              return false;
+            }
+            
+            // Disable the submit button to prevent double submission
+            if (submitBtn) {
+              submitBtn.disabled = true;
+              submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin me-2"></i>Processing...';
+            }
+            
+            // Log form data for debugging
+            const formData = new FormData(form);
+            console.log('Skill form data:', Object.fromEntries(formData));
+            
+            // Submit the form programmatically
+            form.submit();
+            return false;
+          }, true); // Use capture phase to ensure we get the event first
+        });
+        
+        // Form validation for skill form
+        function validateSkillForm() {
+          console.log('Validating skill form...');
+          const form = document.getElementById('skillVerificationForm');
+          if (!form) {
+            console.log('Skill form not found');
+            return true; // Let default validation handle it
+          }
+          
+          // Check file size if a file is selected
+          const fileInput = form.querySelector('#id_proof');
+          if (fileInput && fileInput.files.length > 0) {
+            const fileSize = fileInput.files[0].size; // in bytes
+            const maxSize = 5 * 1024 * 1024; // 5MB in bytes
+            if (fileSize > maxSize) {
+              alert('File size exceeds 5MB limit. Please choose a smaller file.');
+              return false;
+            }
+          }
+          
+          // Check if this is a new skill and proof is required
+          const isNewSkill = '{{ form.instance.pk|default:0 }}' === '0';
+          if (isNewSkill && (!fileInput || fileInput.files.length === 0)) {
+            alert('Please upload proof of your skill.');
+            return false;
+          }
+          
+          return true;
+        }
+      })(); // Immediately invoke the function
+    </script>
+    
+  </div>
 </div>
 {% endblock %}

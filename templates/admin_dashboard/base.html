@@ -579,7 +579,7 @@
                     </div>
                     
                     <div class="user-menu">
-                        <a href="#" class="user-menu-item">
+                        <a href="{% url 'profile' request.user.pk %}" class="user-menu-item">
                             <i class="bi bi-person user-menu-icon"></i>
                             <span>Profile</span>
                         </a>

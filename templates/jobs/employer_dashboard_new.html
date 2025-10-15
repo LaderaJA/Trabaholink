@@ -1,0 +1,284 @@
+{% extends "mainpages/base.html" %}
+{% load static %}
+
+{% block title %}Employer Dashboard - TrabahoLink{% endblock %}
+
+{% block css %}
+<style>
+    body {
+        background: #f3f4f6 !important;
+    }
+
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .dashboard-header {
+        background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 16px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(37, 99, 235, 0.1);
+    }
+
+    .dashboard-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .dashboard-header p {
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    /* Tabs Navigation */
+    .tabs-nav {
+        background: white;
+        border-radius: 12px;
+        padding: 0.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+
+    .tab-btn {
+        flex: 1;
+        min-width: 150px;
+        padding: 0.875rem 1.5rem;
+        border: none;
+        background: transparent;
+        color: #6b7280;
+        font-weight: 600;
+        font-size: 0.9375rem;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .tab-btn:hover {
+        background: #f3f4f6;
+        color: #111827;
+    }
+
+    .tab-btn.active {
+        background: #2563eb;
+        color: white;
+    }
+
+    .tab-btn i {
+        font-size: 1.125rem;
+    }
+
+    /* Tab Content */
+    .tab-content {
+        display: none;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-card-icon.blue { background: #dbeafe; color: #2563eb; }
+    .stat-card-icon.green { background: #d1fae5; color: #059669; }
+    .stat-card-icon.yellow { background: #fef3c7; color: #d97706; }
+    .stat-card-icon.purple { background: #e9d5ff; color: #7c3aed; }
+
+    .stat-card-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-card-label {
+        color: #6b7280;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    @media (max-width: 768px) {
+        .tabs-nav {
+            flex-direction: column;
+        }
+
+        .tab-btn {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <h1><i class="bi bi-speedometer2"></i> Employer Dashboard</h1>
+        <p>Welcome back, {{ user.get_full_name|default:user.username }}!</p>
+    </div>
+
+    <!-- Statistics -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-card-icon blue">
+                <i class="bi bi-briefcase-fill"></i>
+            </div>
+            <div class="stat-card-value">{{ stats.total_jobs }}</div>
+            <div class="stat-card-label">Total Jobs Posted</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon green">
+                <i class="bi bi-file-earmark-text-fill"></i>
+            </div>
+            <div class="stat-card-value">{{ stats.total_applications }}</div>
+            <div class="stat-card-label">Total Applications</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon yellow">
+                <i class="bi bi-file-earmark-check-fill"></i>
+            </div>
+            <div class="stat-card-value">{{ stats.active_contracts }}</div>
+            <div class="stat-card-label">Active Contracts</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon purple">
+                <i class="bi bi-check-circle-fill"></i>
+            </div>
+            <div class="stat-card-value">{{ stats.completed_contracts }}</div>
+            <div class="stat-card-label">Completed Contracts</div>
+        </div>
+    </div>
+
+    <!-- Tabs Navigation -->
+    <div class="tabs-nav">
+        <button class="tab-btn active" onclick="switchTab('jobs')">
+            <i class="bi bi-briefcase"></i>
+            <span>Job Posts</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('applications')">
+            <i class="bi bi-file-earmark-text"></i>
+            <span>Applications</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('contracts')">
+            <i class="bi bi-file-earmark-check"></i>
+            <span>Contracts</span>
+        </button>
+        <button class="tab-btn" onclick="switchTab('track')">
+            <i class="bi bi-graph-up"></i>
+            <span>Track Jobs</span>
+        </button>
+    </div>
+
+    <!-- Tab Content: Job Posts -->
+    <div id="jobs-tab" class="tab-content active">
+        <iframe src="{% url 'jobs:job_list' %}?employer=true" 
+                style="width: 100%; min-height: 600px; border: none; border-radius: 12px; background: white;">
+        </iframe>
+    </div>
+
+    <!-- Tab Content: Applications -->
+    <div id="applications-tab" class="tab-content">
+        <iframe src="{% url 'jobs:employer_applications' %}" 
+                style="width: 100%; min-height: 600px; border: none; border-radius: 12px; background: white;">
+        </iframe>
+    </div>
+
+    <!-- Tab Content: Contracts -->
+    <div id="contracts-tab" class="tab-content">
+        <iframe src="{% url 'jobs:employer_contracts' %}" 
+                style="width: 100%; min-height: 600px; border: none; border-radius: 12px; background: white;">
+        </iframe>
+    </div>
+
+    <!-- Tab Content: Track Jobs -->
+    <div id="track-tab" class="tab-content">
+        <div style="background: white; padding: 2rem; border-radius: 12px;">
+            <h2 style="margin-bottom: 1.5rem;">Track Active Jobs</h2>
+            {% if active_contracts %}
+            <div style="display: grid; gap: 1rem;">
+                {% for contract in active_contracts %}
+                <div style="padding: 1rem; border: 1px solid #e5e7eb; border-radius: 8px;">
+                    <h4>{{ contract.job_title|default:contract.job.title }}</h4>
+                    <p style="color: #6b7280; margin: 0.5rem 0;">
+                        Worker: {{ contract.worker.get_full_name|default:contract.worker.username }}
+                    </p>
+                    <a href="{% url 'jobs:job_tracking' contract.pk %}" 
+                       style="display: inline-block; margin-top: 0.5rem; padding: 0.5rem 1rem; background: #2563eb; color: white; border-radius: 6px; text-decoration: none;">
+                        <i class="bi bi-graph-up"></i> Track Progress
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+            <p style="text-align: center; color: #6b7280; padding: 2rem;">
+                No active jobs to track.
+            </p>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function switchTab(tabName) {
+    // Hide all tabs
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    
+    // Remove active class from all buttons
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    
+    // Show selected tab
+    document.getElementById(tabName + '-tab').classList.add('active');
+    
+    // Add active class to clicked button
+    event.target.closest('.tab-btn').classList.add('active');
+}
+</script>
+{% endblock %}

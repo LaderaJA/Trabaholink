@@ -1,0 +1,99 @@
+{% comment %}
+Status Badge Component
+Usage: {% include 'jobs/components/status_badge.html' with status=contract.status %}
+{% endcomment %}
+
+<span class="status-badge status-{{ status|lower|cut:' ' }}">
+    {% if status == 'Pending' %}
+        <i class="bi bi-clock"></i> Pending
+    {% elif status == 'Accepted' %}
+        <i class="bi bi-check-circle"></i> Accepted
+    {% elif status == 'Rejected' %}
+        <i class="bi bi-x-circle"></i> Rejected
+    {% elif status == 'Negotiation' %}
+        <i class="bi bi-chat-dots"></i> Negotiation
+    {% elif status == 'Finalized' %}
+        <i class="bi bi-check2-all"></i> Finalized
+    {% elif status == 'In Progress' %}
+        <i class="bi bi-hourglass-split"></i> In Progress
+    {% elif status == 'Awaiting Review' %}
+        <i class="bi bi-eye"></i> Awaiting Review
+    {% elif status == 'Completed' %}
+        <i class="bi bi-check-circle-fill"></i> Completed
+    {% elif status == 'Cancelled' %}
+        <i class="bi bi-x-octagon"></i> Cancelled
+    {% elif status == 'Withdrawn' %}
+        <i class="bi bi-arrow-return-left"></i> Withdrawn
+    {% elif status == 'Archived' %}
+        <i class="bi bi-inboxes"></i> Archived
+    {% else %}
+        {{ status }}
+    {% endif %}
+</span>
+
+<style>
+.status-badge {
+    display: inline-block;
+    padding: 0.375rem 0.75rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-pending {
+    background: #e5e7eb;
+    color: #4b5563;
+}
+
+.status-accepted {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-rejected {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-negotiation {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status-finalized {
+    background: #ccfbf1;
+    color: #115e59;
+}
+
+.status-inprogress {
+    background: #fed7aa;
+    color: #9a3412;
+}
+
+.status-awaitingreview {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-completed {
+    background: #e9d5ff;
+    color: #6b21a8;
+}
+
+.status-cancelled {
+    background: #1f2937;
+    color: #ffffff;
+}
+
+.status-withdrawn {
+    background: #f3f4f6;
+    color: #6b7280;
+}
+
+.status-archived {
+    background: #e5e7eb;
+    color: #4b5563;
+}
+</style>

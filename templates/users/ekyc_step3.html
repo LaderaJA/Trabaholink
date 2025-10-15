@@ -1,0 +1,331 @@
+{% extends "mainpages/base.html" %}
+{% load static %}
+
+{% block title %}Step 3: Selfie Verification - TrabahoLink{% endblock %}
+
+{% block css %}
+{{ block.super }}
+<style>
+    body {
+        background: #f3f4f6;
+    }
+
+    .verification-container {
+        max-width: 700px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .verification-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .progress-bar-container {
+        background: #e5e7eb;
+        height: 8px;
+    }
+
+    .progress-bar-fill {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        height: 100%;
+        transition: width 0.3s;
+    }
+
+    .card-header {
+        padding: 2rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .step-indicator {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .step-number {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+
+    .step-info h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: #1f2937;
+    }
+
+    .step-info p {
+        margin: 0.25rem 0 0;
+        color: #6b7280;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .instructions-box {
+        background: #fef3c7;
+        border-left: 4px solid #f59e0b;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .instructions-box h4 {
+        color: #92400e;
+        margin: 0 0 1rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .instructions-box ul {
+        margin: 0;
+        padding-left: 1.5rem;
+        color: #78350f;
+    }
+
+    .instructions-box li {
+        margin-bottom: 0.5rem;
+    }
+
+    .camera-preview {
+        background: #1f2937;
+        border-radius: 12px;
+        overflow: hidden;
+        margin: 2rem 0;
+        position: relative;
+        min-height: 400px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .camera-placeholder {
+        text-align: center;
+        color: #9ca3af;
+    }
+
+    .camera-placeholder i {
+        font-size: 5rem;
+        margin-bottom: 1rem;
+    }
+
+    .file-upload-area {
+        border: 2px dashed #d1d5db;
+        border-radius: 12px;
+        padding: 3rem 2rem;
+        text-align: center;
+        transition: all 0.3s;
+        cursor: pointer;
+        background: #f9fafb;
+    }
+
+    .file-upload-area:hover {
+        border-color: #667eea;
+        background: #f3f4f6;
+    }
+
+    .file-upload-area.has-file {
+        border-color: #10b981;
+        background: #d1fae5;
+    }
+
+    .file-upload-icon {
+        font-size: 4rem;
+        color: #9ca3af;
+        margin-bottom: 1rem;
+    }
+
+    .file-upload-area.has-file .file-upload-icon {
+        color: #10b981;
+    }
+
+    .file-upload-text {
+        color: #6b7280;
+        font-weight: 500;
+        font-size: 1.1rem;
+    }
+
+    .file-upload-area.has-file .file-upload-text {
+        color: #065f46;
+    }
+
+    .help-text {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 0.75rem;
+    }
+
+    .preview-image {
+        max-width: 100%;
+        max-height: 400px;
+        border-radius: 12px;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        padding: 2rem;
+        border-top: 1px solid #e5e7eb;
+        background: #f9fafb;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 0.875rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        border: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: #6b7280;
+        border: 2px solid #e5e7eb;
+    }
+
+    .btn-secondary:hover {
+        border-color: #667eea;
+        color: #667eea;
+    }
+
+    @media (max-width: 768px) {
+        .action-buttons {
+            flex-direction: column-reverse;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="verification-container">
+    <div class="verification-card">
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill" style="width: 75%;"></div>
+        </div>
+
+        <div class="card-header">
+            <div class="step-indicator">
+                <div class="step-number">3</div>
+                <div class="step-info">
+                    <h2>Selfie Verification</h2>
+                    <p>Step 3 of 4 - Take a clear selfie holding your ID</p>
+                </div>
+            </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="card-body">
+            {% csrf_token %}
+            
+            <div class="instructions-box">
+                <h4>
+                    <i class="bi bi-lightbulb-fill"></i>
+                    Tips for a Clear Selfie
+                </h4>
+                <ul>
+                    <li>Hold your ID next to your face</li>
+                    <li>Make sure your face and ID are clearly visible</li>
+                    <li>Use good lighting - avoid shadows</li>
+                    <li>Look directly at the camera</li>
+                    <li>Remove sunglasses or face masks</li>
+                    <li>Ensure the photo is not blurry</li>
+                </ul>
+            </div>
+
+            <div class="form-group">
+                <label style="display: block; font-weight: 600; color: #374151; margin-bottom: 1rem;">
+                    Upload Selfie <span style="color: #ef4444;">*</span>
+                </label>
+                
+                <div class="file-upload-area" id="selfie-upload-area">
+                    <i class="bi bi-camera file-upload-icon"></i>
+                    <div class="file-upload-text">Click to take a photo or upload from gallery</div>
+                    <div class="help-text">Hold your ID next to your face for verification</div>
+                </div>
+                
+                <div id="preview-container" style="display: none; text-align: center; margin-top: 1rem;">
+                    <img id="preview-image" class="preview-image" alt="Selfie preview">
+                </div>
+                
+                {{ form.selfie_image }}
+                {% if form.selfie_image.errors %}
+                    <div style="color: #ef4444; font-size: 0.875rem; margin-top: 0.5rem;">
+                        {{ form.selfie_image.errors.0 }}
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="action-buttons">
+                <a href="{% url 'ekyc_step2' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    Next <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const selfieInput = document.getElementById('{{ form.selfie_image.id_for_label }}');
+    const uploadArea = document.getElementById('selfie-upload-area');
+    const previewContainer = document.getElementById('preview-container');
+    const previewImage = document.getElementById('preview-image');
+
+    if (selfieInput) {
+        selfieInput.style.display = 'none';
+        
+        uploadArea.addEventListener('click', () => selfieInput.click());
+        
+        selfieInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                const file = this.files[0];
+                uploadArea.classList.add('has-file');
+                uploadArea.querySelector('.file-upload-text').textContent = file.name;
+                uploadArea.querySelector('.file-upload-icon').className = 'bi bi-check-circle-fill file-upload-icon';
+                
+                // Show preview
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    previewImage.src = e.target.result;
+                    previewContainer.style.display = 'block';
+                };
+                reader.readAsDataURL(file);
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

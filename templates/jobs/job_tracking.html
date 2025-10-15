@@ -1,0 +1,290 @@
+{% extends "mainpages/base.html" %}
+{% load static %}
+
+{% block title %}Job Tracking - {{ contract.job.title }}{% endblock %}
+
+{% block css %}
+    {{ block.super }}
+    <script src="https://cdn.tailwindcss.com"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-6xl">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div class="flex justify-between items-start mb-4">
+            <div>
+                <h1 class="text-3xl font-bold text-gray-800 mb-2">Job Tracking</h1>
+                <p class="text-gray-600">{{ contract.job.title }}</p>
+            </div>
+            <span class="px-4 py-2 rounded-full font-semibold text-white
+                {% if contract.status == 'In Progress' %}bg-orange-500
+                {% elif contract.status == 'Awaiting Review' %}bg-yellow-500
+                {% elif contract.status == 'Completed' %}bg-purple-500
+                {% else %}bg-gray-500{% endif %}">
+                {{ contract.status }}
+            </span>
+        </div>
+
+        <!-- Contract Summary -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <p class="text-sm text-gray-600">Worker</p>
+                <p class="font-semibold text-gray-800">{{ contract.worker.get_full_name|default:contract.worker.username }}</p>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <p class="text-sm text-gray-600">Employer</p>
+                <p class="font-semibold text-gray-800">{{ contract.client.get_full_name|default:contract.client.username }}</p>
+            </div>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <p class="text-sm text-gray-600">Agreed Rate</p>
+                <p class="font-semibold text-gray-800">₱{{ contract.agreed_rate|default:contract.job.budget }}</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <!-- Main Content - Progress Feed -->
+        <div class="lg:col-span-2">
+            <!-- Worker Actions -->
+            {% if is_worker %}
+                {% if contract.is_revision_requested %}
+                <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 mb-6">
+                    <h2 class="text-lg font-semibold mb-2">Revision Requested</h2>
+                    <p>The employer has requested additional work or revisions. Please review their notes in the progress feed and update your progress before resubmitting.</p>
+                </div>
+                {% endif %}
+                {% if contract.status == 'Finalized' %}
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Ready to Start?</h2>
+                    <form method="post" action="{% url 'jobs:start_contract_work' contract.pk %}" 
+                          onsubmit="return confirm('Are you sure you want to start this job?');">
+                        {% csrf_token %}
+                        <input type="hidden" name="action" value="start_work">
+                        <button type="submit" 
+                                class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
+                            🚀 Start Job
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+
+                {% if contract.status == 'In Progress' %}
+                <!-- Post Progress Update -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Post Progress Update</h2>
+                    <form method="post" action="{% url 'jobs:post_progress_update' contract.pk %}" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="update_text" class="block text-sm font-medium text-gray-700 mb-2">
+                                Update Description *
+                            </label>
+                            <textarea name="update_text" id="update_text" required
+                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                      rows="4" placeholder="Describe your progress..."></textarea>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="image" class="block text-sm font-medium text-gray-700 mb-2">
+                                Progress Photo (Optional)
+                            </label>
+                            <input type="file" name="image" id="image" accept="image/*"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg">
+                            <p class="text-xs text-gray-500 mt-1">Upload a photo showing your progress</p>
+                        </div>
+
+                        <button type="submit" 
+                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
+                            📤 Post Update
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Mark as Completed -->
+                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">Job Complete?</h2>
+                    <form method="post" action="{% url 'jobs:mark_job_completed' contract.pk %}" 
+                          onsubmit="return confirm('Are you sure you want to mark this job as completed? The employer will review your work.');">
+                        {% csrf_token %}
+                        <button type="submit" 
+                                class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
+                            ✓ Mark as Completed
+                        </button>
+                    </form>
+                </div>
+                {% endif %}
+            {% endif %}
+
+            <!-- Employer Actions -->
+            {% if is_employer and contract.status == 'Awaiting Review' %}
+            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+                <h2 class="text-xl font-bold text-gray-800 mb-4">Review Complete Work</h2>
+                <p class="text-gray-600 mb-4">The worker has marked this job as completed. End the job if everything looks good or request revisions if more work is needed.</p>
+                <form method="post" action="{% url 'jobs:oppose_job_completion' contract.pk %}" class="space-y-4"
+                      onsubmit="return confirm('Send this revision request to the worker?');">
+                    {% csrf_token %}
+                    <div>
+                        <label for="revision_reason" class="block text-sm font-medium text-gray-700 mb-2">Reason for Revision *</label>
+                        <textarea id="revision_reason" name="reason" required rows="3"
+                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
+                                  placeholder="Describe what still needs to be done or corrected..."></textarea>
+                    </div>
+                    <button type="submit"
+                            class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
+                        ↩️ Request Revisions
+                    </button>
+                </form>
+                <form method="post" action="{% url 'jobs:end_job' contract.pk %}" 
+                      onsubmit="return confirm('Are you sure you want to end this job? You will be prompted to leave feedback.');">
+                    {% csrf_token %}
+                    <button type="submit" 
+                            class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
+                        🏁 End Job & Leave Feedback
+                    </button>
+                </form>
+            </div>
+            {% endif %}
+
+            <!-- Progress Feed -->
+            <div class="bg-white rounded-lg shadow-md p-6">
+                <h2 class="text-2xl font-bold text-gray-800 mb-4">Progress Updates</h2>
+                
+                {% if has_activity %}
+                    <div class="space-y-4">
+                        {% for update in progress_updates %}
+                        <div class="border-l-4 border-blue-500 pl-4 py-3 bg-gray-50 rounded-r-lg">
+                            <div class="flex items-start justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-semibold text-gray-800">
+                                        {{ update.updated_by.get_full_name|default:update.updated_by.username }}
+                                    </span>
+                                    <span class="text-xs text-gray-500">
+                                        {{ update.created_at|timesince }} ago
+                                    </span>
+                                </div>
+                            </div>
+                            
+                            <p class="text-gray-700 mb-3">{{ update.update_text }}</p>
+                            
+                            {% if update.image %}
+                            <div class="mt-3">
+                                <img src="{{ update.image.url }}" alt="Progress photo" 
+                                     class="rounded-lg max-w-full h-auto cursor-pointer hover:opacity-90 transition"
+                                     onclick="window.open('{{ update.image.url }}', '_blank')">
+                            </div>
+                            {% endif %}
+                            
+                            <p class="text-xs text-gray-500 mt-2">
+                                📅 {{ update.created_at|date:"F d, Y - g:i A" }}
+                            </p>
+                        </div>
+                        {% endfor %}
+
+                        {% for log in progress_logs %}
+                        <div class="border-l-4 border-red-500 pl-4 py-3 bg-red-50 rounded-r-lg">
+                            <div class="flex items-start justify-between mb-2">
+                                <div class="flex items-center gap-2">
+                                    <span class="font-semibold text-gray-800">
+                                        {% if log.updated_by %}
+                                            {{ log.updated_by.get_full_name|default:log.updated_by.username }}
+                                        {% else %}
+                                            System
+                                        {% endif %}
+                                    </span>
+                                    <span class="text-xs text-gray-500">
+                                        {{ log.timestamp|timesince }} ago
+                                    </span>
+                                </div>
+                                <span class="text-xs font-semibold uppercase text-red-600">{{ log.status }}</span>
+                            </div>
+
+                            <p class="text-gray-700 mb-2">{{ log.message }}</p>
+
+                            <p class="text-xs text-gray-500">
+                                📅 {{ log.timestamp|date:"F d, Y - g:i A" }}
+                            </p>
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="text-center py-12">
+                        <div class="text-6xl mb-4">📋</div>
+                        <p class="text-gray-500 text-lg">No progress activity yet</p>
+                        {% if is_worker and contract.status == 'In Progress' %}
+                        <p class="text-gray-400 text-sm mt-2">Post your first update above!</p>
+                        {% endif %}
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sidebar - Contract Details -->
+        <div class="lg:col-span-1">
+            <div class="bg-white rounded-lg shadow-md p-6 sticky top-4">
+                <h3 class="text-lg font-bold text-gray-800 mb-4">Contract Details</h3>
+                
+                <div class="space-y-3">
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase">Duration</p>
+                        <p class="font-semibold text-gray-800">{{ contract.duration|default:"Not specified" }}</p>
+                    </div>
+                    
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase">Schedule</p>
+                        <p class="font-semibold text-gray-800">{{ contract.schedule|default:"Not specified" }}</p>
+                    </div>
+                    
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase">Start Date</p>
+                        <p class="font-semibold text-gray-800">
+                            {{ contract.start_date|date:"F d, Y"|default:"Not specified" }}
+                        </p>
+                    </div>
+                    
+                    {% if contract.started_at %}
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase">Started</p>
+                        <p class="font-semibold text-gray-800">{{ contract.started_at|date:"F d, Y" }}</p>
+                    </div>
+                    {% endif %}
+                    
+                    {% if contract.completed_at %}
+                    <div>
+                        <p class="text-xs text-gray-500 uppercase">Completed</p>
+                        <p class="font-semibold text-gray-800">{{ contract.completed_at|date:"F d, Y" }}</p>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <hr class="my-4">
+
+                <div class="space-y-2">
+                    <a href="{% url 'jobs:contract_detail' contract.pk %}" 
+                       class="block w-full text-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded-lg transition duration-200">
+                        📄 View Contract
+                    </a>
+                    
+                    {% if is_employer %}
+                    <a href="{% url 'jobs:employer_dashboard' %}" 
+                       class="block w-full text-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded-lg transition duration-200">
+                        🏠 Dashboard
+                    </a>
+                    {% else %}
+                    <a href="{% url 'jobs:worker_dashboard' %}" 
+                       class="block w-full text-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded-lg transition duration-200">
+                        🏠 Dashboard
+                    </a>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .sticky {
+        position: -webkit-sticky;
+        position: sticky;
+    }
+</style>
+{% endblock %}

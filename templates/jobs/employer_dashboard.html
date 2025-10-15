@@ -1,0 +1,969 @@
+{% extends "mainpages/base.html" %}
+{% load static %}
+
+{% block title %}Employer Dashboard - TrabahoLink{% endblock %}
+
+{% block css %}
+<style>
+    body {
+        background: #f3f4f6 !important;
+    }
+
+    .dashboard-container {
+        max-width: 1400px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .dashboard-header {
+        background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 16px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(37, 99, 235, 0.1);
+    }
+
+    .dashboard-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .dashboard-header p {
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1.5rem;
+        margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        background: white;
+        padding: 1.5rem;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
+    }
+
+    .stat-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+
+    .stat-card-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+        margin-bottom: 1rem;
+    }
+
+    .stat-card-icon.blue { background: #dbeafe; color: #2563eb; }
+    .stat-card-icon.green { background: #d1fae5; color: #059669; }
+    .stat-card-icon.yellow { background: #fef3c7; color: #d97706; }
+    .stat-card-icon.purple { background: #e9d5ff; color: #7c3aed; }
+    .stat-card-icon.red { background: #fee2e2; color: #dc2626; }
+
+    .stat-card-value {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-card-label {
+        color: #6b7280;
+        font-size: 0.875rem;
+        font-weight: 500;
+    }
+
+    .content-section {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+    }
+
+    .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 1.5rem;
+        padding-bottom: 1rem;
+        border-bottom: 2px solid #f3f4f6;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0;
+    }
+
+    .btn-view-all {
+        color: #2563eb;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.875rem;
+        transition: color 0.2s;
+    }
+
+    .btn-view-all:hover {
+        color: #1d4ed8;
+    }
+
+    .application-card {
+        padding: 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        transition: all 0.2s;
+    }
+
+    .application-card:hover {
+        border-color: #2563eb;
+        background: #f9fafb;
+    }
+
+    .application-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 0.75rem;
+    }
+
+    .applicant-info {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .applicant-avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid #e5e7eb;
+    }
+
+    .applicant-name {
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 0.25rem;
+    }
+
+    .job-title {
+        color: #6b7280;
+        font-size: 0.875rem;
+    }
+
+    .status-badge {
+        padding: 0.25rem 0.75rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+    }
+
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-shortlisted { background: #dbeafe; color: #1e40af; }
+    .status-accepted { background: #d1fae5; color: #065f46; }
+    .status-rejected { background: #fee2e2; color: #991b1b; }
+
+    .application-meta {
+        display: flex;
+        gap: 1rem;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #6b7280;
+    }
+
+    .empty-state i {
+        font-size: 3rem;
+        color: #d1d5db;
+        margin-bottom: 1rem;
+    }
+
+    .btn-primary-custom {
+        background: #2563eb;
+        color: white;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        display: inline-block;
+        transition: all 0.2s;
+        border: none;
+    }
+
+    .btn-primary-custom:hover {
+        background: #1d4ed8;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .quick-actions {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .action-btn {
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.875rem;
+        transition: all 0.2s;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .action-btn-primary {
+        background: #2563eb;
+        color: white;
+    }
+
+    .action-btn-primary:hover {
+        background: #1d4ed8;
+        color: white;
+    }
+
+    .action-btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+    }
+
+    .action-btn-secondary:hover {
+        background: #e5e7eb;
+        color: #111827;
+    }
+
+    /* Tabs Styling */
+    .tabs-container {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+        overflow: hidden;
+        margin-bottom: 2rem;
+    }
+
+    .tabs-header {
+        display: flex;
+        border-bottom: 2px solid #e5e7eb;
+        overflow-x: auto;
+        background: #f9fafb;
+    }
+
+    .tab-button {
+        flex: 1;
+        min-width: 150px;
+        padding: 1rem 1.5rem;
+        background: none;
+        border: none;
+        border-bottom: 3px solid transparent;
+        color: #6b7280;
+        font-weight: 600;
+        font-size: 0.875rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+    }
+
+    .tab-button:hover {
+        background: #f3f4f6;
+        color: #111827;
+    }
+
+    .tab-button.active {
+        color: #2563eb;
+        border-bottom-color: #2563eb;
+        background: white;
+    }
+
+    .tab-badge {
+        background: #e5e7eb;
+        color: #6b7280;
+        padding: 0.125rem 0.5rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .tab-button.active .tab-badge {
+        background: #dbeafe;
+        color: #2563eb;
+    }
+
+    .tab-content {
+        display: none;
+        padding: 1.5rem;
+    }
+
+    .tab-content.active {
+        display: block;
+    }
+
+    /* Filter Bar */
+    .filter-bar {
+        display: flex;
+        gap: 1rem;
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .filter-select {
+        padding: 0.5rem 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        background: white;
+        color: #374151;
+        font-size: 0.875rem;
+        cursor: pointer;
+        min-width: 200px;
+    }
+
+    .filter-select:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .search-input {
+        flex: 1;
+        min-width: 250px;
+        padding: 0.5rem 1rem;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 0.875rem;
+    }
+
+    .search-input:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    /* Status Indicators */
+    .application-status-indicators {
+        display: flex;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+        margin-top: 0.5rem;
+    }
+
+    .status-indicator {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.625rem;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .status-indicator.offer-sent {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+
+    .status-indicator.negotiating {
+        background: #fef3c7;
+        color: #92400e;
+    }
+
+    .status-indicator.seen {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-indicator.unseen {
+        background: #f3f4f6;
+        color: #6b7280;
+    }
+
+    .btn-action {
+        padding: 0.5rem 1rem;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-warning {
+        background: #f59e0b;
+        color: white;
+    }
+
+    .btn-warning:hover {
+        background: #d97706;
+        color: white;
+    }
+
+    .applicant-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: #2563eb;
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-weight: 700;
+        font-size: 1.125rem;
+    }
+
+    @media (max-width: 768px) {
+        .stats-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .dashboard-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .application-header {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .tabs-header {
+            flex-wrap: nowrap;
+        }
+
+        .tab-button {
+            min-width: 120px;
+            padding: 0.75rem 1rem;
+            font-size: 0.8125rem;
+        }
+
+        .filter-bar {
+            flex-direction: column;
+        }
+
+        .filter-select,
+        .search-input {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="dashboard-container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" style="margin-bottom: 1.5rem;">
+        <ol class="breadcrumb" style="background: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+            <li class="breadcrumb-item"><a href="{% url 'jobs:home' %}" style="color: #2563eb; text-decoration: none;"><i class="bi bi-house-door"></i> Home</a></li>
+            <li class="breadcrumb-item active" aria-current="page"><i class="bi bi-briefcase"></i> Employer Dashboard</li>
+        </ol>
+    </nav>
+
+    <!-- Dashboard Header -->
+    <div class="dashboard-header">
+        <h1><i class="bi bi-briefcase-fill"></i> Employer Dashboard</h1>
+        <p>Manage your job postings, applications, and contracts</p>
+    </div>
+
+    <!-- Statistics Grid -->
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-card-icon blue">
+                <i class="bi bi-file-earmark-text"></i>
+            </div>
+            <div class="stat-card-value">{{ total_applications }}</div>
+            <div class="stat-card-label">Total Applications</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon yellow">
+                <i class="bi bi-clock-history"></i>
+            </div>
+            <div class="stat-card-value">{{ pending_applications }}</div>
+            <div class="stat-card-label">Pending Review</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon green">
+                <i class="bi bi-file-earmark-check"></i>
+            </div>
+            <div class="stat-card-value">{{ active_contracts }}</div>
+            <div class="stat-card-label">Active Contracts</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon purple">
+                <i class="bi bi-briefcase"></i>
+            </div>
+            <div class="stat-card-value">{{ active_jobs }}</div>
+            <div class="stat-card-label">Active Job Posts</div>
+        </div>
+
+        <div class="stat-card">
+            <div class="stat-card-icon red">
+                <i class="bi bi-x-circle"></i>
+            </div>
+            <div class="stat-card-value">{{ rejected_applications }}</div>
+            <div class="stat-card-label">Rejected Applications</div>
+        </div>
+    </div>
+
+    <!-- Tabbed Content -->
+    <div class="tabs-container">
+        <div class="tabs-header">
+            <button class="tab-button active" onclick="switchTab(event, 'applications')">
+                <i class="bi bi-file-earmark-text"></i>
+                <span>Applications</span>
+                <span class="tab-badge">{{ applications_tab_count|default:0 }}</span>
+            </button>
+            <button class="tab-button" onclick="switchTab(event, 'rejected')">
+                <i class="bi bi-x-circle"></i>
+                <span>Rejected</span>
+                <span class="tab-badge">{{ rejected_applications }}</span>
+            </button>
+            <button class="tab-button" onclick="switchTab(event, 'contracts')">
+                <i class="bi bi-file-earmark-check"></i>
+                <span>Contracts</span>
+                <span class="tab-badge">{{ active_contracts }}</span>
+            </button>
+            <button class="tab-button" onclick="switchTab(event, 'completed-contracts')">
+                <i class="bi bi-check2-circle"></i>
+                <span>Completed</span>
+                <span class="tab-badge">{{ completed_contracts }}</span>
+            </button>
+            <button class="tab-button" onclick="switchTab(event, 'jobs')">
+                <i class="bi bi-briefcase"></i>
+                <span>My Jobs</span>
+                <span class="tab-badge">{{ active_jobs }}</span>
+            </button>
+        </div>
+
+        <!-- Applications Tab -->
+        <div id="applications-tab" class="tab-content active">
+            <div class="filter-bar">
+                <select class="filter-select" id="applications-job-filter" onchange="filterApplications()">
+                    <option value="">All Jobs</option>
+                    {% for job in user_jobs %}
+                    <option value="{{ job.id }}">{{ job.title }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" class="search-input" id="applications-search" placeholder="Search applicants..." onkeyup="filterApplications()">
+            </div>
+
+            <div id="applications-list">
+                {% for application in recent_applications %}
+                <div class="application-card" data-job-id="{{ application.job.id }}" data-applicant="{{ application.worker.get_full_name|default:application.worker.username|lower }}">
+                    <div class="application-header">
+                        <div class="applicant-info">
+                            <div class="applicant-avatar">
+                                {{ application.worker.get_full_name.0|default:application.worker.username.0|upper }}
+                            </div>
+                            <div style="flex: 1;">
+                                <div class="applicant-name">{{ application.worker.get_full_name|default:application.worker.username }}</div>
+                                <div class="job-title">Applied for: {{ application.job.title }}</div>
+                                <div class="application-status-indicators">
+                                    {% if application.offer %}
+                                        {% if application.offer.status == 'Pending' %}
+                                        <span class="status-indicator offer-sent">
+                                            <i class="bi bi-envelope-check"></i> Offer Sent
+                                        </span>
+                                        {% elif application.offer.status == 'Accepted' %}
+                                        <span class="status-indicator negotiating">
+                                            <i class="bi bi-arrow-left-right"></i> Negotiating
+                                        </span>
+                                        {% endif %}
+                                    {% endif %}
+                                    {% if application.is_viewed %}
+                                    <span class="status-indicator seen">
+                                        <i class="bi bi-eye"></i> Seen
+                                    </span>
+                                    {% else %}
+                                    <span class="status-indicator unseen">
+                                        <i class="bi bi-eye-slash"></i> Unseen
+                                    </span>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                        {% include 'jobs/components/status_badge.html' with status=application.status %}
+                    </div>
+
+                    <div class="application-meta">
+                        <span><i class="bi bi-calendar"></i> {{ application.applied_at|date:"M d, Y" }}</span>
+                        {% if application.proposed_rate %}
+                        <span><i class="bi bi-currency-dollar"></i> ₱{{ application.proposed_rate }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div style="margin-top: 0.75rem;">
+                        <a href="{% url 'jobs:job_application_detail' application.pk %}" class="btn-action btn-primary-custom">
+                            <i class="bi bi-eye"></i> View Details
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <h3>No Applications Yet</h3>
+                    <p>Applications for your job postings will appear here</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Completed Contracts Tab -->
+        <div id="completed-contracts-tab" class="tab-content">
+            <div class="filter-bar">
+                <select class="filter-select" id="completed-contracts-job-filter" onchange="filterCompletedContracts()">
+                    <option value="">All Jobs</option>
+                    {% for job in user_jobs %}
+                    <option value="{{ job.id }}">{{ job.title }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" class="search-input" id="completed-contracts-search" placeholder="Search completed contracts..." onkeyup="filterCompletedContracts()">
+            </div>
+
+            <div id="completed-contracts-list">
+                {% for contract in completed_contracts_list %}
+                <div class="application-card" data-job-id="{{ contract.job.id }}" data-worker="{{ contract.worker.get_full_name|default:contract.worker.username|lower }}">
+                    <div class="application-header">
+                        <div class="applicant-info">
+                            <div class="applicant-avatar">
+                                {{ contract.worker.get_full_name.0|default:contract.worker.username.0|upper }}
+                            </div>
+                            <div>
+                                <div class="applicant-name">{{ contract.job.title }}</div>
+                                <div class="job-title">
+                                    <i class="bi bi-person"></i> {{ contract.worker.get_full_name|default:contract.worker.username }}
+                                </div>
+                            </div>
+                        </div>
+                        <span class="status-badge status-completed">
+                            Completed
+                        </span>
+                    </div>
+
+                    <div class="application-meta">
+                        <span><i class="bi bi-calendar-check"></i> Completed: {{ contract.updated_at|date:"M d, Y" }}</span>
+                        {% if contract.payment_status %}
+                        <span><i class="bi bi-cash"></i> Payment: {{ contract.payment_status }}</span>
+                        {% endif %}
+                    </div>
+
+                    <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="{% url 'jobs:contract_detail' contract.pk %}" class="btn-action btn-primary-custom">
+                            <i class="bi bi-eye"></i> View Contract
+                        </a>
+                        <a href="{% url 'jobs:contract_feedback_detail' contract.pk %}" class="btn-action btn-secondary">
+                            <i class="bi bi-star"></i> View Feedback
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state">
+                    <i class="bi bi-check2-circle"></i>
+                    <h3>No Completed Contracts Yet</h3>
+                    <p>Completed contracts will appear here</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Rejected Applications Tab -->
+        <div id="rejected-tab" class="tab-content">
+            <div class="filter-bar">
+                <select class="filter-select" id="rejected-job-filter" onchange="filterRejected()">
+                    <option value="">All Jobs</option>
+                    {% for job in user_jobs %}
+                    <option value="{{ job.id }}">{{ job.title }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" class="search-input" id="rejected-search" placeholder="Search rejected applicants..." onkeyup="filterRejected()">
+            </div>
+
+            <div id="rejected-list">
+                {% for application in rejected_applications_list %}
+                <div class="application-card" data-job-id="{{ application.job.id }}" data-applicant="{{ application.worker.get_full_name|default:application.worker.username|lower }}">
+                    <div class="application-header">
+                        <div class="applicant-info">
+                            <div class="applicant-avatar">
+                                {{ application.worker.get_full_name.0|default:application.worker.username.0|upper }}
+                            </div>
+                            <div>
+                                <div class="applicant-name">{{ application.worker.get_full_name|default:application.worker.username }}</div>
+                                <div class="job-title">Applied for: {{ application.job.title }}</div>
+                            </div>
+                        </div>
+                        <span class="status-badge status-rejected">
+                            Rejected
+                        </span>
+                    </div>
+
+                    <div class="application-meta">
+                        <span><i class="bi bi-calendar"></i> Applied: {{ application.applied_at|date:"M d, Y" }}</span>
+                        <span><i class="bi bi-x-circle"></i> Rejected: {{ application.updated_at|date:"M d, Y" }}</span>
+                    </div>
+
+                    <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="{% url 'jobs:job_application_detail' application.pk %}" class="btn-action action-btn-secondary">
+                            <i class="bi bi-eye"></i> View Details
+                        </a>
+                        <form method="post" action="{% url 'jobs:reconsider_application' application.pk %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action btn-warning">
+                                <i class="bi bi-arrow-counterclockwise"></i> Reconsider
+                            </button>
+                        </form>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state">
+                    <i class="bi bi-check-circle"></i>
+                    <h3>No Rejected Applications</h3>
+                    <p>Rejected applications will appear here</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Contracts Tab -->
+        <div id="contracts-tab" class="tab-content">
+            <div class="filter-bar">
+                <select class="filter-select" id="contracts-job-filter" onchange="filterContracts()">
+                    <option value="">All Jobs</option>
+                    {% for job in user_jobs %}
+                    <option value="{{ job.id }}">{{ job.title }}</option>
+                    {% endfor %}
+                </select>
+                <input type="text" class="search-input" id="contracts-search" placeholder="Search contracts..." onkeyup="filterContracts()">
+            </div>
+
+            <div id="contracts-list">
+                {% for contract in active_contracts_list %}
+                <div class="application-card" data-job-id="{{ contract.job.id }}" data-worker="{{ contract.worker.get_full_name|default:contract.worker.username|lower }}">
+                    <div class="application-header">
+                        <div class="applicant-info">
+                            <div class="applicant-avatar">
+                                {{ contract.worker.get_full_name.0|default:contract.worker.username.0|upper }}
+                            </div>
+                            <div>
+                                <div class="applicant-name">{{ contract.job.title }}</div>
+                                <div class="job-title">
+                                    <i class="bi bi-person"></i> {{ contract.worker.get_full_name|default:contract.worker.username }}
+                                </div>
+                            </div>
+                        </div>
+                        <span class="status-badge status-{{ contract.status|lower|cut:' ' }}">
+                            {{ contract.status }}
+                        </span>
+                    </div>
+
+                    <div class="application-meta">
+                        <span><i class="bi bi-calendar"></i> Start: {{ contract.start_date|date:"M d, Y" }}</span>
+                        {% if contract.end_date %}
+                        <span><i class="bi bi-calendar-check"></i> End: {{ contract.end_date|date:"M d, Y" }}</span>
+                        {% endif %}
+                        <span><i class="bi bi-currency-dollar"></i> ₱{{ contract.payment_amount }}</span>
+                    </div>
+
+                    <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="{% url 'jobs:contract_detail' contract.pk %}" class="btn-action btn-primary-custom">
+                            <i class="bi bi-eye"></i> View Contract
+                        </a>
+                        {% if contract.status == 'Negotiation' %}
+                        <a href="{% url 'jobs:contract_negotiation' contract.pk %}" class="btn-action btn-warning">
+                            <i class="bi bi-pencil"></i> Edit Terms
+                        </a>
+                        {% endif %}
+                        {% if contract.status == 'Finalized' or contract.status == 'Accepted' or contract.status == 'In Progress' or contract.status == 'Awaiting Review' %}
+                        <a href="{% url 'jobs:job_tracking' contract.pk %}" class="btn-action btn-success">
+                            <i class="bi bi-graph-up"></i> Track Progress
+                        </a>
+                        {% endif %}
+                        {% if contract.status == 'Completed' %}
+                        <span class="btn-action btn-secondary" style="cursor: default; opacity: 0.7;">
+                            <i class="bi bi-check2-circle"></i> Completed
+                        </span>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state">
+                    <i class="bi bi-file-earmark-text"></i>
+                    <h3>No Contracts Yet</h3>
+                    <p>Your contracts will appear here</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Jobs Tab -->
+        <div id="jobs-tab" class="tab-content">
+            <div class="filter-bar">
+                <input type="text" class="search-input" id="jobs-search" placeholder="Search jobs..." onkeyup="filterJobs()">
+                <a href="{% url 'jobs:job_create' %}" class="btn-action btn-primary-custom">
+                    <i class="bi bi-plus-circle"></i> Post New Job
+                </a>
+            </div>
+
+            <div id="jobs-list">
+                {% for job in user_jobs %}
+                <div class="application-card" data-title="{{ job.title|lower }}">
+                    <div class="application-header">
+                        <div>
+                            <div class="applicant-name">{{ job.title }}</div>
+                            <div class="job-title">
+                                <i class="bi bi-geo-alt"></i> {{ job.location }}
+                            </div>
+                        </div>
+                        <span class="status-badge {% if job.is_active %}status-accepted{% else %}status-rejected{% endif %}">
+                            {% if job.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </div>
+
+                    <div class="application-meta">
+                        <span><i class="bi bi-calendar"></i> Posted: {{ job.created_at|date:"M d, Y" }}</span>
+                        <span><i class="bi bi-people"></i> {{ job.applications.count }} Application(s)</span>
+                    </div>
+
+                    <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="{% url 'jobs:job_detail' job.pk %}" class="btn-action btn-primary-custom">
+                            <i class="bi bi-eye"></i> View Job
+                        </a>
+                        <a href="{% url 'jobs:job_edit' job.pk %}" class="btn-action action-btn-secondary">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state">
+                    <i class="bi bi-briefcase"></i>
+                    <h3>No Job Posts Yet</h3>
+                    <p>Create your first job posting to get started</p>
+                    <a href="{% url 'jobs:job_create' %}" class="btn-action btn-primary-custom" style="margin-top: 1rem;">
+                        <i class="bi bi-plus-circle"></i> Post New Job
+                    </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <!-- End of tabs container -->
+</div>
+
+<script>
+// Tab Switching
+function switchTab(event, tabName) {
+    document.querySelectorAll('.tab-content').forEach(tab => {
+        tab.classList.remove('active');
+    });
+    document.querySelectorAll('.tab-button').forEach(btn => {
+        btn.classList.remove('active');
+    });
+    document.getElementById(tabName + '-tab').classList.add('active');
+    event.currentTarget.classList.add('active');
+}
+
+// Filter Applications
+function filterApplications() {
+    const jobFilter = document.getElementById('applications-job-filter').value;
+    const searchTerm = document.getElementById('applications-search').value.toLowerCase();
+    const cards = document.querySelectorAll('#applications-list .application-card');
+    
+    cards.forEach(card => {
+        const jobId = card.getAttribute('data-job-id');
+        const applicant = card.getAttribute('data-applicant');
+        const matchesJob = !jobFilter || jobId === jobFilter;
+        const matchesSearch = !searchTerm || applicant.includes(searchTerm);
+        card.style.display = (matchesJob && matchesSearch) ? 'block' : 'none';
+    });
+}
+
+// Filter Rejected
+function filterRejected() {
+    const jobFilter = document.getElementById('rejected-job-filter').value;
+    const searchTerm = document.getElementById('rejected-search').value.toLowerCase();
+    const cards = document.querySelectorAll('#rejected-list .application-card');
+    
+    cards.forEach(card => {
+        const jobId = card.getAttribute('data-job-id');
+        const applicant = card.getAttribute('data-applicant');
+        const matchesJob = !jobFilter || jobId === jobFilter;
+        const matchesSearch = !searchTerm || applicant.includes(searchTerm);
+        card.style.display = (matchesJob && matchesSearch) ? 'block' : 'none';
+    });
+}
+
+// Filter Contracts
+function filterContracts() {
+    const jobFilter = document.getElementById('contracts-job-filter').value;
+    const searchTerm = document.getElementById('contracts-search').value.toLowerCase();
+    const cards = document.querySelectorAll('#contracts-list .application-card');
+    
+    cards.forEach(card => {
+        const jobId = card.getAttribute('data-job-id');
+        const worker = card.getAttribute('data-worker');
+        const matchesJob = !jobFilter || jobId === jobFilter;
+        const matchesSearch = !searchTerm || worker.includes(searchTerm);
+        card.style.display = (matchesJob && matchesSearch) ? 'block' : 'none';
+    });
+}
+
+// Filter Completed Contracts
+function filterCompletedContracts() {
+    const jobFilter = document.getElementById('completed-contracts-job-filter').value;
+    const searchTerm = document.getElementById('completed-contracts-search').value.toLowerCase();
+    const cards = document.querySelectorAll('#completed-contracts-list .application-card');
+
+    cards.forEach(card => {
+        const jobId = card.getAttribute('data-job-id');
+        const worker = card.getAttribute('data-worker');
+        const matchesJob = !jobFilter || jobId === jobFilter;
+        const matchesSearch = !searchTerm || worker.includes(searchTerm);
+        card.style.display = (matchesJob && matchesSearch) ? 'block' : 'none';
+    });
+}
+
+// Filter Jobs
+function filterJobs() {
+    const searchTerm = document.getElementById('jobs-search').value.toLowerCase();
+    const cards = document.querySelectorAll('#jobs-list .application-card');
+    
+    cards.forEach(card => {
+        const title = card.getAttribute('data-title');
+        const matchesSearch = !searchTerm || title.includes(searchTerm);
+        card.style.display = matchesSearch ? 'block' : 'none';
+    });
+}
+</script>
+
+{% endblock %}

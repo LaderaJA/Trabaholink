@@ -1,0 +1,362 @@
+{% extends "mainpages/base.html" %}
+{% load static %}
+
+{% block title %}Step 4: Review & Submit - TrabahoLink{% endblock %}
+
+{% block css %}
+{{ block.super }}
+<style>
+    body {
+        background: #f3f4f6;
+    }
+
+    .verification-container {
+        max-width: 700px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .verification-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .progress-bar-container {
+        background: #e5e7eb;
+        height: 8px;
+    }
+
+    .progress-bar-fill {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        height: 100%;
+        transition: width 0.3s;
+    }
+
+    .card-header {
+        padding: 2rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .step-indicator {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .step-number {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+
+    .step-info h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: #1f2937;
+    }
+
+    .step-info p {
+        margin: 0.25rem 0 0;
+        color: #6b7280;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .review-section {
+        background: #f9fafb;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 1.5rem;
+        border: 1px solid #e5e7eb;
+    }
+
+    .review-section h3 {
+        color: #1f2937;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0 0 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .review-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .review-item:last-child {
+        border-bottom: none;
+    }
+
+    .review-label {
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    .review-value {
+        color: #1f2937;
+        font-weight: 600;
+        text-align: right;
+    }
+
+    .image-preview {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .image-preview-item {
+        text-align: center;
+    }
+
+    .image-preview-item img {
+        width: 100%;
+        border-radius: 8px;
+        border: 2px solid #e5e7eb;
+    }
+
+    .image-preview-item label {
+        display: block;
+        margin-top: 0.5rem;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    .status-icon {
+        color: #10b981;
+        font-size: 1.5rem;
+    }
+
+    .confirmation-box {
+        background: #dbeafe;
+        border: 2px solid #3b82f6;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+    }
+
+    .confirmation-checkbox {
+        display: flex;
+        align-items: start;
+        gap: 1rem;
+    }
+
+    .confirmation-checkbox input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        margin-top: 0.25rem;
+        cursor: pointer;
+    }
+
+    .confirmation-checkbox label {
+        color: #1e3a8a;
+        line-height: 1.6;
+        cursor: pointer;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        padding: 2rem;
+        border-top: 1px solid #e5e7eb;
+        background: #f9fafb;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 0.875rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        border: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary:hover:not(:disabled) {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .btn-secondary {
+        background: white;
+        color: #6b7280;
+        border: 2px solid #e5e7eb;
+    }
+
+    .btn-secondary:hover {
+        border-color: #667eea;
+        color: #667eea;
+    }
+
+    @media (max-width: 768px) {
+        .action-buttons {
+            flex-direction: column-reverse;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="verification-container">
+    <div class="verification-card">
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill" style="width: 100%;"></div>
+        </div>
+
+        <div class="card-header">
+            <div class="step-indicator">
+                <div class="step-number">4</div>
+                <div class="step-info">
+                    <h2>Review & Submit</h2>
+                    <p>Step 4 of 4 - Please review your information before submitting</p>
+                </div>
+            </div>
+        </div>
+
+        <form method="post" class="card-body">
+            {% csrf_token %}
+            
+            <!-- Personal Information Review -->
+            <div class="review-section">
+                <h3>
+                    <i class="bi bi-person-badge"></i>
+                    Personal Information
+                </h3>
+                <div class="review-item">
+                    <span class="review-label">Full Name</span>
+                    <span class="review-value">{{ step1_data.full_name }}</span>
+                </div>
+                <div class="review-item">
+                    <span class="review-label">Date of Birth</span>
+                    <span class="review-value">{{ step1_data.date_of_birth|date:"F d, Y" }}</span>
+                </div>
+                <div class="review-item">
+                    <span class="review-label">Address</span>
+                    <span class="review-value">{{ step1_data.address }}</span>
+                </div>
+                <div class="review-item">
+                    <span class="review-label">Contact Number</span>
+                    <span class="review-value">{{ step1_data.contact_number }}</span>
+                </div>
+                <div class="review-item">
+                    <span class="review-label">Gender</span>
+                    <span class="review-value">{{ step1_data.gender|title }}</span>
+                </div>
+            </div>
+
+            <!-- ID Information Review -->
+            <div class="review-section">
+                <h3>
+                    <i class="bi bi-card-image"></i>
+                    ID Information
+                </h3>
+                <div class="review-item">
+                    <span class="review-label">ID Type</span>
+                    <span class="review-value">{{ id_type_display }}</span>
+                </div>
+                <div class="review-item">
+                    <span class="review-label">Documents Uploaded</span>
+                    <span class="review-value">
+                        <i class="bi bi-check-circle-fill status-icon"></i>
+                        {% if id_back_uploaded %}2 images{% else %}1 image{% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Selfie Verification Review -->
+            <div class="review-section">
+                <h3>
+                    <i class="bi bi-camera"></i>
+                    Selfie Verification
+                </h3>
+                <div class="review-item">
+                    <span class="review-label">Selfie with ID</span>
+                    <span class="review-value">
+                        {% if selfie_uploaded %}
+                        <i class="bi bi-check-circle-fill status-icon"></i> Uploaded
+                        {% else %}
+                        <i class="bi bi-x-circle-fill" style="color: #ef4444;"></i> Not uploaded
+                        {% endif %}
+                    </span>
+                </div>
+            </div>
+
+            <!-- Confirmation -->
+            <div class="confirmation-box">
+                <div class="confirmation-checkbox">
+                    <input type="checkbox" id="confirm-checkbox" name="confirm" required>
+                    <label for="confirm-checkbox">
+                        I confirm that all the information provided is true and correct. I understand that providing false information may result in account suspension or legal action.
+                    </label>
+                </div>
+            </div>
+
+            <div style="background: #fef3c7; border-left: 4px solid #f59e0b; padding: 1rem 1.5rem; border-radius: 8px;">
+                <p style="margin: 0; color: #78350f;">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <strong>Note:</strong> Your verification will be reviewed by our team within 24-48 hours. You will receive a notification once the review is complete.
+                </p>
+            </div>
+
+            <div class="action-buttons">
+                <a href="{% url 'ekyc_step3' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back
+                </a>
+                <button type="submit" class="btn btn-primary" id="submit-btn" disabled>
+                    <i class="bi bi-send"></i> Submit Verification
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const checkbox = document.getElementById('confirm-checkbox');
+    const submitBtn = document.getElementById('submit-btn');
+
+    checkbox.addEventListener('change', function() {
+        submitBtn.disabled = !this.checked;
+    });
+
+    // Confirm before submission
+    const form = document.querySelector('form');
+    form.addEventListener('submit', function(e) {
+        if (!confirm('Are you sure you want to submit your verification? Please ensure all information is correct.')) {
+            e.preventDefault();
+        }
+    });
+});
+</script>
+{% endblock %}

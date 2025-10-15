@@ -3,345 +3,598 @@
 
 {% block content %}
 <style>
-/* Enhanced CSS Variables */
 :root {
-  --primary-blue: #3b82f6;
-  --primary-blue-dark: #2563eb;
-  --accent-orange: #f97316;
-  --accent-orange-dark: #ea580c;
-  --success-green: #10b981;
-  --text-dark: #111827;
-  --text-medium: #374151;
-  --text-light: #6b7280;
-  --text-white: #ffffff;
-  --background-white: #ffffff;
-  --background-gray: #f9fafb;
-  --background-gray-light: #f3f4f6;
-  --border-color: #e5e7eb;
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --primary-color: #1a94d4;
+  --primary-dark: #0d6efd;
+  --primary-light: #e6f4ff;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --text-dark: #2d3748;
+  --text-medium: #4a5568;
+  --text-light: #718096;
+  --bg-light: #f7fafc;
+  --bg-white: #ffffff;
+  --border-color: #e2e8f0;
+  --gradient-primary: linear-gradient(135deg, #1a94d4 0%, #0d6efd 100%);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
 }
 
-/* Global Styles */
-body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: var(--background-gray);
-  margin: 0;
-  padding: 0;
-}
-
-/* Hero Section */
-.hero-section {
-  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
-  color: var(--text-white);
-  padding: 3rem 0;
-  text-align: center;
-}
-
-.hero-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-.hero-subtitle {
-  font-size: 1.125rem;
-  opacity: 0.9;
-  margin-bottom: 2rem;
-}
-
-/* Search Bar */
-.search-container {
-  max-width: 600px;
-  margin: 0 auto;
-  display: flex;
-  background-color: var(--background-white);
-  border-radius: 12px;
+/* Compact Hero Section */
+.compact-hero {
+  background: var(--gradient-primary);
+  padding: 2rem 0 1.5rem;
+  position: relative;
   overflow: hidden;
+}
+
+.compact-hero::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.3;
+}
+
+.compact-hero .container {
+  position: relative;
+  z-index: 2;
+}
+
+.hero-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.hero-title-section h1 {
+  color: white;
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin: 0 0 0.25rem 0;
+}
+
+.hero-title-section p {
+  color: rgba(255, 255, 255, 0.9);
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.hero-stats {
+  display: flex;
+  gap: 2rem;
+}
+
+.stat-item {
+  text-align: center;
+  color: white;
+}
+
+.stat-number {
+  font-size: 1.5rem;
+  font-weight: 700;
+  display: block;
+}
+
+.stat-label {
+  font-size: 0.85rem;
+  opacity: 0.9;
+}
+
+/* Minimized Search Bar */
+.search-bar-compact {
+  background: white;
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
   box-shadow: var(--shadow-lg);
 }
 
-.search-input {
+.search-input-compact {
   flex: 1;
-  padding: 1rem 1.5rem;
   border: none;
-  font-size: 1rem;
   outline: none;
-  background: transparent;
+  font-size: 0.95rem;
+  padding: 0.5rem;
 }
 
-.search-input::placeholder {
+.search-input-compact::placeholder {
   color: var(--text-light);
 }
 
-.search-btn {
-  background: linear-gradient(135deg, var(--accent-orange) 0%, var(--accent-orange-dark) 100%);
-  color: var(--text-white);
-  border: none;
-  padding: 1rem 2rem;
-  font-weight: 600;
+.filter-toggle-btn {
+  background: var(--bg-light);
+  border: 1px solid var(--border-color);
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.2s ease;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+  color: var(--text-dark);
+  font-weight: 500;
 }
 
-.search-btn:hover {
+.filter-toggle-btn:hover {
+  background: var(--primary-light);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.filter-toggle-btn.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
+}
+
+.search-btn-compact {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  padding: 0.5rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.search-btn-compact:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
 }
 
-/* Main Content */
-.main-content {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 2rem 1rem;
+/* Collapsible Filters */
+.filters-panel {
+  background: white;
+  border-radius: 12px;
+  margin-top: 1rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-md);
+  display: none;
+  animation: slideDown 0.3s ease-out;
 }
 
-/* Section Header */
-.section-header {
+.filters-panel.show {
+  display: block;
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.filter-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.filter-group label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+}
+
+.filter-group select,
+.filter-group input {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+}
+
+.filter-group select:focus,
+.filter-group input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(26, 148, 212, 0.1);
+}
+
+.filter-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+/* Main Content */
+.main-wrapper {
+  background: var(--bg-light);
+  min-height: 70vh;
+  padding: 2rem 0;
+}
+
+.content-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 2rem;
+  margin-bottom: 1.5rem;
   flex-wrap: wrap;
   gap: 1rem;
 }
 
-.section-title {
-  font-size: 1.5rem;
-  font-weight: 600;
-  color: var(--text-dark);
-  margin: 0;
-}
-
-.section-actions {
+.results-info {
   display: flex;
-  gap: 1rem;
   align-items: center;
+  gap: 1rem;
 }
 
-.btn {
-  padding: 0.75rem 1.5rem;
+.results-count {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-dark);
+}
+
+.results-count span {
+  color: var(--primary-color);
+}
+
+.view-toggle {
+  display: flex;
+  gap: 0.5rem;
+  background: white;
+  padding: 0.25rem;
   border-radius: 8px;
-  font-weight: 500;
+  border: 1px solid var(--border-color);
+}
+
+.view-btn {
+  padding: 0.5rem 0.75rem;
+  border: none;
+  background: none;
+  cursor: pointer;
+  border-radius: 6px;
+  color: var(--text-medium);
+  transition: all 0.2s;
+}
+
+.view-btn.active {
+  background: var(--primary-color);
+  color: white;
+}
+
+.content-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.sort-dropdown {
+  padding: 0.6rem 1rem;
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  background: white;
+  font-size: 0.9rem;
+  cursor: pointer;
+  min-width: 180px;
+}
+
+.btn-primary-custom {
+  background: var(--gradient-primary);
+  color: white;
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
   text-decoration: none;
+  font-weight: 600;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  transition: all 0.2s ease;
-  border: 1px solid transparent;
+  transition: all 0.2s;
+  border: none;
   cursor: pointer;
-  font-size: 0.875rem;
+  font-size: 0.9rem;
 }
 
-.btn:hover {
+.btn-primary-custom:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
+  color: white;
   text-decoration: none;
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
-  color: var(--text-white);
-}
-
-.btn-primary:hover {
-  color: var(--text-white);
-}
-
-.btn-outline {
-  background-color: var(--background-white);
-  color: var(--text-medium);
-  border-color: var(--border-color);
-}
-
-.btn-outline:hover {
-  background-color: var(--background-gray-light);
-  color: var(--text-dark);
-}
-
-/* Sort Controls */
-.sort-controls {
+/* Job Cards - List View */
+.jobs-list {
   display: flex;
-  align-items: center;
-  gap: 0.5rem;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.sort-label {
-  font-size: 0.875rem;
-  color: var(--text-medium);
-  font-weight: 500;
-}
-
-.sort-select {
-  padding: 0.5rem 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  background-color: var(--background-white);
-  color: var(--text-dark);
-  font-size: 0.875rem;
-  cursor: pointer;
-}
-
-.sort-select:focus {
-  outline: none;
-  border-color: var(--primary-blue);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-}
-
-/* Job Cards Grid */
-.jobs-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 3rem;
-}
-
-/* Job Card */
-.job-card {
-  background-color: var(--background-white);
+.job-card-list {
+  background: white;
   border-radius: 12px;
-  overflow: hidden;
+  padding: 1.5rem;
   box-shadow: var(--shadow-sm);
-  transition: all 0.3s ease;
   border: 1px solid var(--border-color);
-}
-
-.job-card:hover {
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-lg);
-}
-
-.job-image-container {
-  width: 100%;
-  height: 200px;
-  overflow: hidden;
-  background-color: var(--background-gray-light);
+  transition: all 0.3s;
+  display: flex;
+  gap: 1.5rem;
   position: relative;
 }
 
-.job-image {
+.job-card-list:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-lg);
+}
+
+.job-thumbnail {
+  width: 180px;
+  height: 140px;
+  border-radius: 10px;
+  overflow: hidden;
+  flex-shrink: 0;
+  background: var(--bg-light);
+  position: relative;
+}
+
+.job-thumbnail img {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  transition: transform 0.3s ease;
+  transition: transform 0.3s;
 }
 
-.job-card:hover .job-image {
+.job-card-list:hover .job-thumbnail img {
   transform: scale(1.05);
 }
 
-.no-image {
+.no-image-placeholder {
+  width: 100%;
+  height: 100%;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  height: 100%;
   color: var(--text-light);
-  font-size: 0.875rem;
 }
 
-.no-image i {
-  font-size: 2rem;
+.no-image-placeholder i {
+  font-size: 2.5rem;
   margin-bottom: 0.5rem;
   opacity: 0.5;
 }
 
-.job-card-content {
-  padding: 1.5rem;
+.job-content {
+  flex: 1;
+  min-width: 0;
 }
 
-.job-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--text-dark);
-  margin-bottom: 0.5rem;
-  line-height: 1.4;
-}
-
-.job-title a {
-  color: inherit;
-  text-decoration: none;
-  transition: color 0.2s ease;
-}
-
-.job-title a:hover {
-  color: var(--primary-blue);
-  text-decoration: none;
-}
-
-.job-meta {
+.job-header {
   display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
   gap: 1rem;
-  margin-bottom: 1rem;
-  font-size: 0.875rem;
-  color: var(--text-light);
 }
 
-.job-meta span {
+.job-title-link {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  text-decoration: none;
+  transition: color 0.2s;
+  line-height: 1.3;
+}
+
+.job-title-link:hover {
+  color: var(--primary-color);
+  text-decoration: none;
+}
+
+.job-status-badges {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.status-badge {
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.status-badge.hiring {
+  background: rgba(16, 185, 129, 0.1);
+  color: var(--success-color);
+}
+
+.status-badge.closed {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--danger-color);
+}
+
+.status-badge.new {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--warning-color);
+  animation: pulse-badge 2s infinite;
+}
+
+@keyframes pulse-badge {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.05);
+  }
+}
+
+.job-meta-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--text-medium);
+}
+
+.meta-item {
   display: flex;
   align-items: center;
-  gap: 0.25rem;
+  gap: 0.4rem;
 }
 
-.job-description {
+.meta-item i {
+  color: var(--primary-color);
+  font-size: 0.95rem;
+}
+
+.job-description-preview {
   color: var(--text-medium);
   line-height: 1.6;
-  margin-bottom: 1.5rem;
-  font-size: 0.875rem;
+  margin-bottom: 1rem;
+  font-size: 0.95rem;
 }
 
-.job-footer {
+.job-footer-row {
   display: flex;
   justify-content: space-between;
   align-items: center;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
 }
 
-.job-price {
-  font-size: 1.25rem;
+.job-budget {
+  font-size: 1.5rem;
   font-weight: 700;
-  color: var(--success-green);
+  color: var(--success-color);
 }
 
-.view-details-btn {
-  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
-  color: var(--text-white);
-  padding: 0.5rem 1rem;
-  border-radius: 6px;
-  text-decoration: none;
-  font-size: 0.875rem;
-  font-weight: 500;
-  transition: all 0.2s ease;
+.job-actions {
+  display: flex;
+  gap: 0.75rem;
 }
 
-.view-details-btn:hover {
-  color: var(--text-white);
+.btn-view-details {
+  background: var(--gradient-primary);
+  color: white;
+  padding: 0.6rem 1.25rem;
+  border-radius: 8px;
   text-decoration: none;
+  font-weight: 600;
+  transition: all 0.2s;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.btn-view-details:hover {
   transform: translateY(-1px);
   box-shadow: var(--shadow-md);
+  color: white;
+  text-decoration: none;
+}
+
+/* Grid View */
+.jobs-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 1.5rem;
+}
+
+.job-card-grid {
+  background: white;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+  border: 1px solid var(--border-color);
+  transition: all 0.3s;
+}
+
+.job-card-grid:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-lg);
+}
+
+.job-image-grid {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: var(--bg-light);
+  position: relative;
+}
+
+.job-image-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.job-card-grid:hover .job-image-grid img {
+  transform: scale(1.05);
+}
+
+.job-card-body {
+  padding: 1.25rem;
+}
+
+.timestamp-badge {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
 }
 
 /* Empty State */
 .empty-state {
   text-align: center;
   padding: 4rem 2rem;
-  color: var(--text-light);
+  background: white;
+  border-radius: 12px;
+  margin: 2rem 0;
 }
 
 .empty-state i {
   font-size: 4rem;
+  color: var(--text-light);
   margin-bottom: 1rem;
   opacity: 0.5;
 }
 
 .empty-state h3 {
-  color: var(--text-medium);
+  color: var(--text-dark);
   margin-bottom: 0.5rem;
 }
 
+.empty-state p {
+  color: var(--text-medium);
+}
+
 /* Pagination */
-.pagination-container {
+.pagination-wrapper {
   display: flex;
   justify-content: center;
   margin-top: 3rem;
@@ -349,464 +602,209 @@ body {
 
 .pagination {
   display: flex;
-  gap: 0.25rem;
+  gap: 0.5rem;
   list-style: none;
   padding: 0;
   margin: 0;
 }
 
-.page-item {
-  margin: 0;
-}
-
-.page-link {
-  color: var(--text-medium);
+.page-item .page-link {
+  padding: 0.6rem 1rem;
   border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 0.5rem 0.75rem;
+  border-radius: 8px;
+  color: var(--text-dark);
   text-decoration: none;
-  transition: all 0.2s ease;
-  background-color: var(--background-white);
-  font-size: 0.875rem;
+  background: white;
+  transition: all 0.2s;
+  font-weight: 500;
 }
 
 .page-item.active .page-link {
-  background-color: var(--primary-blue);
-  border-color: var(--primary-blue);
-  color: var(--text-white);
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: white;
 }
 
-.page-link:hover {
-  background-color: var(--primary-blue);
-  color: var(--text-white);
-  border-color: var(--primary-blue);
+.page-item .page-link:hover {
+  background: var(--primary-light);
+  border-color: var(--primary-color);
+  color: var(--primary-color);
   text-decoration: none;
 }
 
-/* Responsive Design */
+/* Responsive */
 @media (max-width: 768px) {
-  .hero-section {
-    padding: 2rem 0;
-  }
-  
-  .hero-title {
-    font-size: 2rem;
-  }
-  
-  .search-container {
+  .hero-header {
     flex-direction: column;
-    border-radius: 8px;
+    align-items: flex-start;
   }
   
-  .search-btn {
-    border-radius: 0 0 8px 8px;
+  .hero-stats {
+    width: 100%;
+    justify-content: space-around;
   }
   
-  .main-content {
-    padding: 1rem;
-  }
-  
-  .section-header {
+  .search-bar-compact {
     flex-direction: column;
     align-items: stretch;
   }
   
-  .section-actions {
-    justify-content: space-between;
+  .filter-toggle-btn,
+  .search-btn-compact {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .content-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .content-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+  
+  .sort-dropdown,
+  .btn-primary-custom {
+    width: 100%;
+  }
+  
+  .job-card-list {
+    flex-direction: column;
+  }
+  
+  .job-thumbnail {
+    width: 100%;
+    height: 200px;
+  }
+  
+  .job-footer-row {
+    flex-direction: column;
+    gap: 1rem;
+    align-items: flex-start;
+  }
+  
+  .job-actions {
+    width: 100%;
+  }
+  
+  .btn-view-details {
+    width: 100%;
+    justify-content: center;
   }
   
   .jobs-grid {
     grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-  
-  .job-card-content {
-    padding: 1rem;
-  }
-  
-  .job-footer {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: stretch;
-  }
-  
-  .view-details-btn {
-    text-align: center;
   }
 }
 
-/* Tab Navigation */
-.tab-navigation {
-  display: flex;
-  justify-content: center;
-  margin-bottom: 2rem;
-}
-
-.custom-tabs {
-  border-bottom: 2px solid var(--border-color);
-  margin-bottom: 0;
-  display: inline-flex;
-}
-
-.custom-tabs .nav-link {
-  border: none;
-  border-bottom: 3px solid transparent;
-  background: none;
-  color: var(--text-medium);
-  font-weight: 500;
-  padding: 1rem 1.5rem;
-  transition: all 0.3s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.custom-tabs .nav-link:hover {
-  border-color: var(--primary-blue);
-  color: var(--primary-blue);
-  background: none;
-}
-
-.custom-tabs .nav-link.active {
-  color: var(--primary-blue);
-  border-bottom-color: var(--primary-blue);
-  background: none;
-}
-
-.custom-tabs .nav-link i {
-  font-size: 1rem;
-}
-
-/* Modal Styles */
-.modal-content {
-  border-radius: 12px;
-  border: none;
-  box-shadow: var(--shadow-lg);
-}
-
-.modal-header {
-  border-bottom: 1px solid var(--border-color);
-  padding: 1.5rem;
-}
-
-.modal-title {
-  color: var(--text-dark);
-  font-weight: 600;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.modal-body {
-  padding: 1.5rem;
-}
-
-.location-options {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.location-option-btn {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  padding: 1rem;
-  border: 2px solid var(--border-color);
-  border-radius: 8px;
-  background: var(--background-white);
-  cursor: pointer;
-  transition: all 0.2s ease;
-  width: 100%;
-  text-align: left;
-}
-
-.location-option-btn:hover {
-  border-color: var(--primary-blue);
-  background: var(--background-gray-light);
-}
-
-.location-option-btn.manual-location {
-  cursor: default;
-}
-
-.option-icon {
-  width: 40px;
-  height: 40px;
-  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
-  color: var(--text-white);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.option-content {
-  flex: 1;
-}
-
-.option-content h6 {
-  margin: 0 0 0.25rem 0;
-  color: var(--text-dark);
-  font-weight: 600;
-}
-
-.manual-inputs {
-  margin-top: 0.5rem;
-}
-
-.manual-inputs .form-control {
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 0.5rem 0.75rem;
-}
-
-.manual-inputs .form-control:focus {
-  border-color: var(--primary-blue);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  outline: none;
-}
-
-#locationStatus .alert {
-  margin: 0;
-  padding: 0.75rem 1rem;
-  border-radius: 6px;
-  border: none;
-}
-
-.alert-info {
-  background-color: rgba(59, 130, 246, 0.1);
-  color: var(--primary-blue);
-}
-
-.alert-success {
-  background-color: rgba(16, 185, 129, 0.1);
-  color: var(--success-green);
-}
-
-.alert-danger {
-  background-color: rgba(239, 68, 68, 0.1);
-  color: var(--danger-red);
-}
-
-/* Advanced Search Panel */
-.advanced-search-toggle {
-  margin-top: 1rem;
-}
-
-.advanced-search-toggle .btn {
-  background-color: rgba(255, 255, 255, 0.1);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: var(--text-white);
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  transition: all 0.2s ease;
-}
-
-.advanced-search-toggle .btn:hover {
-  background-color: rgba(255, 255, 255, 0.2);
-  color: var(--text-white);
-}
-
-.toggle-icon {
-  margin-left: 0.5rem;
-  transition: transform 0.3s ease;
-}
-
-.toggle-icon.rotated {
-  transform: rotate(180deg);
-}
-
-.advanced-search-panel {
-  background-color: var(--background-white);
-  border-radius: 12px;
-  margin-top: 1rem;
-  padding: 2rem;
-  box-shadow: var(--shadow-lg);
-  border: 1px solid var(--border-color);
-}
-
-.panel-header {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.panel-header h3 {
-  color: var(--text-dark);
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.panel-header p {
-  color: var(--text-light);
-  margin: 0;
-}
-
-.form-group {
-  margin-bottom: 1.5rem;
-}
-
-.form-group label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 500;
-  color: var(--text-dark);
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
-}
-
-.form-group label i {
-  color: var(--primary-blue);
-}
-
-.form-control {
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  padding: 0.75rem 1rem;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
-}
-
-.form-control:focus {
-  border-color: var(--primary-blue);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
-  outline: none;
-}
-
-.budget-range {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.budget-range .form-control {
-  flex: 1;
-}
-
-.range-separator {
-  color: var(--text-light);
-  font-size: 0.875rem;
-  font-weight: 500;
-}
-
-.advanced-search-actions {
-  display: flex;
-  justify-content: center;
-  gap: 1rem;
-  margin-top: 2rem;
-  padding-top: 2rem;
-  border-top: 1px solid var(--border-color);
-}
-
-/* Distance Display */
-.job-distance {
-  color: var(--success-green) !important;
-  font-weight: 500;
-}
-
-.job-distance i {
-  color: var(--success-green);
-}
-
-/* Responsive adjustments for advanced search */
-@media (max-width: 768px) {
-  .advanced-search-panel {
-    padding: 1rem;
+/* Loading Animation */
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
   }
-  
-  .budget-range {
-    flex-direction: column;
-    align-items: stretch;
+  100% {
+    background-position: 1000px 0;
   }
-  
-  .range-separator {
-    text-align: center;
-    padding: 0.25rem 0;
-  }
-  
-  .advanced-search-actions {
-    flex-direction: column;
-  }
+}
+
+.loading-skeleton {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 1000px 100%;
+  animation: shimmer 2s infinite;
 }
 </style>
 
-<!-- Hero Section -->
-<div class="hero-section">
+<!-- Compact Hero Section -->
+<div class="compact-hero">
   <div class="container">
-    <h1 class="hero-title" id="hero-title">Find Your Perfect Job</h1>
-    <p class="hero-subtitle" id="hero-subtitle">Discover opportunities that match your skills and location</p>
-    
-    <!-- Search Bar -->
-    <form method="get" action="{% url 'jobs:job_list' %}" id="search-form">
-      <div class="search-container">
-        <input type="text" name="q" value="{{ request.GET.q|default:'' }}" placeholder="Search jobs, skills, or companies..." class="search-input" id="search-input">
-        <button type="submit" class="search-btn">Search</button>
+    <div class="hero-header">
+      <div class="hero-title-section">
+        <h1 id="heroTitle"><i class="bi bi-briefcase-fill"></i> Job Opportunities</h1>
+        <p id="heroSubtitle">Find your next opportunity from {{ jobs_count }} available positions</p>
       </div>
-      
-      <!-- Hidden inputs to preserve tab state -->
-      <input type="hidden" name="tab" id="active-tab" value="{{ request.GET.tab|default:'jobs' }}">
-      
-      <!-- Advanced Search Toggle -->
-      <div class="advanced-search-toggle text-center mt-3">
-        <button type="button" id="advanced-search-btn" class="btn btn-outline-light">
-          <i class="fa fa-sliders-h"></i>
-          <span>Advanced Filters</span>
-          <i class="fa fa-chevron-down toggle-icon"></i>
+      <div class="hero-stats">
+        <div class="stat-item">
+          <span class="stat-number" id="statNumber">{{ jobs_count }}</span>
+          <span class="stat-label" id="statLabel">Active Jobs</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">{{ categories.count }}</span>
+          <span class="stat-label">Categories</span>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Minimized Search Bar -->
+    <form method="get" action="{% url 'jobs:job_list' %}" id="searchForm">
+      <div class="search-bar-compact">
+        <i class="bi bi-search" style="color: var(--text-light); font-size: 1.2rem;"></i>
+        <input 
+          type="text" 
+          name="q" 
+          value="{{ request.GET.q|default:'' }}" 
+          placeholder="Search by job title, skills, or location..." 
+          class="search-input-compact"
+        >
+        <button type="button" class="filter-toggle-btn" id="filterToggle">
+          <i class="bi bi-funnel"></i>
+          <span>Filters</span>
+          <i class="bi bi-chevron-down" id="filterChevron"></i>
+        </button>
+        <button type="submit" class="search-btn-compact">
+          <i class="bi bi-search"></i> Search
         </button>
       </div>
-
-      <!-- Advanced Search Panel -->
-      <div id="advanced-search-panel" class="advanced-search-panel" style="display: none;">
-        <div class="panel-header">
-          <h3>Advanced Filters</h3>
-          <p>Refine your search to find the perfect job</p>
-        </div>
-        <div class="row">
-          <div class="col-md-6 col-lg-3">
-            <div class="form-group">
-              <label for="category"><i class="fa fa-tag"></i> Category</label>
-              <select name="category" id="category" class="form-control">
-                <option value="">All Categories</option>
-                {% for category in categories %}
-                <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"i" %}selected{% endif %}>
-                  {{ category.name }}
-                </option>
-                {% endfor %}
-              </select>
-            </div>
+      
+      <!-- Collapsible Filters Panel -->
+      <div class="filters-panel" id="filtersPanel">
+        <div class="filter-row">
+          <div class="filter-group">
+            <label><i class="bi bi-tag"></i> Category</label>
+            <select name="category" class="form-select">
+              <option value="">All Categories</option>
+              {% for category in categories %}
+              <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"i" %}selected{% endif %}>
+                {{ category.name }}
+              </option>
+              {% endfor %}
+            </select>
           </div>
-          <div class="col-md-6 col-lg-3">
-            <div class="form-group">
-              <label for="municipality"><i class="fa fa-city"></i> Municipality</label>
-              <input type="text" name="municipality" id="municipality" value="{{ request.GET.municipality|default:'' }}" class="form-control" placeholder="Enter municipality">
-            </div>
+          <div class="filter-group">
+            <label><i class="bi bi-geo-alt"></i> Municipality</label>
+            <input type="text" name="municipality" value="{{ request.GET.municipality|default:'' }}" placeholder="Enter municipality">
           </div>
-          <div class="col-md-6 col-lg-3">
-            <div class="form-group">
-              <label for="barangay"><i class="fa fa-map-marker-alt"></i> Barangay</label>
-              <input type="text" name="barangay" id="barangay" value="{{ request.GET.barangay|default:'' }}" class="form-control" placeholder="Enter barangay">
-            </div>
-          </div>
-          <div class="col-md-6 col-lg-3">
-            <div class="form-group">
-              <label><i class="fa fa-peso-sign"></i> Budget Range</label>
-              <div class="budget-range">
-                <input type="number" name="min_budget" value="{{ request.GET.min_budget|default:'' }}" class="form-control" placeholder="Min ₱">
-                <span class="range-separator">to</span>
-                <input type="number" name="max_budget" value="{{ request.GET.max_budget|default:'' }}" class="form-control" placeholder="Max ₱">
-              </div>
-            </div>
+          <div class="filter-group">
+            <label><i class="bi bi-map"></i> Barangay</label>
+            <input type="text" name="barangay" value="{{ request.GET.barangay|default:'' }}" placeholder="Enter barangay">
           </div>
         </div>
-        <div class="advanced-search-actions">
-          <button type="submit" class="btn btn-primary">
-            <i class="fa fa-filter"></i> Apply Filters
-          </button>
-          <a href="{% url 'jobs:job_list' %}" class="btn btn-outline-secondary">
-            <i class="fa fa-times"></i> Clear All
+        <div class="filter-row">
+          <div class="filter-group">
+            <label><i class="bi bi-cash"></i> Min Budget (₱)</label>
+            <input type="number" name="min_budget" value="{{ request.GET.min_budget|default:'' }}" placeholder="0">
+          </div>
+          <div class="filter-group">
+            <label><i class="bi bi-cash-stack"></i> Max Budget (₱)</label>
+            <input type="number" name="max_budget" value="{{ request.GET.max_budget|default:'' }}" placeholder="No limit">
+          </div>
+          <div class="filter-group">
+            <label><i class="bi bi-toggle-on"></i> Status</label>
+            <select name="status">
+              <option value="">All Status</option>
+              <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Hiring</option>
+              <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>Closed</option>
+            </select>
+          </div>
+        </div>
+        <div class="filter-actions">
+          <a href="{% url 'jobs:job_list' %}" class="btn-primary-custom" style="background: var(--text-light);">
+            <i class="bi bi-x-circle"></i> Clear Filters
           </a>
+          <button type="submit" class="btn-primary-custom">
+            <i class="bi bi-check-circle"></i> Apply Filters
+          </button>
         </div>
       </div>
     </form>
@@ -814,372 +812,506 @@ body {
 </div>
 
 <!-- Tab Navigation -->
-<div class="tab-navigation">
-  <ul class="nav nav-tabs custom-tabs" id="postTabs" role="tablist">
-    <li class="nav-item" role="presentation">
-      <button class="nav-link {% if request.GET.tab != 'services' %}active{% endif %}" id="jobs-tab" data-bs-toggle="tab" data-bs-target="#jobs" type="button" role="tab" aria-controls="jobs" aria-selected="{% if request.GET.tab != 'services' %}true{% else %}false{% endif %}" data-tab-type="jobs">
-        <i class="fa fa-briefcase"></i>
-        Job Posts
+<div class="tab-nav-wrapper" style="background: white; border-bottom: 2px solid var(--border-color); margin-top: -1px;">
+  <div class="container">
+    <div class="tab-nav-modern" style="display: flex; gap: 0; padding: 0;">
+      <button class="tab-btn-modern active" data-tab="jobs" id="jobsTabBtn" style="flex: 1; padding: 1rem 2rem; border: none; background: none; font-weight: 600; color: var(--text-medium); border-bottom: 3px solid transparent; transition: all 0.3s; cursor: pointer;">
+        <i class="bi bi-briefcase"></i> Jobs ({{ jobs_count }})
       </button>
-    </li>
-    <li class="nav-item" role="presentation">
-      <button class="nav-link {% if request.GET.tab == 'services' %}active{% endif %}" id="services-tab" data-bs-toggle="tab" data-bs-target="#services" type="button" role="tab" aria-controls="services" aria-selected="{% if request.GET.tab == 'services' %}true{% else %}false{% endif %}" data-tab-type="services">
-        <i class="fa fa-tools"></i>
-        Service Posts
+      <button class="tab-btn-modern" data-tab="services" id="servicesTabBtn" style="flex: 1; padding: 1rem 2rem; border: none; background: none; font-weight: 600; color: var(--text-medium); border-bottom: 3px solid transparent; transition: all 0.3s; cursor: pointer;">
+        <i class="bi bi-tools"></i> Services ({{ services_count }})
       </button>
-    </li>
-  </ul>
+    </div>
+  </div>
 </div>
 
 <!-- Main Content -->
-<div class="main-content">
-  <!-- Tab Content -->
-  <div class="tab-content" id="postTabsContent">
-    <!-- Jobs Tab -->
-    <div class="tab-pane fade {% if active_tab != 'services' %}show active{% endif %}" id="jobs" role="tabpanel" aria-labelledby="jobs-tab">
-      <!-- Section Header -->
-      <div class="section-header">
-        <h2 class="section-title">Available Jobs <span class="text-muted">({{ jobs_count }})</span></h2>
-        <div class="section-actions">
-          {% if user.is_authenticated %}
-          <a href="{% url 'jobs:job_create' %}" class="btn btn-primary">
-            <i class="fa fa-plus"></i>
-            Post Job
-          </a>
-          {% endif %}
-          <button class="btn btn-outline" data-bs-toggle="modal" data-bs-target="#locationModal">
-            <i class="fa fa-map-marker-alt"></i>
-            Set Location
+<div class="main-wrapper">
+  <div class="container">
+    <!-- Jobs Section -->
+    <div id="jobsContent" class="tab-content-section">
+    <!-- Content Header -->
+    <div class="content-header">
+      <div class="results-info">
+        <div class="results-count">
+          <span>{{ jobs.count }}</span> Jobs Found
+        </div>
+        <div class="view-toggle">
+          <button class="view-btn active" data-view="list" id="listViewBtn">
+            <i class="bi bi-list-ul"></i>
           </button>
-          <div class="sort-controls">
-            <span class="sort-label">Sort by:</span>
-            <select class="sort-select" onchange="sortJobs(this.value)">
-              <option value="date_desc" {% if request.GET.sort == 'date_desc' or not request.GET.sort %}selected{% endif %}>Newest First</option>
-              <option value="date_asc" {% if request.GET.sort == 'date_asc' %}selected{% endif %}>Oldest First</option>
-              <option value="budget_desc" {% if request.GET.sort == 'budget_desc' %}selected{% endif %}>Highest Budget</option>
-              <option value="budget_asc" {% if request.GET.sort == 'budget_asc' %}selected{% endif %}>Lowest Budget</option>
-              {% if request.GET.lat and request.GET.lng %}
-              <option value="distance" {% if request.GET.sort == 'distance' %}selected{% endif %}>Nearest First</option>
+          <button class="view-btn" data-view="grid" id="gridViewBtn">
+            <i class="bi bi-grid-3x3-gap"></i>
+          </button>
+        </div>
+      </div>
+      
+      <div class="content-actions">
+        <select class="sort-dropdown" onchange="sortJobs(this.value)">
+          <option value="date_desc" {% if request.GET.sort == 'date_desc' or not request.GET.sort %}selected{% endif %}>
+            <i class="bi bi-sort-down"></i> Newest First
+          </option>
+          <option value="date_asc" {% if request.GET.sort == 'date_asc' %}selected{% endif %}>
+            <i class="bi bi-sort-up"></i> Oldest First
+          </option>
+          <option value="budget_desc" {% if request.GET.sort == 'budget_desc' %}selected{% endif %}>
+            <i class="bi bi-cash"></i> Highest Budget
+          </option>
+          <option value="budget_asc" {% if request.GET.sort == 'budget_asc' %}selected{% endif %}>
+            <i class="bi bi-cash"></i> Lowest Budget
+          </option>
+          {% if request.GET.lat and request.GET.lng %}
+          <option value="distance" {% if request.GET.sort == 'distance' %}selected{% endif %}>
+            <i class="bi bi-geo"></i> Nearest First
+          </option>
+          {% endif %}
+        </select>
+        
+        {% if user.is_authenticated %}
+        <a href="{% url 'jobs:job_create' %}" class="btn-primary-custom">
+          <i class="bi bi-plus-circle"></i> Post a Job
+        </a>
+        {% endif %}
+        <button class="btn-primary-custom" style="background: white; color: var(--primary-color); border: 2px solid var(--primary-color);" data-bs-toggle="modal" data-bs-target="#locationModal">
+          <i class="bi bi-geo-alt"></i> Set Location
+        </button>
+      </div>
+    </div>
+    
+    <!-- Jobs List View (Default) -->
+    <div class="jobs-list" id="listView">
+      {% for job in jobs %}
+      <div class="job-card-list" data-lat="{{ job.location.y }}" data-lng="{{ job.location.x }}">
+        <div class="job-thumbnail">
+          {% if job.jobimage_set.exists %}
+          <img src="{{ job.jobimage_set.first.image.url }}" alt="{{ job.title }}">
+          {% else %}
+          <div class="no-image-placeholder">
+            <i class="bi bi-image"></i>
+            <small>No image</small>
+          </div>
+          {% endif %}
+          <div class="timestamp-badge">
+            <i class="bi bi-clock"></i> {{ job.created_at|timesince }} ago
+          </div>
+        </div>
+        
+        <div class="job-content">
+          <div class="job-header">
+            <a href="{% url 'jobs:job_detail' job.id %}" class="job-title-link">
+              {{ job.title }}
+            </a>
+            <div class="job-status-badges">
+              {% if job.is_active %}
+              <span class="status-badge hiring">
+                <i class="bi bi-check-circle-fill"></i> Hiring
+              </span>
+              {% else %}
+              <span class="status-badge closed">
+                <i class="bi bi-x-circle-fill"></i> Closed
+              </span>
               {% endif %}
-            </select>
+              
+              {% now "U" as current_timestamp %}
+              {% if job.created_at|date:"U"|add:"86400" > current_timestamp %}
+              <span class="status-badge new">
+                <i class="bi bi-star-fill"></i> New
+              </span>
+              {% endif %}
+            </div>
+          </div>
+          
+          <div class="job-meta-row">
+            <div class="meta-item">
+              <i class="bi bi-building"></i>
+              <span>{{ job.owner.username }}</span>
+            </div>
+            <div class="meta-item">
+              <i class="bi bi-geo-alt-fill"></i>
+              <span>{{ job.municipality }}{% if job.barangay %}, {{ job.barangay }}{% endif %}</span>
+            </div>
+            <div class="meta-item">
+              <i class="bi bi-tag-fill"></i>
+              <span>{{ job.category.name }}</span>
+            </div>
+            <div class="meta-item">
+              <i class="bi bi-calendar-event"></i>
+              <span>{{ job.created_at|date:"M d, Y" }}</span>
+            </div>
+            <div class="meta-item distance-display" style="color: var(--primary-color); font-weight: 600; display: none;">
+              <i class="bi bi-geo-alt-fill"></i>
+              <span>Calculating...</span>
+            </div>
+          </div>
+          
+          <p class="job-description-preview">
+            {{ job.description|truncatechars:180 }}
+          </p>
+          
+          <div class="job-footer-row">
+            <div class="job-budget">
+              <i class="bi bi-cash-stack"></i> ₱{{ job.budget|floatformat:0 }}
+            </div>
+            <div class="job-actions">
+              <a href="{% url 'jobs:job_detail' job.id %}" class="btn-view-details">
+                View Details <i class="bi bi-arrow-right"></i>
+              </a>
+            </div>
           </div>
         </div>
       </div>
-
-      <!-- Jobs Grid -->
-      <div class="jobs-grid">
-        {% for job in jobs %}
-        <div class="job-card">
-          <div class="job-image-container">
-            {% if job.jobimage_set.exists %}
-            <img src="{{ job.jobimage_set.first.image.url }}" class="job-image" alt="{{ job.title }}">
+      {% empty %}
+      <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <h3>No Jobs Found</h3>
+        <p>Try adjusting your search criteria or check back later for new opportunities.</p>
+      </div>
+      {% endfor %}
+    </div>
+    
+    <!-- Jobs Grid View (Hidden by default) -->
+    <div class="jobs-grid" id="gridView" style="display: none;">
+      {% for job in jobs %}
+      <div class="job-card-grid" data-lat="{{ job.location.y }}" data-lng="{{ job.location.x }}">
+        <div class="job-image-grid">
+          {% if job.jobimage_set.exists %}
+          <img src="{{ job.jobimage_set.first.image.url }}" alt="{{ job.title }}">
+          {% else %}
+          <div class="no-image-placeholder">
+            <i class="bi bi-image"></i>
+            <small>No image</small>
+          </div>
+          {% endif %}
+          <div class="timestamp-badge">
+            <i class="bi bi-clock"></i> {{ job.created_at|timesince }} ago
+          </div>
+        </div>
+        
+        <div class="job-card-body">
+          <div class="job-status-badges" style="margin-bottom: 0.75rem;">
+            {% if job.is_active %}
+            <span class="status-badge hiring">
+              <i class="bi bi-check-circle-fill"></i> Hiring
+            </span>
             {% else %}
-            <div class="no-image">
-              <i class="fa fa-image"></i>
-              <span>No image available</span>
-            </div>
+            <span class="status-badge closed">
+              <i class="bi bi-x-circle-fill"></i> Closed
+            </span>
             {% endif %}
           </div>
           
-          <div class="job-card-content">
-            <h3 class="job-title">
-              <a href="{% url 'jobs:job_detail' job.id %}">{{ job.title }}</a>
-            </h3>
-            
-            <div class="job-meta">
-              <span>
-                <i class="fa fa-map-marker-alt"></i>
-                {{ job.municipality }}{% if job.barangay %}, {{ job.barangay }}{% endif %}
-              </span>
-              <span>
-                <i class="fa fa-calendar-alt"></i>
-                {{ job.created_at|date:"M d, Y" }}
-              </span>
-              {% if job.distance_km %}
-              <span class="job-distance">
-                <i class="fa fa-location-arrow"></i>
-                {{ job.distance_km|floatformat:1 }} km away
-              </span>
-              {% endif %}
+          <a href="{% url 'jobs:job_detail' job.id %}" class="job-title-link" style="font-size: 1.1rem;">
+            {{ job.title|truncatechars:50 }}
+          </a>
+          
+          <div class="job-meta-row" style="margin-top: 0.75rem; margin-bottom: 0.75rem;">
+            <div class="meta-item">
+              <i class="bi bi-geo-alt-fill"></i>
+              <span>{{ job.municipality }}</span>
             </div>
-            
-            <p class="job-description">{{ job.description|truncatechars:120 }}</p>
-            
-            <div class="job-footer">
-              <div class="job-price">₱{{ job.budget|floatformat:0 }}</div>
-              <a href="{% url 'jobs:job_detail' job.id %}" class="view-details-btn">
-                View Details
-              </a>
+            <div class="meta-item">
+              <i class="bi bi-calendar-event"></i>
+              <span>{{ job.created_at|date:"M d" }}</span>
+            </div>
+            <div class="meta-item distance-display" style="color: var(--primary-color); font-weight: 600; display: none;">
+              <i class="bi bi-geo-alt-fill"></i>
+              <span>Calculating...</span>
             </div>
           </div>
+          
+          <p class="job-description-preview" style="font-size: 0.85rem;">
+            {{ job.description|truncatechars:100 }}
+          </p>
+          
+          <div class="job-footer-row">
+            <div class="job-budget" style="font-size: 1.25rem;">
+              ₱{{ job.budget|floatformat:0 }}
+            </div>
+            <a href="{% url 'jobs:job_detail' job.id %}" class="btn-view-details" style="padding: 0.5rem 1rem; font-size: 0.85rem;">
+              View <i class="bi bi-arrow-right"></i>
+            </a>
+          </div>
         </div>
-        {% empty %}
-        <div class="empty-state">
-          <i class="fa fa-briefcase"></i>
-          <h3>No jobs found</h3>
-          <p>Try adjusting your search criteria or check back later for new opportunities.</p>
-        </div>
-        {% endfor %}
       </div>
-
-      <!-- Pagination for Jobs -->
-      {% if is_paginated %}
-      <div class="pagination-container">
-        <nav aria-label="Job listings pagination">
-          <ul class="pagination">
-            {% if page_obj.has_previous %}
-            <li class="page-item">
-              <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page=1">
-                <i class="fa fa-angle-double-left"></i>
-              </a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">
-                <i class="fa fa-angle-left"></i>
-              </a>
-            </li>
-            {% endif %}
-
-            {% for num in page_obj.paginator.page_range %}
-                {% if page_obj.number == num %}
-                <li class="page-item active">
-                  <span class="page-link">{{ num }}</span>
-                </li>
-                {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
-                <li class="page-item">
-                  <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
-                </li>
-                {% endif %}
-            {% endfor %}
-
-            {% if page_obj.has_next %}
-            <li class="page-item">
-              <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">
-                <i class="fa fa-angle-right"></i>
-              </a>
-            </li>
-            <li class="page-item">
-              <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}">
-                <i class="fa fa-angle-double-right"></i>
-              </a>
-            </li>
-            {% endif %}
-          </ul>
-        </nav>
-      </div>
-      {% endif %}
+      {% endfor %}
     </div>
-
-    <!-- Services Tab -->
-    <div class="tab-pane fade {% if active_tab == 'services' %}show active{% endif %}" id="services" role="tabpanel" aria-labelledby="services-tab">
-      <!-- Section Header -->
-      <div class="section-header">
-        <h2 class="section-title">Available Services <span class="text-muted">({{ services_count }})</span></h2>
-        <div class="section-actions">
+    
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="pagination-wrapper">
+      <nav>
+        <ul class="pagination">
+          {% if page_obj.has_previous %}
+          <li class="page-item">
+            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page=1">
+              <i class="bi bi-chevron-double-left"></i>
+            </a>
+          </li>
+          <li class="page-item">
+            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.previous_page_number }}">
+              <i class="bi bi-chevron-left"></i>
+            </a>
+          </li>
+          {% endif %}
+          
+          {% for num in page_obj.paginator.page_range %}
+          {% if page_obj.number == num %}
+          <li class="page-item active">
+            <span class="page-link">{{ num }}</span>
+          </li>
+          {% elif num > page_obj.number|add:'-3' and num < page_obj.number|add:'3' %}
+          <li class="page-item">
+            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ num }}">{{ num }}</a>
+          </li>
+          {% endif %}
+          {% endfor %}
+          
+          {% if page_obj.has_next %}
+          <li class="page-item">
+            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.next_page_number }}">
+              <i class="bi bi-chevron-right"></i>
+            </a>
+          </li>
+          <li class="page-item">
+            <a class="page-link" href="?{% for key, value in request.GET.items %}{% if key != 'page' %}{{ key }}={{ value|urlencode }}&{% endif %}{% endfor %}page={{ page_obj.paginator.num_pages }}">
+              <i class="bi bi-chevron-double-right"></i>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </nav>
+    </div>
+    {% endif %}
+    </div>
+    <!-- End Jobs Section -->
+    
+    <!-- Services Section -->
+    <div id="servicesContent" class="tab-content-section" style="display: none;">
+      <!-- Content Header -->
+      <div class="content-header">
+        <div class="results-info">
+          <div class="results-count">
+            <span>{{ services.count }}</span> Services Found
+          </div>
+        </div>
+        
+        <div class="content-actions">
           {% if user.is_authenticated %}
-          <a href="{% url 'services:servicepost_create' %}" class="btn btn-primary">
-            <i class="fa fa-plus"></i>
-            Post Service
+          <a href="{% url 'services:servicepost_create' %}" class="btn-primary-custom">
+            <i class="bi bi-plus-circle"></i> Post a Service
           </a>
           {% endif %}
-          <button class="btn btn-outline" data-bs-toggle="modal" data-bs-target="#locationModal">
-            <i class="fa fa-map-marker-alt"></i>
-            Set Location
+          <button class="btn-primary-custom" style="background: white; color: var(--primary-color); border: 2px solid var(--primary-color);" data-bs-toggle="modal" data-bs-target="#locationModal">
+            <i class="bi bi-geo-alt"></i> Set Location
           </button>
         </div>
       </div>
-
-      <!-- Services Grid -->
-      <div class="jobs-grid">
+      
+      <!-- Services List -->
+      <div class="jobs-list">
         {% for service in services %}
-        <div class="job-card">
-          <div class="job-image-container">
+        <div class="job-card-list">
+          <div class="job-thumbnail">
             {% with service.images.first as service_image %}
-              {% if service_image %}
-                <img src="{{ service_image.image.url }}" class="job-image" alt="{{ service.headline }}">
-              {% else %}
-              <div class="no-image">
-                <i class="fa fa-tools"></i>
-                <span>No image available</span>
+            {% if service_image %}
+            <img src="{{ service_image.image.url }}" alt="{{ service.headline }}">
+            {% else %}
+            <div class="no-image-placeholder">
+              <i class="bi bi-tools"></i>
+              <small>No image</small>
+            </div>
+            {% endif %}
+            {% endwith %}
+            <div class="timestamp-badge">
+              <i class="bi bi-clock"></i> {{ service.created_at|timesince }} ago
+            </div>
+          </div>
+          
+          <div class="job-content">
+            <div class="job-header">
+              <a href="{{ service.get_absolute_url }}" class="job-title-link">
+                {{ service.headline }}
+              </a>
+              <div class="job-status-badges">
+                <span class="status-badge hiring" style="background: rgba(59, 130, 246, 0.1); color: var(--primary-color);">
+                  <i class="bi bi-tools"></i> Service
+                </span>
+              </div>
+            </div>
+            
+            <div class="job-meta-row">
+              <div class="meta-item">
+                <i class="bi bi-person-circle"></i>
+                <span>{{ service.user.username }}</span>
+              </div>
+              <div class="meta-item">
+                <i class="bi bi-calendar-event"></i>
+                <span>{{ service.created_at|date:"M d, Y" }}</span>
+              </div>
+              {% if service.distance %}
+              <div class="meta-item" style="color: var(--success-color);">
+                <i class="bi bi-geo"></i>
+                <span>{{ service.distance.km|floatformat:1 }} km away</span>
               </div>
               {% endif %}
-            {% endwith %}
-          </div>
-          
-          <div class="job-card-content">
-            <h3 class="job-title">
-              <a href="{{ service.get_absolute_url }}">[Service] {{ service.headline }}</a>
-            </h3>
-            
-            <div class="job-meta">
-              <span>
-                <i class="fa fa-calendar-alt"></i>
-                {{ service.created_at|date:"M d, Y" }}
-              </span>
-              {% if service.distance %}
-              <span class="job-distance">
-                <i class="fa fa-location-arrow"></i>
-                {{ service.distance.km|floatformat:1 }} km away
-              </span>
-              {% endif %}
             </div>
             
-            <p class="job-description">{{ service.description|truncatechars:120 }}</p>
+            <p class="job-description-preview">
+              {{ service.description|truncatechars:180 }}
+            </p>
             
-            <div class="job-footer">
-              <div class="job-price">Service</div>
-              <a href="{{ service.get_absolute_url }}" class="view-details-btn">
-                View Details
-              </a>
+            <div class="job-footer-row">
+              <div class="job-budget" style="font-size: 1.1rem; color: var(--primary-color);">
+                <i class="bi bi-tools"></i> Professional Service
+              </div>
+              <div class="job-actions">
+                <a href="{{ service.get_absolute_url }}" class="btn-view-details">
+                  View Details <i class="bi bi-arrow-right"></i>
+                </a>
+              </div>
             </div>
           </div>
         </div>
         {% empty %}
         <div class="empty-state">
-          <i class="fa fa-tools"></i>
-          <h3>No services found</h3>
+          <i class="bi bi-tools"></i>
+          <h3>No Services Found</h3>
           <p>Check back later for new service opportunities.</p>
         </div>
         {% endfor %}
       </div>
     </div>
+    <!-- End Services Section -->
+    
   </div>
 </div>
 
-<!-- Location Modal -->
-<div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="locationModalLabel">
-          <i class="fa fa-map-marker-alt"></i>
-          Set Your Location
-        </h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p class="text-muted mb-3">Choose how you'd like to set your location to find jobs near you.</p>
-        
-        <div class="location-options">
-          <button type="button" class="location-option-btn" onclick="getCurrentLocation()">
-            <div class="option-icon">
-              <i class="fa fa-crosshairs"></i>
-            </div>
-            <div class="option-content">
-              <h6>Use Current Location</h6>
-              <small class="text-muted">Automatically detect your location</small>
-            </div>
-          </button>
-          
-          <div class="location-option-btn manual-location">
-            <div class="option-icon">
-              <i class="fa fa-edit"></i>
-            </div>
-            <div class="option-content">
-              <h6>Enter Manually</h6>
-              <div class="manual-inputs">
-                <input type="text" class="form-control mb-2" id="manualCity" placeholder="Enter city/municipality">
-                <input type="text" class="form-control" id="manualBarangay" placeholder="Enter barangay (optional)">
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div id="locationStatus" class="mt-3" style="display: none;">
-          <div class="alert alert-info">
-            <i class="fa fa-spinner fa-spin"></i>
-            <span id="statusText">Getting your location...</span>
-          </div>
-        </div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-primary" onclick="applyManualLocation()">Apply Location</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-<script>
-// Update hero text based on active tab
-function updateHeroText(tabType) {
-  const heroTitle = document.getElementById('hero-title');
-  const heroSubtitle = document.getElementById('hero-subtitle');
-  const searchInput = document.getElementById('search-input');
-  
-  if (tabType === 'services') {
-    heroTitle.textContent = 'Find Professional Services';
-    heroSubtitle.textContent = 'Discover skilled professionals ready to help with your needs';
-    searchInput.placeholder = 'Search services, skills, or providers...';
-  } else {
-    heroTitle.textContent = 'Find Your Perfect Job';
-    heroSubtitle.textContent = 'Discover opportunities that match your skills and location';
-    searchInput.placeholder = 'Search jobs, skills, or companies...';
-  }
+<style>
+.tab-btn-modern.active {
+  color: var(--primary-color) !important;
+  border-bottom-color: var(--primary-color) !important;
 }
 
-// Handle tab switching
-document.addEventListener('DOMContentLoaded', function() {
-  const tabButtons = document.querySelectorAll('.nav-link[data-tab-type]');
-  const activeTabInput = document.getElementById('active-tab');
-  
-  tabButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      const tabType = this.getAttribute('data-tab-type');
-      activeTabInput.value = tabType;
-      
-      // Refresh the page with the selected tab
-      const url = new URL(window.location);
-      url.searchParams.set('tab', tabType);
-      window.location.href = url.toString();
-    });
-  });
-  
-  // Call updateHeroText with current active tab on page load
-  updateHeroText(activeTabInput.value);
-});
-</script>
+.tab-btn-modern:hover {
+  color: var(--primary-color);
+  background: var(--primary-light);
+}
+</style>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Existing tab switch listeners...
-  const tabButtons = document.querySelectorAll('.nav-link[data-tab-type]');
-  const activeTabInput = document.getElementById('active-tab');
-  
-  tabButtons.forEach(button => {
-    button.addEventListener('click', function() {
-      const tabType = this.getAttribute('data-tab-type');
-      activeTabInput.value = tabType;
-      
-      // Refresh the page with the selected tab
-      const url = new URL(window.location);
-      url.searchParams.set('tab', tabType);
-      window.location.href = url.toString();
-    });
-  });
-  
-  // Call updateHeroText with current active tab on page load
-  updateHeroText(activeTabInput.value);
-});
-</script>
+// Tab Switching
+const jobsTabBtn = document.getElementById('jobsTabBtn');
+const servicesTabBtn = document.getElementById('servicesTabBtn');
+const jobsContent = document.getElementById('jobsContent');
+const servicesContent = document.getElementById('servicesContent');
+const heroTitle = document.getElementById('heroTitle');
+const heroSubtitle = document.getElementById('heroSubtitle');
+const statNumber = document.getElementById('statNumber');
+const statLabel = document.getElementById('statLabel');
 
-<script>
-// Update sort functionality to preserve filters and tab
-function sortJobs(sortBy) {
-  const url = new URL(window.location);
-  url.searchParams.set('sort', sortBy);
+jobsTabBtn.addEventListener('click', function() {
+  jobsTabBtn.classList.add('active');
+  servicesTabBtn.classList.remove('active');
+  jobsContent.style.display = 'block';
+  servicesContent.style.display = 'none';
+  
+  heroTitle.innerHTML = '<i class="bi bi-briefcase-fill"></i> Job Opportunities';
+  heroSubtitle.textContent = 'Find your next opportunity from {{ jobs_count }} available positions';
+  statNumber.textContent = '{{ jobs_count }}';
+  statLabel.textContent = 'Active Jobs';
+  
+  // Update URL
+  const url = new URL(window.location.href);
+  url.searchParams.set('tab', 'jobs');
+  window.history.pushState({}, '', url);
+});
+
+servicesTabBtn.addEventListener('click', function() {
+  servicesTabBtn.classList.add('active');
+  jobsTabBtn.classList.remove('active');
+  servicesContent.style.display = 'block';
+  jobsContent.style.display = 'none';
+  
+  heroTitle.innerHTML = '<i class="bi bi-tools"></i> Professional Services';
+  heroSubtitle.textContent = 'Discover skilled professionals ready to help';
+  statNumber.textContent = '{{ services.count }}';
+  statLabel.textContent = 'Services';
+  
+  // Update URL
+  const url = new URL(window.location.href);
+  url.searchParams.set('tab', 'services');
+  window.history.pushState({}, '', url);
+});
+
+// Check URL parameter on load
+const urlParams = new URLSearchParams(window.location.search);
+const activeTab = urlParams.get('tab');
+if (activeTab === 'services') {
+  servicesTabBtn.click();
+}
+
+// Filter Toggle
+document.getElementById('filterToggle').addEventListener('click', function() {
+  const panel = document.getElementById('filtersPanel');
+  const chevron = document.getElementById('filterChevron');
+  const button = this;
+  
+  if (panel.classList.contains('show')) {
+    panel.classList.remove('show');
+    chevron.classList.remove('bi-chevron-up');
+    chevron.classList.add('bi-chevron-down');
+    button.classList.remove('active');
+  } else {
+    panel.classList.add('show');
+    chevron.classList.remove('bi-chevron-down');
+    chevron.classList.add('bi-chevron-up');
+    button.classList.add('active');
+  }
+});
+
+// View Toggle
+const listViewBtn = document.getElementById('listViewBtn');
+const gridViewBtn = document.getElementById('gridViewBtn');
+const listView = document.getElementById('listView');
+const gridView = document.getElementById('gridView');
+
+listViewBtn.addEventListener('click', function() {
+  listView.style.display = 'flex';
+  gridView.style.display = 'none';
+  listViewBtn.classList.add('active');
+  gridViewBtn.classList.remove('active');
+  localStorage.setItem('jobViewPreference', 'list');
+});
+
+gridViewBtn.addEventListener('click', function() {
+  listView.style.display = 'none';
+  gridView.style.display = 'grid';
+  gridViewBtn.classList.add('active');
+  listViewBtn.classList.remove('active');
+  localStorage.setItem('jobViewPreference', 'grid');
+});
+
+// Restore view preference
+const savedView = localStorage.getItem('jobViewPreference');
+if (savedView === 'grid') {
+  gridViewBtn.click();
+}
+
+// Sort Function
+function sortJobs(sortValue) {
+  const url = new URL(window.location.href);
+  url.searchParams.set('sort', sortValue);
+  url.searchParams.set('page', '1'); // Reset to first page
   window.location.href = url.toString();
 }
 
-// Update location functions to preserve filters and tab
+// Location Functions
 function getCurrentLocation() {
   const statusDiv = document.getElementById('locationStatus');
-  const activeTab = document.getElementById('active-tab').value;
+  const activeTab = urlParams.get('tab') || 'jobs';
   
   statusDiv.style.display = 'block';
-  statusDiv.innerHTML = '<div class="alert alert-info"><i class="fa fa-spinner fa-spin"></i> <span>Getting your location...</span></div>';
+  statusDiv.innerHTML = '<div class="alert alert-info"><i class="bi bi-arrow-repeat spin"></i> <span>Getting your location...</span></div>';
 
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
@@ -1187,13 +1319,12 @@ function getCurrentLocation() {
         const lat = position.coords.latitude;
         const lng = position.coords.longitude;
         
-        // Create URL with current filters and new location
         const url = new URL(window.location);
         url.searchParams.set('lat', lat);
         url.searchParams.set('lng', lng);
         url.searchParams.set('tab', activeTab);
         
-        statusDiv.innerHTML = '<div class="alert alert-success"><i class="fa fa-check-circle"></i> <span>Location detected successfully!</span></div>';
+        statusDiv.innerHTML = '<div class="alert alert-success"><i class="bi bi-check-circle"></i> <span>Location detected successfully!</span></div>';
         
         setTimeout(() => {
           const modal = bootstrap.Modal.getInstance(document.getElementById('locationModal'));
@@ -1218,25 +1349,24 @@ function getCurrentLocation() {
             break;
         }
         
-        statusDiv.innerHTML = `<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> <span>${errorMessage}</span></div>`;
+        statusDiv.innerHTML = `<div class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i> <span>${errorMessage}</span></div>`;
       }
     );
   } else {
-    statusDiv.innerHTML = '<div class="alert alert-danger"><i class="fa fa-exclamation-triangle"></i> <span>Geolocation is not supported by this browser.</span></div>';
+    statusDiv.innerHTML = '<div class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i> <span>Geolocation is not supported by this browser.</span></div>';
   }
 }
 
 function applyManualLocation() {
   const city = document.getElementById('manualCity').value.trim();
   const barangay = document.getElementById('manualBarangay').value.trim();
-  const activeTab = document.getElementById('active-tab').value;
+  const activeTab = urlParams.get('tab') || 'jobs';
   
   if (!city) {
     alert('Please enter a city or municipality.');
     return;
   }
   
-  // Create URL with current filters and manual location
   const url = new URL(window.location);
   url.searchParams.set('municipality', city);
   if (barangay) {
@@ -1252,30 +1382,190 @@ function applyManualLocation() {
 }
 </script>
 
+<!-- Location Modal -->
+<div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content" style="border-radius: 12px; border: none;">
+      <div class="modal-header" style="background: var(--gradient-primary); color: white; border: none;">
+        <h5 class="modal-title" id="locationModalLabel">
+          <i class="bi bi-geo-alt"></i> Set Your Location
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body" style="padding: 2rem;">
+        <p style="color: var(--text-medium); margin-bottom: 1.5rem;">Choose how you'd like to set your location to find opportunities near you.</p>
+        
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
+          <button type="button" onclick="getCurrentLocation()" style="display: flex; align-items: center; gap: 1rem; padding: 1rem; border: 2px solid var(--border-color); border-radius: 10px; background: white; cursor: pointer; transition: all 0.2s;">
+            <div style="width: 50px; height: 50px; background: var(--gradient-primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <i class="bi bi-crosshairs" style="font-size: 1.5rem;"></i>
+            </div>
+            <div style="text-align: left; flex: 1;">
+              <h6 style="margin: 0 0 0.25rem 0; color: var(--text-dark); font-weight: 600;">Use Current Location</h6>
+              <small style="color: var(--text-light);">Automatically detect your location</small>
+            </div>
+          </button>
+          
+          <div style="display: flex; align-items: flex-start; gap: 1rem; padding: 1rem; border: 2px solid var(--border-color); border-radius: 10px; background: white;">
+            <div style="width: 50px; height: 50px; background: var(--gradient-primary); color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+              <i class="bi bi-pencil" style="font-size: 1.5rem;"></i>
+            </div>
+            <div style="flex: 1;">
+              <h6 style="margin: 0 0 0.75rem 0; color: var(--text-dark); font-weight: 600;">Enter Manually</h6>
+              <input type="text" class="form-control mb-2" id="manualCity" placeholder="Enter city/municipality" style="border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem;">
+              <input type="text" class="form-control" id="manualBarangay" placeholder="Enter barangay (optional)" style="border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem;">
+            </div>
+          </div>
+        </div>
+        
+        <div id="locationStatus" style="margin-top: 1rem; display: none;"></div>
+      </div>
+      <div class="modal-footer" style="border: none; padding: 1rem 2rem;">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px;">Cancel</button>
+        <button type="button" class="btn btn-primary" onclick="applyManualLocation()" style="background: var(--gradient-primary); border: none; border-radius: 8px;">Apply Location</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<style>
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to { transform: rotate(360deg); }
+}
+.spin {
+  animation: spin 1s linear infinite;
+}
+</style>
+
 <script>
-document.addEventListener("DOMContentLoaded", function() {
-  const toggleBtn = document.getElementById("advanced-search-btn");
-  const advancedPanel = document.getElementById("advanced-search-panel");
-  
-  if (toggleBtn && advancedPanel) {
-    toggleBtn.addEventListener("click", function() {
-      // Toggle display from none to block (and vice versa)
-      if (advancedPanel.style.display === "none" || advancedPanel.style.display === "") {
-        advancedPanel.style.display = "block";
-        // Optionally rotate a toggle icon, if present
-        let icon = toggleBtn.querySelector(".toggle-icon");
-        if (icon) {
-          icon.classList.add("rotated");
+// LocationManager - Auto-detect and display distances
+const LocationManager = {
+    CACHE_KEY: 'trabaholink_user_location',
+    CACHE_DURATION: 24 * 60 * 60 * 1000, // 24 hours
+    
+    getCachedLocation() {
+        const cached = localStorage.getItem(this.CACHE_KEY);
+        if (!cached) return null;
+        
+        try {
+            const location = JSON.parse(cached);
+            if (Date.now() - location.timestamp > this.CACHE_DURATION) {
+                localStorage.removeItem(this.CACHE_KEY);
+                return null;
+            }
+            return location;
+        } catch (e) {
+            return null;
         }
-      } else {
-        advancedPanel.style.display = "none";
-        let icon = toggleBtn.querySelector(".toggle-icon");
-        if (icon) {
-          icon.classList.remove("rotated");
+    },
+    
+    async getCurrentLocation() {
+        return new Promise((resolve, reject) => {
+            if (!navigator.geolocation) {
+                reject(new Error('Geolocation not supported'));
+                return;
+            }
+            
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const location = {
+                        latitude: position.coords.latitude,
+                        longitude: position.coords.longitude,
+                        timestamp: Date.now()
+                    };
+                    localStorage.setItem(this.CACHE_KEY, JSON.stringify(location));
+                    resolve(location);
+                },
+                (error) => {
+                    console.log('Location error:', error.message);
+                    reject(error);
+                },
+                { 
+                    enableHighAccuracy: false,
+                    timeout: 10000,
+                    maximumAge: 300000 // 5 minutes
+                }
+            );
+        });
+    },
+    
+    calculateDistance(lat1, lon1, lat2, lon2) {
+        const R = 6371; // Earth's radius in km
+        const dLat = (lat2 - lat1) * Math.PI / 180;
+        const dLon = (lon2 - lon1) * Math.PI / 180;
+        const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+                  Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+                  Math.sin(dLon/2) * Math.sin(dLon/2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+        return R * c;
+    },
+    
+    formatDistance(km) {
+        if (km < 1) {
+            return Math.round(km * 1000) + 'm away';
+        } else if (km < 10) {
+            return km.toFixed(1) + 'km away';
+        } else {
+            return Math.round(km) + 'km away';
         }
-      }
-    });
-  }
+    },
+    
+    async initializeDistances() {
+        try {
+            // Try to get cached location first
+            let location = this.getCachedLocation();
+            
+            // If no cache, get current location
+            if (!location) {
+                console.log('Getting current location...');
+                location = await this.getCurrentLocation();
+            }
+            
+            if (location) {
+                console.log('User location:', location);
+                this.updateDistances(location);
+            }
+        } catch (error) {
+            console.log('Could not get location:', error.message);
+            // Hide all distance displays if location unavailable
+            document.querySelectorAll('.distance-display').forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+    },
+    
+    updateDistances(userLocation) {
+        const jobCards = document.querySelectorAll('[data-lat][data-lng]');
+        
+        jobCards.forEach(card => {
+            const jobLat = parseFloat(card.dataset.lat);
+            const jobLng = parseFloat(card.dataset.lng);
+            
+            if (!isNaN(jobLat) && !isNaN(jobLng)) {
+                const distance = this.calculateDistance(
+                    userLocation.latitude,
+                    userLocation.longitude,
+                    jobLat,
+                    jobLng
+                );
+                
+                const distanceDisplay = card.querySelector('.distance-display');
+                if (distanceDisplay) {
+                    const span = distanceDisplay.querySelector('span');
+                    if (span) {
+                        span.textContent = this.formatDistance(distance);
+                    }
+                    distanceDisplay.style.display = 'flex';
+                }
+            }
+        });
+    }
+};
+
+// Initialize on page load
+document.addEventListener('DOMContentLoaded', function() {
+    LocationManager.initializeDistances();
 });
 </script>
 

@@ -1,13 +1,116 @@
 {% extends 'mainpages/base.html' %}
 
 {% block content %}
-<div class="container mt-4">
-  <h2>Delete Service Post</h2>
-  <p>Are you sure you want to delete <strong>{{ post.headline }}</strong>?</p>
+<style>
+.delete-container {
+  max-width: 600px;
+  margin: 4rem auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+}
+
+.delete-icon {
+  width: 80px;
+  height: 80px;
+  background: #fee2e2;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1.5rem;
+}
+
+.delete-icon i {
+  font-size: 2.5rem;
+  color: #ef4444;
+}
+
+.delete-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: #111827;
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.delete-message {
+  text-align: center;
+  color: #6b7280;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+.delete-service-name {
+  color: #3b82f6;
+  font-weight: 600;
+}
+
+.delete-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+}
+
+.btn-delete {
+  padding: 0.75rem 2rem;
+  background: #ef4444;
+  color: white;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-delete:hover {
+  background: #dc2626;
+  transform: translateY(-1px);
+}
+
+.btn-cancel {
+  padding: 0.75rem 2rem;
+  background: #f3f4f6;
+  color: #374151;
+  border: none;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  display: inline-block;
+  transition: all 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #e5e7eb;
+  color: #374151;
+  text-decoration: none;
+  transform: translateY(-1px);
+}
+</style>
+
+<div class="delete-container">
+  <div class="delete-icon">
+    <i class="fa fa-trash-alt"></i>
+  </div>
+  
+  <h2 class="delete-title">Delete Service</h2>
+  
+  <p class="delete-message">
+    Are you sure you want to delete <span class="delete-service-name">"{{ object.headline }}"</span>?<br>
+    This action cannot be undone.
+  </p>
+  
   <form method="post">
     {% csrf_token %}
-    <button type="submit" class="btn btn-danger">Yes, delete</button>
-    <a href="{% url 'services:servicepost_detail' post.slug %}" class="btn btn-secondary">Cancel</a>
+    <div class="delete-actions">
+      <a href="{% url 'services:servicepost_detail' object.slug %}" class="btn-cancel">
+        <i class="fa fa-times"></i> Cancel
+      </a>
+      <button type="submit" class="btn-delete">
+        <i class="fa fa-trash"></i> Yes, Delete
+      </button>
+    </div>
   </form>
 </div>
 {% endblock %}

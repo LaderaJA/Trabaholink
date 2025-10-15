@@ -9,6 +9,8 @@ import json
 from .models import Conversation, Message
 from .forms import MessageForm, StartConversationForm
 from django.views.generic import ListView
+from admin_dashboard.moderation_utils import check_for_banned_words
+from admin_dashboard.models import FlaggedChat
 
 User = get_user_model()
 
@@ -36,7 +38,7 @@ class ConversationsListView(LoginRequiredMixin, ListView):
         return Conversation.objects.filter(Q(user1=user) | Q(user2=user)).annotate(
             last_message_content=last_message_subquery,
             last_message_created_at=last_message_time_subquery,  
-        )
+        ).order_by('-last_message_created_at', '-updated_at')
 
 
 @login_required
@@ -82,7 +84,7 @@ def conversation_detail(request, conversation_id):
     ).annotate(
         last_message_content=last_message_subquery,
         last_message_created_at=last_message_time_subquery
-    )
+    ).order_by('-last_message_created_at', '-updated_at')
 
     receiver_id = conversation.user2.id if request.user == conversation.user1 else conversation.user1.id
 
@@ -134,31 +136,66 @@ def send_message(request, conversation_id):
 
     if request.method == "POST":
         try:
-            data = json.loads(request.body)  # Handle raw JSON data from Axios
-            print(f"Received data: {data}")  # Debugging
+            # Check if request has files (FormData) or JSON
+            if request.FILES or request.POST:
+                # Handle FormData (with file upload) or regular POST
+                content = request.POST.get("content", "")
+                file = request.FILES.get("file", None)
+                print(f"Received FormData/POST - content: {content}, file: {file}")  # Debugging
+            else:
+                # Handle JSON data (text only)
+                data = json.loads(request.body)
+                content = data.get("content", "")
+                file = None
+                print(f"Received JSON - content: {content}")  # Debugging
 
+            # Check for banned words
+            is_flagged, flagged_words = check_for_banned_words(content)
+            
             # Create and save the new message
             new_message = Message.objects.create(
                 conversation=conversation,
                 sender=request.user,
-                content=data.get("content", "")
+                content=content,
+                file=file
             )
+            
+            # Auto-flag conversation if banned words detected
+            if is_flagged:
+                # Check if conversation is not already flagged
+                if not FlaggedChat.objects.filter(chat_message=conversation, status='pending').exists():
+                    FlaggedChat.objects.create(
+                        chat_message=conversation,
+                        flagged_by=request.user,  # System auto-flag
+                        reason=f"Auto-flagged: Message contains banned words: {', '.join(flagged_words)}",
+                        status='pending'
+                    )
+                    print(f"Conversation auto-flagged for banned words: {flagged_words}")
             
             print(f"Message saved: {new_message}")  # Debugging
 
             # Get the receiver from the conversation
             receiver = conversation.user1 if new_message.sender != conversation.user1 else conversation.user2
 
-            return JsonResponse({
+            response_data = {
                 "id": new_message.id,
                 "sender_id": new_message.sender.id,
                 "sender_username": new_message.sender.username,
                 "content": new_message.content,
                 "timestamp": new_message.created_at.strftime("%Y-%m-%dT%H:%M:%S"),
-            })
+            }
+            
+            # Add file URL if file was uploaded
+            if new_message.file:
+                response_data["file_url"] = new_message.file.url
+                response_data["file_name"] = new_message.file.name.split('/')[-1]
+            
+            return JsonResponse(response_data)
         
         except Exception as e:
             print(f"Error: {e}")  # Debugging
+            import traceback
+            traceback.print_exc()
             return JsonResponse({"error": "Invalid request", "details": str(e)}, status=400)
 
     return JsonResponse({"error": "Invalid request method"}, status=400)

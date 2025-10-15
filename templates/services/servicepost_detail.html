@@ -781,6 +781,55 @@ body {
 
     <!-- Sidebar -->
     <div class="sidebar">
+      <!-- Pricing & Status -->
+      <div class="info-card">
+        <h4 class="card-title">
+          <i class="fa fa-tag"></i>
+          Service Details
+        </h4>
+        
+        {% if post.pricing %}
+          <div class="info-item">
+            <div class="info-icon">
+              <i class="fa fa-dollar-sign"></i>
+            </div>
+            <div class="info-content">
+              <div class="info-label">Price</div>
+              <div class="info-value" style="color: var(--primary-blue); font-weight: 700; font-size: 1.25rem;">₱{{ post.pricing }}</div>
+            </div>
+          </div>
+        {% endif %}
+        
+        <div class="info-item">
+          <div class="info-icon">
+            <i class="fa fa-info-circle"></i>
+          </div>
+          <div class="info-content">
+            <div class="info-label">Status</div>
+            <div class="info-value">
+              <span class="status-tag 
+                {% if post.status == 'pending' %}status-pending
+                {% elif post.status == 'approved' %}status-active
+                {% elif post.status == 'rejected' %}status-closed
+                {% elif post.status == 'flagged' %}status-warning
+                {% endif %}">
+                {{ post.get_status_display }}
+              </span>
+            </div>
+          </div>
+        </div>
+        
+        <div class="info-item">
+          <div class="info-icon">
+            <i class="fa fa-layer-group"></i>
+          </div>
+          <div class="info-content">
+            <div class="info-label">Category</div>
+            <div class="info-value">{{ post.category.name|default:"Uncategorized" }}</div>
+          </div>
+        </div>
+      </div>
+      
       <!-- Contact Information -->
       <div class="info-card">
         <h4 class="card-title">
@@ -867,22 +916,29 @@ body {
 
       <!-- Action Buttons -->
       <div class="action-buttons">
-        <a href="{% url 'jobs:job_list' %}" class="btn btn-secondary">
+        <a href="{% url 'services:servicepost_list' %}" class="btn btn-secondary">
           <i class="fa fa-arrow-left"></i>
-          Back to Listings
+          Back to Services
         </a>
         
         {% if request.user == post.worker %}
+          <a href="{% url 'services:my_services' %}" class="btn btn-secondary">
+            <i class="fa fa-list"></i>
+            My Services
+          </a>
+          
           <a href="{% url 'services:servicepost_update' slug=post.slug %}" class="btn btn-primary">
             <i class="fa fa-edit"></i>
             Edit Service
           </a>
-          <a href="{% url 'services:deactivate_service_post' slug=post.slug %}" 
-             class="btn btn-warning" 
-             onclick="return confirm('Are you sure you want to deactivate this post?');">
-            <i class="fa fa-pause-circle"></i>
-            Deactivate
-          </a>
+          
+          <form action="{% url 'services:servicepost_delete' slug=post.slug %}" method="POST" style="margin: 0;" onsubmit="return confirm('Are you sure you want to delete this service? This action cannot be undone.');">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-warning" style="background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);">
+              <i class="fa fa-trash"></i>
+              Delete Service
+            </button>
+          </form>
         {% endif %}
       </div>
     </div>

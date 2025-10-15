@@ -1,0 +1,432 @@
+{% extends 'mainpages/base.html' %}
+{% load static %}
+
+{% block title %}Applications - TrabahoLink{% endblock %}
+
+{% block css %}
+<style>
+    body {
+        background: #f3f4f6 !important;
+    }
+
+    .applications-container {
+        max-width: 1400px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .page-header {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .page-subtitle {
+        color: #6b7280;
+        margin: 0;
+    }
+
+    .filter-section {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .filter-row {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
+    }
+
+    .filter-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .filter-label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        display: block;
+    }
+
+    .filter-select {
+        width: 100%;
+        padding: 0.625rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 0.9375rem;
+        transition: border-color 0.2s;
+    }
+
+    .filter-select:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+
+    .applications-grid {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .application-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .application-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .application-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .worker-info {
+        display: flex;
+        gap: 1rem;
+        align-items: center;
+    }
+
+    .worker-avatar {
+        width: 60px;
+        height: 60px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid #e5e7eb;
+    }
+
+    .worker-details h3 {
+        margin: 0 0 0.25rem 0;
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .worker-details p {
+        margin: 0;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    .application-body {
+        margin-bottom: 1rem;
+    }
+
+    .job-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #2563eb;
+        margin-bottom: 0.5rem;
+    }
+
+    .application-message {
+        background: #f9fafb;
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 3px solid #2563eb;
+        margin: 1rem 0;
+    }
+
+    .message-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+    }
+
+    .message-text {
+        color: #374151;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .application-meta {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 1rem;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .meta-item i {
+        color: #9ca3af;
+    }
+
+    .application-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-primary {
+        background: #2563eb;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #1d4ed8;
+        color: white;
+    }
+
+    .btn-success {
+        background: #10b981;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background: #059669;
+        color: white;
+    }
+
+    .btn-danger {
+        background: #ef4444;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #dc2626;
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #6b7280;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #4b5563;
+        color: white;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 12px;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #d1d5db;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+        font-size: 1.5rem;
+        color: #6b7280;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        color: #9ca3af;
+    }
+
+    @media (max-width: 768px) {
+        .application-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .application-actions {
+            width: 100%;
+        }
+
+        .btn {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="applications-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="bi bi-file-earmark-text"></i> Applications
+        </h1>
+        <p class="page-subtitle">Review and manage worker applications for your jobs</p>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <form method="get" class="filter-row">
+            <div class="filter-group">
+                <label class="filter-label">Filter by Status</label>
+                <select name="status" class="filter-select" onchange="this.form.submit()">
+                    <option value="">All Statuses</option>
+                    <option value="Pending" {% if request.GET.status == 'Pending' %}selected{% endif %}>Pending</option>
+                    <option value="Accepted" {% if request.GET.status == 'Accepted' %}selected{% endif %}>Accepted</option>
+                    <option value="Negotiation" {% if request.GET.status == 'Negotiation' %}selected{% endif %}>Negotiation</option>
+                    <option value="Rejected" {% if request.GET.status == 'Rejected' %}selected{% endif %}>Rejected</option>
+                </select>
+            </div>
+            <div class="filter-group">
+                <label class="filter-label">Filter by Job</label>
+                <select name="job" class="filter-select" onchange="this.form.submit()">
+                    <option value="">All Jobs</option>
+                    {% for job in user_jobs %}
+                    <option value="{{ job.id }}" {% if request.GET.job|stringformat:"s" == job.id|stringformat:"s" %}selected{% endif %}>
+                        {{ job.title }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <!-- Applications Grid -->
+    {% if applications %}
+    <div class="applications-grid">
+        {% for application in applications %}
+        <div class="application-card">
+            <div class="application-header">
+                <div class="worker-info">
+                    <img src="{{ application.worker.get_profile_picture_url }}" 
+                         alt="{{ application.worker.username }}" 
+                         class="worker-avatar"
+                         onerror="this.src='{% static 'images/default_profile.png' %}'">
+                    <div class="worker-details">
+                        <h3>{{ application.worker.get_full_name|default:application.worker.username }}</h3>
+                        <p>
+                            <i class="bi bi-envelope"></i> {{ application.worker.email }}
+                        </p>
+                    </div>
+                </div>
+                <div>
+                    {% include 'jobs/components/status_badge.html' with status=application.status %}
+                </div>
+            </div>
+
+            <div class="application-body">
+                <div class="job-title">
+                    <i class="bi bi-briefcase"></i> {{ application.job.title }}
+                </div>
+
+                {% if application.message %}
+                <div class="application-message">
+                    <div class="message-label">Worker's Message</div>
+                    <p class="message-text">{{ application.message }}</p>
+                </div>
+                {% endif %}
+
+                <div class="application-meta">
+                    <div class="meta-item">
+                        <i class="bi bi-calendar"></i>
+                        <span>Applied {{ application.applied_at|date:"M d, Y" }}</span>
+                    </div>
+                    {% if application.proposed_rate %}
+                    <div class="meta-item">
+                        <i class="bi bi-currency-dollar"></i>
+                        <span>Proposed Rate: ₱{{ application.proposed_rate }}</span>
+                    </div>
+                    {% endif %}
+                    {% if application.available_start_date %}
+                    <div class="meta-item">
+                        <i class="bi bi-clock"></i>
+                        <span>Available: {{ application.available_start_date|date:"M d, Y" }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="application-actions">
+                <a href="{% url 'users:profile_detail' application.worker.username %}" 
+                   class="btn btn-primary" target="_blank">
+                    <i class="bi bi-person"></i> View Profile
+                </a>
+                
+                <a href="{% url 'messaging:conversation_detail' application.worker.username %}" 
+                   class="btn btn-secondary">
+                    <i class="bi bi-chat"></i> Message
+                </a>
+
+                {% if application.status == 'Pending' %}
+                <form method="post" action="{% url 'jobs:accept_application_new' application.pk %}" 
+                      style="display: inline;" 
+                      onsubmit="return confirm('Move to negotiation stage? This will create a contract for both parties to review.');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-success">
+                        <i class="bi bi-check-circle"></i> Accept
+                    </button>
+                </form>
+
+                <form method="post" action="{% url 'jobs:job_application_deny' application.pk %}" 
+                      style="display: inline;" 
+                      onsubmit="return confirm('Are you sure you want to reject this application?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-x-circle"></i> Reject
+                    </button>
+                </form>
+                {% elif application.status == 'Negotiation' or application.status == 'Accepted' %}
+                <a href="{% url 'jobs:contract_negotiation' application.job.contract.pk %}" 
+                   class="btn btn-primary">
+                    <i class="bi bi-file-text"></i> View Contract
+                </a>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <h3>No Applications Yet</h3>
+        <p>Applications for your jobs will appear here.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

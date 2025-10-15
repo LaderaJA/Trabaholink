@@ -1,5 +1,5 @@
 from django import forms
-from .models import Job, JobApplication, Contract, ProgressLog
+from .models import Job, JobApplication, Contract, ProgressLog, JobOffer
 from django.forms.widgets import ClearableFileInput
 
 class MultipleFileInput(ClearableFileInput):
@@ -135,9 +135,95 @@ class ContractDraftForm(forms.ModelForm):
             'end_date',
         ]
         widgets = {
-            'scope_of_work': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
-            'payment_terms': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
-            'deliverables': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
+            'scope_of_work': forms.Textarea(attrs={
+                'class': 'form-control', 
+                'rows': 6,
+                'maxlength': '2000',
+                'placeholder': 'Define the complete scope of work, deliverables, milestones, and exclusions...'
+            }),
+            'payment_terms': forms.Textarea(attrs={
+                'class': 'form-control', 
+                'rows': 5,
+                'maxlength': '1000',
+                'placeholder': 'Specify total cost, payment schedule, method, and terms...'
+            }),
+            'deliverables': forms.Textarea(attrs={
+                'class': 'form-control', 
+                'rows': 5,
+                'maxlength': '1500',
+                'placeholder': 'List all items to be delivered, formats, documentation, and support...'
+            }),
             'start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'end_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+        }
+        labels = {
+            'scope_of_work': 'Scope of Work',
+            'payment_terms': 'Payment Terms',
+            'deliverables': 'Deliverables',
+            'start_date': 'Project Start Date',
+            'end_date': 'Project End Date (Deadline)',
+        }
+        help_texts = {
+            'scope_of_work': 'Maximum 2000 characters. Be specific about what work will be performed.',
+            'payment_terms': 'Maximum 1000 characters. Include total amount and payment schedule.',
+            'deliverables': 'Maximum 1500 characters. List everything the client will receive.',
+            'start_date': 'When will the work begin?',
+            'end_date': 'When should the project be completed?',
+        }
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get('start_date')
+        end_date = cleaned_data.get('end_date')
+        scope_of_work = cleaned_data.get('scope_of_work')
+        payment_terms = cleaned_data.get('payment_terms')
+        
+        # Validate dates
+        if start_date and end_date:
+            if end_date <= start_date:
+                raise forms.ValidationError({
+                    'end_date': 'End date must be after the start date.'
+                })
+        
+        # Validate required fields have meaningful content
+        if scope_of_work and len(scope_of_work.strip()) < 50:
+            raise forms.ValidationError({
+                'scope_of_work': 'Scope of work must be at least 50 characters. Please provide more details.'
+            })
+        
+        if payment_terms and len(payment_terms.strip()) < 20:
+            raise forms.ValidationError({
+                'payment_terms': 'Payment terms must be at least 20 characters. Please provide more details.'
+            })
+        
+        return cleaned_data
+
+
+class JobOfferForm(forms.ModelForm):
+    """Form for creating job offers"""
+    class Meta:
+        model = JobOffer
+        fields = [
+            'offered_rate',
+            'proposed_start_date',
+            'proposed_end_date',
+            'work_schedule',
+            'message',
+            'terms_and_conditions',
+        ]
+        widgets = {
+            'offered_rate': forms.NumberInput(attrs={'class': 'form-control', 'step': '0.01'}),
+            'proposed_start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'proposed_end_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'work_schedule': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g., M-F, 9AM-5PM'}),
+            'message': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Write a message to the worker...'}),
+            'terms_and_conditions': forms.Textarea(attrs={'class': 'form-control', 'rows': 4, 'placeholder': 'Specific terms for this offer (optional)'}),
+        }
+        labels = {
+            'offered_rate': 'Offered Rate (₱)',
+            'proposed_start_date': 'Start Date',
+            'proposed_end_date': 'End Date (Optional)',
+            'work_schedule': 'Work Schedule',
+            'message': 'Message to Worker',
+            'terms_and_conditions': 'Terms and Conditions',
         }

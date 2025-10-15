@@ -1,0 +1,348 @@
+{% extends "mainpages/base.html" %}
+{% load static %}
+
+{% block title %}Verification Pending - TrabahoLink{% endblock %}
+
+{% block css %}
+{{ block.super }}
+<style>
+    body {
+        background: #f8fafc;
+    }
+
+    .status-wrapper {
+        max-width: 960px;
+        margin: 3rem auto;
+        padding: 0 1.5rem 4rem;
+    }
+
+    .header-card {
+        background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+        border-radius: 24px;
+        padding: 2.5rem;
+        color: white;
+        box-shadow: 0 25px 60px rgba(245, 158, 11, 0.25);
+        display: flex;
+        gap: 2rem;
+        align-items: center;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .header-card::after {
+        content: "";
+        position: absolute;
+        width: 240px;
+        height: 240px;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.12);
+        right: -80px;
+        top: -80px;
+    }
+
+    .header-icon {
+        width: 90px;
+        height: 90px;
+        border-radius: 22px;
+        background: rgba(255, 255, 255, 0.18);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.75rem;
+        flex-shrink: 0;
+    }
+
+    .header-text h1 {
+        margin: 0;
+        font-size: 1.9rem;
+        font-weight: 700;
+    }
+
+    .header-text p {
+        margin: 0.5rem 0 0;
+        font-size: 1rem;
+        opacity: 0.95;
+    }
+
+    .layout-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+        gap: 1.75rem;
+        margin-top: 2rem;
+    }
+
+    .card {
+        background: white;
+        border-radius: 20px;
+        padding: 2rem;
+        box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
+    }
+
+    .card h2 {
+        margin-top: 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: 0.6rem;
+    }
+
+    .timeline {
+        margin-top: 1.5rem;
+    }
+
+    .timeline-step {
+        display: grid;
+        grid-template-columns: 48px 1fr;
+        gap: 1.25rem;
+        position: relative;
+        padding: 1.25rem 0;
+    }
+
+    .timeline-step::before {
+        content: "";
+        position: absolute;
+        left: 23px;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: linear-gradient(180deg, rgba(99, 102, 241, 0.25), rgba(56, 189, 248, 0));
+        z-index: 0;
+    }
+
+    .timeline-step:last-child::before {
+        display: none;
+    }
+
+    .timeline-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 14px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.6rem;
+        color: white;
+        position: relative;
+        z-index: 1;
+    }
+
+    .timeline-icon.completed {
+        background: linear-gradient(135deg, #22c55e, #16a34a);
+    }
+
+    .timeline-icon.active {
+        background: linear-gradient(135deg, #f97316, #f59e0b);
+        box-shadow: 0 10px 30px rgba(249, 115, 22, 0.35);
+    }
+
+    .timeline-icon.future {
+        background: #e2e8f0;
+        color: #64748b;
+    }
+
+    .timeline-content h3 {
+        margin: 0;
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #0f172a;
+    }
+
+    .timeline-content p {
+        margin: 0.35rem 0 0;
+        color: #64748b;
+        font-size: 0.95rem;
+    }
+
+    .summary-card {
+        display: grid;
+        gap: 1.25rem;
+    }
+
+    .summary-item {
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 1.5rem;
+        display: flex;
+        align-items: flex-start;
+        gap: 1rem;
+        background: #f8fafc;
+    }
+
+    .summary-item i {
+        font-size: 1.6rem;
+        color: #6366f1;
+    }
+
+    .summary-item strong {
+        display: block;
+        color: #0f172a;
+        margin-bottom: 0.25rem;
+    }
+
+    .promise-card {
+        border-radius: 18px;
+        padding: 1.75rem;
+        background: linear-gradient(135deg, rgba(99, 102, 241, 0.12), rgba(56, 189, 248, 0.12));
+        border: 1px solid rgba(99, 102, 241, 0.18);
+        display: flex;
+        gap: 1rem;
+        align-items: flex-start;
+    }
+
+    .promise-card i {
+        font-size: 1.8rem;
+        color: #4338ca;
+    }
+
+    .action-footer {
+        margin-top: 2.5rem;
+        text-align: right;
+    }
+
+    .action-footer a {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.55rem;
+        background: linear-gradient(135deg, #6366f1 0%, #7c3aed 100%);
+        color: white;
+        padding: 0.85rem 1.8rem;
+        border-radius: 12px;
+        font-weight: 600;
+        text-decoration: none;
+        box-shadow: 0 15px 35px rgba(99, 102, 241, 0.35);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .action-footer a:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 18px 40px rgba(99, 102, 241, 0.45);
+    }
+
+    @media (max-width: 1024px) {
+        .layout-grid {
+            grid-template-columns: 1fr;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .status-wrapper {
+            margin: 2rem auto;
+        }
+
+        .header-card {
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .header-card::after {
+            display: none;
+        }
+
+        .timeline-step {
+            grid-template-columns: 48px 1fr;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="status-wrapper">
+    <div class="header-card">
+        <div class="header-icon">
+            <i class="bi bi-clock-history"></i>
+        </div>
+        <div class="header-text">
+            <h1>Verification in progress</h1>
+            <p>Thanks for submitting your documents, {{ request.user.first_name|default:request.user.username }}. We’re reviewing everything to keep TrabahoLink safe and trusted.</p>
+        </div>
+    </div>
+
+    <div class="layout-grid">
+        <div class="card">
+            <h2><i class="bi bi-flag"></i> What happens next?</h2>
+            <div class="timeline">
+                <div class="timeline-step">
+                    <div class="timeline-icon completed">
+                        <i class="bi bi-check"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h3>Submitted</h3>
+                        <p>{{ verification.submitted_at|date:"F d, Y - g:i A" }}</p>
+                    </div>
+                </div>
+
+                <div class="timeline-step">
+                    <div class="timeline-icon active">
+                        <i class="bi bi-hourglass-split"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h3>Under review</h3>
+                        <p>Average review time: 24-48 hours. We’ll confirm your ID, selfie, and details.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-step">
+                    <div class="timeline-icon future">
+                        <i class="bi bi-bell"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h3>Notification</h3>
+                        <p>You’ll receive an email and in-app alert once a decision is made.</p>
+                    </div>
+                </div>
+
+                <div class="timeline-step">
+                    <div class="timeline-icon future">
+                        <i class="bi bi-patch-check"></i>
+                    </div>
+                    <div class="timeline-content">
+                        <h3>Verified badge</h3>
+                        <p>A blue checkmark appears on your profile after approval.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="summary-card">
+            <div class="summary-item">
+                <i class="bi bi-info-circle"></i>
+                <div>
+                    <strong>Tips while you wait</strong>
+                    <p>
+                        Keep an eye on your email. If we need clarification, we’ll contact you right away.
+                        You can continue browsing jobs and managing your profile meanwhile.
+                    </p>
+                </div>
+            </div>
+
+            <div class="summary-item">
+                <i class="bi bi-clipboard-check"></i>
+                <div>
+                    <strong>What we check</strong>
+                    <p>
+                        We confirm your ID matches your selfie and that your personal information is accurate.
+                        This helps keep the TrabahoLink community trustworthy.
+                    </p>
+                </div>
+            </div>
+
+            <div class="promise-card">
+                <i class="bi bi-shield-lock"></i>
+                <div>
+                    <strong>Your data stays secure</strong>
+                    <p>All files are encrypted and only used for verification. Once reviewed, they’re handled according to our privacy policy.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="action-footer">
+        <a href="{% url 'profile' request.user.pk %}">
+            <i class="bi bi-person"></i>
+            Go to my profile
+        </a>
+    </div>
+</div>
+{% endblock %}

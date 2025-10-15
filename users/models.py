@@ -26,6 +26,9 @@ class CustomUser(AbstractUser):
     address = models.CharField(max_length=255, blank=True)  # new field
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES, blank=True)  # new field
     profile_picture = models.ImageField(upload_to='profile_pics/', blank=True, null=True)
+    cover_photo = models.CharField(max_length=50, default='default1', blank=True)  # Cover photo choice or custom upload
+    cover_photo_custom = models.ImageField(upload_to='cover_photos/', blank=True, null=True)  # Custom uploaded cover
+    job_title = models.CharField(max_length=100, blank=True, null=True)  # Professional job title
     job_coverage = models.CharField(max_length=255, blank=True, null=True) 
     is_verified_philsys = models.BooleanField(default=False)
     location = gis_models.PointField(null=True, blank=True, geography=True) 
@@ -37,6 +40,21 @@ class CustomUser(AbstractUser):
         choices=[("pending", "Pending"), ("verified", "Verified"), ("skipped", "Skipped")],
         default="pending"
     )
+    
+    # eKYC Verification Fields
+    is_verified = models.BooleanField(default=False)
+    verification_status = models.CharField(
+        max_length=20,
+        choices=[
+            ('unverified', 'Unverified'),
+            ('pending', 'Pending Review'),
+            ('verified', 'Verified'),
+            ('rejected', 'Rejected')
+        ],
+        default='unverified'
+    )
+    verification_date = models.DateTimeField(null=True, blank=True)
+    date_of_birth = models.DateField(null=True, blank=True)
 
     groups = models.ManyToManyField(Group, related_name="customuser_groups", blank=True)
     user_permissions = models.ManyToManyField(Permission, related_name="customuser_permissions", blank=True)
@@ -165,3 +183,64 @@ class CompletedJobGallery(models.Model):
 
     def __str__(self):
         return f"Gallery Item for {self.user.username}"
+
+
+class AccountVerification(models.Model):
+    """Model to track eKYC verification submissions"""
+    
+    ID_TYPE_CHOICES = [
+        ('philsys', 'PhilSys ID'),
+        ('drivers_license', "Driver's License"),
+        ('passport', 'Passport'),
+        ('umid', 'UMID'),
+        ('sss', 'SSS ID'),
+        ('voters', "Voter's ID"),
+        ('prc', 'PRC ID'),
+        ('postal', 'Postal ID'),
+    ]
+    
+    STATUS_CHOICES = [
+        ('pending', 'Pending Review'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+    ]
+    
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='verification_submissions'
+    )
+    
+    # Personal Information
+    full_name = models.CharField(max_length=255)
+    date_of_birth = models.DateField()
+    address = models.TextField()
+    contact_number = models.CharField(max_length=15)
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
+    
+    # ID Information
+    id_type = models.CharField(max_length=20, choices=ID_TYPE_CHOICES)
+    id_image_front = models.ImageField(upload_to='verification/ids/')
+    id_image_back = models.ImageField(upload_to='verification/ids/', null=True, blank=True)
+    
+    # Selfie Verification
+    selfie_image = models.ImageField(upload_to='verification/selfies/')
+    
+    # Status and Metadata
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
+    submitted_at = models.DateTimeField(auto_now_add=True)
+    reviewed_at = models.DateTimeField(null=True, blank=True)
+    reviewed_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='reviewed_verifications'
+    )
+    rejection_reason = models.TextField(blank=True)
+    
+    class Meta:
+        ordering = ['-submitted_at']
+    
+    def __str__(self):
+        return f"Verification for {self.user.username} - {self.status}"

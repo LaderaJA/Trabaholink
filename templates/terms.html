@@ -1,0 +1,176 @@
+{% extends 'mainpages/base.html' %}
+{% load static %}
+
+{% block title %}Terms and Conditions - Trabaholink{% endblock %}
+
+{% block content %}
+<div class="min-h-screen bg-gray-50 py-12">
+    <div class="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+        <!-- Header -->
+        <div class="bg-white rounded-xl shadow-md p-8 mb-8">
+            <div class="flex items-center gap-4 mb-4">
+                <div class="w-16 h-16 bg-gradient-to-br from-trabaholink-blue to-trabaholink-dark-blue rounded-xl flex items-center justify-center">
+                    <i class="bi bi-file-text text-white text-3xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-3xl font-bold text-gray-900">Terms and Conditions</h1>
+                    <p class="text-gray-600">Last updated: January 2025</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- Content -->
+        <div class="bg-white rounded-xl shadow-md p-8 prose max-w-none">
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">1. Acceptance of Terms</h2>
+            <p class="text-gray-700 mb-6">
+                By accessing and using Trabaholink ("the Platform"), you accept and agree to be bound by the terms and provision of this agreement. 
+                If you do not agree to these Terms and Conditions, please do not use the Platform.
+            </p>
+
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">2. Description of Service</h2>
+            <p class="text-gray-700 mb-6">
+                Trabaholink is a web-based platform that connects blue-collar workers with clients in the Philippines. 
+                The Platform facilitates job postings, service offerings, and direct communication between workers and clients.
+            </p>
+
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">3. User Accounts</h2>
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">3.1 Registration</h3>
+            <p class="text-gray-700 mb-4">
+                To use certain features of the Platform, you must register for an account. You agree to:
+            </p>
+            <ul class="list-disc pl-6 text-gray-700 mb-6">
+                <li>Provide accurate, current, and complete information</li>
+                <li>Maintain and update your information to keep it accurate</li>
+                <li>Maintain the security of your password</li>
+                <li>Accept responsibility for all activities under your account</li>
+                <li>Notify us immediately of any unauthorized use</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">3.2 Account Types</h3>
+            <ul class="list-disc pl-6 text-gray-700 mb-6">
+                <li><strong>Workers:</strong> Individuals offering services and skills</li>
+                <li><strong>Clients:</strong> Individuals or businesses seeking workers</li>
+            </ul>
+
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">4. User Conduct</h2>
+            <p class="text-gray-700 mb-4">You agree NOT to:</p>
+            <ul class="list-disc pl-6 text-gray-700 mb-6">
+                <li>Post false, inaccurate, misleading, or fraudulent content</li>
+                <li>Impersonate any person or entity</li>
+                <li>Harass, abuse, or harm other users</li>
+                <li>Use the Platform for any illegal purposes</li>
+                <li>Spam or send unsolicited messages</li>
+                <li>Attempt to gain unauthorized access to the Platform</li>
+                <li>Post content that violates intellectual property rights</li>
+                <li>Use profane, offensive, or inappropriate language</li>
+            </ul>
+
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">5. Job Postings and Services</h2>
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">5.1 Job Postings</h3>
+            <p class="text-gray-700 mb-4">
+                Clients may post job opportunities. All job postings must:
+            </p>
+            <ul class="list-disc pl-6 text-gray-700 mb-6">
+                <li>Be legitimate and legal</li>
+                <li>Contain accurate information</li>
+                <li>Not discriminate based on protected characteristics</li>
+                <li>Comply with Philippine labor laws</li>
+            </ul>
+
+            <h3 class="text-xl font-semibold text-gray-800 mb-3">5.2 Service Offerings</h3>
+            <p class="text-gray-700 mb-6">
+                Workers may advertise their services. All service listings must be truthful and accurately represent the worker's skills and experience.
+            </p>
+
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">6. Payments and Fees</h2>
+            <p class="text-gray-700 mb-6">
+                Trabaholink does not currently charge fees for basic platform usage. We reserve the right to introduce fees in the future with advance notice. 
+                All financial transactions between workers and clients are conducted independently and are not the responsibility of Trabaholink.
+            </p>
+
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">7. Content Moderation</h2>
+            <p class="text-gray-700 mb-6">
+                Trabaholink reserves the right to review, monitor, and remove content that violates these Terms. 
+                We use automated systems and manual review to detect inappropriate content, including profanity and banned words.
+            </p>
+
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">8. Intellectual Property</h2>
+            <p class="text-gray-700 mb-6">
+                The Platform and its original content, features, and functionality are owned by Trabaholink and are protected by international copyright, 
+                trademark, and other intellectual property laws.
+            </p>
+
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">9. Disclaimer of Warranties</h2>
+            <p class="text-gray-700 mb-6">
+                The Platform is provided "as is" without warranties of any kind. Trabaholink does not guarantee:
+            </p>
+            <ul class="list-disc pl-6 text-gray-700 mb-6">
+                <li>The quality, safety, or legality of services offered</li>
+                <li>The accuracy of user-provided information</li>
+                <li>That the Platform will be uninterrupted or error-free</li>
+                <li>The conduct of users on the Platform</li>
+            </ul>
+
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">10. Limitation of Liability</h2>
+            <p class="text-gray-700 mb-6">
+                Trabaholink shall not be liable for any indirect, incidental, special, consequential, or punitive damages resulting from your use of the Platform.
+            </p>
+
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">11. Termination</h2>
+            <p class="text-gray-700 mb-6">
+                We may terminate or suspend your account immediately, without prior notice, for conduct that we believe violates these Terms or is harmful to other users, 
+                us, or third parties, or for any other reason.
+            </p>
+
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">12. Governing Law</h2>
+            <p class="text-gray-700 mb-6">
+                These Terms shall be governed by and construed in accordance with the laws of the Republic of the Philippines.
+            </p>
+
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">13. Changes to Terms</h2>
+            <p class="text-gray-700 mb-6">
+                We reserve the right to modify these Terms at any time. We will notify users of any material changes. 
+                Your continued use of the Platform after changes constitutes acceptance of the new Terms.
+            </p>
+
+            <h2 class="text-2xl font-bold text-gray-900 mb-4">14. Contact Information</h2>
+            <p class="text-gray-700 mb-6">
+                If you have questions about these Terms, please contact us at:
+            </p>
+            <div class="bg-gray-50 p-4 rounded-lg">
+                <p class="text-gray-700"><strong>Email:</strong> support@trabaholink.com</p>
+                <p class="text-gray-700"><strong>Address:</strong> Philippines</p>
+            </div>
+        </div>
+
+        <!-- Back Button -->
+        <div class="mt-8 text-center">
+            <a href="{% url 'mainpages:homepage' %}" class="inline-flex items-center gap-2 px-6 py-3 bg-trabaholink-blue text-white rounded-lg hover:bg-trabaholink-dark-blue transition">
+                <i class="bi bi-arrow-left"></i>
+                Back to Home
+            </a>
+        </div>
+    </div>
+</div>
+
+<style>
+    :root {
+        --trabaholink-cyan: #AFE4E6;
+        --trabaholink-blue: #5271FF;
+        --trabaholink-dark-blue: #004AAD;
+        --trabaholink-light-blue: #84C7EE;
+    }
+    
+    .bg-trabaholink-blue {
+        background-color: var(--trabaholink-blue);
+    }
+    
+    .bg-trabaholink-dark-blue {
+        background-color: var(--trabaholink-dark-blue);
+    }
+    
+    .hover\:bg-trabaholink-dark-blue:hover {
+        background-color: var(--trabaholink-dark-blue);
+    }
+</style>
+{% endblock %}

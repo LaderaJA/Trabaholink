@@ -2,446 +2,1116 @@
 {% load static %}
 
 {% block css %}
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" crossorigin=""/>
-  <style>
-    :root {
-      --primary-blue: #3b82f6;
-      --primary-blue-dark: #2563eb;
-      --primary-blue-light: #dbeafe;
-      --success-green: #10b981;
-      --success-green-light: #d1fae5;
-      --warning-yellow: #f59e0b;
-      --warning-yellow-light: #fef3c7;
-      --danger-red: #ef4444;
-      --danger-red-light: #fee2e2;
-      --text-dark: #111827;
-      --text-medium: #374151;
-      --text-light: #6b7280;
-      --text-white: #ffffff;
-      --background-white: #ffffff;
-      --background-gray: #f9fafb;
-      --background-gray-light: #f3f4f6;
-      --border-color: #e5e7eb;
-      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-      --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-      --transition: all 0.2s ease-in-out;
-    }
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" crossorigin=""/>
+<style>
+/* ===== TRABAHOLINK THEME VARIABLES ===== */
+:root {
+  --trabaholink-cyan: #AFE4E6;
+  --trabaholink-blue: #5271FF;
+  --trabaholink-dark-blue: #004AAD;
+  --trabaholink-light-blue: #84C7EE;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --text-dark: #1a202c;
+  --text-medium: #4a5568;
+  --text-light: #718096;
+  --bg-light: #f7fafc;
+  --bg-white: #ffffff;
+  --border-color: #e2e8f0;
+  --gradient-primary: linear-gradient(135deg, var(--trabaholink-blue) 0%, var(--trabaholink-dark-blue) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--trabaholink-cyan) 0%, var(--trabaholink-light-blue) 100%);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
 
-    /* Form Container */
-    .form-container {
-      max-width: 1000px;
-      margin: 2rem auto;
-      padding: 2rem;
-      background: var(--background-white);
-      border-radius: 1.25rem;
-      box-shadow: var(--shadow-md);
-      transition: var(--transition);
-    }
+/* Global Styles */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--bg-light);
+}
 
-    .form-container:hover {
-      transform: translateY(-5px);
-      box-shadow: var(--shadow-lg);
-    }
+/* Page Wrapper */
+.service-form-wrapper {
+  min-height: 100vh;
+  padding: 2rem 0 4rem;
+  background: linear-gradient(180deg, #f0f9ff 0%, var(--bg-light) 100%);
+}
 
-    /* Form Header */
-    .form-header {
-      text-align: center;
-      margin-bottom: 2.5rem;
-      padding-bottom: 1.5rem;
-      border-bottom: 3px solid var(--primary-blue);
-    }
+/* Header Section */
+.form-header-section {
+  background: var(--gradient-primary);
+  color: white;
+  padding: 3rem 0;
+  margin-bottom: 2.5rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0 0 24px 24px;
+  box-shadow: var(--shadow-xl);
+}
 
-    .form-header h2 {
-      font-size: 2.25rem;
-      font-weight: 700;
-      color: var(--text-dark);
-      margin-bottom: 0.75rem;
-    }
+.form-header-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.3;
+}
 
-    .form-header p {
-      color: var(--text-medium);
-      font-size: 1.1rem;
-    }
+.form-header-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
 
-    /* Form Sections */
-    .form-section {
-      margin-bottom: 2.5rem;
-      padding: 1.5rem;
-      background: var(--background-gray-light);
-      border-radius: 0.875rem;
-      box-shadow: var(--shadow-sm);
-      transition: var(--transition);
-    }
+.form-header-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
 
-    .form-section:hover {
-      transform: translateY(-3px);
-      box-shadow: var(--shadow-md);
-    }
+.form-header-subtitle {
+  font-size: 1.125rem;
+  opacity: 0.95;
+  margin: 0;
+}
 
-    .section-title {
-      color: var(--text-dark);
-      font-size: 1.5rem;
-      font-weight: 600;
-      margin-bottom: 1.25rem;
-      display: inline-block;
-    }
+/* Step Progress */
+.step-progress-container {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-md);
+}
 
-    .section-title::after {
-      content: '';
-      position: absolute;
-      bottom: -5px;
-      left: 0;
-      width: 40px;
-      height: 3px;
-      background: var(--primary-blue);
-      border-radius: 2px;
-    }
+.step-progress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  max-width: 700px;
+  margin: 0 auto;
+}
 
-    /* Form Controls */
-    .form-group {
-      margin-bottom: 1.5rem;
-    }
+.step-progress::before {
+  content: '';
+  position: absolute;
+  top: 24px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--border-color);
+  z-index: 0;
+}
 
-    .form-label {
-      color: var(--text-dark);
-      font-weight: 500;
-      margin-bottom: 0.5rem;
-      display: block;
-    }
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
 
-    .form-control {
-      background-color: var(--background-white);
-      border: 2px solid var(--border-color);
-      border-radius: 0.75rem;
-      padding: 1rem 1.25rem;
-      transition: var(--transition);
-      font-size: 1rem;
-    }
+.step-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: white;
+  border: 3px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--text-light);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
 
-    .form-control:focus {
-      background-color: var(--background-white);
-      border-color: var(--primary-blue);
-      box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-      outline: none;
-    }
+.step-item.active .step-circle {
+  background: var(--gradient-primary);
+  border-color: var(--trabaholink-blue);
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(82, 113, 255, 0.3);
+}
 
-    .form-control::placeholder {
-      color: var(--text-light);
-    }
+.step-item.completed .step-circle {
+  background: var(--success-color);
+  border-color: var(--success-color);
+  color: white;
+}
 
-    .form-text {
-      color: var(--text-medium);
-      font-size: 0.875rem;
-      margin-top: 0.5rem;
-    }
+.step-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-medium);
+  text-align: center;
+  white-space: nowrap;
+}
 
-    /* Buttons */
-    .btn-primary {
-      background: var(--primary-blue);
-      color: var(--text-white);
-      padding: 0.875rem 1.75rem;
-      border-radius: 0.625rem;
-      font-weight: 600;
-      transition: var(--transition);
-      position: relative;
-      overflow: hidden;
-    }
+.step-item.active .step-label {
+  color: var(--trabaholink-blue);
+  font-weight: 700;
+}
 
-    .btn-primary::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.2), rgba(255, 255, 255, 0));
-      transition: var(--transition);
-    }
+/* Form Container */
+.form-main-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
 
-    .btn-primary:hover {
-      background: var(--primary-blue-dark);
-      transform: translateY(-2px);
-    }
+.form-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
 
-    .btn-primary:hover::before {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.3), rgba(255, 255, 255, 0));
-    }
+/* Form Steps */
+.form-step {
+  display: none;
+  padding: 3rem;
+  animation: fadeInUp 0.5s ease;
+}
 
-    .btn-outline {
-      border: 2px solid var(--primary-blue);
-      color: var(--primary-blue);
-      padding: 0.875rem 1.75rem;
-      border-radius: 0.625rem;
-      font-weight: 600;
-      transition: var(--transition);
-      position: relative;
-      overflow: hidden;
-    }
+.form-step.active {
+  display: block;
+}
 
-    .btn-outline::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(59, 130, 246, 0));
-      transition: var(--transition);
-    }
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
 
-    .btn-outline:hover {
-      background: var(--primary-blue);
-      color: var(--text-white);
-      transform: translateY(-2px);
-    }
+.step-section-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
 
-    .btn-outline:hover::before {
-      background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(59, 130, 246, 0));
-    }
+.step-section-title i {
+  color: var(--trabaholink-blue);
+}
 
-    /* Error Handling */
-    .errorlist {
-      color: var(--danger-red);
-      font-size: 0.875rem;
-      margin-top: 0.25rem;
-      padding: 0.5rem;
-      background: var(--danger-red-light);
-      border-radius: 0.5rem;
-      border: 1px solid var(--danger-red);
-    }
+.step-section-description {
+  color: var(--text-medium);
+  margin: 0 0 2rem 0;
+  font-size: 1.05rem;
+}
 
-    /* Map Section */
-    #map { 
-      height: 400px;
-      border-radius: 1rem;
-      box-shadow: var(--shadow-md);
-      margin-top: 1rem;
-    }
+/* Form Groups */
+.form-group {
+  margin-bottom: 1.75rem;
+}
 
-    .location-status {
-      font-size: 0.9em;
-      color: var(--success-green);
-      font-weight: 500;
-      margin-top: 0.5rem;
-      display: inline-block;
-      padding: 0.25rem 0.75rem;
-      background: var(--success-green-light);
-      border-radius: 0.5rem;
-    }
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.625rem;
+  font-size: 0.95rem;
+}
 
-    /* Modal */
-    .modal-content {
-      border-radius: 1rem;
-      box-shadow: var(--shadow-lg);
-    }
+.form-label i {
+  color: var(--trabaholink-blue);
+  font-size: 1.1rem;
+}
 
-    .modal-header {
-      border-bottom: 2px solid var(--border-color);
-      padding: 1.5rem;
-    }
+.form-label .required {
+  color: var(--danger-color);
+  margin-left: 0.25rem;
+}
 
-    .modal-title {
-      color: var(--text-dark);
-      font-weight: 600;
-    }
+.form-control {
+  width: 100%;
+  padding: 0.875rem 1.125rem;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: var(--bg-white);
+  font-family: inherit;
+}
 
-    .modal-body {
-      padding: 2rem;
-    }
+.form-control:focus {
+  outline: none;
+  border-color: var(--trabaholink-blue);
+  background: white;
+  box-shadow: 0 0 0 4px rgba(82, 113, 255, 0.1);
+}
 
-    /* Responsive Design */
-    @media (max-width: 768px) {
-      .form-container {
-        margin: 1rem;
-        padding: 1.5rem;
-      }
+.form-control:hover {
+  border-color: var(--trabaholink-light-blue);
+}
 
-      .form-header h2 {
-        font-size: 1.75rem;
-      }
+textarea.form-control {
+  min-height: 120px;
+  resize: vertical;
+}
 
-      .form-section {
-        padding: 1rem;
-      }
+select.form-control {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234a5568' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+}
 
-      #map {
-        height: 300px;
-      }
-    }
-  </style>
+/* Form Row */
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+/* Help Text */
+.help-text {
+  font-size: 0.875rem;
+  color: var(--text-light);
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.help-text i {
+  color: var(--trabaholink-cyan);
+  margin-top: 0.125rem;
+  flex-shrink: 0;
+}
+
+/* Error Messages */
+.error-message, .errorlist {
+  color: var(--danger-color);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  background: #fee2e2;
+  border-radius: 8px;
+  border-left: 3px solid var(--danger-color);
+  list-style: none;
+}
+
+/* Image Upload */
+.image-upload-container {
+  margin-top: 1rem;
+}
+
+.image-upload-zone {
+  border: 3px dashed var(--border-color);
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: linear-gradient(135deg, #f0f9ff 0%, white 100%);
+}
+
+.image-upload-zone:hover {
+  border-color: var(--trabaholink-blue);
+  background: linear-gradient(135deg, var(--trabaholink-cyan) 0%, white 100%);
+  transform: translateY(-2px);
+}
+
+.upload-icon {
+  font-size: 3.5rem;
+  color: var(--trabaholink-blue);
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.upload-text {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+}
+
+.upload-hint {
+  font-size: 0.875rem;
+  color: var(--text-light);
+}
+
+/* Image Preview */
+.image-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.preview-item {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 1;
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+}
+
+.preview-item:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* Map */
+.map-container {
+  margin-top: 1.5rem;
+}
+
+#map {
+  height: 400px;
+  border-radius: 16px;
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.map-info-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, var(--trabaholink-cyan) 0%, var(--trabaholink-light-blue) 100%);
+  border-radius: 12px;
+}
+
+.map-info-item {
+  text-align: center;
+}
+
+.map-info-label {
+  font-size: 0.875rem;
+  color: var(--trabaholink-dark-blue);
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.map-info-value {
+  font-size: 1.125rem;
+  color: var(--text-dark);
+  font-weight: 700;
+}
+
+/* Navigation Buttons */
+.form-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 3rem;
+  background: var(--bg-light);
+  border-top: 2px solid var(--border-color);
+  gap: 1rem;
+}
+
+.btn {
+  padding: 0.875rem 2rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  border: none;
+  text-decoration: none;
+}
+
+.btn-secondary {
+  background: white;
+  color: var(--text-medium);
+  border: 2px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-light);
+  border-color: var(--text-medium);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary {
+  background: var(--gradient-primary);
+  color: white;
+  box-shadow: 0 4px 15px rgba(82, 113, 255, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(82, 113, 255, 0.4);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .form-header-title {
+    font-size: 1.75rem;
+    flex-direction: column;
+  }
+  
+  .step-progress {
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  
+  .step-item {
+    flex: 0 0 calc(50% - 0.5rem);
+  }
+  
+  .step-label {
+    font-size: 0.75rem;
+  }
+  
+  .form-step {
+    padding: 1.5rem;
+  }
+  
+  .form-navigation {
+    padding: 1.5rem;
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 576px) {
+  .service-form-wrapper {
+    padding: 1rem 0 2rem;
+  }
+  
+  .form-header-section {
+    padding: 2rem 0;
+  }
+  
+  .step-progress-container {
+    padding: 1rem;
+  }
+}
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="form-container">
-  <div class="form-header">
-    <h2>Create Service Post</h2>
-    <p>Fill in the details to create your service post</p>
-  </div>
-
-  <form method="post" enctype="multipart/form-data" id="service-form">
-    {% csrf_token %}
-    
-    {{ form.non_field_errors }}
-
-    <div class="form-section">
-      <div class="section-title">Basic Information</div>
-      <div class="form-group">
-        <label for="{{ form.headline.id_for_label }}" class="form-label">Service Headline</label>
-        {{ form.headline }}
-        {{ form.headline.errors }}
-      </div>
-
-      <div class="form-group">
-        <label for="{{ form.description.id_for_label }}" class="form-label">Service Description</label>
-        {{ form.description }}
-        {{ form.description.errors }}
-      </div>
-
-      <div class="form-group">
-        <label for="{{ form.availability.id_for_label }}" class="form-label">Availability</label>
-        {{ form.availability }}
-        {{ form.availability.errors }}
-      </div>
-    </div>
-
-    <div class="form-section">
-      <div class="section-title">Contact Information</div>
-      <div class="form-group">
-        <label for="{{ form.contact_number.id_for_label }}" class="form-label">Contact Number</label>
-        {{ form.contact_number }}
-        {{ form.contact_number.errors }}
-      </div>
-
-      <div class="form-group">
-        <label for="{{ form.email.id_for_label }}" class="form-label">Email Address</label>
-        {{ form.email }}
-        {{ form.email.errors }}
-      </div>
-    </div>
-
-    <div class="form-section">
-      <div class="section-title">Service Details</div>
-      <div class="form-group">
-        <label for="{{ form.category.id_for_label }}" class="form-label">Category</label>
-        {{ form.category }}
-        {{ form.category.errors }}
-      </div>
-
-      <div class="form-group">
-        <label for="{{ form.address.id_for_label }}" class="form-label">Address</label>
-        {{ form.address }}
-        {{ form.address.errors }}
-      </div>
-
-      <div class="form-group">
-        <label for="id_images" class="form-label">Upload Images</label>
-        <input type="file" name="images" id="id_images" multiple class="form-control">
-        <small class="form-text">You may select multiple images.</small>
-      </div>
-
-      <div class="form-group">
-        <label for="{{ form.service_items.id_for_label }}" class="form-label">Service Items</label>
-        {{ form.service_items }}
-        <small class="form-text">
-          Use the format: Service Name|Price|Duration|Description, one per line.
-        </small>
-      </div>
-    </div>
-
-    <div class="form-section">
-      <div class="section-title">Location</div>
-      <!-- Hidden fields for location -->
-      <input type="hidden" name="latitude" id="latitude" value="">
-      <input type="hidden" name="longitude" id="longitude" value="">
-
-      <!-- Button to trigger location modal -->
-      <div class="form-group">
-        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#locationModal">
-          <i class="fa fa-map-marker-alt"></i> Set Location
-        </button>
-        <span id="location-status" class="location-status" style="display: none;">Location set successfully!</span>
-      </div>
-    </div>
-
-    <div class="text-center mt-4">
-      <button type="submit" class="btn btn-primary">Create Service</button>
-    </div>
-  </form>
-</div>
-
-<!-- Modal Map -->
-<div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-lg modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="locationModalLabel">Set Your Location</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        <p class="mb-2">Click on the map or drag the marker to update your location.</p>
-        <div id="map"></div>
-      </div>
-      <div class="modal-footer">
-        <button type="button" id="saveLocationBtn" class="btn btn-primary" data-bs-dismiss="modal">Save Location</button>
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+<div class="service-form-wrapper">
+  <!-- Header Section -->
+  <div class="form-header-section">
+    <div class="container">
+      <div class="form-header-content">
+        <h1 class="form-header-title">
+          <i class="bi bi-tools"></i>
+          Create Service Advertisement
+        </h1>
+        <p class="form-header-subtitle">
+          Showcase your skills and connect with clients looking for your services
+        </p>
       </div>
     </div>
   </div>
-</div>
 
+  <div class="container">
+    <!-- Step Progress -->
+    <div class="step-progress-container">
+      <div class="step-progress">
+        <div class="step-item active" data-step="1">
+          <div class="step-circle">1</div>
+          <span class="step-label">Basic Info</span>
+        </div>
+        <div class="step-item" data-step="2">
+          <div class="step-circle">2</div>
+          <span class="step-label">Contact</span>
+        </div>
+        <div class="step-item" data-step="3">
+          <div class="step-circle">3</div>
+          <span class="step-label">Location</span>
+        </div>
+        <div class="step-item" data-step="4">
+          <div class="step-circle">4</div>
+          <span class="step-label">Media</span>
+        </div>
+      </div>
+    </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" crossorigin=""></script>
-  <script>
-    let map, marker;
-    const latInput = document.getElementById('latitude');
-    const lngInput = document.getElementById('longitude');
-    const locationStatus = document.getElementById('location-status');
-    
-    // Set a default location (if desired)
-    const defaultLat = 14.5995;
-    const defaultLng = 120.9842;
-    
-    // Initialize the map when modal is shown
-    const locationModalEl = document.getElementById('locationModal');
-    locationModalEl.addEventListener('shown.bs.modal', function () {
-      const currentLat = parseFloat(latInput.value) || defaultLat;
-      const currentLng = parseFloat(lngInput.value) || defaultLng;
+    <!-- Main Form -->
+    <form method="post" enctype="multipart/form-data" id="serviceForm" novalidate>
+      {% csrf_token %}
       
-      if (!map) {
-        map = L.map('map').setView([currentLat, currentLng], 13);
-        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-          attribution: '&copy; OpenStreetMap contributors'
-        }).addTo(map);
-        marker = L.marker([currentLat, currentLng], { draggable: true }).addTo(map);
+      <!-- Display Messages -->
+      {% if messages %}
+      <div style="margin-bottom: 2rem;">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="padding: 1rem; margin-bottom: 1rem; border-radius: 0.5rem; {% if message.tags == 'error' or message.tags == 'danger' %}background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5;{% elif message.tags == 'success' %}background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;{% elif message.tags == 'warning' %}background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;{% else %}background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd;{% endif %}">
+          <strong>
+            {% if message.tags == 'error' or message.tags == 'danger' %}
+              <i class="bi bi-exclamation-triangle-fill"></i> Error:
+            {% elif message.tags == 'success' %}
+              <i class="bi bi-check-circle-fill"></i> Success:
+            {% elif message.tags == 'warning' %}
+              <i class="bi bi-exclamation-circle-fill"></i> Warning:
+            {% else %}
+              <i class="bi bi-info-circle-fill"></i> Info:
+            {% endif %}
+          </strong>
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="float: right;"></button>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      
+      <!-- Display Form Errors -->
+      {% if form.errors %}
+      <div class="alert alert-danger" style="padding: 1rem; margin-bottom: 2rem; border-radius: 0.5rem; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5;">
+        <strong><i class="bi bi-exclamation-triangle-fill"></i> Please correct the following errors:</strong>
+        <ul style="margin: 0.5rem 0 0 1.5rem;">
+          {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+              <li><strong>{{ field }}:</strong> {{ error }}</li>
+            {% endfor %}
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      
+      {{ form.non_field_errors }}
+      
+      <div class="form-card">
+        <!-- Step 1: Basic Information -->
+        <div class="form-step active" data-step="1">
+          <h2 class="step-section-title">
+            <i class="bi bi-info-circle"></i>
+            Basic Information
+          </h2>
+          <p class="step-section-description">
+            Tell clients about your service offering
+          </p>
 
-        marker.on('dragend', function () {
-          const pos = marker.getLatLng();
-          latInput.value = pos.lat;
-          lngInput.value = pos.lng;
-        });
-        
-        map.on('click', function (e) {
-          marker.setLatLng(e.latlng);
-          latInput.value = e.latlng.lat;
-          lngInput.value = e.latlng.lng;
-        });
-      } else {
-        // Update map view if already initialized
-        map.setView([currentLat, currentLng], 13);
-        marker.setLatLng([currentLat, currentLng]);
-        map.invalidateSize();
+          <div class="form-group">
+            <label for="{{ form.headline.id_for_label }}" class="form-label">
+              <i class="bi bi-card-heading"></i>
+              Service Headline
+              <span class="required">*</span>
+            </label>
+            {{ form.headline }}
+            {{ form.headline.errors }}
+            <div class="help-text">
+              <i class="bi bi-info-circle"></i>
+              <span>Create an eye-catching headline. Example: "Professional Plumbing Services - 10 Years Experience"</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.category.id_for_label }}" class="form-label">
+              <i class="bi bi-tag"></i>
+              Category
+              <span class="required">*</span>
+            </label>
+            {{ form.category }}
+            {{ form.category.errors }}
+            <div class="help-text">
+              <i class="bi bi-info-circle"></i>
+              <span>Choose the category that best describes your service</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.description.id_for_label }}" class="form-label">
+              <i class="bi bi-file-text"></i>
+              Service Description
+              <span class="required">*</span>
+            </label>
+            {{ form.description }}
+            {{ form.description.errors }}
+            <div class="help-text">
+              <i class="bi bi-info-circle"></i>
+              <span>Describe your services in detail. Include your experience, specializations, and what makes you stand out.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.availability.id_for_label }}" class="form-label">
+              <i class="bi bi-clock"></i>
+              Availability
+              <span class="required">*</span>
+            </label>
+            {{ form.availability }}
+            {{ form.availability.errors }}
+            <div class="help-text">
+              <i class="bi bi-info-circle"></i>
+              <span>When are you available? Example: "Monday-Friday 9AM-6PM" or "Weekends only"</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Contact Information -->
+        <div class="form-step" data-step="2">
+          <h2 class="step-section-title">
+            <i class="bi bi-telephone"></i>
+            Contact Information
+          </h2>
+          <p class="step-section-description">
+            How can clients reach you?
+          </p>
+
+          <div class="form-group">
+            <label for="{{ form.contact_number.id_for_label }}" class="form-label">
+              <i class="bi bi-phone"></i>
+              Contact Number
+              <span class="required">*</span>
+            </label>
+            {{ form.contact_number }}
+            {{ form.contact_number.errors }}
+            <div class="help-text">
+              <i class="bi bi-info-circle"></i>
+              <span>Provide a valid phone number where clients can reach you. Include area code.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.email.id_for_label }}" class="form-label">
+              <i class="bi bi-envelope"></i>
+              Email Address
+              <span class="required">*</span>
+            </label>
+            {{ form.email }}
+            {{ form.email.errors }}
+            <div class="help-text">
+              <i class="bi bi-info-circle"></i>
+              <span>Professional email address for business inquiries</span>
+            </div>
+          </div>
+
+          <div style="margin-top: 2rem; padding: 1.25rem; background: #fef3c7; border-radius: 12px; border-left: 4px solid var(--warning-color);">
+            <p style="margin: 0; color: var(--text-dark); display: flex; align-items: flex-start; gap: 0.75rem;">
+              <i class="bi bi-shield-check" style="color: var(--warning-color); font-size: 1.25rem; margin-top: 0.125rem;"></i>
+              <span><strong>Privacy Note:</strong> Your contact information will only be visible to clients who are interested in your services.</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Step 3: Location -->
+        <div class="form-step" data-step="3">
+          <h2 class="step-section-title">
+            <i class="bi bi-geo-alt"></i>
+            Service Location
+          </h2>
+          <p class="step-section-description">
+            Where do you provide your services?
+          </p>
+
+          <div class="form-group">
+            <label for="{{ form.address.id_for_label }}" class="form-label">
+              <i class="bi bi-map"></i>
+              Address
+              <span class="required">*</span>
+            </label>
+            {{ form.address }}
+            {{ form.address.errors }}
+            <div class="help-text">
+              <i class="bi bi-info-circle"></i>
+              <span>General service area or business address</span>
+            </div>
+          </div>
+
+          <div class="map-container">
+            <label class="form-label">
+              <i class="bi bi-pin-map"></i>
+              Pin Your Service Location
+              <span class="required">*</span>
+            </label>
+            <div class="help-text" style="margin-bottom: 1rem;">
+              <i class="bi bi-info-circle"></i>
+              <span>Click on the map or drag the marker to set your service location. This helps clients find services near them.</span>
+            </div>
+            <div id="map"></div>
+            <input type="hidden" name="latitude" id="latitude" value="14.4310956">
+            <input type="hidden" name="longitude" id="longitude" value="120.968096097231">
+            
+            <div class="map-info-bar">
+              <div class="map-info-item">
+                <div class="map-info-label">Latitude</div>
+                <div class="map-info-value" id="lat-display">Not set</div>
+              </div>
+              <div class="map-info-item">
+                <div class="map-info-label">Longitude</div>
+                <div class="map-info-value" id="lon-display">Not set</div>
+              </div>
+              <div class="map-info-item">
+                <div class="map-info-label">Status</div>
+                <div class="map-info-value" id="location-status" style="color: var(--danger-color);">Not Set</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 4: Images -->
+        <div class="form-step" data-step="4">
+          <h2 class="step-section-title">
+            <i class="bi bi-images"></i>
+            Service Images
+          </h2>
+          <p class="step-section-description">
+            Showcase your work with high-quality images
+          </p>
+
+          <div class="image-upload-container">
+            <label class="form-label">
+              <i class="bi bi-cloud-upload"></i>
+              Upload Images
+            </label>
+            <div class="help-text" style="margin-bottom: 1rem;">
+              <i class="bi bi-info-circle"></i>
+              <span>Upload photos of your completed work, tools, workspace, or professional headshot. High-quality images attract more clients!</span>
+            </div>
+            <label for="id_images" class="image-upload-zone">
+              <i class="bi bi-cloud-arrow-up upload-icon"></i>
+              <div class="upload-text">Click to upload or drag and drop</div>
+              <div class="upload-hint">PNG, JPG up to 5MB each • Multiple files supported</div>
+              <input type="file" name="images" id="id_images" multiple accept="image/*" class="form-control" style="display: none;">
+            </label>
+            <div id="image-previews" class="image-preview-grid"></div>
+          </div>
+
+          <div style="margin-top: 2rem; padding: 1.25rem; background: #d1fae5; border-radius: 12px; border-left: 4px solid var(--success-color);">
+            <p style="margin: 0; color: var(--text-dark); display: flex; align-items: flex-start; gap: 0.75rem;">
+              <i class="bi bi-lightbulb" style="color: var(--success-color); font-size: 1.25rem; margin-top: 0.125rem;"></i>
+              <span><strong>Pro Tip:</strong> Services with images get 3x more inquiries! Show before/after photos, your workspace, or certifications.</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="form-navigation">
+          <button type="button" class="btn btn-secondary" id="prevBtn" onclick="changeStep(-1)">
+            <i class="bi bi-arrow-left"></i>
+            Previous
+          </button>
+          <div style="flex: 1;"></div>
+          <button type="button" class="btn btn-primary" id="nextBtn" onclick="changeStep(1)">
+            Next
+            <i class="bi bi-arrow-right"></i>
+          </button>
+          <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">
+            <i class="bi bi-check-circle"></i>
+            Create Service
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.9.3/dist/leaflet.js" crossorigin=""></script>
+<script>
+// Global variables
+let currentStep = 1;
+const totalSteps = 4;
+let map, marker;
+let locationSet = false;
+
+document.addEventListener('DOMContentLoaded', function() {
+  // Apply form control classes
+  const formControls = document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], select, textarea');
+  formControls.forEach(control => {
+    if (!control.classList.contains('form-control')) {
+      control.classList.add('form-control');
+    }
+  });
+
+  // Initialize map
+  initializeMap();
+
+  // Image preview
+  setupImagePreview();
+
+  // Show first step
+  showStep(currentStep);
+});
+
+function showStep(step) {
+  const steps = document.querySelectorAll('.form-step');
+  const stepItems = document.querySelectorAll('.step-item');
+  
+  // Hide all steps
+  steps.forEach(s => s.classList.remove('active'));
+  
+  // Show current step
+  const currentStepEl = document.querySelector(`.form-step[data-step="${step}"]`);
+  if (currentStepEl) {
+    currentStepEl.classList.add('active');
+  }
+  
+  // Update step indicators
+  stepItems.forEach((item, index) => {
+    const stepNum = index + 1;
+    item.classList.remove('active', 'completed');
+    
+    if (stepNum < step) {
+      item.classList.add('completed');
+      item.querySelector('.step-circle').innerHTML = '<i class="bi bi-check"></i>';
+    } else if (stepNum === step) {
+      item.classList.add('active');
+      item.querySelector('.step-circle').textContent = stepNum;
+    } else {
+      item.querySelector('.step-circle').textContent = stepNum;
+    }
+  });
+  
+  // Update buttons
+  document.getElementById('prevBtn').style.display = step === 1 ? 'none' : 'inline-flex';
+  document.getElementById('nextBtn').style.display = step === totalSteps ? 'none' : 'inline-flex';
+  document.getElementById('submitBtn').style.display = step === totalSteps ? 'inline-flex' : 'none';
+  
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  
+  // Fix map display when step 3 becomes visible
+  if (step === 3 && map) {
+    setTimeout(() => { map.invalidateSize(); }, 100);
+  }
+}
+
+function changeStep(direction) {
+  // Validate current step before moving forward
+  if (direction === 1 && !validateStep(currentStep)) {
+    return;
+  }
+  
+  const newStep = currentStep + direction;
+  if (newStep >= 1 && newStep <= totalSteps) {
+    currentStep = newStep;
+    showStep(currentStep);
+  }
+}
+
+function validateStep(step) {
+  const currentStepEl = document.querySelector(`.form-step[data-step="${step}"]`);
+  if (!currentStepEl) return true;
+  
+  const requiredFields = currentStepEl.querySelectorAll('[required]');
+  let isValid = true;
+  
+  requiredFields.forEach(field => {
+    if (!field.value.trim()) {
+      isValid = false;
+      field.style.borderColor = 'var(--danger-color)';
+    } else {
+      field.style.borderColor = '';
+    }
+  });
+  
+  // Special validation for step 3 (location)
+  if (step === 3) {
+    const lat = document.getElementById('latitude').value;
+    const lng = document.getElementById('longitude').value;
+    if (!lat || !lng) {
+      alert('Please pin your service location on the map');
+      isValid = false;
+    } else {
+      console.log('Location validated:', lat, lng);
+    }
+  }
+  
+  if (!isValid) {
+    alert('Please fill in all required fields before proceeding');
+  }
+  
+  return isValid;
+}
+
+// Debug: Log form submission
+document.getElementById('serviceForm').addEventListener('submit', function(e) {
+  console.log('=== FORM SUBMISSION STARTED ===');
+  console.log('Latitude:', document.getElementById('latitude').value);
+  console.log('Longitude:', document.getElementById('longitude').value);
+  
+  // Check if lat/lng are set
+  const lat = document.getElementById('latitude').value;
+  const lng = document.getElementById('longitude').value;
+  
+  if (!lat || !lng) {
+    e.preventDefault();
+    alert('Location is required. Please set a location on the map.');
+    console.log('BLOCKED: No location set');
+    return false;
+  }
+  
+  // Log all form data
+  const formData = new FormData(this);
+  console.log('=== FORM DATA ===');
+  for (let [key, value] of formData.entries()) {
+    if (value instanceof File) {
+      console.log(key + ':', value.name);
+    } else {
+      console.log(key + ':', value);
+    }
+  }
+  console.log('=== FORM WILL SUBMIT ===');
+  
+  // Don't prevent default - let form submit naturally
+  return true;
+});
+
+function initializeMap() {
+  const defaultLat = 14.4310956;
+  const defaultLng = 120.968096097231;
+  
+  map = L.map('map').setView([defaultLat, defaultLng], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors'
+  }).addTo(map);
+  
+  marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+  
+  function updateCoordinates(lat, lng) {
+    document.getElementById('latitude').value = lat;
+    document.getElementById('longitude').value = lng;
+    document.getElementById('lat-display').textContent = lat.toFixed(6);
+    document.getElementById('lon-display').textContent = lng.toFixed(6);
+    document.getElementById('location-status').textContent = 'Set';
+    document.getElementById('location-status').style.color = 'var(--success-color)';
+    locationSet = true;
+    console.log('Coordinates updated:', lat, lng);
+  }
+  
+  // Initialize with default coordinates
+  updateCoordinates(defaultLat, defaultLng);
+  
+  marker.on('dragend', function() {
+    const pos = marker.getLatLng();
+    updateCoordinates(pos.lat, pos.lng);
+  });
+  
+  map.on('click', function(e) {
+    marker.setLatLng(e.latlng);
+    updateCoordinates(e.latlng.lat, e.latlng.lng);
+  });
+}
+
+function setupImagePreview() {
+  const fileInput = document.getElementById('id_images');
+  const previewContainer = document.getElementById('image-previews');
+  
+  if (fileInput) {
+    fileInput.addEventListener('change', function(event) {
+      previewContainer.innerHTML = '';
+      const files = event.target.files;
+      
+      if (files.length > 0) {
+        previewContainer.style.marginTop = '1.5rem';
+      }
+      
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const div = document.createElement('div');
+          div.className = 'preview-item';
+          div.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+          previewContainer.appendChild(div);
+        }
+        reader.readAsDataURL(file);
       }
     });
+  }
+  
+  // Drag and drop
+  const uploadZone = document.querySelector('.image-upload-zone');
+  
+  uploadZone.addEventListener('dragover', function(e) {
+    e.preventDefault();
+    this.style.borderColor = 'var(--trabaholink-blue)';
+  });
+  
+  uploadZone.addEventListener('dragleave', function(e) {
+    e.preventDefault();
+    this.style.borderColor = '';
+  });
+  
+  uploadZone.addEventListener('drop', function(e) {
+    e.preventDefault();
+    this.style.borderColor = '';
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0) {
+      fileInput.files = files;
+      fileInput.dispatchEvent(new Event('change'));
+    }
+  });
+}
 
-    document.getElementById('saveLocationBtn').addEventListener('click', function () {
-      const pos = marker.getLatLng();
-      latInput.value = pos.lat;
-      lngInput.value = pos.lng;
-      locationStatus.style.display = 'inline';
-      locationStatus.textContent = 'Location set successfully!';
-    });
-  </script>
+// Allow clicking on step indicators
+document.querySelectorAll('.step-item').forEach(item => {
+  item.addEventListener('click', function() {
+    const targetStep = parseInt(this.dataset.step);
+    if (targetStep < currentStep || this.classList.contains('completed')) {
+      currentStep = targetStep;
+      showStep(currentStep);
+    }
+  });
+});
+</script>
 {% endblock %}

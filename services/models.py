@@ -14,6 +14,13 @@ class ServiceCategory(models.Model):
         return self.name
 
 class ServicePost(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending Review'),
+        ('approved', 'Approved'),
+        ('rejected', 'Rejected'),
+        ('flagged', 'Flagged'),
+    ]
+    
     headline = models.CharField(max_length=255)
     description = models.TextField()
     availability = models.CharField(max_length=100)
@@ -22,10 +29,14 @@ class ServicePost(models.Model):
     category = models.ForeignKey(ServiceCategory, on_delete=models.CASCADE, related_name='service_posts')
     address = models.CharField(max_length=255)
     location = gis_models.PointField(null=True, blank=True, srid=4326)
+    pricing = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True, help_text="Price in PHP")
     is_active = models.BooleanField(default=True)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True, null=True)
+    updated_at = models.DateTimeField(auto_now=True)
     slug = models.SlugField(max_length=255, unique=True, blank=True)
-    worker = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="service_posts")  
+    worker = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="service_posts")
+    admin_notes = models.TextField(blank=True, help_text="Internal admin notes")  
 
     def save(self, *args, **kwargs):
         if not self.slug:

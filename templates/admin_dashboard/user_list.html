@@ -21,7 +21,7 @@
                         <td>{{ user.username }}</td>
                         <td>{{ user.email }}</td>
                         <td>
-                            <a href="{% url 'admin_dashboard:pending_skill_list' user.id %}">
+                            <a href="{% url 'admin_dashboard:user_verification_list' user.id %}">
                                 {{ user.pending_skill_verification_count }}
                             </a>
                         </td>

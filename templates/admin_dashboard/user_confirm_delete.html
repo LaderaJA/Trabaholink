@@ -1,14 +1,121 @@
-{% extends 'admin_dashboard/base.html' %}
-{% load static %}
+{% extends 'admin_dashboard/dashboard_base.html' %}
 
+{% block title %}Delete User - {{ object.username }}{% endblock %}
+{% block page_title %}Delete User{% endblock %}
+
+{% block breadcrumb_items %}
+<li><i data-lucide="chevron-right" class="w-4 h-4 inline"></i></li>
+<li><a href="{% url 'admin_dashboard:user_list' %}" class="hover:text-trabaholink-blue">Users</a></li>
+<li><i data-lucide="chevron-right" class="w-4 h-4 inline"></i></li>
+<li class="text-gray-800">Delete User</li>
+{% endblock %}
 
 {% block content %}
-<h1>Confirm Deletion</h1>
-<p>Are you sure you want to delete <strong>{{ user.username }}</strong>?</p>
+<div class="max-w-2xl mx-auto">
+    <!-- Warning Card -->
+    <div class="bg-white rounded-xl shadow-md overflow-hidden">
+        <!-- Header -->
+        <div class="bg-red-500 p-6">
+            <div class="flex items-center gap-4">
+                <div class="w-16 h-16 bg-white rounded-full flex items-center justify-center">
+                    <i data-lucide="alert-triangle" class="w-8 h-8 text-red-500"></i>
+                </div>
+                <div class="text-white">
+                    <h2 class="text-2xl font-bold">Confirm User Deletion</h2>
+                    <p class="text-red-100">This action cannot be undone</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Content -->
+        <div class="p-8">
+            <!-- User Info -->
+            <div class="bg-gray-50 rounded-lg p-6 mb-6">
+                <div class="flex items-center gap-4 mb-4">
+                    <div class="w-16 h-16 bg-trabaholink-blue rounded-full flex items-center justify-center text-white font-bold text-2xl">
+                        {{ object.username.0|upper }}
+                    </div>
+                    <div>
+                        <h3 class="text-xl font-bold text-gray-900">{{ object.get_full_name|default:object.username }}</h3>
+                        <p class="text-gray-600">@{{ object.username }}</p>
+                        <p class="text-sm text-gray-500">{{ object.email }}</p>
+                    </div>
+                </div>
+                
+                <div class="grid grid-cols-2 gap-4 text-sm">
+                    <div>
+                        <p class="text-gray-500">Role</p>
+                        <p class="font-medium text-gray-800">
+                            {% if object.is_staff %}Administrator
+                            {% elif object.role == 'worker' %}Worker
+                            {% else %}Client{% endif %}
+                        </p>
+                    </div>
+                    <div>
+                        <p class="text-gray-500">Member Since</p>
+                        <p class="font-medium text-gray-800">{{ object.date_joined|date:"M d, Y" }}</p>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Warning Message -->
+            <div class="bg-red-50 border-l-4 border-red-500 p-4 mb-6">
+                <div class="flex items-start gap-3">
+                    <i data-lucide="alert-circle" class="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5"></i>
+                    <div class="text-sm text-red-800">
+                        <p class="font-semibold mb-2">Warning: This will permanently delete:</p>
+                        <ul class="list-disc list-inside space-y-1">
+                            <li>User account and profile</li>
+                            <li>All posted jobs</li>
+                            <li>All service listings</li>
+                            <li>All messages and conversations</li>
+                            <li>All activity history</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Confirmation Form -->
+            <form method="post" class="space-y-4">
+                {% csrf_token %}
+                
+                <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                    <label class="flex items-start gap-3 cursor-pointer">
+                        <input type="checkbox" id="confirmDelete" required class="mt-1">
+                        <span class="text-sm text-yellow-800">
+                            I understand that this action is permanent and cannot be undone. All data associated with this user will be permanently deleted.
+                        </span>
+                    </label>
+                </div>
+                
+                <!-- Action Buttons -->
+                <div class="flex items-center justify-end gap-3 pt-4">
+                    <a href="{% url 'admin_dashboard:user_list' %}" 
+                       class="px-6 py-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition font-medium">
+                        <i data-lucide="x" class="w-4 h-4 inline mr-2"></i>
+                        Cancel
+                    </a>
+                    <button type="submit" id="deleteButton" disabled
+                            class="px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition font-medium disabled:opacity-50 disabled:cursor-not-allowed">
+                        <i data-lucide="trash-2" class="w-4 h-4 inline mr-2"></i>
+                        Delete User Permanently
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
 
-<form method="post">
-    {% csrf_token %}
-    <button type="submit">Confirm</button>
-    <a href="{% url 'admin_dashboard:user_list' %}">Cancel</a>
-</form>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Enable delete button only when checkbox is checked
+    document.getElementById('confirmDelete').addEventListener('change', function() {
+        document.getElementById('deleteButton').disabled = !this.checked;
+    });
+    
+    // Initialize Lucide icons
+    lucide.createIcons();
+</script>
 {% endblock %}

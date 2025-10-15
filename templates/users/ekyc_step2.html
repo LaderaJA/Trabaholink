@@ -1,0 +1,355 @@
+{% extends "mainpages/base.html" %}
+{% load static %}
+
+{% block title %}Step 2: ID Upload - TrabahoLink{% endblock %}
+
+{% block css %}
+{{ block.super }}
+<style>
+    body {
+        background: #f3f4f6;
+    }
+
+    .verification-container {
+        max-width: 700px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .verification-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .progress-bar-container {
+        background: #e5e7eb;
+        height: 8px;
+        position: relative;
+    }
+
+    .progress-bar-fill {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        height: 100%;
+        transition: width 0.3s;
+    }
+
+    .card-header {
+        padding: 2rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .step-indicator {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .step-number {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+
+    .step-info h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: #1f2937;
+    }
+
+    .step-info p {
+        margin: 0.25rem 0 0;
+        color: #6b7280;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .info-box {
+        background: #dbeafe;
+        border-left: 4px solid #3b82f6;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .info-box h4 {
+        color: #1e40af;
+        margin: 0 0 0.5rem;
+        font-weight: 600;
+    }
+
+    .info-box ul {
+        margin: 0;
+        padding-left: 1.5rem;
+        color: #1e3a8a;
+    }
+
+    .info-box li {
+        margin-bottom: 0.25rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-group label .required {
+        color: #ef4444;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .file-upload-area {
+        border: 2px dashed #d1d5db;
+        border-radius: 12px;
+        padding: 2rem;
+        text-align: center;
+        transition: all 0.3s;
+        cursor: pointer;
+        background: #f9fafb;
+    }
+
+    .file-upload-area:hover {
+        border-color: #667eea;
+        background: #f3f4f6;
+    }
+
+    .file-upload-area.has-file {
+        border-color: #10b981;
+        background: #d1fae5;
+    }
+
+    .file-upload-icon {
+        font-size: 3rem;
+        color: #9ca3af;
+        margin-bottom: 1rem;
+    }
+
+    .file-upload-area.has-file .file-upload-icon {
+        color: #10b981;
+    }
+
+    .file-upload-text {
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    .file-upload-area.has-file .file-upload-text {
+        color: #065f46;
+    }
+
+    .help-text {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 0.5rem;
+    }
+
+    .invalid-feedback {
+        color: #ef4444;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        padding: 2rem;
+        border-top: 1px solid #e5e7eb;
+        background: #f9fafb;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 0.875rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        border: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: #6b7280;
+        border: 2px solid #e5e7eb;
+    }
+
+    .btn-secondary:hover {
+        border-color: #667eea;
+        color: #667eea;
+    }
+
+    @media (max-width: 768px) {
+        .action-buttons {
+            flex-direction: column-reverse;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="verification-container">
+    <div class="verification-card">
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill" style="width: 50%;"></div>
+        </div>
+
+        <div class="card-header">
+            <div class="step-indicator">
+                <div class="step-number">2</div>
+                <div class="step-info">
+                    <h2>ID Upload</h2>
+                    <p>Step 2 of 4 - Upload a valid government-issued ID</p>
+                </div>
+            </div>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="card-body">
+            {% csrf_token %}
+            
+            <div class="info-box">
+                <h4><i class="bi bi-info-circle"></i> Acceptable IDs</h4>
+                <ul>
+                    <li>PhilSys ID (National ID)</li>
+                    <li>Driver's License</li>
+                    <li>Passport</li>
+                    <li>UMID</li>
+                    <li>SSS ID</li>
+                    <li>Voter's ID</li>
+                    <li>PRC ID</li>
+                    <li>Postal ID</li>
+                </ul>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.id_type.id_for_label }}">
+                    ID Type <span class="required">*</span>
+                </label>
+                {{ form.id_type }}
+                {% if form.id_type.errors %}
+                    <div class="invalid-feedback">{{ form.id_type.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.id_image_front.id_for_label }}">
+                    ID Front Image <span class="required">*</span>
+                </label>
+                <div class="file-upload-area" id="front-upload-area">
+                    <i class="bi bi-cloud-upload file-upload-icon"></i>
+                    <div class="file-upload-text">Click to upload or drag and drop</div>
+                    <div class="help-text">Maximum file size: 5MB (JPG, PNG)</div>
+                </div>
+                {{ form.id_image_front }}
+                {% if form.id_image_front.errors %}
+                    <div class="invalid-feedback">{{ form.id_image_front.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.id_image_back.id_for_label }}">
+                    ID Back Image <span style="color: #6b7280;">(Optional)</span>
+                </label>
+                <div class="file-upload-area" id="back-upload-area">
+                    <i class="bi bi-cloud-upload file-upload-icon"></i>
+                    <div class="file-upload-text">Click to upload or drag and drop</div>
+                    <div class="help-text">Maximum file size: 5MB (JPG, PNG)</div>
+                </div>
+                {{ form.id_image_back }}
+                {% if form.id_image_back.errors %}
+                    <div class="invalid-feedback">{{ form.id_image_back.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="action-buttons">
+                <a href="{% url 'ekyc_step1' %}" class="btn btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    Next <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Hide file inputs and show custom upload areas
+    const frontInput = document.getElementById('{{ form.id_image_front.id_for_label }}');
+    const backInput = document.getElementById('{{ form.id_image_back.id_for_label }}');
+    const frontArea = document.getElementById('front-upload-area');
+    const backArea = document.getElementById('back-upload-area');
+
+    if (frontInput) {
+        frontInput.style.display = 'none';
+        frontArea.addEventListener('click', () => frontInput.click());
+        frontInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                frontArea.classList.add('has-file');
+                frontArea.querySelector('.file-upload-text').textContent = this.files[0].name;
+                frontArea.querySelector('.file-upload-icon').className = 'bi bi-check-circle-fill file-upload-icon';
+            }
+        });
+    }
+
+    if (backInput) {
+        backInput.style.display = 'none';
+        backArea.addEventListener('click', () => backInput.click());
+        backInput.addEventListener('change', function() {
+            if (this.files && this.files[0]) {
+                backArea.classList.add('has-file');
+                backArea.querySelector('.file-upload-text').textContent = this.files[0].name;
+                backArea.querySelector('.file-upload-icon').className = 'bi bi-check-circle-fill file-upload-icon';
+            }
+        });
+    }
+});
+</script>
+{% endblock %}

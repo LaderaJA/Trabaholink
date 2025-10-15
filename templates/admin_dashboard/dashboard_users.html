@@ -1,0 +1,340 @@
+{% extends 'admin_dashboard/dashboard_base.html' %}
+
+{% block title %}User Management{% endblock %}
+{% block page_title %}User Management{% endblock %}
+
+{% block breadcrumb_items %}
+<li><i data-lucide="chevron-right" class="w-4 h-4 inline"></i></li>
+<li class="text-gray-800">Users</li>
+{% endblock %}
+
+{% block content %}
+<!-- Filters & Actions -->
+<div class="bg-white rounded-xl shadow-md p-6 mb-6">
+    <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+        <div class="flex items-center gap-4">
+            <div class="flex-1">
+                <input type="text" id="userSearch" placeholder="Search users..." class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+            </div>
+            <select id="roleFilter" class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+                <option value="">All Roles</option>
+                <option value="worker">Worker</option>
+                <option value="client">Client</option>
+            </select>
+            <select id="statusFilter" class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+                <option value="">All Status</option>
+                <option value="active">Active</option>
+                <option value="inactive">Inactive</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Overview -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm mb-1">Total Users</p>
+                <h3 class="text-2xl font-bold text-gray-800">{{ users.count }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <i data-lucide="users" class="w-6 h-6 text-blue-600"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm mb-1">Active Users</p>
+                <h3 class="text-2xl font-bold text-green-600">{{ active_users_count }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <i data-lucide="user-check" class="w-6 h-6 text-green-600"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm mb-1">New This Month</p>
+                <h3 class="text-2xl font-bold text-trabaholink-blue">{{ new_users_month }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-trabaholink-cyan/20 rounded-full flex items-center justify-center">
+                <i data-lucide="user-plus" class="w-6 h-6 text-trabaholink-blue"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm mb-1">Suspended</p>
+                <h3 class="text-2xl font-bold text-red-600">{{ suspended_users_count }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                <i data-lucide="user-x" class="w-6 h-6 text-red-600"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Users Table -->
+<div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <div class="p-6 border-b border-gray-200">
+        <h3 class="text-lg font-bold text-gray-800">All Users</h3>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">User</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Role</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Joined</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Activity</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200" id="usersTableBody">
+                {% for user in users %}
+                <tr class="hover:bg-gray-50 transition user-row" data-username="{{ user.username }}" data-email="{{ user.email }}" data-role="{{ user.role }}" data-status="{% if user.is_active %}active{% else %}inactive{% endif %}">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="w-10 h-10 bg-trabaholink-blue rounded-full flex items-center justify-center text-white font-bold">
+                                {{ user.username.0|upper }}
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">{{ user.get_full_name|default:user.username }}</div>
+                                <div class="text-sm text-gray-500">{{ user.email }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if user.is_staff %}bg-purple-100 text-purple-800
+                            {% elif user.role == 'worker' %}bg-blue-100 text-blue-800
+                            {% else %}bg-green-100 text-green-800{% endif %}">
+                            {% if user.is_staff %}Admin{% elif user.role == 'worker' %}Worker{% else %}Client{% endif %}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if user.is_active %}bg-green-100 text-green-800{% else %}bg-red-100 text-red-800{% endif %}">
+                            {% if user.is_active %}Active{% else %}Inactive{% endif %}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ user.date_joined|date:"M d, Y" }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {% if user.last_login %}
+                            {{ user.last_login|timesince }} ago
+                        {% else %}
+                            Never
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex items-center justify-end gap-2">
+                            <a href="{% url 'admin_dashboard:user_detail' user.pk %}" 
+                               class="text-trabaholink-blue hover:text-trabaholink-dark-blue" title="View Details">
+                                <i data-lucide="eye" class="w-4 h-4"></i>
+                            </a>
+                            <button onclick="toggleUserStatus({{ user.pk }}, {% if user.is_active %}true{% else %}false{% endif %})" 
+                                    class="{% if user.is_active %}text-red-600 hover:text-red-800{% else %}text-green-600 hover:text-green-800{% endif %}" 
+                                    title="{% if user.is_active %}Deactivate{% else %}Activate{% endif %}">
+                                <i data-lucide="{% if user.is_active %}user-x{% else %}user-check{% endif %}" class="w-4 h-4"></i>
+                            </button>
+                            <button onclick="openWarningModal({{ user.pk }}, '{{ user.username }}')" 
+                                    class="text-yellow-600 hover:text-yellow-800" title="Send Warning">
+                                <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                            </button>
+                            <a href="{% url 'admin_dashboard:user_delete' user.pk %}" 
+                               class="text-red-600 hover:text-red-800" title="Delete User"
+                               onclick="return confirm('Are you sure you want to delete this user?')">
+                                <i data-lucide="trash-2" class="w-4 h-4"></i>
+                            </a>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                        <i data-lucide="users" class="w-12 h-12 mx-auto mb-3 text-gray-300"></i>
+                        <p>No users found</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if users.has_other_pages %}
+    <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+        <div class="text-sm text-gray-500">
+            Showing {{ users.start_index }} to {{ users.end_index }} of {{ users.paginator.count }} users
+        </div>
+        <div class="flex items-center gap-2">
+            {% if users.has_previous %}
+            <a href="?page={{ users.previous_page_number }}" class="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-50">Previous</a>
+            {% endif %}
+            
+            <span class="px-3 py-1 bg-trabaholink-blue text-white rounded-lg">{{ users.number }}</span>
+            
+            {% if users.has_next %}
+            <a href="?page={{ users.next_page_number }}" class="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-50">Next</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Warning Modal -->
+<div id="warningModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-bold text-gray-800">Send Warning</h3>
+                <button onclick="closeWarningModal()" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-6">
+            <p class="text-sm text-gray-600 mb-4">Send a warning to <span id="warningUsername" class="font-semibold"></span></p>
+            <textarea id="warningMessage" rows="4" placeholder="Enter warning message..." 
+                      class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-trabaholink-blue"></textarea>
+        </div>
+        <div class="p-6 border-t border-gray-200 flex justify-end gap-3">
+            <button onclick="closeWarningModal()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+            <button onclick="sendWarning()" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">Send Warning</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let currentUserId = null;
+    
+    // Search functionality
+    document.getElementById('userSearch').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const rows = document.querySelectorAll('.user-row');
+        
+        rows.forEach(row => {
+            const username = row.dataset.username.toLowerCase();
+            const email = row.dataset.email.toLowerCase();
+            
+            if (username.includes(searchTerm) || email.includes(searchTerm)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
+    });
+    
+    // Filter functionality
+    document.getElementById('roleFilter').addEventListener('change', filterUsers);
+    document.getElementById('statusFilter').addEventListener('change', filterUsers);
+    
+    function filterUsers() {
+        const roleFilter = document.getElementById('roleFilter').value;
+        const statusFilter = document.getElementById('statusFilter').value;
+        const rows = document.querySelectorAll('.user-row');
+        
+        rows.forEach(row => {
+            const role = row.dataset.role;
+            const status = row.dataset.status;
+            
+            let showRow = true;
+            
+            if (roleFilter && role !== roleFilter) showRow = false;
+            if (statusFilter && status !== statusFilter) showRow = false;
+            
+            row.style.display = showRow ? '' : 'none';
+        });
+    }
+    
+    // Toggle user status
+    function toggleUserStatus(userId, isActive) {
+        const action = isActive ? 'deactivate' : 'activate';
+        if (confirm(`Are you sure you want to ${action} this user?`)) {
+            // AJAX call to toggle status
+            fetch(`/admin_dashboard/users/${userId}/toggle-status/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    location.reload();
+                } else {
+                    alert('Failed to update user status');
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+        }
+    }
+    
+    // Warning modal
+    function openWarningModal(userId, username) {
+        currentUserId = userId;
+        document.getElementById('warningUsername').textContent = username;
+        document.getElementById('warningModal').classList.remove('hidden');
+        lucide.createIcons();
+    }
+    
+    function closeWarningModal() {
+        document.getElementById('warningModal').classList.add('hidden');
+        document.getElementById('warningMessage').value = '';
+        currentUserId = null;
+    }
+    
+    function sendWarning() {
+        const message = document.getElementById('warningMessage').value;
+        
+        if (!message.trim()) {
+            alert('Please enter a warning message');
+            return;
+        }
+        
+        // AJAX call to send warning
+        fetch(`/admin_dashboard/users/${currentUserId}/send-warning/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                alert('Warning sent successfully');
+                closeWarningModal();
+            } else {
+                alert('Failed to send warning');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred');
+        });
+    }
+    
+    // Initialize Lucide icons
+    lucide.createIcons();
+</script>
+{% endblock %}

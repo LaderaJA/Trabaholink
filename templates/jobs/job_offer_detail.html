@@ -1,0 +1,566 @@
+{% extends "mainpages/base.html" %}
+{% load static %}
+
+{% block title %}Job Offer - {{ offer.job.title }} - TrabahoLink{% endblock %}
+
+{% block css %}
+<style>
+    body {
+        background: #f3f4f6 !important;
+    }
+
+    .offer-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .offer-header {
+        background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 16px 16px 0 0;
+        margin-bottom: 0;
+    }
+
+    .offer-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .offer-header p {
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    .offer-card {
+        background: white;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .offer-status {
+        padding: 1rem 2rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .status-badge {
+        padding: 0.5rem 1rem;
+        border-radius: 9999px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+        display: inline-block;
+    }
+
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-accepted { background: #d1fae5; color: #065f46; }
+    .status-rejected { background: #fee2e2; color: #991b1b; }
+    .status-expired { background: #f3f4f6; color: #6b7280; }
+
+    .offer-body {
+        padding: 2rem;
+    }
+
+    .offer-section {
+        margin-bottom: 2rem;
+    }
+
+    .offer-section-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .offer-details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1.5rem;
+        background: #f9fafb;
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .detail-item {
+        display: flex;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+
+    .detail-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    .detail-value {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .message-box {
+        background: #f9fafb;
+        border-left: 4px solid #7c3aed;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+
+    .message-box p {
+        color: #374151;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .terms-box {
+        background: #fef3c7;
+        border-left: 4px solid #f59e0b;
+        padding: 1.5rem;
+        border-radius: 8px;
+    }
+
+    .terms-box p {
+        color: #78350f;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        padding: 2rem;
+        background: #f9fafb;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .btn-accept {
+        flex: 1;
+        background: #059669;
+        color: white;
+        padding: 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        text-align: center;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .btn-accept:hover {
+        background: #047857;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .btn-reject {
+        flex: 1;
+        background: #dc2626;
+        color: white;
+        padding: 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        text-align: center;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .btn-reject:hover {
+        background: #b91c1c;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .btn-back {
+        background: #f3f4f6;
+        color: #374151;
+        padding: 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        text-align: center;
+        transition: all 0.2s;
+        display: inline-block;
+    }
+
+    .btn-back:hover {
+        background: #e5e7eb;
+        color: #111827;
+    }
+
+    .btn-counter {
+        flex: 1;
+        background: #f59e0b;
+        color: white;
+        padding: 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        text-align: center;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+        display: inline-block;
+    }
+
+    .btn-counter:hover {
+        background: #d97706;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .alert-box {
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: start;
+        gap: 0.75rem;
+    }
+
+    .alert-warning {
+        background: #fef3c7;
+        border-left: 4px solid #f59e0b;
+        color: #78350f;
+    }
+
+    .alert-danger {
+        background: #fee2e2;
+        border-left: 4px solid #dc2626;
+        color: #991b1b;
+    }
+
+    .alert-success {
+        background: #d1fae5;
+        border-left: 4px solid #059669;
+        color: #065f46;
+    }
+
+    .profile-section {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.5rem;
+        background: #f9fafb;
+        border-radius: 12px;
+        margin-bottom: 1.5rem;
+    }
+
+    .profile-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid white;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    }
+
+    .profile-info h3 {
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 0.25rem;
+    }
+
+    .profile-info p {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin: 0;
+    }
+
+    @media (max-width: 768px) {
+        .offer-details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .offer-header h1 {
+            font-size: 1.5rem;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="offer-container">
+    <div class="offer-header">
+        <h1><i class="bi bi-envelope-paper"></i> Job Offer</h1>
+        <p>{{ offer.job.title }}</p>
+    </div>
+
+    <div class="offer-card">
+        <div class="offer-status">
+            <span class="status-badge status-{{ offer.status|lower }}">
+                {% if offer.status == 'Pending' %}
+                    <i class="bi bi-clock"></i> Pending Response
+                {% elif offer.status == 'Accepted' %}
+                    <i class="bi bi-check-circle"></i> Accepted
+                {% elif offer.status == 'Rejected' %}
+                    <i class="bi bi-x-circle"></i> Rejected
+                {% elif offer.status == 'Expired' %}
+                    <i class="bi bi-hourglass-split"></i> Expired
+                {% endif %}
+                {{ offer.status }}
+            </span>
+        </div>
+
+        <div class="offer-body">
+            <!-- Expiration Warning -->
+            {% if offer.status == 'Pending' and offer.expires_at %}
+            <div class="alert-box alert-warning">
+                <i class="bi bi-exclamation-triangle" style="font-size: 1.25rem;"></i>
+                <div>
+                    <strong>This offer expires on {{ offer.expires_at|date:"F d, Y" }} at {{ offer.expires_at|time:"g:i A" }}</strong>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.875rem;">Please respond before the deadline.</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Employer Profile -->
+            <div class="offer-section">
+                <div class="offer-section-title">
+                    <i class="bi bi-person-circle"></i> From
+                </div>
+                <div class="profile-section">
+                    <img src="{{ offer.employer.get_profile_picture_url }}" 
+                         alt="{{ offer.employer.username }}" 
+                         class="profile-avatar"
+                         onerror="this.src='{% static 'images/default_profile.png' %}'">
+                    <div class="profile-info">
+                        <h3>{{ offer.employer.get_full_name|default:offer.employer.username }}</h3>
+                        <p><i class="bi bi-envelope"></i> {{ offer.employer.email }}</p>
+                        {% if offer.employer.job_title %}
+                        <p><i class="bi bi-briefcase"></i> {{ offer.employer.job_title }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Offer Details -->
+            <div class="offer-section">
+                <div class="offer-section-title">
+                    <i class="bi bi-info-circle"></i> Offer Details
+                </div>
+                <div class="offer-details-grid">
+                    <div class="detail-item">
+                        <span class="detail-label">Offered Rate</span>
+                        <span class="detail-value">₱{{ offer.offered_rate }}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Start Date</span>
+                        <span class="detail-value">{{ offer.proposed_start_date|date:"M d, Y" }}</span>
+                    </div>
+                    {% if offer.proposed_end_date %}
+                    <div class="detail-item">
+                        <span class="detail-label">End Date</span>
+                        <span class="detail-value">{{ offer.proposed_end_date|date:"M d, Y" }}</span>
+                    </div>
+                    {% endif %}
+                    {% if offer.work_schedule %}
+                    <div class="detail-item">
+                        <span class="detail-label">Schedule</span>
+                        <span class="detail-value" style="font-size: 1rem;">{{ offer.work_schedule }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Message -->
+            <div class="offer-section">
+                <div class="offer-section-title">
+                    <i class="bi bi-chat-left-text"></i> Message
+                </div>
+                <div class="message-box">
+                    <p>{{ offer.message|linebreaks }}</p>
+                </div>
+            </div>
+
+            <!-- Terms and Conditions -->
+            {% if offer.terms_and_conditions %}
+            <div class="offer-section">
+                <div class="offer-section-title">
+                    <i class="bi bi-file-earmark-text"></i> Terms & Conditions
+                </div>
+                <div class="terms-box">
+                    <p>{{ offer.terms_and_conditions|linebreaks }}</p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Counter Offer (if exists) -->
+            {% if offer.counter_offer_rate %}
+            <div class="offer-section">
+                <div class="alert-box alert-warning">
+                    <i class="bi bi-arrow-repeat" style="font-size: 1.25rem;"></i>
+                    <div>
+                        <strong>Counter Offer Sent</strong>
+                        <p style="margin: 0.25rem 0 0 0;">You proposed ₱{{ offer.counter_offer_rate }}</p>
+                        {% if offer.counter_offer_message %}
+                        <p style="margin: 0.5rem 0 0 0; font-size: 0.875rem;">{{ offer.counter_offer_message }}</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Rejection Reason (if rejected) -->
+            {% if offer.status == 'Rejected' and offer.rejection_reason %}
+            <div class="offer-section">
+                <div class="alert-box alert-danger">
+                    <i class="bi bi-x-circle" style="font-size: 1.25rem;"></i>
+                    <div>
+                        <strong>Rejection Reason</strong>
+                        <p style="margin: 0.25rem 0 0 0;">{{ offer.rejection_reason }}</p>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Success Message (if accepted) -->
+            {% if offer.status == 'Accepted' %}
+            <div class="offer-section">
+                <div class="alert-box alert-success">
+                    <i class="bi bi-check-circle" style="font-size: 1.25rem;"></i>
+                    <div>
+                        <strong>Offer Accepted!</strong>
+                        <p style="margin: 0.25rem 0 0 0;">A contract has been created. You can view it in your dashboard.</p>
+                        {% if offer.job.contract %}
+                        <a href="{% url 'jobs:contract_detail' offer.job.contract.pk %}" style="color: #065f46; font-weight: 600; text-decoration: underline;">
+                            View Contract →
+                        </a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Action Buttons -->
+        {% if offer.status == 'Pending' and request.user == offer.worker %}
+        <div class="action-buttons">
+            <form method="post" action="{% url 'jobs:reject_job_offer' offer.pk %}" style="flex: 1;" onsubmit="return confirmReject()">
+                {% csrf_token %}
+                <input type="hidden" name="reason" value="Not interested at this time">
+                <button type="submit" class="btn-reject">
+                    <i class="bi bi-x-circle"></i> Reject Offer
+                </button>
+            </form>
+            <a href="#counterOfferModal" data-bs-toggle="modal" class="btn-counter">
+                <i class="bi bi-arrow-left-right"></i> Counter Offer
+            </a>
+            <form method="post" action="{% url 'jobs:accept_job_offer' offer.pk %}" style="flex: 1;" onsubmit="return confirmAccept()">
+                {% csrf_token %}
+                <button type="submit" class="btn-accept">
+                    <i class="bi bi-check-circle"></i> Accept Offer
+                </button>
+            </form>
+        </div>
+        {% else %}
+        <div class="action-buttons">
+            <a href="javascript:history.back()" class="btn-back">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Counter Offer Modal -->
+<div class="modal fade" id="counterOfferModal" tabindex="-1" aria-labelledby="counterOfferModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="border-radius: 16px; border: none;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); color: white; border-radius: 16px 16px 0 0;">
+                <h5 class="modal-title" id="counterOfferModalLabel">
+                    <i class="bi bi-arrow-left-right"></i> Send Counter Offer
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <form method="post" action="{% url 'jobs:create_job_offer' offer.application.pk %}">
+                {% csrf_token %}
+                <div class="modal-body" style="padding: 2rem;">
+                    <div class="alert" style="background: #fef3c7; border-left: 4px solid #f59e0b; color: #78350f; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem;">
+                        <i class="bi bi-info-circle"></i> <strong>Negotiation Tip:</strong> Be professional and reasonable. Explain why you're proposing different terms.
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="counter_rate" class="form-label" style="font-weight: 600; color: #374151;">
+                            <i class="bi bi-cash"></i> Your Proposed Rate (₱)
+                        </label>
+                        <input type="number" class="form-control" id="counter_rate" name="offered_rate" 
+                               value="{{ offer.offered_rate }}" required min="0" step="0.01"
+                               style="padding: 0.75rem; border-radius: 8px; border: 1px solid #d1d5db;">
+                        <small class="text-muted">Current offer: ₱{{ offer.offered_rate }}</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label for="counter_message" class="form-label" style="font-weight: 600; color: #374151;">
+                            <i class="bi bi-chat-left-text"></i> Your Message (Optional)
+                        </label>
+                        <textarea class="form-control" id="counter_message" name="message" rows="4"
+                                  placeholder="Explain why you're proposing these terms..."
+                                  style="padding: 0.75rem; border-radius: 8px; border: 1px solid #d1d5db;"></textarea>
+                        <small class="text-muted">Be professional and explain your reasoning</small>
+                    </div>
+                    
+                    <input type="hidden" name="proposed_start_date" value="{{ offer.proposed_start_date|date:'Y-m-d' }}">
+                    {% if offer.proposed_end_date %}
+                    <input type="hidden" name="proposed_end_date" value="{{ offer.proposed_end_date|date:'Y-m-d' }}">
+                    {% endif %}
+                </div>
+                <div class="modal-footer" style="border-top: 1px solid #e5e7eb; padding: 1rem 2rem;">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="padding: 0.5rem 1.5rem; border-radius: 8px;">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </button>
+                    <button type="submit" class="btn" style="background: #f59e0b; color: white; padding: 0.5rem 1.5rem; border-radius: 8px; font-weight: 600;">
+                        <i class="bi bi-send"></i> Send Counter Offer
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+<script>
+function confirmAccept() {
+    return confirm(
+        '⚠️ IMPORTANT REMINDERS BEFORE ACCEPTING:\n\n' +
+        '✓ You are agreeing to the offered rate of ₱{{ offer.offered_rate }}\n' +
+        '✓ Work starts on {{ offer.proposed_start_date|date:"F d, Y" }}\n' +
+        '✓ A contract will be created that you must sign\n' +
+        '✓ You are committing to complete this job\n' +
+        '✓ This action cannot be undone\n\n' +
+        'Do you want to proceed with accepting this offer?'
+    );
+}
+
+function confirmReject() {
+    return confirm(
+        '⚠️ IMPORTANT REMINDERS BEFORE REJECTING:\n\n' +
+        '✓ This will permanently decline the job offer\n' +
+        '✓ The employer will be notified immediately\n' +
+        '✓ You cannot accept this offer later\n' +
+        '✓ Consider sending a counter offer instead\n' +
+        '✓ This action cannot be undone\n\n' +
+        'Are you sure you want to reject this offer?'
+    );
+}
+</script>
+{% endblock %}

@@ -1,0 +1,478 @@
+{% extends 'admin_dashboard/dashboard_base.html' %}
+
+{% block title %}Skill Verification Details{% endblock %}
+{% block page_title %}Skill Verification Details{% endblock %}
+
+{% block breadcrumb_items %}
+<li><i data-lucide="chevron-right" class="w-4 h-4 inline"></i></li>
+<li><a href="{% url 'admin_dashboard:skill_verification_list' %}" class="text-trabaholink-blue hover:underline">Skill Verifications</a></li>
+<li><i data-lucide="chevron-right" class="w-4 h-4 inline"></i></li>
+<li class="text-gray-800">Details #{{ skill_verification.pk }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Main Content -->
+    <div class="lg:col-span-2 space-y-6">
+        <!-- Skill Information -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="flex items-center justify-between mb-6">
+                <h3 class="text-lg font-bold text-gray-800">Skill Information</h3>
+                <span class="px-4 py-2 text-sm font-semibold rounded-full 
+                    {% if skill_verification.status == 'pending' %}bg-yellow-100 text-yellow-800
+                    {% elif skill_verification.status == 'verified' %}bg-green-100 text-green-800
+                    {% else %}bg-red-100 text-red-800{% endif %}">
+                    {{ skill_verification.get_status_display }}
+                </span>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="text-sm font-medium text-gray-500">Skill Name</label>
+                    <p class="text-base text-gray-900 mt-1">{{ skill_verification.name }}</p>
+                </div>
+                
+                {% if skill_verification.description %}
+                <div>
+                    <label class="text-sm font-medium text-gray-500">Description</label>
+                    <p class="text-base text-gray-900 mt-1">{{ skill_verification.description }}</p>
+                </div>
+                {% endif %}
+                
+                <div>
+                    <label class="text-sm font-medium text-gray-500">Submission Date</label>
+                    <p class="text-base text-gray-900 mt-1">
+                        {{ skill_verification.submitted_at|date:"F d, Y" }} at {{ skill_verification.submitted_at|time:"g:i A" }}
+                        <span class="text-sm text-gray-500">({{ skill_verification.submitted_at|timesince }} ago)</span>
+                    </p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Proof Document -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Proof of Skill</h3>
+            
+            {% if skill_verification.proof %}
+            <div class="border-2 border-dashed border-gray-300 rounded-lg p-6">
+                {% if skill_verification.proof.url|slice:"-4:" == ".pdf" or skill_verification.proof.url|slice:"-4:" == ".doc" or skill_verification.proof.url|slice:"-5:" == ".docx" %}
+                <!-- Document Preview -->
+                <div class="text-center">
+                    <i data-lucide="file-text" class="w-16 h-16 mx-auto mb-4 text-gray-400"></i>
+                    <p class="text-sm text-gray-600 mb-4">{{ skill_verification.proof.name }}</p>
+                    <a href="{{ skill_verification.proof.url }}" target="_blank" 
+                       class="inline-flex items-center gap-2 px-4 py-2 bg-trabaholink-blue text-white rounded-lg hover:bg-trabaholink-dark-blue transition">
+                        <i data-lucide="download" class="w-4 h-4"></i>
+                        Download Document
+                    </a>
+                </div>
+                {% else %}
+                <!-- Image Preview -->
+                <img src="{{ skill_verification.proof.url }}" alt="Skill Proof" class="w-full rounded-lg mb-4">
+                <a href="{{ skill_verification.proof.url }}" target="_blank" 
+                   class="inline-flex items-center gap-2 px-4 py-2 bg-trabaholink-blue text-white rounded-lg hover:bg-trabaholink-dark-blue transition w-full justify-center">
+                    <i data-lucide="external-link" class="w-4 h-4"></i>
+                    View Full Size
+                </a>
+                {% endif %}
+            </div>
+            {% else %}
+            <div class="text-center py-8 text-gray-500">
+                <i data-lucide="file-x" class="w-12 h-12 mx-auto mb-3 text-gray-300"></i>
+                <p>No proof document submitted</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Admin Notes -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Admin Notes</h3>
+            <textarea id="adminNotes" rows="4" 
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-trabaholink-blue"
+                      placeholder="Add internal notes about this verification..."></textarea>
+            <button onclick="saveNotes()" 
+                    class="mt-3 px-4 py-2 bg-gray-600 text-white rounded-lg hover:bg-gray-700 transition flex items-center gap-2">
+                <i data-lucide="save" class="w-4 h-4"></i>
+                Save Notes
+            </button>
+        </div>
+    </div>
+    
+    <!-- Sidebar -->
+    <div class="space-y-6">
+        <!-- Worker Information -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Worker Information</h3>
+            
+            <div class="flex items-center gap-4 mb-4">
+                {% if skill_verification.user.profile_picture %}
+                <img src="{{ skill_verification.user.profile_picture.url }}" alt="{{ skill_verification.user.username }}" 
+                     class="w-16 h-16 rounded-full object-cover">
+                {% else %}
+                <div class="w-16 h-16 rounded-full bg-trabaholink-blue flex items-center justify-center text-white text-2xl font-semibold">
+                    {{ skill_verification.user.username|slice:":1"|upper }}
+                </div>
+                {% endif %}
+                <div>
+                    <h4 class="text-base font-semibold text-gray-900">
+                        {{ skill_verification.user.get_full_name|default:skill_verification.user.username }}
+                    </h4>
+                    <p class="text-sm text-gray-500">@{{ skill_verification.user.username }}</p>
+                </div>
+            </div>
+            
+            <div class="space-y-3 text-sm">
+                <div class="flex items-center gap-2 text-gray-600">
+                    <i data-lucide="mail" class="w-4 h-4"></i>
+                    <span>{{ skill_verification.user.email }}</span>
+                </div>
+                
+                {% if skill_verification.user.contact_number %}
+                <div class="flex items-center gap-2 text-gray-600">
+                    <i data-lucide="phone" class="w-4 h-4"></i>
+                    <span>{{ skill_verification.user.contact_number }}</span>
+                </div>
+                {% endif %}
+                
+                <div class="flex items-center gap-2 text-gray-600">
+                    <i data-lucide="briefcase" class="w-4 h-4"></i>
+                    <span>{{ skill_verification.user.role|title }}</span>
+                </div>
+                
+                <div class="flex items-center gap-2 text-gray-600">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                    <span>Joined {{ skill_verification.user.date_joined|date:"M Y" }}</span>
+                </div>
+            </div>
+            
+            <a href="{% url 'admin_dashboard:user_detail' skill_verification.user.pk %}" 
+               class="mt-4 block text-center px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition">
+                View Full Profile
+            </a>
+        </div>
+        
+        <!-- Actions -->
+        {% if skill_verification.status == 'pending' %}
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Actions</h3>
+            
+            <div class="space-y-3">
+                <button onclick="approveSkillDetail()" 
+                        class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition">
+                    <i data-lucide="check-circle" class="w-5 h-5"></i>
+                    Approve Skill
+                </button>
+                
+                <button onclick="rejectSkillDetail()" 
+                        class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
+                    <i data-lucide="x-circle" class="w-5 h-5"></i>
+                    Reject Submission
+                </button>
+                
+                <button onclick="sendFeedback()" 
+                        class="w-full flex items-center justify-center gap-2 px-4 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+                    <i data-lucide="message-circle" class="w-5 h-5"></i>
+                    Send Feedback
+                </button>
+            </div>
+        </div>
+        {% else %}
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <div class="text-center py-4">
+                <i data-lucide="{% if skill_verification.status == 'verified' %}check-circle{% else %}x-circle{% endif %}" 
+                   class="w-12 h-12 mx-auto mb-3 {% if skill_verification.status == 'verified' %}text-green-500{% else %}text-red-500{% endif %}"></i>
+                <p class="text-sm text-gray-600">
+                    This skill has been {{ skill_verification.get_status_display|lower }}
+                </p>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Quick Stats -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4">Worker Stats</h3>
+            
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Total Skills</span>
+                    <span class="text-sm font-semibold text-gray-900">{{ worker_total_skills }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Verified Skills</span>
+                    <span class="text-sm font-semibold text-green-600">{{ worker_verified_skills }}</span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-sm text-gray-600">Pending</span>
+                    <span class="text-sm font-semibold text-yellow-600">{{ worker_pending_skills }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div id="rejectModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-bold text-gray-800">Reject Skill Verification</h3>
+                <button onclick="closeRejectModal()" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-6">
+            <p class="text-sm text-gray-600 mb-4">Please provide a reason for rejection:</p>
+            <textarea id="rejectReason" rows="4" 
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-trabaholink-blue"
+                      placeholder="Enter reason for rejection..."></textarea>
+        </div>
+        <div class="p-6 border-t border-gray-200 flex justify-end gap-3">
+            <button onclick="closeRejectModal()" 
+                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                Cancel
+            </button>
+            <button onclick="confirmReject()" 
+                    class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
+                Reject Skill
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Feedback Modal -->
+<div id="feedbackModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-bold text-gray-800">Send Feedback to Worker</h3>
+                <button onclick="closeFeedbackModal()" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-6">
+            <p class="text-sm text-gray-600 mb-4">Send a message to {{ skill_verification.user.username }}:</p>
+            <textarea id="feedbackMessage" rows="4" 
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-trabaholink-blue"
+                      placeholder="Enter your feedback..."></textarea>
+        </div>
+        <div class="p-6 border-t border-gray-200 flex justify-end gap-3">
+            <button onclick="closeFeedbackModal()" 
+                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                Cancel
+            </button>
+            <button onclick="confirmSendFeedback()" 
+                    class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
+                Send Feedback
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <div class="bg-white rounded-lg p-6 flex items-center gap-3">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-trabaholink-blue"></div>
+        <span class="text-gray-700">Processing...</span>
+    </div>
+</div>
+
+<script>
+    const csrfToken = '{{ csrf_token }}';
+    
+    // Get skill ID from URL - handle trailing slash
+    const pathname = window.location.pathname;
+    const urlParts = pathname.split('/').filter(part => part && part.trim() !== '');
+    
+    // Find the skill ID (should be after 'skill-verifications')
+    const skillVerificationIndex = urlParts.indexOf('skill-verifications');
+    const skillIdFromUrl = skillVerificationIndex >= 0 && urlParts[skillVerificationIndex + 1] 
+        ? parseInt(urlParts[skillVerificationIndex + 1]) 
+        : null;
+    
+    // Always use URL ID as it's more reliable
+    const skillId = skillIdFromUrl;
+    
+    // Debug: Log the skillId
+    console.log('Full URL:', pathname);
+    console.log('URL Parts after split:', urlParts);
+    console.log('skill-verifications index:', skillVerificationIndex);
+    console.log('Skill ID from URL:', skillIdFromUrl);
+    console.log('Final Skill ID:', skillId, 'Type:', typeof skillId);
+    
+    if (!skillId || isNaN(skillId)) {
+        console.error('ERROR: Could not extract valid skill ID from URL!');
+        alert('Error: Could not determine skill ID from URL. Please refresh the page.');
+    }
+    
+    function showLoading() {
+        document.getElementById('loadingOverlay').classList.remove('hidden');
+    }
+    
+    function hideLoading() {
+        document.getElementById('loadingOverlay').classList.add('hidden');
+    }
+    
+    // Approve skill
+    function approveSkillDetail() {
+        if (!skillId || skillId === null) {
+            alert('Error: Invalid skill ID');
+            return;
+        }
+        
+        if (confirm('Are you sure you want to approve this skill verification?')) {
+            showLoading();
+            
+            fetch(`/admin_dashboard/skill-verifications/${skillId}/approve/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                if (data.success) {
+                    alert('Skill verified successfully! Worker has been notified.');
+                    window.location.href = '{% url "admin_dashboard:skill_verification_list" %}';
+                } else {
+                    alert('Failed to approve skill: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                console.error('Error:', error);
+                alert('An error occurred while approving the skill');
+            });
+        }
+    }
+    
+    // Reject skill - open modal
+    function rejectSkillDetail() {
+        if (!skillId || skillId === null) {
+            alert('Error: Invalid skill ID');
+            return;
+        }
+        
+        document.getElementById('rejectModal').classList.remove('hidden');
+        document.getElementById('rejectReason').value = '';
+        lucide.createIcons();
+    }
+    
+    function closeRejectModal() {
+        document.getElementById('rejectModal').classList.add('hidden');
+    }
+    
+    function confirmReject() {
+        const reason = document.getElementById('rejectReason').value.trim();
+        
+        if (!reason) {
+            alert('Please provide a reason for rejection');
+            return;
+        }
+        
+        if (!skillId || skillId === null || isNaN(skillId)) {
+            alert('Error: Invalid skill ID - ' + skillId);
+            closeRejectModal();
+            return;
+        }
+        
+        showLoading();
+        closeRejectModal();
+        
+        const rejectUrl = `/admin_dashboard/skill-verifications/${skillId}/reject/`;
+        console.log('Rejecting skill with URL:', rejectUrl);
+        
+        fetch(rejectUrl, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ reason: reason })
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! status: ${response.status}`);
+            }
+            return response.json();
+        })
+        .then(data => {
+            hideLoading();
+            if (data.success) {
+                alert('Skill verification rejected. Worker has been notified.');
+                window.location.href = '{% url "admin_dashboard:skill_verification_list" %}';
+            } else {
+                alert('Failed to reject skill: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            console.error('Error:', error);
+            alert('An error occurred while rejecting the skill: ' + error.message);
+        });
+    }
+    
+    // Send feedback
+    function sendFeedback() {
+        document.getElementById('feedbackModal').classList.remove('hidden');
+        document.getElementById('feedbackMessage').value = '';
+        lucide.createIcons();
+    }
+    
+    function closeFeedbackModal() {
+        document.getElementById('feedbackModal').classList.add('hidden');
+    }
+    
+    function confirmSendFeedback() {
+        const message = document.getElementById('feedbackMessage').value.trim();
+        
+        if (!message) {
+            alert('Please enter a feedback message');
+            return;
+        }
+        
+        showLoading();
+        closeFeedbackModal();
+        
+        // Send notification to worker
+        fetch('/notifications/send/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                user_id: {{ skill_verification.user.pk }},
+                message: message,
+                notification_type: 'skill_feedback'
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            if (data.success) {
+                alert('Feedback sent successfully!');
+            } else {
+                alert('Failed to send feedback');
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            console.error('Error:', error);
+            alert('An error occurred while sending feedback');
+        });
+    }
+    
+    // Save notes
+    function saveNotes() {
+        const notes = document.getElementById('adminNotes').value;
+        // Implement save notes functionality if needed
+        alert('Notes saved (implement backend if needed)');
+    }
+    
+    // Initialize Lucide icons
+    lucide.createIcons();
+</script>
+{% endblock %}

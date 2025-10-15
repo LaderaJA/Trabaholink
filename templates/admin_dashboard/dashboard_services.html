@@ -1,0 +1,359 @@
+{% extends 'admin_dashboard/dashboard_base.html' %}
+
+{% block title %}Service Management{% endblock %}
+{% block page_title %}Service Management{% endblock %}
+
+{% block breadcrumb_items %}
+<li><i data-lucide="chevron-right" class="w-4 h-4 inline"></i></li>
+<li class="text-gray-800">Services</li>
+{% endblock %}
+
+{% block content %}
+<!-- Stats Overview -->
+<div class="grid grid-cols-1 md:grid-cols-5 gap-6 mb-6">
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-trabaholink-light-blue">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm mb-1">Total Services</p>
+                <h3 class="text-2xl font-bold text-gray-800">{{ total_count }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-trabaholink-light-blue/20 rounded-full flex items-center justify-center">
+                <i data-lucide="wrench" class="w-6 h-6 text-trabaholink-dark-blue"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm mb-1">Pending Review</p>
+                <h3 class="text-2xl font-bold text-yellow-600">{{ pending_count }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                <i data-lucide="clock" class="w-6 h-6 text-yellow-600"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm mb-1">Approved</p>
+                <h3 class="text-2xl font-bold text-green-600">{{ approved_count }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-red-500">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm mb-1">Rejected</p>
+                <h3 class="text-2xl font-bold text-red-600">{{ rejected_count }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                <i data-lucide="x-circle" class="w-6 h-6 text-red-600"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-orange-500">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm mb-1">Flagged</p>
+                <h3 class="text-2xl font-bold text-orange-600">{{ flagged_count }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
+                <i data-lucide="flag" class="w-6 h-6 text-orange-600"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="bg-white rounded-xl shadow-md p-6 mb-6">
+    <div class="flex flex-col md:flex-row md:items-center gap-4">
+        <div class="flex-1">
+            <div class="relative">
+                <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                <input type="text" id="serviceSearch" placeholder="Search services by title or provider..." 
+                       class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+            </div>
+        </div>
+        
+        <select id="serviceCategoryFilter" class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+            <option value="">All Categories</option>
+            <option value="construction">Construction</option>
+            <option value="electrical">Electrical</option>
+            <option value="plumbing">Plumbing</option>
+            <option value="carpentry">Carpentry</option>
+            <option value="cleaning">Cleaning</option>
+            <option value="other">Other</option>
+        </select>
+        
+        <select id="serviceStatusFilter" class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+            <option value="">All Status</option>
+            <option value="pending">Pending Review</option>
+            <option value="approved">Approved</option>
+            <option value="rejected">Rejected</option>
+            <option value="flagged">Flagged</option>
+        </select>
+    </div>
+</div>
+
+<!-- Services Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    {% for service in services %}
+    <div class="bg-white rounded-xl shadow-md overflow-hidden hover:shadow-lg transition service-item"
+         data-title="{{ service.headline|lower }}"
+         data-category="{{ service.category.name|lower }}"
+         data-status="{{ service.status }}">
+        
+        <!-- Service Image -->
+        {% if service.image %}
+        <div class="h-48 bg-gray-200 overflow-hidden">
+            <img src="{{ service.image.url }}" alt="{{ service.title }}" class="w-full h-full object-cover">
+        </div>
+        {% else %}
+        <div class="h-48 bg-gradient-to-br from-trabaholink-cyan to-trabaholink-light-blue flex items-center justify-center">
+            <i data-lucide="wrench" class="w-16 h-16 text-white opacity-50"></i>
+        </div>
+        {% endif %}
+        
+        <!-- Service Info -->
+        <div class="p-6">
+            <div class="flex items-start justify-between mb-2">
+                <h4 class="text-lg font-semibold text-gray-800 line-clamp-1">{{ service.headline }}</h4>
+                <span class="px-2 py-1 text-xs font-semibold rounded-full flex-shrink-0
+                    {% if service.status == 'pending' %}bg-yellow-100 text-yellow-800
+                    {% elif service.status == 'approved' %}bg-green-100 text-green-800
+                    {% elif service.status == 'rejected' %}bg-red-100 text-red-800
+                    {% elif service.status == 'flagged' %}bg-orange-100 text-orange-800
+                    {% else %}bg-gray-100 text-gray-800{% endif %}">
+                    {{ service.get_status_display }}
+                </span>
+            </div>
+            
+            <p class="text-sm text-gray-600 mb-2 line-clamp-2">{{ service.description|truncatewords:15 }}</p>
+            
+            {% if service.pricing %}
+            <p class="text-sm font-semibold text-trabaholink-blue mb-3">₱{{ service.pricing }}</p>
+            {% endif %}
+            
+            <div class="flex items-center gap-2 text-sm text-gray-500 mb-4">
+                <div class="w-8 h-8 bg-trabaholink-blue rounded-full flex items-center justify-center text-white text-xs font-bold">
+                    {{ service.worker.username.0|upper }}
+                </div>
+                <span class="font-medium">{{ service.worker.username }}</span>
+            </div>
+            
+            <!-- Actions -->
+            <div class="flex flex-col gap-2">
+                <a href="{% url 'admin_dashboard:service_detail' service.pk %}"
+                   class="inline-flex items-center justify-center gap-2 px-3 py-2 bg-trabaholink-blue text-white text-sm rounded-lg hover:bg-trabaholink-dark-blue transition">
+                    <i data-lucide="eye" class="w-4 h-4"></i>
+                    View Details
+                </a>
+                
+                <div class="flex items-center gap-2">
+                    {% if service.status == 'pending' or service.status == 'flagged' %}
+                    <button type="button" data-service-id="{{ service.pk }}" onclick="approveService(this)" 
+                            class="flex-1 px-3 py-2 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition">
+                        <i data-lucide="check" class="w-4 h-4 inline"></i>
+                        Approve
+                    </button>
+                    <button type="button" data-service-id="{{ service.pk }}" onclick="rejectService(this)" 
+                            class="flex-1 px-3 py-2 bg-red-500 text-white text-sm rounded-lg hover:bg-red-600 transition">
+                        <i data-lucide="x" class="w-4 h-4 inline"></i>
+                        Reject
+                    </button>
+                    {% endif %}
+                    
+                    {% if service.status != 'flagged' %}
+                    <button type="button" data-service-id="{{ service.pk }}" onclick="flagService(this)" 
+                            class="px-3 py-2 bg-orange-500 text-white text-sm rounded-lg hover:bg-orange-600 transition"
+                            title="Flag">
+                        <i data-lucide="flag" class="w-4 h-4"></i>
+                    </button>
+                    {% endif %}
+                    
+                    <button type="button" data-service-id="{{ service.pk }}" onclick="deleteService(this)" 
+                            class="px-3 py-2 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition"
+                            title="Delete">
+                        <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-span-full p-12 text-center text-gray-500 bg-white rounded-xl shadow-md">
+        <i data-lucide="wrench" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
+        <p class="text-lg font-medium">No services found</p>
+        <p class="text-sm">Service listings will appear here</p>
+    </div>
+    {% endfor %}
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Search functionality
+    document.getElementById('serviceSearch').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const services = document.querySelectorAll('.service-item');
+        
+        services.forEach(service => {
+            const title = service.dataset.title;
+            if (title.includes(searchTerm)) {
+                service.style.display = '';
+            } else {
+                service.style.display = 'none';
+            }
+        });
+    });
+    
+    // Filter functionality
+    document.getElementById('serviceCategoryFilter').addEventListener('change', filterServices);
+    document.getElementById('serviceStatusFilter').addEventListener('change', filterServices);
+    
+    function filterServices() {
+        const categoryFilter = document.getElementById('serviceCategoryFilter').value;
+        const statusFilter = document.getElementById('serviceStatusFilter').value;
+        const services = document.querySelectorAll('.service-item');
+        
+        services.forEach(service => {
+            const category = service.dataset.category;
+            const status = service.dataset.status;
+            
+            let showService = true;
+            
+            if (categoryFilter && category !== categoryFilter) showService = false;
+            if (statusFilter && status !== statusFilter) showService = false;
+            
+            service.style.display = showService ? '' : 'none';
+        });
+    }
+    
+    // Approve service
+    function approveService(button) {
+        const serviceId = button.dataset.serviceId;
+        
+        if (confirm('Approve this service?')) {
+            fetch(`/admin_dashboard/services/${serviceId}/approve/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Service approved successfully!');
+                    location.reload();
+                } else {
+                    alert('Failed to approve service: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+        }
+    }
+    
+    // Reject service
+    function rejectService(button) {
+        const serviceId = button.dataset.serviceId;
+        const reason = prompt('Enter rejection reason:');
+        
+        if (reason) {
+            fetch(`/admin_dashboard/services/${serviceId}/reject/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ reason: reason })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Service rejected. Worker has been notified.');
+                    location.reload();
+                } else {
+                    alert('Failed to reject service: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+        }
+    }
+    
+    // Flag service
+    function flagService(button) {
+        const serviceId = button.dataset.serviceId;
+        const reason = prompt('Enter flag reason:');
+        
+        if (reason) {
+            fetch(`/admin_dashboard/services/${serviceId}/flag/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ reason: reason })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Service flagged for review.');
+                    location.reload();
+                } else {
+                    alert('Failed to flag service: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+        }
+    }
+    
+    // Delete service
+    function deleteService(button) {
+        const serviceId = button.dataset.serviceId;
+        
+        if (confirm('Are you sure you want to delete this service? This action cannot be undone.')) {
+            fetch(`/admin_dashboard/services/${serviceId}/delete/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Service deleted successfully!');
+                    location.reload();
+                } else {
+                    alert('Failed to delete service: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+        }
+    }
+    
+    // Initialize Lucide icons
+    lucide.createIcons();
+</script>
+{% endblock %}

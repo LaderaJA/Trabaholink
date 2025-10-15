@@ -1,186 +1,853 @@
-{% extends "mainpages/base.html" %} 
-{% load static %} 
-{% block title %}Home | TrabahoLink{% endblock %}
-{% block css %}  <link rel="stylesheet" href="{% static 'css/home.css' %}"></link>
+{% extends "mainpages/base.html" %}
+{% load static %}
+
+{% block css %}
+<style>
+  :root {
+    --primary-color: #1a94d4;
+    --primary-dark: #0d6efd;
+    --primary-light: #e6f4ff;
+    --secondary-color: #6c757d;
+    --success-color: #198754;
+    --dark-color: #2d3748;
+    --light-color: #f8f9fa;
+    --text-color: #2d3748;
+    --text-light: #718096;
+    --gradient-primary: linear-gradient(135deg, #1a94d4 0%, #0d6efd 100%);
+    --gradient-secondary: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+    --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    --transition: all 0.3s ease;
+  }
+  
+  /* Global Styles */
+  body {
+    font-family: 'Poppins', sans-serif;
+    color: var(--text-color);
+    line-height: 1.6;
+    overflow-x: hidden;
+  }
+  
+  /* Hero Section */
+  .hero-section {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 6rem 0 8rem;
+    position: relative;
+    overflow: hidden;
+    margin-top: 0;
+    clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%);
+  }
+  
+  .hero-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM34 90c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm56-76c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zM12 86c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm28-65c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm23-11c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-6 60c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm29-22c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zM32 63c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm57-13c2.76 0 5-2.24 5-5s-2.24-5-5-5-5 2.24-5 5 2.24 5 5 5zm-9-21c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM60 91c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM35 41c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2zM12 60c1.105 0 2-.895 2-2s-.895-2-2-2-2 .895-2 2 .895 2 2 2z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+    opacity: 0.6;
+  }
+  
+  /* Floating Animation */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-20px) rotate(5deg);
+    }
+  }
+  
+  .floating-shape {
+    position: absolute;
+    opacity: 0.15;
+    animation: float 15s infinite ease-in-out;
+    z-index: 1;
+  }
+  
+  .shape-1 {
+    top: 10%;
+    left: 10%;
+    width: 120px;
+    height: 120px;
+    background: white;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    animation-delay: 0s;
+    filter: blur(1px);
+  }
+  
+  .shape-2 {
+    top: 60%;
+    right: 15%;
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.8);
+    border-radius: 50%;
+    animation-delay: 2s;
+    animation-duration: 18s;
+  }
+  
+  .shape-3 {
+    bottom: 10%;
+    left: 20%;
+    width: 80px;
+    height: 80px;
+    background: rgba(255, 255, 255, 0.6);
+    border-radius: 15% 85% 35% 65% / 65% 35% 65% 35%;
+    animation-delay: 4s;
+    animation-duration: 20s;
+  }
+  
+  
+  .hero-title {
+    font-size: 3.5rem;
+    font-weight: 800;
+    line-height: 1.2;
+    margin-bottom: 1.5rem;
+    animation: fadeInUp 1s ease-out;
+  }
+  
+  .hero-subtitle {
+    font-size: 1.25rem;
+    opacity: 0.95;
+    margin-bottom: 2rem;
+    animation: fadeInUp 1s ease-out 0.2s both;
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  
+  /* Announcement Carousel */
+  .announcement-carousel {
+    background: white;
+    border-radius: 15px;
+    box-shadow: 0 10px 40px rgba(26, 148, 212, 0.15);
+    overflow: hidden;
+    border: 2px solid rgba(26, 148, 212, 0.1);
+  }
+  
+  .announcement-slide {
+    padding: 2.5rem 2rem;
+    text-align: center;
+    min-height: 350px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    position: relative;
+  }
+  
+  .announcement-slide::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #1a94d4 0%, #0d6efd 100%);
+  }
+  
+  .announcement-slide h3 {
+    color: #1a94d4;
+    font-weight: 700;
+  }
+  
+  .announcement-icon {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    animation: pulse 2s infinite;
+  }
+  
+  /* Announcement slide with full image */
+  .announcement-slide-with-image {
+    position: relative;
+    width: 100%;
+    height: 350px;
+    overflow: hidden;
+    border-radius: 15px;
+  }
+  
+  .announcement-full-image {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+  }
+  
+  .announcement-slide-with-image:hover .announcement-full-image {
+    transform: scale(1.05);
+  }
+  
+  .announcement-slide-with-image {
+    cursor: pointer;
+  }
+  
+  .announcement-overlay {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0.4) 50%, transparent 100%);
+    padding: 2rem 1.5rem 1.5rem;
+  }
+  
+  .announcement-title {
+    color: white;
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.1);
+    }
+  }
+  
+  /* Animated Statistics Counter */
+  .stats-section {
+    background: linear-gradient(135deg, #1a94d4 0%, #0d6efd 100%);
+    color: white;
+    padding: 4rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .stat-card {
+    text-align: center;
+    padding: 2rem 1rem;
+  }
+  
+  .stat-number {
+    font-size: 3rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+    display: block;
+  }
+  
+  .stat-label {
+    font-size: 1.1rem;
+    opacity: 0.9;
+  }
+  
+  /* Category Cards with Hover Animation */
+  .category-card {
+    border: none;
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    background: white;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .category-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(26, 148, 212, 0.1), transparent);
+    transition: left 0.5s ease;
+  }
+  
+  .category-card:hover::before {
+    left: 100%;
+  }
+  
+  .category-card:hover {
+    transform: translateY(-10px) scale(1.02);
+    box-shadow: 0 15px 35px rgba(26, 148, 212, 0.3) !important;
+  }
+  
+  .category-icon {
+    font-size: 3rem;
+    color: var(--primary-color);
+    margin-bottom: 1rem;
+    transition: all 0.3s ease;
+  }
+  
+  .category-card:hover .category-icon {
+    transform: rotateY(360deg);
+    color: var(--primary-dark);
+  }
+  
+  /* Job Cards */
+  .job-card {
+    border-radius: 15px;
+    transition: all 0.3s ease;
+    overflow: hidden;
+    border: 1px solid rgba(26, 148, 212, 0.1) !important;
+  }
+  
+  .job-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(26, 148, 212, 0.2) !important;
+  }
+  
+  .job-icon-wrapper {
+    width: 50px;
+    height: 50px;
+    background: linear-gradient(135deg, #e6f4ff 0%, #ffffff 100%);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+  }
+  
+  .job-card .card-title a:hover {
+    color: #1a94d4 !important;
+  }
+  
+  .job-card .badge {
+    padding: 0.5rem 1rem;
+    font-weight: 500;
+  }
+  
+  /* Testimonial Carousel */
+  .testimonial-carousel {
+    padding: 4rem 0;
+  }
+  
+  .testimonial-card {
+    background: white;
+    border-radius: 15px;
+    padding: 2.5rem;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+    margin: 1rem;
+    transition: all 0.3s ease;
+  }
+  
+  .testimonial-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+  }
+  
+  .testimonial-avatar {
+    width: 80px;
+    height: 80px;
+    border-radius: 50%;
+    margin: 0 auto 1.5rem;
+    border: 4px solid var(--primary-light);
+  }
+  
+  .stars {
+    color: #ffc107;
+    font-size: 1.2rem;
+    margin-bottom: 1rem;
+  }
+  
+  /* Scrolling Job Ticker */
+  .job-ticker {
+    background: var(--primary-light);
+    padding: 1rem 0;
+    overflow: hidden;
+    position: relative;
+  }
+  
+  .ticker-content {
+    display: flex;
+    animation: scroll 30s linear infinite;
+  }
+  
+  .ticker-item {
+    flex-shrink: 0;
+    padding: 0 3rem;
+    font-weight: 500;
+    color: var(--primary-color);
+  }
+  
+  @keyframes scroll {
+    0% {
+      transform: translateX(0);
+    }
+    100% {
+      transform: translateX(-50%);
+    }
+  }
+  
+  /* How It Works Timeline */
+  .timeline {
+    position: relative;
+    padding: 2rem 0;
+  }
+  
+  .timeline-item {
+    position: relative;
+    padding-left: 4rem;
+    margin-bottom: 3rem;
+  }
+  
+  .timeline-icon {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 60px;
+    height: 60px;
+    background: var(--primary-color);
+    color: white;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    box-shadow: 0 0 0 4px var(--primary-light);
+    animation: bounce 2s infinite;
+  }
+  
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+  
+  .timeline-item:nth-child(2) .timeline-icon {
+    animation-delay: 0.2s;
+  }
+  
+  .timeline-item:nth-child(3) .timeline-icon {
+    animation-delay: 0.4s;
+  }
+  
+  /* Responsive */
+  @media (max-width: 991.98px) {
+    .hero-title {
+      font-size: 2.5rem;
+    }
+    
+    .stat-number {
+      font-size: 2.5rem;
+    }
+  }
+  
+  @media (max-width: 767.98px) {
+    .hero-title {
+      font-size: 2rem;
+    }
+    
+    .hero-section {
+      padding: 5rem 0 3rem;
+    }
+  }
+  
+  /* Carousel Controls */
+  .carousel-control-prev,
+  .carousel-control-next {
+    width: 45px;
+    height: 45px;
+    background: #1a94d4 !important;
+    border-radius: 50%;
+    top: 50%;
+    transform: translateY(-50%);
+    opacity: 0.9;
+    transition: all 0.3s ease;
+  }
+  
+  .carousel-control-prev:hover,
+  .carousel-control-next:hover {
+    opacity: 1;
+    background: #0d6efd !important;
+    transform: translateY(-50%) scale(1.1);
+  }
+  
+  .carousel-control-prev-icon,
+  .carousel-control-next-icon {
+    width: 20px;
+    height: 20px;
+  }
+  
+  /* Carousel Indicators */
+  .carousel-indicators {
+    bottom: -35px;
+  }
+  
+  .carousel-indicators button {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background-color: rgba(26, 148, 212, 0.3) !important;
+    border: 2px solid #1a94d4 !important;
+    transition: all 0.3s ease;
+  }
+  
+  .carousel-indicators button.active {
+    background-color: #1a94d4 !important;
+    width: 12px;
+    height: 12px;
+  }
+  
+  .carousel-control-prev {
+    left: -50px;
+  }
+  
+  .carousel-control-next {
+    right: -50px;
+  }
+  
+  /* Responsive adjustments */
+  @media (max-width: 991.98px) {
+    .carousel-control-prev {
+      left: 10px;
+    }
+    
+    .carousel-control-next {
+      right: 10px;
+    }
+  }
+  
+  /* Back to Top Button */
+  .back-to-top-btn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    z-index: 1000;
+    width: 50px;
+    height: 50px;
+    background: #1a94d4;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 2rem;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px rgba(26, 148, 212, 0.4);
+  }
+  
+  .back-to-top-btn.show {
+    opacity: 1;
+    visibility: visible;
+  }
+  
+  .back-to-top-btn:hover {
+    background: #0d6efd;
+    transform: translateY(-5px);
+    box-shadow: 0 6px 20px rgba(26, 148, 212, 0.6);
+  }
+  
+  .back-to-top-btn i {
+    line-height: 50px;
+  }
+</style>
 {% endblock %}
+
 {% block content %}
-
-
-<!-- Enhanced Hero Section -->
+<!-- Hero Section with Floating Shapes -->
 <section class="hero-section">
-  <div class="container">
+  <div class="floating-shape shape-1"></div>
+  <div class="floating-shape shape-2"></div>
+  <div class="floating-shape shape-3"></div>
+  
+  <div class="container position-relative">
     <div class="row align-items-center">
-      <div class="col-lg-6 mb-4 mb-lg-0">
-        <h1 class="hero-title animate-on-scroll">Find Skilled Workers for Your Home</h1>
-        <p class="hero-subtitle animate-on-scroll animate-delay-1">
-          TrabahoLink connects you with trusted professionals for all your
-          household needs - from plumbing to gardening and everything in
-          between.
+      <div class="col-lg-6 mb-5 mb-lg-0">
+        <h1 class="hero-title">Connect. Collaborate. Succeed.</h1>
+        <p class="hero-subtitle">
+          Your gateway to endless opportunities. Find the perfect job or discover talented professionals ready to bring your vision to life.
         </p>
-        <div class="d-flex gap-3 animate-on-scroll animate-delay-2">
-          <a href="{% url 'jobs:job_list' %}" class="btn btn-primary btn-lg">
-            <i class="bi bi-search"></i>
-            Browse Jobs
-          </a>
-          <a href="#how-it-works" class="btn btn-outline-secondary btn-lg">
-            <i class="bi bi-info-circle"></i>
-            How It Works
-          </a>
+        <div class="d-flex flex-wrap gap-3">
+          {% if user.is_authenticated %}
+            <a href="{% url 'jobs:job_list' %}" class="btn btn-light btn-lg px-4">
+              <i class="bi bi-briefcase me-2"></i>
+              Browse Jobs
+            </a>
+            <a href="{% url 'jobs:job_list' %}?tab=services" class="btn btn-outline-light btn-lg px-4">
+              <i class="bi bi-tools me-2"></i>
+              Find Services
+            </a>
+          {% else %}
+            <a href="{% url 'jobs:job_list' %}" class="btn btn-light btn-lg px-4">
+              <i class="bi bi-briefcase me-2"></i>
+              Find Jobs
+            </a>
+            <a href="{% url 'account_signup' %}" class="btn btn-outline-light btn-lg px-4">
+              <i class="bi bi-person-plus me-2"></i>
+              Join Now
+            </a>
+          {% endif %}
         </div>
       </div>
-      <div class="col-lg-6 animate-on-scroll animate-delay-3">
-        <img
-          src="{% static 'images/hero-image.jpeg' %}"
-          alt="Home service professionals"
-          class="img-fluid hero-image"
-          onerror="this.src='/placeholder.svg?height=400&width=600'; this.onerror=null;"
-        />
+      <div class="col-lg-6">
+        <!-- Announcement Carousel -->
+        <div id="announcementCarousel" class="carousel slide announcement-carousel" data-bs-ride="carousel">
+          {% if announcements %}
+          <div class="carousel-indicators">
+            {% for announcement in announcements %}
+            <button type="button" data-bs-target="#announcementCarousel" data-bs-slide-to="{{ forloop.counter0 }}" {% if forloop.first %}class="active"{% endif %}></button>
+            {% endfor %}
+          </div>
+          {% endif %}
+          <div class="carousel-inner">
+            {% if announcements %}
+              {% for announcement in announcements %}
+              <div class="carousel-item {% if forloop.first %}active{% endif %}">
+                {% if announcement.image %}
+                  <a href="{% url 'announcements:announcement_detail' announcement.pk %}" class="text-decoration-none">
+                    <div class="announcement-slide-with-image">
+                      <img src="{{ announcement.image.url }}" alt="{{ announcement.title }}" class="announcement-full-image">
+                      <div class="announcement-overlay">
+                        <h3 class="announcement-title">{{ announcement.title }}</h3>
+                        <small class="text-white-50 d-block mt-2">
+                          <i class="bi bi-arrow-right-circle me-1"></i>Click to read more
+                        </small>
+                      </div>
+                    </div>
+                  </a>
+                {% else %}
+                  <a href="{% url 'announcements:announcement_detail' announcement.pk %}" class="text-decoration-none">
+                    <div class="announcement-slide">
+                      <i class="bi bi-megaphone announcement-icon"></i>
+                      <h3 class="h4 mb-3">{{ announcement.title }}</h3>
+                      <p class="text-muted mb-0">{{ announcement.content|truncatewords:20 }}</p>
+                      <small class="text-primary mt-2 d-block">
+                        <i class="bi bi-arrow-right-circle me-1"></i>Read more
+                      </small>
+                    </div>
+                  </a>
+                {% endif %}
+              </div>
+              {% endfor %}
+            {% else %}
+              <div class="carousel-item active">
+                <div class="announcement-slide">
+                  <i class="bi bi-megaphone announcement-icon"></i>
+                  <h3 class="h4 mb-3">Welcome to TrabahoLink!</h3>
+                  <p class="text-muted mb-0">Join thousands of professionals finding their dream opportunities</p>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+          <button class="carousel-control-prev" type="button" data-bs-target="#announcementCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+          </button>
+          <button class="carousel-control-next" type="button" data-bs-target="#announcementCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+          </button>
+        </div>
       </div>
     </div>
   </div>
 </section>
 
-<!-- Enhanced Categories Section -->
-<section class="categories-section">
+
+<!-- Animated Statistics -->
+<section class="stats-section">
   <div class="container">
-    <h2 class="section-title animate-on-scroll">Popular Service Categories</h2>
-    <p class="section-subtitle animate-on-scroll animate-delay-1">
-      Find the right professional for any job around your home
-    </p>
+    <div class="row justify-content-center">
+      <div class="col-md-4 col-6">
+        <div class="stat-card">
+          <span class="stat-number" data-count="{{ active_jobs }}">0</span>
+          <span class="stat-label">Active Jobs</span>
+        </div>
+      </div>
+      <div class="col-md-4 col-6">
+        <div class="stat-card">
+          <span class="stat-number" data-count="{{ total_users }}">0</span>
+          <span class="stat-label">Users</span>
+        </div>
+      </div>
+      <div class="col-md-4 col-6">
+        <div class="stat-card">
+          <span class="stat-number" data-count="{{ total_jobs }}">0</span>
+          <span class="stat-label">Total Jobs</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Recent Job Opportunities -->
+<section class="py-5 bg-light">
+  <div class="container py-5">
+    <div class="text-center mb-5">
+      <h2 class="display-5 fw-bold mb-3">Latest Opportunities</h2>
+      <p class="text-muted lead">Discover the newest job postings</p>
+    </div>
 
     <div class="row g-4">
-      {% for category in categories %}
-      <div class="col-6 col-md-4 col-lg-3 animate-on-scroll animate-delay-{{ forloop.counter|add:1 }}">
-        <a href="{% url 'jobs:job_list' %}?category={{ category.id }}" class="category-card d-block">
-          <div class="card-body">
-            <!-- Enhanced dynamic icons -->
-            {% if 'plumb' in category.name.lower %}
-            <i class="bi bi-droplet-fill category-icon"></i>
-            {% elif 'electric' in category.name.lower %}
-            <i class="bi bi-lightning-fill category-icon"></i>
-            {% elif 'garden' in category.name.lower %}
-            <i class="bi bi-flower1 category-icon"></i>
-            {% elif 'clean' in category.name.lower %}
-            <i class="bi bi-brush category-icon"></i>
-            {% elif 'paint' in category.name.lower %}
-            <i class="bi bi-palette-fill category-icon"></i>
-            {% elif 'repair' in category.name.lower %}
-            <i class="bi bi-tools category-icon"></i>
-            {% elif 'cook' in category.name.lower or 'chef' in category.name.lower %}
-            <i class="bi bi-egg-fried category-icon"></i>
-            {% elif 'security' in category.name.lower %}
-            <i class="bi bi-shield-check category-icon"></i>
-            {% elif 'transport' in category.name.lower or 'driver' in category.name.lower %}
-            <i class="bi bi-car-front category-icon"></i>
-            {% elif 'tutor' in category.name.lower or 'teach' in category.name.lower %}
-            <i class="bi bi-book category-icon"></i>
-            {% else %}
-            <i class="bi bi-house-gear-fill category-icon"></i>
-            {% endif %}
-            <h5 class="category-title">{{ category.name }}</h5>
+      {% for job in recent_jobs %}
+      <div class="col-md-6 col-lg-4">
+        <div class="card job-card h-100 shadow-sm border-0">
+          <div class="card-body p-4">
+            <div class="d-flex align-items-start mb-3">
+              <div class="job-icon-wrapper me-3">
+                <i class="bi bi-briefcase-fill text-primary"></i>
+              </div>
+              <div class="flex-grow-1">
+                <h5 class="card-title mb-2">
+                  <a href="{% url 'jobs:job_detail' job.pk %}" class="text-decoration-none text-dark">
+                    {{ job.title|truncatewords:8 }}
+                  </a>
+                </h5>
+                <p class="text-muted small mb-2">
+                  <i class="bi bi-building me-1"></i>{{ job.employer.username }}
+                </p>
+              </div>
+            </div>
+            
+            <p class="card-text text-muted small mb-3">
+              {{ job.description|truncatewords:15 }}
+            </p>
+            
+            <div class="d-flex justify-content-between align-items-center">
+              <span class="badge bg-primary-subtle text-primary">
+                {{ job.category.name }}
+              </span>
+              <small class="text-muted">
+                <i class="bi bi-clock me-1"></i>{{ job.created_at|timesince }} ago
+              </small>
+            </div>
+            
+            <div class="mt-2">
+              <small class="text-muted">
+                <i class="bi bi-geo-alt me-1"></i>
+                {% if job.municipality and job.barangay %}
+                  {{ job.barangay }}, {{ job.municipality }}
+                {% elif job.municipality %}
+                  {{ job.municipality }}
+                {% elif job.barangay %}
+                  {{ job.barangay }}
+                {% else %}
+                  Location not specified
+                {% endif %}
+              </small>
+            </div>
           </div>
-        </a>
+          <div class="card-footer bg-transparent border-top-0 p-3">
+            <a href="{% url 'jobs:job_detail' job.pk %}" class="btn btn-outline-primary btn-sm w-100">
+              View Details <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+      {% empty %}
+      <div class="col-12 text-center py-5">
+        <i class="bi bi-inbox display-1 text-muted mb-3"></i>
+        <p class="text-muted">No jobs available at the moment. Check back soon!</p>
       </div>
       {% endfor %}
     </div>
+    
+    <div class="text-center mt-5">
+      <a href="{% url 'jobs:job_list' %}" class="btn btn-primary btn-lg px-5">
+        View All Jobs <i class="bi bi-arrow-right ms-2"></i>
+      </a>
+    </div>
   </div>
 </section>
 
-<!-- Enhanced How It Works Section -->
-<section id="how-it-works" class="how-it-works-section">
-  <div class="container">
-    <h2 class="section-title animate-on-scroll">How TrabahoLink Works</h2>
-    <p class="section-subtitle animate-on-scroll animate-delay-1">
-      Three simple steps to find the perfect professional
-    </p>
+<!-- How It Works Timeline -->
+<section class="py-5 bg-white">
+  <div class="container py-5">
+    <div class="text-center mb-5">
+      <h2 class="display-5 fw-bold mb-3">How It Works</h2>
+      <p class="text-muted lead">Get started in three simple steps</p>
+    </div>
 
+    <div class="row justify-content-center">
+      <div class="col-lg-8">
+        <div class="timeline">
+          <div class="timeline-item">
+            <div class="timeline-icon">
+              <i class="bi bi-person-plus"></i>
+            </div>
+            <div class="card border-0 shadow-sm">
+              <div class="card-body p-4">
+                <h4 class="h5 mb-3">1. Create Your Profile</h4>
+                <p class="text-muted mb-0">Sign up for free and build your professional profile. Showcase your skills, experience, and portfolio to stand out.</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="timeline-item">
+            <div class="timeline-icon">
+              <i class="bi bi-search"></i>
+            </div>
+            <div class="card border-0 shadow-sm">
+              <div class="card-body p-4">
+                <h4 class="h5 mb-3">2. Browse & Connect</h4>
+                <p class="text-muted mb-0">Explore thousands of job listings or find talented professionals. Use our advanced filters to find the perfect match.</p>
+              </div>
+            </div>
+          </div>
+          
+          <div class="timeline-item">
+            <div class="timeline-icon">
+              <i class="bi bi-check-circle"></i>
+            </div>
+            <div class="card border-0 shadow-sm">
+              <div class="card-body p-4">
+                <h4 class="h5 mb-3">3. Start Working</h4>
+                <p class="text-muted mb-0">Get hired or hire the right talent. Communicate securely, track progress, and build lasting professional relationships.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Features Section -->
+<section class="py-5 bg-light">
+  <div class="container py-5">
+    <div class="text-center mb-5">
+      <h2 class="display-5 fw-bold mb-3">Why Choose TrabahoLink?</h2>
+      <p class="text-muted lead">Everything you need to succeed</p>
+    </div>
+    
     <div class="row g-4">
-      <div class="col-md-4 animate-on-scroll animate-delay-2">
-        <div class="step-card">
-          <div class="card-body">
-            <div class="step-number">1</div>
-            <h4 class="step-title">Post Your Job</h4>
-            <p class="step-description">
-              Describe what you need done, when you need it, and your location.
-              Be specific about your requirements to attract the right professionals.
-            </p>
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body text-center p-4">
+            <div class="mb-4">
+              <i class="bi bi-shield-check" style="font-size: 3rem; color: var(--primary-color);"></i>
+            </div>
+            <h4 class="h5 mb-3">Secure & Trusted</h4>
+            <p class="text-muted mb-0">Your safety and privacy are our top priorities. All users are verified.</p>
           </div>
         </div>
       </div>
-
-      <div class="col-md-4 animate-on-scroll animate-delay-3">
-        <div class="step-card">
-          <div class="card-body">
-            <div class="step-number">2</div>
-            <h4 class="step-title">Compare Offers</h4>
-            <p class="step-description">
-              Review profiles, ratings, and offers from interested
-              professionals. Compare prices and read reviews to make the best choice.
-            </p>
+      
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body text-center p-4">
+            <div class="mb-4">
+              <i class="bi bi-people" style="font-size: 3rem; color: var(--primary-color);"></i>
+            </div>
+            <h4 class="h5 mb-3">Wide Network</h4>
+            <p class="text-muted mb-0">Connect with professionals and companies across various industries.</p>
           </div>
         </div>
       </div>
-
-      <div class="col-md-4 animate-on-scroll animate-delay-4">
-        <div class="step-card">
-          <div class="card-body">
-            <div class="step-number">3</div>
-            <h4 class="step-title">Negotiate and Hire</h4>
-            <p class="step-description">
-              Choose the best match, negotiate terms, and hire securely through
-              our platform. Get the job done with confidence.
-            </p>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-</section>
-
-<!-- Enhanced How to Apply Section -->
-<section class="apply-section">
-  <div class="container">
-    <h2 class="section-title animate-on-scroll">How to Apply for a Job</h2>
-    <p class="section-subtitle animate-on-scroll animate-delay-1">
-      Follow these steps to apply and get hired quickly through TrabahoLink
-    </p>
-
-    <div class="row g-4">
-      <div class="col-md-4 animate-on-scroll animate-delay-2">
-        <div class="step-card">
-          <div class="card-body">
-            <div class="step-number">1</div>
-            <h4 class="step-title">Browse Available Jobs</h4>
-            <p class="step-description">
-              Go to the job listings page and find a job that fits your skills and location.
-              Use filters to narrow down your search.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-4 animate-on-scroll animate-delay-3">
-        <div class="step-card">
-          <div class="card-body">
-            <div class="step-number">2</div>
-            <h4 class="step-title">Submit Your Application</h4>
-            <p class="step-description">
-              Click on a job to view details and use the apply button to submit your offer or message.
-              Showcase your skills and experience.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <div class="col-md-4 animate-on-scroll animate-delay-4">
-        <div class="step-card">
-          <div class="card-body">
-            <div class="step-number">3</div>
-            <h4 class="step-title">Get Hired</h4>
-            <p class="step-description">
-              Wait for the job poster to review your application and accept your offer. 
-              Communicate professionally and complete the job successfully.
-            </p>
+      
+      <div class="col-md-4">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body text-center p-4">
+            <div class="mb-4">
+              <i class="bi bi-lightning-charge" style="font-size: 3rem; color: var(--primary-color);"></i>
+            </div>
+            <h4 class="h5 mb-3">Fast & Easy</h4>
+            <p class="text-muted mb-0">Get started in minutes with our simple and intuitive platform.</p>
           </div>
         </div>
       </div>
@@ -188,156 +855,121 @@
   </div>
 </section>
 
-<!-- Enhanced CTA Section -->
-<section class="cta-section">
-  <div class="container text-center">
-    <h2 class="cta-title animate-on-scroll">Ready to Get Started?</h2>
-    <p class="cta-subtitle animate-on-scroll animate-delay-1">
-      Join thousands of homeowners who have found reliable professionals through
-      TrabahoLink
-    </p>
-    <div class="d-flex justify-content-center gap-3 animate-on-scroll animate-delay-2">
-      <a href="{% url 'jobs:job_list' %}" class="btn btn-light btn-lg">
-        <i class="bi bi-search"></i>
-        Find a Professional
-      </a>
-      {% if user.is_authenticated %}
-      <a href="{% url 'jobs:job_create' %}" class="btn btn-outline-light btn-lg">
-        <i class="bi bi-plus-circle"></i>
-        Post a Job
-      </a>
-      {% else %}
-      <a href="{% url 'login' %}?next={% url 'jobs:job_create' %}" class="btn btn-outline-light btn-lg">
-        <i class="bi bi-plus-circle"></i>
-        Post a Job
-      </a>
-      {% endif %}
+<!-- CTA Section -->
+<!-- CTA Section -->
+<section class="py-5" style="background: linear-gradient(135deg, #1a94d4 0%, #0d6efd 100%);">
+  <div class="container py-5">
+    <div class="row justify-content-center text-center">
+      <div class="col-lg-8">
+        {% if user.is_authenticated %}
+          <h2 class="text-white display-4 fw-bold mb-4">Welcome Back!</h2>
+          <p class="text-white lead mb-5 opacity-75">
+            Ready to explore new opportunities or manage your profile?
+          </p>
+          <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+            <a href="{% url 'jobs:job_list' %}" class="btn btn-light btn-lg px-5">
+              <i class="bi bi-search me-2"></i>
+              Browse Jobs
+            </a>
+            <a href="{% url 'profile' user.pk %}" class="btn btn-outline-light btn-lg px-5">
+              <i class="bi bi-person me-2"></i>
+              My Profile
+            </a>
+          </div>
+        {% else %}
+          <h2 class="text-white display-4 fw-bold mb-4">Ready to Get Started?</h2>
+          <p class="text-white lead mb-5 opacity-75">
+            Join our community today and unlock endless opportunities for growth and success.
+          </p>
+          <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
+            <a href="{% url 'account_signup' %}" class="btn btn-light btn-lg px-5">
+              <i class="bi bi-rocket-takeoff me-2"></i>
+              Sign Up Free
+            </a>
+            <a href="{% url 'jobs:job_list' %}" class="btn btn-outline-light btn-lg px-5">
+              <i class="bi bi-search me-2"></i>
+              Explore Jobs
+            </a>
+          </div>
+        {% endif %}
+      </div>
     </div>
   </div>
 </section>
 
-<!-- Add Bootstrap Icons if not already included in your base template -->
-<link
-  rel="stylesheet"
-  href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
-/>
+<!-- Back to Top Button -->
+<button id="backToTop" class="back-to-top-btn" title="Go to top">
+  <i class="bi bi-arrow-up-circle-fill"></i>
+</button>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    // Intersection Observer for scroll animations
-    const observerOptions = {
-        threshold: 0.1,
-        rootMargin: '0px 0px -50px 0px'
+  document.addEventListener('DOMContentLoaded', function() {
+    // Animated Counter
+    const counters = document.querySelectorAll('.stat-number');
+    const speed = 200;
+    
+    const animateCounter = (counter) => {
+      const target = +counter.getAttribute('data-count');
+      if (target === 0) {
+        counter.innerText = '0';
+        return;
+      }
+      const count = +counter.innerText;
+      const increment = target / speed;
+      
+      if (count < target) {
+        counter.innerText = Math.ceil(count + increment);
+        setTimeout(() => animateCounter(counter), 10);
+      } else {
+        counter.innerText = target;
+      }
     };
-
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                entry.target.style.opacity = '1';
-                entry.target.style.animation = entry.target.style.animation.replace('paused', 'running');
+    
+    // Intersection Observer for stats
+    const statsObserver = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          const counters = entry.target.querySelectorAll('.stat-number');
+          counters.forEach(counter => {
+            if (counter.innerText === '0') {
+              animateCounter(counter);
             }
-        });
-    }, observerOptions);
-
-    // Observe all elements with animate-on-scroll class
-    document.querySelectorAll('.animate-on-scroll').forEach(el => {
-        el.style.animationPlayState = 'paused';
-        observer.observe(el);
-    });
-
-    // Smooth scrolling for anchor links
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            e.preventDefault();
-            const target = document.querySelector(this.getAttribute('href'));
-            if (target) {
-                target.scrollIntoView({
-                    behavior: 'smooth',
-                    block: 'start'
-                });
-            }
-        });
-    });
-
-    // Add loading states for buttons
-    document.querySelectorAll('.btn').forEach(btn => {
-        btn.addEventListener('click', function(e) {
-            if (this.href && !this.href.includes('#')) {
-                const originalContent = this.innerHTML;
-                this.innerHTML = '<i class="bi bi-arrow-clockwise" style="animation: spin 1s linear infinite;"></i> Loading...';
-                this.disabled = true;
-                
-                // Re-enable after a delay (in case of navigation issues)
-                setTimeout(() => {
-                    this.innerHTML = originalContent;
-                    this.disabled = false;
-                }, 3000);
-            }
-        });
-    });
-
-    // Add CSS for spin animation
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
+          });
         }
-    `;
-    document.head.appendChild(style);
-
-    // Parallax effect for hero section
-    window.addEventListener('scroll', function() {
-        const scrolled = window.pageYOffset;
-        const heroSection = document.querySelector('.hero-section');
-        if (heroSection) {
-            const rate = scrolled * -0.5;
-            heroSection.style.transform = `translateY(${rate}px)`;
-        }
-    });
-
-    // Add hover effects for category cards
-    document.querySelectorAll('.category-card').forEach(card => {
-        card.addEventListener('mouseenter', function() {
-            this.style.transform = 'translateY(-8px) scale(1.02)';
-        });
-        
-        card.addEventListener('mouseleave', function() {
-            this.style.transform = 'translateY(0) scale(1)';
-        });
-    });
-
-    // Add counter animation for step numbers
-    function animateCounters() {
-        document.querySelectorAll('.step-number').forEach(counter => {
-            const target = parseInt(counter.textContent);
-            let current = 0;
-            const increment = target / 20;
-            const timer = setInterval(() => {
-                current += increment;
-                if (current >= target) {
-                    counter.textContent = target;
-                    clearInterval(timer);
-                } else {
-                    counter.textContent = Math.floor(current);
-                }
-            }, 50);
-        });
-    }
-
-    // Trigger counter animation when step cards come into view
-    const stepObserver = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-            if (entry.isIntersecting) {
-                animateCounters();
-                stepObserver.unobserve(entry.target);
-            }
-        });
+      });
     }, { threshold: 0.5 });
-
-    document.querySelectorAll('.step-card').forEach(card => {
-        stepObserver.observe(card);
+    
+    const statsSection = document.querySelector('.stats-section');
+    if (statsSection) {
+      statsObserver.observe(statsSection);
+    }
+    
+    // Auto-start carousels
+    const carousels = document.querySelectorAll('.carousel');
+    carousels.forEach(carousel => {
+      new bootstrap.Carousel(carousel, {
+        interval: 5000,
+        ride: 'carousel'
+      });
     });
-});
+    
+    // Back to Top Button
+    const backToTopBtn = document.getElementById('backToTop');
+    
+    window.addEventListener('scroll', () => {
+      if (window.pageYOffset > 300) {
+        backToTopBtn.classList.add('show');
+      } else {
+        backToTopBtn.classList.remove('show');
+      }
+    });
+    
+    backToTopBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  });
 </script>
 {% endblock %}

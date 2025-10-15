@@ -1,0 +1,107 @@
+{% load i18n %}
+{% with is_compact=compact|default_if_none:False status_value=status|default:'pending' %}
+    {% if requests %}
+    <div class="overflow-x-auto">
+        <table class="min-w-full divide-y divide-gray-200">
+            <thead class="{% if is_compact %}bg-white{% else %}bg-gray-50{% endif %}">
+                <tr>
+                    {% if not is_compact %}
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Applicant</th>
+                    {% endif %}
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID Type</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Submitted</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Documents</th>
+                    {% if not is_compact %}
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                    {% endif %}
+                </tr>
+            </thead>
+            {% if is_compact %}
+            {% with display_items=requests|slice:':5' %}
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for submission in display_items %}
+                <tr class="hover:bg-gray-50 transition">
+                    <td class="px-6 py-4 text-sm text-gray-600">
+                        {{ submission.get_id_type_display|default:submission.id_type|title }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ submission.submitted_at|date:'M d, Y' }}
+                        <span class="block text-xs text-gray-400">{{ submission.submitted_at|timesince }} ago</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% include 'admin_dashboard/partials/identity_verification_table_status_badge.html' with submission=submission %}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-trabaholink-blue">
+                        {% include 'admin_dashboard/partials/identity_verification_table_documents.html' with submission=submission %}
+                    </td>
+                    {% if not is_compact %}
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                        {% include 'admin_dashboard/partials/identity_verification_table_actions.html' with submission=submission %}
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% endwith %}
+            {% else %}
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for submission in requests %}
+                <tr class="hover:bg-gray-50 transition">
+                    {% if not is_compact %}
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="text-sm font-semibold text-gray-900">{{ submission.full_name|default:submission.user.get_full_name|default:submission.user.username }}</div>
+                        <div class="text-xs text-gray-500">@{{ submission.user.username }}</div>
+                    </td>
+                    {% endif %}
+                    <td class="px-6 py-4 text-sm text-gray-700">
+                        {{ submission.get_id_type_display|default:submission.id_type|title }}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ submission.submitted_at|date:'M d, Y' }}
+                        <span class="block text-xs text-gray-400">{{ submission.submitted_at|timesince }} ago</span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% include 'admin_dashboard/partials/identity_verification_table_status_badge.html' with submission=submission %}
+                    </td>
+                    <td class="px-6 py-4 text-sm text-trabaholink-blue">
+                        {% include 'admin_dashboard/partials/identity_verification_table_documents.html' with submission=submission %}
+                    </td>
+                    {% if not is_compact %}
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm">
+                        {% include 'admin_dashboard/partials/identity_verification_table_actions.html' with submission=submission %}
+                    </td>
+                    {% endif %}
+                </tr>
+                {% endfor %}
+            </tbody>
+            {% endif %}
+        </table>
+        {% if is_compact and requests|length > 5 %}
+        <div class="px-6 py-3 text-xs text-gray-500">
+            Showing first 5 entries · <a href="?status={{ status_value }}" class="text-trabaholink-blue hover:underline">View all</a>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <div class="p-12 text-center text-gray-500">
+        {% if status_value == 'approved' %}
+        <i data-lucide="shield-check" class="w-12 h-12 mx-auto mb-4 text-green-500"></i>
+        <p class="text-lg font-medium">No approved verifications.</p>
+        <p class="text-sm">Approved identity requests will appear here.</p>
+        {% elif status_value == 'rejected' %}
+        <i data-lucide="x-octagon" class="w-12 h-12 mx-auto mb-4 text-red-500"></i>
+        <p class="text-lg font-medium">No rejected submissions.</p>
+        <p class="text-sm">Rejected identity requests will display here for follow-up.</p>
+        {% elif status_value == 'overview' %}
+        <i data-lucide="badge-check" class="w-12 h-12 mx-auto mb-4 text-trabaholink-blue"></i>
+        <p class="text-lg font-medium">No identity verification submissions found.</p>
+        <p class="text-sm">Once the worker submits verification, it will appear in this overview.</p>
+        {% else %}
+        <i data-lucide="clock" class="w-12 h-12 mx-auto mb-4 text-yellow-500"></i>
+        <p class="text-lg font-medium">All caught up! No pending identity checks.</p>
+        <p class="text-sm">You will be notified when new verification requests arrive.</p>
+        {% endif %}
+    </div>
+    {% endif %}
+{% endwith %}

@@ -1,90 +1,176 @@
 {% extends 'mainpages/base.html' %}
 
 {% block content %}
-<div class="register-container">
-    <div class="register-card">
-        <div class="register-header">
-            <h1 class="site-title">TrabahoLink</h1>
-            <p class="site-tagline">Join our community of skilled professionals</p>
-        </div>
-        
-        <div class="register-content">         
-            <div class="register-form-container">
-                <h2>Create Your Account</h2>
-                <p class="register-subtitle">Start your journey to better opportunities</p>
+<div class="auth-page-wrapper">
+  <!-- Floating Shapes Background -->
+  <div class="floating-shape shape-1"></div>
+  <div class="floating-shape shape-2"></div>
+  <div class="floating-shape shape-3"></div>
+  
+  <div class="container">
+    <div class="row justify-content-center align-items-center min-vh-80">
+      <div class="col-lg-11 col-xl-10">
+        <div class="auth-card">
+          <div class="row g-0">
+            <!-- Left Side - Branding & Image -->
+            <div class="col-lg-5 auth-brand-section">
+              <div class="auth-brand-content">
+                <div class="brand-logo-section">
+                  <h1 class="brand-title">
+                    <span class="brand-text">Trabaho</span><span class="brand-highlight">Link</span>
+                  </h1>
+                  <p class="brand-tagline">Your gateway to endless opportunities</p>
+                </div>
                 
-                <form method="post" class="register-form">
-                    {% csrf_token %}
-                    
-                    <div class="form-group">
-                        <label for="{{ form.username.id_for_label }}">Username</label>
-                        {{ form.username }}
-                        {% if form.username.errors %}
-                        <div class="error-message">{{ form.username.errors }}</div>
-                        {% endif %}
+                <div class="auth-illustration">
+                  <div class="illustration-wrapper">
+                    <i class="bi bi-person-plus-fill illustration-icon"></i>
+                  </div>
+                  <h3 class="illustration-title">Join Us Today!</h3>
+                  <p class="illustration-text">Create your account and start your journey to success</p>
+                </div>
+                
+                <div class="auth-features">
+                  <div class="feature-item">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>Free Registration</span>
+                  </div>
+                  <div class="feature-item">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>Access to Opportunities</span>
+                  </div>
+                  <div class="feature-item">
+                    <i class="bi bi-check-circle-fill"></i>
+                    <span>Build Your Network</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Right Side - Register Form -->
+            <div class="col-lg-7 auth-form-section">
+              <div class="auth-form-wrapper">
+                <div class="auth-form-header">
+                  <h2 class="form-title">Create Account</h2>
+                  <p class="form-subtitle">Fill in your details to get started</p>
+                </div>
+                
+                <form method="post" class="auth-form">
+                  {% csrf_token %}
+                  
+                  <div class="form-group-modern">
+                    <label for="{{ form.username.id_for_label }}" class="form-label-modern">
+                      <i class="bi bi-person-fill me-2"></i>Username
+                    </label>
+                    <div class="input-wrapper">
+                      {{ form.username }}
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="{{ form.email.id_for_label }}">Email Address</label>
-                        {{ form.email }}
-                        {% if form.email.errors %}
-                        <div class="error-message">{{ form.email.errors }}</div>
-                        {% endif %}
+                    {% if form.username.errors %}
+                    <div class="error-message-modern">{{ form.username.errors }}</div>
+                    {% endif %}
+                  </div>
+                  
+                  <div class="form-group-modern">
+                    <label for="{{ form.email.id_for_label }}" class="form-label-modern">
+                      <i class="bi bi-envelope-fill me-2"></i>Email Address
+                    </label>
+                    <div class="input-wrapper">
+                      {{ form.email }}
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="{{ form.password1.id_for_label }}">Password</label>
-                        {{ form.password1 }}
-                        {% if form.password1.errors %}
-                        <div class="error-message">{{ form.password1.errors }}</div>
-                        {% endif %}
-                        <div class="help-text">{{ form.password1.help_text }}</div>
+                    {% if form.email.errors %}
+                    <div class="error-message-modern">{{ form.email.errors }}</div>
+                    {% endif %}
+                  </div>
+                  
+                  <div class="form-group-modern">
+                    <label for="{{ form.password1.id_for_label }}" class="form-label-modern">
+                      <i class="bi bi-lock-fill me-2"></i>Password
+                    </label>
+                    <div class="input-wrapper password-wrapper">
+                      {{ form.password1 }}
+                      <button type="button" class="password-toggle" onclick="togglePassword('{{ form.password1.id_for_label }}')">
+                        <i class="bi bi-eye-fill" id="toggleIcon-{{ form.password1.id_for_label }}"></i>
+                      </button>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="{{ form.password2.id_for_label }}">Confirm Password</label>
-                        {{ form.password2 }}
-                        {% if form.password2.errors %}
-                        <div class="error-message">{{ form.password2.errors }}</div>
-                        {% endif %}
+                    {% if form.password1.errors %}
+                    <div class="error-message-modern">{{ form.password1.errors }}</div>
+                    {% endif %}
+                    {% if form.password1.help_text %}
+                    <div class="help-text-modern">{{ form.password1.help_text }}</div>
+                    {% endif %}
+                  </div>
+                  
+                  <div class="form-group-modern">
+                    <label for="{{ form.password2.id_for_label }}" class="form-label-modern">
+                      <i class="bi bi-shield-lock-fill me-2"></i>Confirm Password
+                    </label>
+                    <div class="input-wrapper password-wrapper">
+                      {{ form.password2 }}
+                      <button type="button" class="password-toggle" onclick="togglePassword('{{ form.password2.id_for_label }}')">
+                        <i class="bi bi-eye-fill" id="toggleIcon-{{ form.password2.id_for_label }}"></i>
+                      </button>
                     </div>
-                    
-                    <div class="form-group">
-                        <label for="{{ form.role.id_for_label }}">I am a:</label>
-                        {{ form.role }}
-                        {% if form.role.errors %}
-                        <div class="error-message">{{ form.role.errors }}</div>
-                        {% endif %}
+                    {% if form.password2.errors %}
+                    <div class="error-message-modern">{{ form.password2.errors }}</div>
+                    {% endif %}
+                  </div>
+                  
+                  <div class="form-group-modern">
+                    <label for="{{ form.role.id_for_label }}" class="form-label-modern">
+                      <i class="bi bi-briefcase-fill me-2"></i>I am a:
+                    </label>
+                    <div class="input-wrapper">
+                      {{ form.role }}
                     </div>
+                    {% if form.role.errors %}
+                    <div class="error-message-modern">{{ form.role.errors }}</div>
+                    {% endif %}
+                  </div>
 
-                    <!-- Consent Checkbox -->
-                    <div class="form-group form-check consent-container d-flex align-items-center">
-                        <input type="checkbox" class="form-check-input me-2" name="consent" id="consent" required style="width: 18px; height: 18px;">
-                        <label class="form-check-label consent-label" for="consent">
-                            I agree to the
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a>
-                            and the
-                            <a href="#" data-bs-toggle="modal" data-bs-target="#privacyConsentModal">Privacy Consent Agreement</a>.
-                        </label>
-                    </div>
-                    
-                    
-                    
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary btn-block">Create Account</button>
-                    </div>
+                  <!-- Consent Checkbox -->
+                  <div class="consent-checkbox-modern">
+                    <input type="checkbox" name="consent" id="consent" required>
+                    <label for="consent">
+                      I agree to the
+                      <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a>
+                      and the
+                      <a href="#" data-bs-toggle="modal" data-bs-target="#privacyConsentModal">Privacy Consent Agreement</a>.
+                    </label>
+                  </div>
+                  
+                  <button type="submit" class="btn btn-primary-modern btn-block-modern">
+                    <span>Create Account</span>
+                    <i class="bi bi-arrow-right-circle ms-2"></i>
+                  </button>
                 </form>
                 
-                <div class="login-prompt">
-                    <p>Already have an account?</p>
-                    <a href="{% url 'login' %}" class="btn btn-outline">Sign In</a>
+                <div class="divider-modern">
+                  <span>OR CONTINUE WITH</span>
                 </div>
+                
+                <div class="social-auth">
+                  {% load socialaccount %}
+                  <a href="{% provider_login_url 'google' %}" class="btn btn-google-modern">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48">
+                      <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
+                      <path fill="#FF3D00" d="M6.306,14.691l6.571,4.819C14.655,15.108,18.961,12,24,12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C16.318,4,9.656,8.337,6.306,14.691z"/>
+                      <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/>
+                      <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
+                    </svg>
+                    <span>Sign up with Google</span>
+                  </a>
+                </div>
+                
+                <div class="auth-switch">
+                  <p>Already have an account? <a href="{% url 'login' %}" class="switch-link">Sign In</a></p>
+                </div>
+              </div>
             </div>
-            <div class="register-image">
-                <!-- <img src="/static/images/worker.png" alt="Construction worker" onerror="this.src='/placeholder.svg?height=500&width=400'; this.onerror=null;"> -->
-            </div>
+          </div>
         </div>
+      </div>
     </div>
+  </div>
 </div>
 
 <!-- Consent Modal -->
@@ -98,7 +184,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <h5>Effective Date: [Insert Date]</h5>
+          
           <p>This Terms and Services Agreement ("Agreement") governs the use of the services provided by Trabaholink ("we", "us", or "our"). By accessing or using Trabaholink, you agree to be bound by these terms and conditions set forth in this Agreement. If you do not agree to these terms, do not use our services.</p>
           
           <h6>1. Acceptance of Terms</h6>
@@ -137,9 +223,9 @@
           <h6>11. Contact Information</h6>
           <p>If you have any questions or concerns regarding this Agreement, please contact us at:<br>
              **Trabaholink**<br>
-             Email: [Insert Contact Email]
+             Email: trabaholinka@gmail.com
           </p>
-  
+
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -157,7 +243,7 @@
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
-          <h4>Effective Date: [Insert Date]</h4>
+          
           <p>Trabaholink ("we", "us", or "our") is committed to protecting your privacy and ensuring the security of personal data collected from users of our platform. This Privacy Consent Agreement outlines the manner in which we collect, use, process, store, and disclose personal data in accordance with Republic Act No. 10173, otherwise known as the Data Privacy Act of 2012, and its Implementing Rules and Regulations.</p>
           
           <h4>1. Collection of Personal Data</h4>
@@ -219,208 +305,516 @@
 
 
 <style>
-    .register-container {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: 80vh;
-        padding: 0.1rem;
-        background-color: #f5f7fa;
+  :root {
+    --primary-color: #1a94d4;
+    --primary-dark: #0d6efd;
+    --primary-light: #e6f4ff;
+    --gradient-primary: linear-gradient(135deg, #1a94d4 0%, #0d6efd 100%);
+  }
+  
+  /* Auth Page Wrapper */
+  .auth-page-wrapper {
+    min-height: 85vh;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+    padding: 2rem 0;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  /* Floating Shapes Animation */
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0) rotate(0deg);
     }
-    
-    .register-card {
-        width: 100%;
-        max-width: 1000px;
-        background-color: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-        margin-bottom: 2rem;
+    50% {
+      transform: translateY(-20px) rotate(5deg);
     }
-    
-    .register-header {
-        background-color: #1e4d8c;
-        color: white;
-        padding: 1.5rem;
-        text-align: center;
+  }
+  
+  .floating-shape {
+    position: absolute;
+    opacity: 0.08;
+    animation: float 15s infinite ease-in-out;
+    z-index: 1;
+  }
+  
+  .shape-1 {
+    top: 10%;
+    left: 5%;
+    width: 100px;
+    height: 100px;
+    background: var(--primary-color);
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    animation-delay: 0s;
+  }
+  
+  .shape-2 {
+    top: 60%;
+    right: 10%;
+    width: 80px;
+    height: 80px;
+    background: var(--primary-dark);
+    border-radius: 50%;
+    animation-delay: 2s;
+    animation-duration: 18s;
+  }
+  
+  .shape-3 {
+    bottom: 15%;
+    left: 15%;
+    width: 70px;
+    height: 70px;
+    background: var(--primary-color);
+    border-radius: 15% 85% 35% 65% / 65% 35% 65% 35%;
+    animation-delay: 4s;
+    animation-duration: 20s;
+  }
+  
+  .min-vh-80 {
+    min-height: 80vh;
+  }
+  
+  /* Auth Card */
+  .auth-card {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+    overflow: hidden;
+    position: relative;
+    z-index: 10;
+    animation: fadeInUp 0.6s ease-out;
+  }
+  
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
     }
-    
-    .site-title {
-        font-size: 2rem;
-        margin: 0;
-        font-weight: 700;
+    to {
+      opacity: 1;
+      transform: translateY(0);
     }
-    
-    .site-tagline {
-        margin-top: 0.5rem;
-        opacity: 0.9;
-    }
-    
-    .register-content {
-        display: flex;
-        flex-direction: row;
-    }
-    
-    .register-image {
-        flex: 1;
-        background-color: #2295b8;
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        padding: 2rem;
-        flex-direction: column;
-    }
-    
-    .register-image img {
-        max-width: 100%;
-        height: auto;
-        border-radius: 4px;
-    }
-    
-    .register-form-container {
-        flex: 1.2;
-        padding: 2rem;
-    }
-    
-    .register-subtitle {
-        color: #6c757d;
-        margin-bottom: 1.5rem;
-    }
-    
-    .register-form {
-        margin-bottom: 1.5rem;
-    }
-    
-    .form-group {
-        margin-bottom: 1.25rem;
-    }
-    
-    .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-        color: #495057;
-    }
-    
-    .form-group input, .form-group select {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        font-size: 1rem;
-    }
-    
-    .help-text {
-        font-size: 0.8rem;
-        color: #6c757d;
-        margin-top: 0.5rem;
-    }
-    
-    .error-message {
-        color: #dc3545;
-        font-size: 0.875rem;
-        margin-top: 0.5rem;
-    }
-    
-    .form-actions {
-        margin-top: 1.5rem;
-    }
-    
-    .btn {
-        display: inline-block;
-        font-weight: 500;
-        text-align: center;
-        vertical-align: middle;
-        cursor: pointer;
-        padding: 0.75rem 1rem;
-        font-size: 1rem;
-        line-height: 1.5;
-        border-radius: 4px;
-        transition: all 0.15s ease-in-out;
-    }
-    
-    .btn-primary {
-        color: #fff;
-        background-color: #f26522;
-        border: 1px solid #f26522;
-    }
-    
-    .btn-primary:hover {
-        background-color: #e55b14;
-        border-color: #e55b14;
-    }
-    
-    .btn-outline {
-        color: #1e4d8c;
-        background-color: transparent;
-        border: 1px solid #1e4d8c;
-    }
-    
-    .btn-outline:hover {
-        color: #fff;
-        background-color: #1e4d8c;
-    }
-    
-    .btn-block {
-        display: block;
-        width: 100%;
-    }
-    
-    .login-prompt {
-        margin-top: 2rem;
-        text-align: center;
-        padding-top: 1.5rem;
-        border-top: 1px solid #e9ecef;
-    }
-    
-    @media (max-width: 768px) {
-        .register-content {
-            flex-direction: column;
-        }
-        
-        .register-image {
-            display: none;
-        }
-    }
-
-    .mt-4 {
-        margin-top: 0.5rem !important;
-    }
-
-    .form-group input[type="checkbox"] {
-        margin-right: 0.5rem;
-    }
-
-    .form-group a {
-        text-decoration: none;
-        color: #007bff;
-    }
-
-    .form-group a:hover {
-        text-decoration: underline;
-    }
-.consent-container {
+  }
+  
+  /* Brand Section */
+  .auth-brand-section {
+    background: var(--gradient-primary);
+    color: white;
+    padding: 3rem 2rem;
     display: flex;
-    gap: 0.5rem;
     align-items: center;
-}
-
-.consent-container input[type="checkbox"] {
+    justify-content: center;
+    position: relative;
+    overflow: hidden;
+  }
+  
+  .auth-brand-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    opacity: 0.3;
+  }
+  
+  .auth-brand-content {
+    position: relative;
+    z-index: 2;
+    text-align: center;
+  }
+  
+  .brand-logo-section {
+    margin-bottom: 2.5rem;
+  }
+  
+  .brand-title {
+    font-size: 2.5rem;
+    font-weight: 800;
+    margin-bottom: 0.5rem;
+  }
+  
+  .brand-text {
+    color: white;
+  }
+  
+  .brand-highlight {
+    color: #ffd700;
+  }
+  
+  .brand-tagline {
+    font-size: 1rem;
+    opacity: 0.9;
     margin: 0;
-    margin-top: 0.2rem;
+  }
+  
+  .auth-illustration {
+    margin: 2rem 0;
+  }
+  
+  .illustration-wrapper {
+    width: 120px;
+    height: 120px;
+    background: rgba(255, 255, 255, 0.2);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1.5rem;
+    backdrop-filter: blur(10px);
+    animation: pulse 2s infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+  
+  .illustration-icon {
+    font-size: 3.5rem;
+    color: white;
+  }
+  
+  .illustration-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+  
+  .illustration-text {
+    font-size: 0.95rem;
+    opacity: 0.9;
+    margin: 0;
+  }
+  
+  .auth-features {
+    margin-top: 2.5rem;
+  }
+  
+  .feature-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+  }
+  
+  .feature-item i {
+    font-size: 1.2rem;
+    color: #ffd700;
+  }
+  
+  /* Form Section */
+  .auth-form-section {
+    padding: 3rem 2.5rem;
+  }
+  
+  .auth-form-wrapper {
+    max-width: 450px;
+    margin: 0 auto;
+  }
+  
+  .auth-form-header {
+    margin-bottom: 2rem;
+  }
+  
+  .form-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+  }
+  
+  .form-subtitle {
+    color: #718096;
+    font-size: 0.95rem;
+    margin: 0;
+  }
+  
+  /* Form Groups */
+  .form-group-modern {
+    margin-bottom: 1.25rem;
+  }
+  
+  .form-label-modern {
+    display: flex;
+    align-items: center;
+    font-weight: 600;
+    color: #2d3748;
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+  }
+  
+  .input-wrapper {
+    position: relative;
+  }
+  
+  .input-wrapper input,
+  .input-wrapper select {
+    width: 100%;
+    padding: 0.875rem 1rem;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    font-size: 1rem;
+    transition: all 0.3s ease;
+    background: #f8f9fa;
+  }
+  
+  .input-wrapper input:focus,
+  .input-wrapper select:focus {
+    outline: none;
+    border-color: var(--primary-color);
+    background: white;
+    box-shadow: 0 0 0 3px rgba(26, 148, 212, 0.1);
+  }
+  
+  /* Password Toggle */
+  .password-wrapper {
+    position: relative;
+  }
+  
+  .password-wrapper input {
+    padding-right: 3rem;
+  }
+  
+  .password-toggle {
+    position: absolute;
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    background: none;
+    border: none;
+    color: #718096;
+    cursor: pointer;
+    padding: 0.5rem;
+    transition: color 0.3s ease;
+  }
+  
+  .password-toggle:hover {
+    color: var(--primary-color);
+  }
+  
+  .password-toggle i {
+    font-size: 1.2rem;
+  }
+  
+  /* Error and Help Text */
+  .error-message-modern {
+    color: #dc3545;
+    font-size: 0.85rem;
+    margin-top: 0.5rem;
+  }
+  
+  .help-text-modern {
+    font-size: 0.8rem;
+    color: #718096;
+    margin-top: 0.5rem;
+  }
+  
+  /* Consent Checkbox */
+  .consent-checkbox-modern {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.75rem;
+    margin-bottom: 1.5rem;
+    padding: 1rem;
+    background: #f8f9fa;
+    border-radius: 10px;
+  }
+  
+  .consent-checkbox-modern input[type="checkbox"] {
+    margin-top: 0.25rem;
+    width: 18px;
+    height: 18px;
+    cursor: pointer;
     flex-shrink: 0;
-}
-
-.consent-label {
-    flex: 1;
+  }
+  
+  .consent-checkbox-modern label {
+    font-size: 0.9rem;
+    color: #2d3748;
     margin: 0;
-    word-wrap: break-word;
-    white-space: normal;
-}
-
+    line-height: 1.5;
+  }
+  
+  .consent-checkbox-modern a {
+    color: var(--primary-color);
+    text-decoration: none;
+    font-weight: 500;
+  }
+  
+  .consent-checkbox-modern a:hover {
+    text-decoration: underline;
+  }
+  
+  /* Primary Button */
+  .btn-primary-modern {
+    width: 100%;
+    padding: 1rem;
+    background: var(--gradient-primary);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    box-shadow: 0 4px 15px rgba(26, 148, 212, 0.3);
+  }
+  
+  .btn-primary-modern:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(26, 148, 212, 0.4);
+  }
+  
+  .btn-primary-modern:active {
+    transform: translateY(0);
+  }
+  
+  .btn-block-modern {
+    display: block;
+    width: 100%;
+  }
+  
+  /* Divider */
+  .divider-modern {
+    display: flex;
+    align-items: center;
+    text-align: center;
+    margin: 2rem 0 1.5rem;
+  }
+  
+  .divider-modern::before,
+  .divider-modern::after {
+    content: '';
+    flex: 1;
+    border-bottom: 1px solid #e2e8f0;
+  }
+  
+  .divider-modern span {
+    padding: 0 1rem;
+    color: #a0aec0;
+    font-size: 0.8rem;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+  
+  /* Social Auth */
+  .social-auth {
+    margin-bottom: 2rem;
+  }
+  
+  .btn-google-modern {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0.875rem 1rem;
+    background: white;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    color: #2d3748;
+    font-weight: 600;
+    text-decoration: none;
+    transition: all 0.3s ease;
+  }
+  
+  .btn-google-modern:hover {
+    border-color: #cbd5e0;
+    background: #f8f9fa;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .btn-google-modern svg {
+    flex-shrink: 0;
+  }
+  
+  /* Auth Switch */
+  .auth-switch {
+    text-align: center;
+    padding-top: 1.5rem;
+    border-top: 1px solid #e2e8f0;
+  }
+  
+  .auth-switch p {
+    color: #718096;
+    margin: 0;
+  }
+  
+  .switch-link {
+    color: var(--primary-color);
+    font-weight: 600;
+    text-decoration: none;
+    transition: color 0.3s ease;
+  }
+  
+  .switch-link:hover {
+    color: var(--primary-dark);
+    text-decoration: underline;
+  }
+  
+  /* Responsive */
+  @media (max-width: 991.98px) {
+    .auth-brand-section {
+      display: none;
+    }
+    
+    .auth-form-section {
+      padding: 2rem 1.5rem;
+    }
+    
+    .brand-title {
+      font-size: 2rem;
+    }
+  }
+  
+  @media (max-width: 575.98px) {
+    .auth-page-wrapper {
+      padding: 1rem 0;
+    }
+    
+    .auth-form-section {
+      padding: 1.5rem 1rem;
+    }
+    
+    .form-title {
+      font-size: 1.75rem;
+    }
+    
+    .form-group-modern {
+      margin-bottom: 1rem;
+    }
+  }
 </style>
+
+<script>
+  function togglePassword(inputId) {
+    const input = document.getElementById(inputId);
+    const icon = document.getElementById('toggleIcon-' + inputId);
+    
+    if (input.type === 'password') {
+      input.type = 'text';
+      icon.classList.remove('bi-eye-fill');
+      icon.classList.add('bi-eye-slash-fill');
+    } else {
+      input.type = 'password';
+      icon.classList.remove('bi-eye-slash-fill');
+      icon.classList.add('bi-eye-fill');
+    }
+  }
+</script>
 
 <!-- Bootstrap JS (required for the modal to function) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
-
 {% endblock %}

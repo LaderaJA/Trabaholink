@@ -1,281 +1,1056 @@
 {% extends 'mainpages/base.html' %}
+{% load static %}
 
 {% block css %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
 <style>
-  .form-container { max-width: 800px; margin: 50px auto; }
-  .section-header { margin-top: 30px; margin-bottom: 10px; border-bottom: 2px solid #e0e0e0; padding-bottom: 5px; }
-  .add-link { display: inline-block; margin-top: 8px; font-size: 14px; text-decoration: underline; cursor: pointer; color: #0a66c2; }
+:root {
+  --primary-color: #1a94d4;
+  --primary-dark: #0d6efd;
+  --primary-light: #e6f4ff;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --text-dark: #2d3748;
+  --text-medium: #4a5568;
+  --text-light: #718096;
+  --bg-light: #f7fafc;
+  --bg-white: #ffffff;
+  --border-color: #e2e8f0;
+  --gradient-primary: linear-gradient(135deg, #1a94d4 0%, #0d6efd 100%);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+body {
+  background: var(--bg-light);
+}
+
+/* Header */
+.edit-header {
+  background: var(--gradient-primary);
+  color: white;
+  padding: 2rem 0;
+  margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+}
+
+.edit-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.3;
+}
+
+.edit-header .container {
+  position: relative;
+  z-index: 2;
+}
+
+.edit-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.edit-header p {
+  margin: 0;
+  opacity: 0.9;
+  font-size: 1.05rem;
+}
+
+/* Form Container */
+.form-container-edit {
+  max-width: 1200px;
+  margin: 0 auto 3rem;
+  background: white;
+  border-radius: 16px;
+  box-shadow: var(--shadow-lg);
+  overflow: hidden;
+}
+
+/* Form Layout */
+.form-layout-edit {
+  display: grid;
+  grid-template-columns: 350px 1fr;
+  gap: 0;
+}
+
+.form-sidebar-edit {
+  background: var(--bg-light);
+  padding: 2rem;
+  border-right: 1px solid var(--border-color);
+}
+
+.form-main-edit {
+  padding: 2rem;
+}
+
+/* Section */
+.section-edit {
+  margin-bottom: 2.5rem;
+}
+
+.section-title-edit {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 1.5rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 3px solid var(--primary-color);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.section-title-edit i {
+  color: var(--primary-color);
+}
+
+/* Form Groups */
+.form-group-edit {
+  margin-bottom: 1.5rem;
+}
+
+.form-label-edit {
+  display: block;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.form-label-edit i {
+  color: var(--primary-color);
+  margin-right: 0.35rem;
+}
+
+.form-control-edit {
+  width: 100%;
+  padding: 0.875rem 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  font-size: 1rem;
+  transition: all 0.3s;
+  background: var(--bg-white);
+}
+
+.form-control-edit:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(26, 148, 212, 0.1);
+}
+
+textarea.form-control-edit {
+  min-height: 120px;
+  resize: vertical;
+  font-family: inherit;
+}
+
+.form-text-edit {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.form-text-edit i {
+  font-size: 0.9rem;
+}
+
+.text-danger {
+  color: var(--danger-color);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+/* Form Row */
+.form-row-edit {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+/* Profile Picture Upload */
+.profile-pic-upload {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: var(--bg-light);
+  border-radius: 12px;
+  border: 2px dashed var(--border-color);
+}
+
+.current-profile-pic {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid white;
+  box-shadow: var(--shadow-md);
+}
+
+.pic-upload-content {
+  flex: 1;
+}
+
+.pic-upload-title {
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+}
+
+.pic-upload-hint {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  margin-bottom: 1rem;
+}
+
+/* Cover Photo Selector */
+.cover-photo-selector {
+  padding: 1.5rem;
+  background: var(--bg-light);
+  border-radius: 12px;
+  border: 2px solid var(--border-color);
+}
+
+.cover-options-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.cover-option {
+  position: relative;
+  cursor: pointer;
+}
+
+.cover-option input[type="radio"] {
+  position: absolute;
+  opacity: 0;
+}
+
+.cover-preview {
+  height: 80px;
+  border-radius: 10px;
+  border: 3px solid transparent;
+  transition: all 0.3s;
+  position: relative;
+  overflow: hidden;
+}
+
+.cover-option input[type="radio"]:checked + .cover-preview {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(26, 148, 212, 0.2);
+  transform: scale(1.05);
+}
+
+.cover-preview::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) scale(0);
+  width: 30px;
+  height: 30px;
+  background: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+}
+
+.cover-option input[type="radio"]:checked + .cover-preview::after {
+  content: '✓';
+  transform: translate(-50%, -50%) scale(1);
+  color: var(--primary-color);
+  font-weight: bold;
+  font-size: 1.2rem;
+  line-height: 30px;
+  text-align: center;
+}
+
+.cover-label {
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--text-medium);
+  margin-top: 0.5rem;
+  font-weight: 500;
+}
+
+.gradient-1 {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.gradient-2 {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.gradient-3 {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.gradient-4 {
+  background: linear-gradient(135deg, #43e97b 0%, #38f9d7 100%);
+}
+
+.gradient-5 {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+}
+
+.gradient-6 {
+  background: linear-gradient(135deg, #30cfd0 0%, #330867 100%);
+}
+
+.custom-cover-upload {
+  padding: 1.5rem;
+  border: 2px dashed var(--border-color);
+  border-radius: 10px;
+  text-align: center;
+  transition: all 0.3s;
+}
+
+.custom-cover-upload:hover {
+  border-color: var(--primary-color);
+  background: var(--primary-light);
+}
+
+.upload-icon-large {
+  font-size: 2.5rem;
+  color: var(--primary-color);
+  margin-bottom: 0.75rem;
+}
+
+/* Education/Experience Forms */
+.formset-item {
+  background: var(--bg-light);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1rem;
+  position: relative;
+  transition: all 0.3s;
+}
+
+.formset-item:hover {
+  border-color: var(--primary-color);
+  box-shadow: var(--shadow-sm);
+}
+
+.formset-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+}
+
+.formset-title {
+  font-weight: 600;
+  color: var(--text-dark);
+}
+
+.delete-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: var(--danger-color);
+  font-size: 0.9rem;
+}
+
+.add-formset-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: white;
+  color: var(--primary-color);
+  border: 2px solid var(--primary-color);
+  border-radius: 10px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.add-formset-btn:hover {
+  background: var(--primary-light);
+  transform: translateY(-2px);
+}
+
+/* Submit Section */
+.submit-section {
+  padding: 2rem;
+  background: var(--bg-light);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.btn-submit-edit {
+  padding: 1rem 2rem;
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  box-shadow: 0 4px 15px rgba(26, 148, 212, 0.3);
+}
+
+.btn-submit-edit:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(26, 148, 212, 0.4);
+}
+
+.btn-cancel-edit {
+  padding: 1rem 2rem;
+  background: white;
+  color: var(--text-dark);
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 1.05rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.btn-cancel-edit:hover {
+  background: var(--bg-light);
+  transform: translateY(-2px);
+  color: var(--text-dark);
+}
+
+/* Guidelines */
+.guidelines-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.5rem;
+  border: 1px solid var(--border-color);
+  margin-bottom: 1.5rem;
+}
+
+.guidelines-title {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.guidelines-title i {
+  color: var(--primary-color);
+}
+
+.guidelines-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.guidelines-list li {
+  padding: 0.75rem 0;
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.9rem;
+  color: var(--text-medium);
+}
+
+.guidelines-list li:last-child {
+  border-bottom: none;
+}
+
+.guidelines-list li i {
+  color: var(--success-color);
+  margin-top: 0.2rem;
+  flex-shrink: 0;
+}
+
+/* Responsive */
+@media (max-width: 992px) {
+  .form-layout-edit {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-sidebar-edit {
+    border-right: none;
+    border-bottom: 1px solid var(--border-color);
+  }
+}
+
+@media (max-width: 768px) {
+  .form-row-edit {
+    grid-template-columns: 1fr;
+  }
+  
+  .cover-options-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  
+  .submit-section {
+    flex-direction: column-reverse;
+  }
+  
+  .btn-submit-edit,
+  .btn-cancel-edit {
+    width: 100%;
+    justify-content: center;
+  }
+}
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container form-container">
-  <div class="card shadow-sm">
-    <div class="card-header bg-primary text-white">
-        <h3>Edit Profile &amp; CV Details</h3>
-    </div>
-    <div class="card-body">
-      <form method="post" enctype="multipart/form-data">
-          {% csrf_token %}
-          <!-- Render management forms for formsets -->
-          {{ education_formset.management_form }}
-          {{ experience_formset.management_form }}
+<!-- Header -->
+<div class="edit-header">
+  <div class="container">
+    <h1>
+      <i class="bi bi-pencil-square"></i>
+      Edit Profile & CV Details
+    </h1>
+    <p>Update your personal information and professional details</p>
+  </div>
+</div>
+
+<!-- Main Form -->
+<div class="container">
+  <form method="post" enctype="multipart/form-data" id="profileForm">
+    {% csrf_token %}
+    {{ education_formset.management_form }}
+    {{ experience_formset.management_form }}
+    
+    <div class="form-container-edit">
+      <div class="form-layout-edit">
+        <!-- Sidebar -->
+        <div class="form-sidebar-edit">
+          <div class="guidelines-card">
+            <h3 class="guidelines-title">
+              <i class="bi bi-lightbulb"></i>
+              Profile Tips
+            </h3>
+            <ul class="guidelines-list">
+              <li>
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Use a clear, professional profile picture</span>
+              </li>
+              <li>
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Choose a cover photo that represents you</span>
+              </li>
+              <li>
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Write a compelling bio summary</span>
+              </li>
+              <li>
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Add all relevant work experience</span>
+              </li>
+              <li>
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Include your education background</span>
+              </li>
+              <li>
+                <i class="bi bi-check-circle-fill"></i>
+                <span>Keep contact information up to date</span>
+              </li>
+            </ul>
+          </div>
+        </div>
+        
+        <!-- Main Form -->
+        <div class="form-main-edit">
+          <!-- Profile Picture Section -->
+          <div class="section-edit">
+            <h2 class="section-title-edit">
+              <i class="bi bi-person-circle"></i>
+              Profile Picture
+            </h2>
+            
+            <div class="profile-pic-upload">
+              {% if user.profile_picture %}
+                <img src="{{ user.profile_picture.url }}" class="current-profile-pic" alt="Current Profile">
+              {% else %}
+                <img src="{% static 'images/default_profile.png' %}" class="current-profile-pic" alt="Default Profile">
+              {% endif %}
+              
+              <div class="pic-upload-content">
+                <div class="pic-upload-title">Change Profile Picture</div>
+                <div class="pic-upload-hint">JPG, PNG or GIF. Max size 5MB</div>
+                {{ form.profile_picture }}
+                {% if form.profile_picture.errors %}
+                  <div class="text-danger">{{ form.profile_picture.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
+          
+          <!-- Cover Photo Section -->
+          <div class="section-edit">
+            <h2 class="section-title-edit">
+              <i class="bi bi-image"></i>
+              Cover Photo
+            </h2>
+            
+            <div class="cover-photo-selector">
+              <div class="form-label-edit">Choose a Gradient</div>
+              <div class="cover-options-grid">
+                <label class="cover-option">
+                  <input type="radio" name="cover_photo" value="default1" {% if user.cover_photo == 'default1' or not user.cover_photo %}checked{% endif %}>
+                  <div class="cover-preview gradient-1"></div>
+                  <div class="cover-label">Purple</div>
+                </label>
+                
+                <label class="cover-option">
+                  <input type="radio" name="cover_photo" value="default2" {% if user.cover_photo == 'default2' %}checked{% endif %}>
+                  <div class="cover-preview gradient-2"></div>
+                  <div class="cover-label">Pink</div>
+                </label>
+                
+                <label class="cover-option">
+                  <input type="radio" name="cover_photo" value="default3" {% if user.cover_photo == 'default3' %}checked{% endif %}>
+                  <div class="cover-preview gradient-3"></div>
+                  <div class="cover-label">Blue</div>
+                </label>
+                
+                <label class="cover-option">
+                  <input type="radio" name="cover_photo" value="default4" {% if user.cover_photo == 'default4' %}checked{% endif %}>
+                  <div class="cover-preview gradient-4"></div>
+                  <div class="cover-label">Green</div>
+                </label>
+                
+                <label class="cover-option">
+                  <input type="radio" name="cover_photo" value="default5" {% if user.cover_photo == 'default5' %}checked{% endif %}>
+                  <div class="cover-preview gradient-5"></div>
+                  <div class="cover-label">Sunset</div>
+                </label>
+                
+                <label class="cover-option">
+                  <input type="radio" name="cover_photo" value="default6" {% if user.cover_photo == 'default6' %}checked{% endif %}>
+                  <div class="cover-preview gradient-6"></div>
+                  <div class="cover-label">Ocean</div>
+                </label>
+              </div>
+              
+              <div class="form-label-edit" style="margin-top: 1.5rem;">Or Upload Custom Cover</div>
+              <div class="custom-cover-upload">
+                <i class="bi bi-cloud-arrow-up upload-icon-large"></i>
+                <div style="margin-bottom: 0.75rem; font-weight: 600; color: var(--text-dark);">Upload Your Own Cover Photo</div>
+                <div style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 1rem;">Recommended size: 1500x500px</div>
+                {{ form.cover_photo_custom }}
+                {% if form.cover_photo_custom.errors %}
+                  <div class="text-danger">{{ form.cover_photo_custom.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+          </div>
           
           <!-- Personal Details Section -->
-          <div class="section-header">
-              <h4>Personal Details</h4>
-          </div>
-          <div class="form-group">
-              <label for="{{ form.first_name.id_for_label }}">First Name</label>
-              {{ form.first_name }}
-              <small class="form-text text-muted">Enter your given name.</small>
-              {% if form.first_name.errors %}
+          <div class="section-edit">
+            <h2 class="section-title-edit">
+              <i class="bi bi-person"></i>
+              Personal Details
+            </h2>
+            
+            <div class="form-row-edit">
+              <div class="form-group-edit">
+                <label for="{{ form.first_name.id_for_label }}" class="form-label-edit">
+                  <i class="bi bi-person"></i>
+                  First Name
+                </label>
+                {{ form.first_name }}
+                {% if form.first_name.errors %}
                   <div class="text-danger">{{ form.first_name.errors }}</div>
-              {% endif %}
-          </div>
-          <div class="form-group">
-              <label for="{{ form.last_name.id_for_label }}">Last Name</label>
-              {{ form.last_name }}
-              <small class="form-text text-muted">Enter your surname.</small>
-              {% if form.last_name.errors %}
+                {% endif %}
+              </div>
+              
+              <div class="form-group-edit">
+                <label for="{{ form.last_name.id_for_label }}" class="form-label-edit">
+                  <i class="bi bi-person"></i>
+                  Last Name
+                </label>
+                {{ form.last_name }}
+                {% if form.last_name.errors %}
                   <div class="text-danger">{{ form.last_name.errors }}</div>
-              {% endif %}
-          </div>
-          <div class="form-group">
-              <label for="{{ form.email.id_for_label }}">Email</label>
-              {{ form.email }}
-              <small class="form-text text-muted">Enter your email address (e.g. name@example.com).</small>
-              {% if form.email.errors %}
-                <div class="text-danger">{{ form.email.errors }}</div>
-              {% endif %}
-          </div>
-          <div class="form-group">
-              <label for="{{ form.contact_number.id_for_label }}">Contact Number</label>
-              {{ form.contact_number }}
-              <small class="form-text text-muted">Include your country code if applicable.</small>
-              {% if form.contact_number.errors %}
-                <div class="text-danger">{{ form.contact_number.errors }}</div>
-              {% endif %}
-          </div>
-          <div class="form-group">
-              <label for="{{ form.address.id_for_label }}">Address</label>
-              {{ form.address }}
-              <small class="form-text text-muted">Enter your mailing address.</small>
-              {% if form.address.errors %}
-                <div class="text-danger">{{ form.address.errors }}</div>
-              {% endif %}
-          </div>
-          <div class="form-group">
-              <label for="{{ form.gender.id_for_label }}">Gender</label>
-              {{ form.gender }}
-              <small class="form-text text-muted">Select your gender.</small>
-              {% if form.gender.errors %}
-                <div class="text-danger">{{ form.gender.errors }}</div>
-              {% endif %}
-          </div>
-          <div class="form-group">
-              <label for="{{ form.username.id_for_label }}">Username</label>
+                {% endif %}
+              </div>
+            </div>
+            
+            <div class="form-group-edit">
+              <label for="{{ form.username.id_for_label }}" class="form-label-edit">
+                <i class="bi bi-at"></i>
+                Username
+              </label>
               {{ form.username }}
-              <small class="form-text text-muted">Your unique username (cannot be changed).</small>
+              <div class="form-text-edit">
+                <i class="bi bi-info-circle"></i>
+                Your unique username (cannot be changed frequently)
+              </div>
               {% if form.username.errors %}
                 <div class="text-danger">{{ form.username.errors }}</div>
               {% endif %}
+            </div>
+            
+            <div class="form-row-edit">
+              <div class="form-group-edit">
+                <label for="{{ form.email.id_for_label }}" class="form-label-edit">
+                  <i class="bi bi-envelope"></i>
+                  Email
+                </label>
+                {{ form.email }}
+                {% if form.email.errors %}
+                  <div class="text-danger">{{ form.email.errors }}</div>
+                {% endif %}
+              </div>
+              
+              <div class="form-group-edit">
+                <label for="{{ form.contact_number.id_for_label }}" class="form-label-edit">
+                  <i class="bi bi-telephone"></i>
+                  Contact Number
+                </label>
+                {{ form.contact_number }}
+                {% if form.contact_number.errors %}
+                  <div class="text-danger">{{ form.contact_number.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <div class="form-row-edit">
+              <div class="form-group-edit">
+                <label for="{{ form.address.id_for_label }}" class="form-label-edit">
+                  <i class="bi bi-house"></i>
+                  Address
+                </label>
+                {{ form.address }}
+                {% if form.address.errors %}
+                  <div class="text-danger">{{ form.address.errors }}</div>
+                {% endif %}
+              </div>
+              
+              <div class="form-group-edit">
+                <label for="{{ form.gender.id_for_label }}" class="form-label-edit">
+                  <i class="bi bi-gender-ambiguous"></i>
+                  Gender
+                </label>
+                {{ form.gender }}
+                {% if form.gender.errors %}
+                  <div class="text-danger">{{ form.gender.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
           </div>
           
-          <hr>
           <!-- Personal Summary Section -->
-          <div class="section-header">
-              <h4>Personal Summary</h4>
-          </div>
-          <div class="form-group">
-              <label for="{{ form.bio.id_for_label }}">Bio</label><br>
-              {{ form.bio }}
-              <small class="form-text text-muted">Provide a brief summary of yourself.</small>
-              {% if form.bio.errors %}
-                  <div class="text-danger">{{ form.bio.errors }}</div>
+          <div class="section-edit">
+            <h2 class="section-title-edit">
+              <i class="bi bi-chat-quote"></i>
+              Personal Summary
+            </h2>
+            
+            <div class="form-group-edit">
+              <label for="{{ form.job_title.id_for_label }}" class="form-label-edit">
+                <i class="bi bi-briefcase"></i>
+                Job Title / Profession
+              </label>
+              {{ form.job_title }}
+              <div class="form-text-edit">
+                <i class="bi bi-info-circle"></i>
+                Your current job title or profession (e.g., Software Developer, Electrician, Plumber)
+              </div>
+              {% if form.job_title.errors %}
+                <div class="text-danger">{{ form.job_title.errors }}</div>
               {% endif %}
+            </div>
+            
+            <div class="form-group-edit">
+              <label for="{{ form.bio.id_for_label }}" class="form-label-edit">
+                <i class="bi bi-file-text"></i>
+                Bio
+              </label>
+              {{ form.bio }}
+              <div class="form-text-edit">
+                <i class="bi bi-info-circle"></i>
+                Provide a brief summary about yourself and your professional background
+              </div>
+              {% if form.bio.errors %}
+                <div class="text-danger">{{ form.bio.errors }}</div>
+              {% endif %}
+            </div>
           </div>
           
-          <hr>
           <!-- Education Section -->
-          <div class="section-header">
-              <h4>Education</h4>
-              <p class="text-muted">Enter your educational background. Use the calendar to select dates.</p>
+          <div class="section-edit">
+            <h2 class="section-title-edit">
+              <i class="bi bi-mortarboard"></i>
+              Education
+            </h2>
+            
+            <div id="education-formset">
+              {% for edu_form in education_formset %}
+                <div class="formset-item education-form">
+                  {{ edu_form.id }}
+                  <div class="formset-header">
+                    <div class="formset-title">Education Entry #{{ forloop.counter }}</div>
+                    {% if edu_form.instance.pk %}
+                      <label class="delete-checkbox">
+                        {{ edu_form.DELETE }}
+                        <span>Delete</span>
+                      </label>
+                    {% endif %}
+                  </div>
+                  
+                  <div class="form-row-edit">
+                    <div class="form-group-edit">
+                      {{ edu_form.degree.label_tag }}
+                      {{ edu_form.degree }}
+                      {{ edu_form.degree.errors }}
+                    </div>
+                    <div class="form-group-edit">
+                      {{ edu_form.institution.label_tag }}
+                      {{ edu_form.institution }}
+                      {{ edu_form.institution.errors }}
+                    </div>
+                  </div>
+                  
+                  <div class="form-row-edit">
+                    <div class="form-group-edit">
+                      {{ edu_form.start_date.label_tag }}
+                      {{ edu_form.start_date }}
+                      {{ edu_form.start_date.errors }}
+                    </div>
+                    <div class="form-group-edit">
+                      {{ edu_form.end_date.label_tag }}
+                      {{ edu_form.end_date }}
+                      {{ edu_form.end_date.errors }}
+                    </div>
+                  </div>
+                  
+                  <div class="form-group-edit">
+                    {{ edu_form.description.label_tag }}
+                    {{ edu_form.description }}
+                    {{ edu_form.description.errors }}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+            
+            <button type="button" class="add-formset-btn" id="add-education">
+              <i class="bi bi-plus-circle"></i>
+              <span>Add Education</span>
+            </button>
           </div>
-          {{ education_formset.management_form }}
-          {% for form in education_formset %}
-              <div class="education-form border p-3 mb-3">
-                  {{ form.id }}
-                  <div class="row">
-                      <div class="col-md-6">
-                          <div class="form-group">
-                              {{ form.degree.label_tag }}
-                              {{ form.degree }}
-                              {{ form.degree.errors }}
-                          </div>
-                      </div>
-                      <div class="col-md-6">
-                          <div class="form-group">
-                              {{ form.institution.label_tag }}
-                              {{ form.institution }}
-                              {{ form.institution.errors }}
-                          </div>
-                      </div>
-                  </div>
-                  <div class="row">
-                      <div class="col-md-6">
-                          <div class="form-group">
-                              {{ form.start_date.label_tag }}
-                              {{ form.start_date }}
-                              {{ form.start_date.errors }}
-                          </div>
-                      </div>
-                      <div class="col-md-6">
-                          <div class="form-group">
-                              {{ form.end_date.label_tag }}
-                              {{ form.end_date }}
-                              {{ form.end_date.errors }}
-                          </div>
-                      </div>
-                  </div>
-                  <div class="form-group">
-                      {{ form.description.label_tag }}
-                      {{ form.description }}
-                      {{ form.description.errors }}
-                  </div>
-                  {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
-              </div>
-          {% endfor %}
-          <button type="button" class="btn btn-outline-secondary btn-sm" id="add-education">Add Education</button>
           
-          <hr>
           <!-- Work Experience Section -->
-          <div class="section-header">
-              <h4>Work Experience</h4>
-              <p class="text-muted">Enter your work experiences.</p>
+          <div class="section-edit">
+            <h2 class="section-title-edit">
+              <i class="bi bi-briefcase"></i>
+              Work Experience
+            </h2>
+            
+            <div id="experience-formset">
+              {% for exp_form in experience_formset %}
+                <div class="formset-item experience-form">
+                  {{ exp_form.id }}
+                  <div class="formset-header">
+                    <div class="formset-title">Experience Entry #{{ forloop.counter }}</div>
+                    {% if exp_form.instance.pk %}
+                      <label class="delete-checkbox">
+                        {{ exp_form.DELETE }}
+                        <span>Delete</span>
+                      </label>
+                    {% endif %}
+                  </div>
+                  
+                  <div class="form-row-edit">
+                    <div class="form-group-edit">
+                      {{ exp_form.job_title.label_tag }}
+                      {{ exp_form.job_title }}
+                      {{ exp_form.job_title.errors }}
+                    </div>
+                    <div class="form-group-edit">
+                      {{ exp_form.company.label_tag }}
+                      {{ exp_form.company }}
+                      {{ exp_form.company.errors }}
+                    </div>
+                  </div>
+                  
+                  <div class="form-row-edit">
+                    <div class="form-group-edit">
+                      {{ exp_form.start_date.label_tag }}
+                      {{ exp_form.start_date }}
+                      {{ exp_form.start_date.errors }}
+                    </div>
+                    <div class="form-group-edit">
+                      {{ exp_form.end_date.label_tag }}
+                      {{ exp_form.end_date }}
+                      {{ exp_form.end_date.errors }}
+                    </div>
+                  </div>
+                  
+                  <div class="form-group-edit">
+                    {{ exp_form.description.label_tag }}
+                    {{ exp_form.description }}
+                    {{ exp_form.description.errors }}
+                  </div>
+                </div>
+              {% endfor %}
+            </div>
+            
+            <button type="button" class="add-formset-btn" id="add-experience">
+              <i class="bi bi-plus-circle"></i>
+              <span>Add Work Experience</span>
+            </button>
           </div>
-          {{ experience_formset.management_form }}
-          {% for form in experience_formset %}
-              <div class="experience-form border p-3 mb-3">
-                  {{ form.id }}
-                  <div class="row">
-                      <div class="col-md-6">
-                          <div class="form-group">
-                              {{ form.job_title.label_tag }}
-                              {{ form.job_title }}
-                              {{ form.job_title.errors }}
-                          </div>
-                      </div>
-                      <div class="col-md-6">
-                          <div class="form-group">
-                              {{ form.company.label_tag }}
-                              {{ form.company }}
-                              {{ form.company.errors }}
-                          </div>
-                      </div>
-                  </div>
-                  <div class="row">
-                      <div class="col-md-6">
-                          <div class="form-group">
-                              {{ form.start_date.label_tag }}
-                              {{ form.start_date }}
-                              {{ form.start_date.errors }}
-                          </div>
-                      </div>
-                      <div class="col-md-6">
-                          <div class="form-group">
-                              {{ form.end_date.label_tag }}
-                              {{ form.end_date }}
-                              {{ form.end_date.errors }}
-                          </div>
-                      </div>
-                  </div>
-                  <div class="form-group">
-                      {{ form.description.label_tag }}
-                      {{ form.description }}
-                      {{ form.description.errors }}
-                  </div>
-                  {% if form.instance.pk %}{{ form.DELETE }}{% endif %}
-              </div>
-          {% endfor %}
-          <button type="button" class="btn btn-outline-secondary btn-sm" id="add-experience">Add Work Experience</button>
-          
-          <hr>
-          <button type="submit" class="btn btn-primary">Update Profile</button>
-          <a href="{% url 'profile' user.pk %}" class="btn btn-secondary ms-2">Back to Profile</a>
-      </form>
-      {% if form.errors %}
-        <div class="alert alert-danger">
-          {{ form.errors }}
         </div>
-      {% endif %}
-      {% if education_formset.errors %}
-        <div class="alert alert-danger">
-          {{ education_formset.errors }}
-        </div>
-      {% endif %}
-      {% if experience_formset.errors %}
-        <div class="alert alert-danger">
-          {{ experience_formset.errors }}
-        </div>
-      {% endif %}
+      </div>
+      
+      <!-- Submit Section -->
+      <div class="submit-section">
+        <a href="{% url 'profile' user.pk %}" class="btn-cancel-edit">
+          <i class="bi bi-x-circle"></i>
+          <span>Cancel</span>
+        </a>
+        <button type="submit" class="btn-submit-edit">
+          <i class="bi bi-check-circle"></i>
+          <span>Update Profile</span>
+        </button>
+      </div>
     </div>
-  </div>
+  </form>
+  
+  {% if form.errors or education_formset.errors or experience_formset.errors %}
+    <div class="alert alert-danger" style="margin-top: 1rem; padding: 1rem; background: rgba(239, 68, 68, 0.1); border: 2px solid var(--danger-color); border-radius: 12px; color: var(--danger-color);">
+      <strong><i class="bi bi-exclamation-triangle"></i> Please correct the errors below:</strong>
+      {{ form.errors }}
+      {{ education_formset.errors }}
+      {{ experience_formset.errors }}
+    </div>
+  {% endif %}
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
 <script>
-    // Initialize Tagify on the skills input field if used in the template.
-    const input = document.querySelector('#skills-input');
-    if (input) {
-      const tagify = new Tagify(input, {
-          originalInputValueFormat: values => values.map(item => item.value).join(',')
+document.addEventListener('DOMContentLoaded', function() {
+  // Apply modern styling to form controls
+  const formControls = document.querySelectorAll('input[type="text"], input[type="email"], input[type="date"], select, textarea');
+  formControls.forEach(control => {
+    if (!control.classList.contains('form-control-edit')) {
+      control.classList.add('form-control-edit');
+    }
+  });
+  
+  // Add Education Form
+  document.getElementById('add-education').addEventListener('click', function(e) {
+    e.preventDefault();
+    const formCount = document.getElementById('id_education-TOTAL_FORMS');
+    const formNum = parseInt(formCount.value);
+    const container = document.getElementById('education-formset');
+    const template = document.querySelector('.education-form');
+    
+    if (template) {
+      const newForm = template.cloneNode(true);
+      newForm.innerHTML = newForm.innerHTML
+        .replace(/education-\d+-/g, `education-${formNum}-`)
+        .replace(/id_education-\d+-/g, `id_education-${formNum}-`)
+        .replace(/value="[^"]*"/g, '')
+        .replace(/checked/g, '');
+      
+      // Update formset title
+      const title = newForm.querySelector('.formset-title');
+      if (title) {
+        title.textContent = `Education Entry #${formNum + 1}`;
+      }
+      
+      // Remove delete checkbox for new forms
+      const deleteLabel = newForm.querySelector('.delete-checkbox');
+      if (deleteLabel) {
+        deleteLabel.remove();
+      }
+      
+      container.appendChild(newForm);
+      formCount.value = formNum + 1;
+      
+      // Apply styling to new form controls
+      newForm.querySelectorAll('input, select, textarea').forEach(control => {
+        control.classList.add('form-control-edit');
       });
     }
-
-    document.addEventListener('DOMContentLoaded', function() {
-        // Add Education Form
-        document.getElementById('add-education').addEventListener('click', function(e) {
-            e.preventDefault();
-            const formCount = document.getElementById('id_education-TOTAL_FORMS');
-            const formNum = parseInt(formCount.value);
-            const newForm = document.createElement('div');
-            newForm.className = 'education-form border p-3 mb-3';
-            newForm.innerHTML = document.querySelector('.education-form').innerHTML
-                .replace(/education-\d+-/g, `education-${formNum}-`)
-                .replace(/\[\d+\]/g, `[${formNum}]`)
-                .replace(/value="[^"]*"/g, '')
-                .replace(/checked/g, '');
-            document.querySelector('#add-education').parentNode.insertBefore(newForm, document.querySelector('#add-education'));
-            formCount.value = formNum + 1;
-        });
-
-        // Add Experience Form
-        document.getElementById('add-experience').addEventListener('click', function(e) {
-            e.preventDefault();
-            const formCount = document.getElementById('id_experience-TOTAL_FORMS');
-            const formNum = parseInt(formCount.value);
-            const newForm = document.createElement('div');
-            newForm.className = 'experience-form border p-3 mb-3';
-            newForm.innerHTML = document.querySelector('.experience-form').innerHTML
-                .replace(/experience-\d+-/g, `experience-${formNum}-`)
-                .replace(/\[\d+\]/g, `[${formNum}]`)
-                .replace(/value="[^"]*"/g, '')
-                .replace(/checked/g, '');
-            document.querySelector('#add-experience').parentNode.insertBefore(newForm, document.querySelector('#add-experience'));
-            formCount.value = formNum + 1;
-        });
-
-        // Handle form submission
-        document.querySelector('form').addEventListener('submit', function() {
-            // Update total form count before submission
-            const educationForms = document.querySelectorAll('.education-form');
-            document.getElementById('id_education-TOTAL_FORMS').value = educationForms.length;
-            
-            const experienceForms = document.querySelectorAll('.experience-form');
-            document.getElementById('id_experience-TOTAL_FORMS').value = experienceForms.length;
-        });
-    });
+  });
+  
+  // Add Experience Form
+  document.getElementById('add-experience').addEventListener('click', function(e) {
+    e.preventDefault();
+    const formCount = document.getElementById('id_experience-TOTAL_FORMS');
+    const formNum = parseInt(formCount.value);
+    const container = document.getElementById('experience-formset');
+    const template = document.querySelector('.experience-form');
+    
+    if (template) {
+      const newForm = template.cloneNode(true);
+      newForm.innerHTML = newForm.innerHTML
+        .replace(/experience-\d+-/g, `experience-${formNum}-`)
+        .replace(/id_experience-\d+-/g, `id_experience-${formNum}-`)
+        .replace(/value="[^"]*"/g, '')
+        .replace(/checked/g, '');
+      
+      // Update formset title
+      const title = newForm.querySelector('.formset-title');
+      if (title) {
+        title.textContent = `Experience Entry #${formNum + 1}`;
+      }
+      
+      // Remove delete checkbox for new forms
+      const deleteLabel = newForm.querySelector('.delete-checkbox');
+      if (deleteLabel) {
+        deleteLabel.remove();
+      }
+      
+      container.appendChild(newForm);
+      formCount.value = formNum + 1;
+      
+      // Apply styling to new form controls
+      newForm.querySelectorAll('input, select, textarea').forEach(control => {
+        control.classList.add('form-control-edit');
+      });
+    }
+  });
+  
+  // Handle form submission
+  document.getElementById('profileForm').addEventListener('submit', function() {
+    // Update total form counts
+    const educationForms = document.querySelectorAll('.education-form');
+    document.getElementById('id_education-TOTAL_FORMS').value = educationForms.length;
+    
+    const experienceForms = document.querySelectorAll('.experience-form');
+    document.getElementById('id_experience-TOTAL_FORMS').value = experienceForms.length;
+  });
+});
 </script>
 {% endblock %}

@@ -1,14 +1,118 @@
-{% extends 'admin_dashboard/base.html' %}
+{% extends 'admin_dashboard/dashboard_base.html' %}
 
 {% block content %}
-<div class="container mt-5">
-    <h2>Delete Announcement</h2>
-    <p>Are you sure you want to delete the announcement titled: <strong>{{ object.title }}</strong>?</p>
+<div class="container mx-auto px-4 py-8">
+    <div class="max-w-4xl mx-auto">
+        <!-- Header -->
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">
+                {% if form.instance.pk %}Edit Announcement{% else %}Create New Announcement{% endif %}
+            </h1>
+            <p class="text-gray-600">
+                {% if form.instance.pk %}
+                    Update the announcement details below
+                {% else %}
+                    Fill in the details to create a new announcement
+                {% endif %}
+            </p>
+        </div>
 
-    <form method="post">
-        {% csrf_token %}
-        <button type="submit" class="btn btn-danger">Yes, Delete</button>
-        <a href="{% url 'admin_dashboard:admin_announcement_list' %}" class="btn btn-secondary">Cancel</a>
-    </form>
+        <!-- Form -->
+        <div class="bg-white rounded-xl shadow-md p-8">
+            <form method="post" enctype="multipart/form-data" class="space-y-6">
+                {% csrf_token %}
+                
+                <!-- Title -->
+                <div>
+                    <label for="{{ form.title.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Title <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.title }}
+                    {% if form.title.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.title.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Description -->
+                <div>
+                    <label for="{{ form.description.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Description <span class="text-red-500">*</span>
+                    </label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.description.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Image -->
+                <div>
+                    <label for="{{ form.image.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Image (optional)
+                    </label>
+                    {{ form.image }}
+                    {% if form.instance.image %}
+                        <div class="mt-2">
+                            <img src="{{ form.instance.image.url }}" alt="Current image" class="h-32 rounded-lg">
+                            <p class="text-sm text-gray-500 mt-1">Current image</p>
+                        </div>
+                    {% endif %}
+                    {% if form.image.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.image.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Status -->
+                <div>
+                    <label for="{{ form.status.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
+                        Status
+                    </label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.status.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
+                <!-- Form Actions -->
+                <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
+                    <a href="{% url 'admin_dashboard:admin_announcement_list' %}" 
+                       class="px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition">
+                        Cancel
+                    </a>
+                    <button type="submit" 
+                            class="px-6 py-2.5 bg-trabaholink-blue text-white rounded-lg font-medium hover:bg-trabaholink-blue/90 transition">
+                        {% if form.instance.pk %}Update Announcement{% else %}Create Announcement{% endif %}
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
 </div>
+
+<style>
+    /* Form Input Styling */
+    input[type="text"],
+    textarea,
+    select,
+    input[type="file"] {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 0.5rem;
+        font-size: 1rem;
+        transition: all 0.2s;
+    }
+
+    input[type="text"]:focus,
+    textarea:focus,
+    select:focus {
+        outline: none;
+        border-color: #1A94D5;
+        box-shadow: 0 0 0 3px rgba(26, 148, 213, 0.1);
+    }
+
+    textarea {
+        min-height: 150px;
+        resize: vertical;
+    }
+</style>
 {% endblock %}

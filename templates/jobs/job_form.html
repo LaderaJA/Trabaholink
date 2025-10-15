@@ -1,666 +1,1612 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+
 {% block css %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 <style>
-    .job-posting-container {
-        display: flex;
-        justify-content: center;
-        padding: 2rem;
-        background-color: #f5f7fa;
-    }
-    .job-posting-card {
-        width: 100%;
-        max-width: 1200px;
-        background-color: #ffffff;
-        border-radius: 8px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        overflow: hidden;
-        margin-bottom: 2rem;
-    }
-    .job-posting-header {
-        background-color: #1e4d8c;
-        color: white;
-        padding: 1.5rem;
-        text-align: center;
-    }
-    .site-title {
-        font-size: 2rem;
-        margin: 0;
-        font-weight: 700;
-    }
-    .site-tagline {
-        margin-top: 0.5rem;
-        opacity: 0.9;
-    }
-    .job-posting-content {
-        display: flex;
-        flex-direction: row;
-    }
-    /* Left Column: Form */
-    .job-posting-form-container {
-        flex: 3;
-        padding: 2rem;
-        border-right: 1px solid #e9ecef;
-    }
-    .job-posting-form {
-        margin-top: 1.5rem;
-    }
-    .form-sections {
-        display: flex;
-        flex-direction: column;
-        gap: 2rem;
-    }
-    .form-section {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        padding: 1.5rem;
-        border: 1px solid #e9ecef;
-    }
-    .section-title {
-        margin-top: 0;
-        margin-bottom: 1.5rem;
-        color: #1e4d8c;
-        font-size: 1.25rem;
-        font-weight: 600;
-        border-bottom: 2px solid #f26522;
-        padding-bottom: 0.5rem;
-        display: inline-block;
-    }
-    .form-row {
-        display: flex;
-        gap: 1rem;
-        margin-bottom: 1rem;
-    }
-    .form-group {
-        flex: 1;
-        margin-bottom: 1.25rem;
-    }
-    .full-width {
-        flex-basis: 100%;
-    }
-    .form-group label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-weight: 500;
-        color: #495057;
-    }
-    .form-group input, 
-    .form-group select, 
-    .form-group textarea {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid #ced4da;
-        border-radius: 4px;
-        font-size: 1rem;
-    }
-    .form-group textarea {
-        min-height: 120px;
-        resize: vertical;
-    }
-    .error-message {
-        color: #dc3545;
-        font-size: 0.875rem;
-        margin-top: 0.5rem;
-    }
-    .current-logo {
-        display: flex;
-        align-items: center;
-        margin-bottom: 1rem;
-    }
-    .logo-preview {
-        max-width: 100px;
-        max-height: 60px;
-        margin-right: 1rem;
-        border: 1px solid #ced4da;
-        padding: 0.25rem;
-        border-radius: 4px;
-    }
-    /* Right Column: Map and Guidelines */
-    .map-guidelines-container {
-        flex: 2;
-        padding: 2rem;
-        display: flex;
-        flex-direction: column;
-    }
-    .map-section {
-        margin-bottom: 2rem;
-    }
-    .map-instructions {
-        margin-bottom: 0.5rem;
-        font-size: 0.9rem;
-        color: #6c757d;
-    }
-    #map {
-        height: 400px;
-        border-radius: 8px;
-        border: 1px solid #ced4da;
-        margin-bottom: 1rem;
-    }
-    .guidelines-section {
-        background-color: #f8f9fa;
-        border-radius: 8px;
-        padding: 1.5rem;
-        border: 1px solid #e9ecef;
-    }
-    .guidelines-list {
-        padding-left: 1.5rem;
-        margin-bottom: 0;
-    }
-    .guidelines-list li {
-        margin-bottom: 0.75rem;
-        color: #495057;
-    }
-    .form-actions {
-        margin-top: 2rem;
-    }
-    .btn {
-        display: inline-block;
-        font-weight: 500;
-        text-align: center;
-        vertical-align: middle;
-        cursor: pointer;
-        padding: 0.75rem 1rem;
-        font-size: 1rem;
-        line-height: 1.5;
-        border-radius: 4px;
-        transition: all 0.15s ease-in-out;
-    }
-    .btn-primary {
-        color: #fff;
-        background-color: #f26522;
-        border: 1px solid #f26522;
-    }
-    .btn-primary:hover {
-        background-color: #e55b14;
-        border-color: #e55b14;
-    }
-.btn-danger {
-    color: #fff;
-    background-color: #dc3545;
-    border: 1px solid #dc3545;
-    }
-.btn-danger:hover {
-    background-color: #c82333;
-    border-color: #bd2130;
+/* ===== TRABAHOLINK THEME VARIABLES ===== */
+:root {
+  --trabaholink-cyan: #AFE4E6;
+  --trabaholink-blue: #5271FF;
+  --trabaholink-dark-blue: #004AAD;
+  --trabaholink-light-blue: #84C7EE;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --text-dark: #1a202c;
+  --text-medium: #4a5568;
+  --text-light: #718096;
+  --bg-light: #f7fafc;
+  --bg-white: #ffffff;
+  --border-color: #e2e8f0;
+  --gradient-primary: linear-gradient(135deg, var(--trabaholink-blue) 0%, var(--trabaholink-dark-blue) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--trabaholink-cyan) 0%, var(--trabaholink-light-blue) 100%);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
-.btn-block {
-    display: block;
-    width: 100%;
+
+/* Global Styles */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--bg-light);
 }
-/* Image handling styles */
-.image-preview-container {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
-    margin-top: 10px;
+
+/* Page Wrapper */
+.job-form-wrapper {
+  min-height: 100vh;
+  padding: 2rem 0 4rem;
+  background: linear-gradient(180deg, #f0f9ff 0%, var(--bg-light) 100%);
 }
-.preview-item {
-    border: 1px solid #ddd;
-    padding: 5px;
-    border-radius: 4px;
+
+/* Header Section with Trabaholink Branding */
+.form-header-section {
+  background: var(--gradient-primary);
+  color: white;
+  padding: 3rem 0;
+  margin-bottom: 2.5rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0 0 24px 24px;
+  box-shadow: var(--shadow-xl);
 }
-.custom-file-input {
+
+.form-header-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.3;
+}
+
+.form-header-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+
+.form-header-title {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin: 0 0 0.75rem 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+}
+
+.form-header-subtitle {
+  font-size: 1.125rem;
+  opacity: 0.95;
+  margin: 0;
+}
+
+/* Step Progress Indicator */
+.step-progress-container {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: var(--shadow-md);
+}
+
+.step-progress {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.step-progress::before {
+  content: '';
+  position: absolute;
+  top: 24px;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: var(--border-color);
+  z-index: 0;
+}
+
+.step-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.step-circle {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: white;
+  border: 3px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.125rem;
+  color: var(--text-light);
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.step-item.active .step-circle {
+  background: var(--gradient-primary);
+  border-color: var(--trabaholink-blue);
+  color: white;
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(82, 113, 255, 0.3);
+}
+
+.step-item.completed .step-circle {
+  background: var(--success-color);
+  border-color: var(--success-color);
+  color: white;
+}
+
+.step-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--text-medium);
+  text-align: center;
+  white-space: nowrap;
+}
+
+.step-item.active .step-label {
+  color: var(--trabaholink-blue);
+  font-weight: 700;
+}
+
+/* Main Form Container */
+.form-main-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.form-card {
+  background: white;
+  border-radius: 20px;
+  box-shadow: var(--shadow-xl);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+/* Form Step Sections */
+.form-step {
+  display: none;
+  padding: 3rem;
+  animation: fadeInUp 0.5s ease;
+}
+
+.form-step.active {
+  display: block;
+}
+
+@keyframes fadeInUp {
+  from {
     opacity: 0;
-    position: absolute;
-    z-index: -1;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
-.custom-file-label {
-    padding: 0.75rem;
-    background-color: #f8f9fa;
-    border: 1px solid #ced4da;
-    border-radius: 4px;
-    cursor: pointer;
-    display: inline-block;
+
+.step-section-title {
+  font-size: 1.75rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
 }
-.custom-file-label:hover {
-    background-color: #e9ecef;
+
+.step-section-title i {
+  color: var(--trabaholink-blue);
 }
-#image-list {
-    display: flex;
+
+.step-section-description {
+  color: var(--text-medium);
+  margin: 0 0 2rem 0;
+  font-size: 1.05rem;
+}
+
+/* Form Groups */
+.form-group {
+  margin-bottom: 1.75rem;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.625rem;
+  font-size: 0.95rem;
+}
+
+.form-label i {
+  color: var(--trabaholink-blue);
+  font-size: 1.1rem;
+}
+
+.form-label .required {
+  color: var(--danger-color);
+  margin-left: 0.25rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.875rem 1.125rem;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: var(--bg-white);
+  font-family: inherit;
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--trabaholink-blue);
+  background: white;
+  box-shadow: 0 0 0 4px rgba(82, 113, 255, 0.1);
+}
+
+.form-control:hover {
+  border-color: var(--trabaholink-light-blue);
+}
+
+textarea.form-control {
+  min-height: 120px;
+  resize: vertical;
+}
+
+select.form-control {
+  cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234a5568' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+}
+
+/* Form Row for Multiple Columns */
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+/* Help Text */
+.help-text {
+  font-size: 0.875rem;
+  color: var(--text-light);
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+}
+
+.help-text i {
+  color: var(--trabaholink-cyan);
+  margin-top: 0.125rem;
+  flex-shrink: 0;
+}
+
+/* Error Messages */
+.error-message {
+  color: var(--danger-color);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  background: #fee2e2;
+  border-radius: 8px;
+  border-left: 3px solid var(--danger-color);
+}
+
+/* Checkbox and Radio Styles */
+input[type="checkbox"] {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+  accent-color: var(--trabaholink-blue);
+}
+
+/* Image Upload Section */
+.image-upload-container {
+  margin-top: 1rem;
+}
+
+.image-upload-zone {
+  border: 3px dashed var(--border-color);
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: linear-gradient(135deg, #f0f9ff 0%, white 100%);
+}
+
+.image-upload-zone:hover {
+  border-color: var(--trabaholink-blue);
+  background: linear-gradient(135deg, var(--trabaholink-cyan) 0%, white 100%);
+  transform: translateY(-2px);
+}
+
+.upload-icon {
+  font-size: 3.5rem;
+  color: var(--trabaholink-blue);
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.upload-text {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+}
+
+.upload-hint {
+  font-size: 0.875rem;
+  color: var(--text-light);
+}
+
+/* Image Preview Grid */
+.image-preview-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.5rem;
+}
+
+.preview-item {
+  position: relative;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 1;
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+}
+
+.preview-item:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
+}
+
+.preview-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.preview-delete-btn {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: var(--danger-color);
+  color: white;
+  border: none;
+  border-radius: 50%;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.preview-delete-btn:hover {
+  transform: scale(1.15);
+  background: #dc2626;
+}
+
+/* Map Section */
+.map-container {
+  margin-top: 1.5rem;
+}
+
+#map {
+  height: 400px;
+  border-radius: 16px;
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.map-info-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, var(--trabaholink-cyan) 0%, var(--trabaholink-light-blue) 100%);
+  border-radius: 12px;
+}
+
+.map-info-item {
+  text-align: center;
+}
+
+.map-info-label {
+  font-size: 0.875rem;
+  color: var(--trabaholink-dark-blue);
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.map-info-value {
+  font-size: 1.125rem;
+  color: var(--text-dark);
+  font-weight: 700;
+}
+
+/* Navigation Buttons */
+.form-navigation {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2rem 3rem;
+  background: var(--bg-light);
+  border-top: 2px solid var(--border-color);
+  gap: 1rem;
+}
+
+.btn {
+  padding: 0.875rem 2rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.625rem;
+  border: none;
+  text-decoration: none;
+}
+
+.btn-secondary {
+  background: white;
+  color: var(--text-medium);
+  border: 2px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-light);
+  border-color: var(--text-medium);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.btn-primary {
+  background: var(--gradient-primary);
+  color: white;
+  box-shadow: 0 4px 15px rgba(82, 113, 255, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(82, 113, 255, 0.4);
+}
+
+.btn-success {
+  background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.btn-success:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* Sidebar Guidelines */
+.guidelines-sidebar {
+  position: sticky;
+  top: 100px;
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: var(--shadow-lg);
+  border: 2px solid var(--trabaholink-cyan);
+}
+
+.guidelines-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0 0 1.25rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+}
+
+.guidelines-title i {
+  color: var(--trabaholink-blue);
+  font-size: 1.5rem;
+}
+
+.guideline-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.875rem 0;
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.9rem;
+  color: var(--text-medium);
+}
+
+.guideline-item:last-child {
+  border-bottom: none;
+}
+
+.guideline-item i {
+  color: var(--success-color);
+  margin-top: 0.125rem;
+  flex-shrink: 0;
+  font-size: 1.125rem;
+}
+
+/* Unsaved Changes Warning */
+.unsaved-warning {
+  display: none;
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  background: var(--warning-color);
+  color: white;
+  padding: 1rem 1.5rem;
+  border-radius: 12px;
+  box-shadow: var(--shadow-xl);
+  z-index: 1000;
+  animation: slideInUp 0.3s ease;
+}
+
+@keyframes slideInUp {
+  from {
+    transform: translateY(100px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .form-header-title {
+    font-size: 1.75rem;
+    flex-direction: column;
+  }
+  
+  .step-progress {
     flex-wrap: wrap;
-    gap: 15px;
-    padding: 0;
-    list-style: none;
+    gap: 1rem;
+  }
+  
+  .step-item {
+    flex: 0 0 calc(50% - 0.5rem);
+  }
+  
+  .step-label {
+    font-size: 0.75rem;
+  }
+  
+  .form-step {
+    padding: 1.5rem;
+  }
+  
+  .form-navigation {
+    padding: 1.5rem;
+    flex-direction: column;
+  }
+  
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
 }
-#image-list li {
-    position: relative;
-    border: 1px solid #ddd;
-    border-radius: 4px;
-    padding: 5px;
-    text-align: center;
+
+@media (max-width: 576px) {
+  .job-form-wrapper {
+    padding: 1rem 0 2rem;
+  }
+  
+  .form-header-section {
+    padding: 2rem 0;
+  }
+  
+  .step-progress-container {
+    padding: 1rem;
+  }
 }
-#image-list img {
-    display: block;
-    margin-bottom: 8px;
-    object-fit: cover;
-}
-.file-selected {
-    margin-top: 8px;
-    color: #6c757d;
-    font-size: 0.9rem;
-}
-    /* Responsive Design */
-    @media (max-width: 992px) {
-        .job-posting-content {
-            flex-direction: column;
-        }
-        .job-posting-form-container {
-            border-right: none;
-            border-bottom: 1px solid #e9ecef;
-        }
-        .form-row {
-            flex-direction: column;
-            gap: 0;
-        }
-        #map {
-            height: 300px;
-        }
-    }
 </style>
 {% endblock %}
-{% block content %}
-<div class="job-posting-container">
-    <div class="job-posting-card">
-        <div class="job-posting-header">
-            <h1 class="site-title">TrabahoLink</h1>
-            <p class="site-tagline">{% if object %}Edit Job Listing{% else %}Post a New Job Opportunity{% endif %}</p>
-        </div>
-        <div class="job-posting-content">
-            <!-- Left Column: Form -->
-            <div class="job-posting-form-container">
-                <h2>{% if object %}Edit Job Details{% else %}Create New Job Listing{% endif %}</h2>
-                <form method="post" enctype="multipart/form-data" class="job-posting-form" id="job-form">
-                    {% csrf_token %}
-                    <div class="form-sections">
-                        <div class="form-section">
-                            <h3 class="section-title">Job Details</h3>
-                            <!-- Job Title, Category, Job Type, Budget, Description, Requirements -->
-                            <div class="form-row">
-                                <div class="form-group full-width">
-                                    <label for="{{ form.title.id_for_label }}">Job Title</label>
-                                    {{ form.title }}
-                                    {% if form.title.errors %}
-                                    <div class="error-message">{{ form.title.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="{{ form.category.id_for_label }}">Category</label>
-                                    {{ form.category }}
-                                    {% if form.category.errors %}
-                                    <div class="error-message">{{ form.category.errors }}</div>
-                                    {% endif %}
-                                </div>
-                                <div class="form-group">
-                                    <label for="{{ form.job_type.id_for_label }}">Job Type</label>
-                                    {{ form.job_type }}
-                                    {% if form.job_type.errors %}
-                                    <div class="error-message">{{ form.job_type.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <label for="{{ form.budget.id_for_label }}">Budget (₱)</label>
-                                {{ form.budget }}
-                                {% if form.budget.errors %}
-                                <div class="error-message">{{ form.budget.errors }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="form-group full-width">
-                                <label for="{{ form.description.id_for_label }}">Job Description</label>
-                                {{ form.description }}
-                                {% if form.description.errors %}
-                                <div class="error-message">{{ form.description.errors }}</div>
-                                {% endif %}
-                            </div>
-                            <div class="form-group full-width">
-                                <label for="{{ form.requirements.id_for_label }}">Requirements</label>
-                                {{ form.requirements }}
-                                {% if form.requirements.errors %}
-                                <div class="error-message">{{ form.requirements.errors }}</div>
-                                {% endif %}
-                            </div>
-                            <!-- Image handling section -->
-                            <h3 class="section-title">Job Images</h3>
-                            <div class="images-section">
-                                <!-- Existing Images -->
-                                <h4>Existing Images</h4>
-                                <ul id="image-list">
-                                    {% for image in existing_images %}
-                                    <li id="image-{{ image.id }}">
-                                        <img src="{{ image.image.url }}" alt="Job Image" width="100" height="100">
-<button type="button" class="btn btn-danger" onclick="deleteImage('{{ image.id }}')">Delete</button>
-                                    </li>
-                                    {% empty %}
-                                    <p>No images uploaded yet.</p>
-                                    {% endfor %}
-                                </ul>
 
-                                <!-- Upload New Images -->
-                                <h4>Upload New Images</h4>
-                                <div class="form-group">
-                                    <label class="custom-file-label" for="{{ image_form.images.id_for_label }}">
-                                        <i class="fa fa-upload"></i> Choose Images
-                                    </label>
-                                    <input type="file" id="{{ image_form.images.id_for_label }}"
-                                           name="{{ image_form.images.name }}"
-                                           class="custom-file-input"
-                                           multiple>
-                                    <div class="file-selected" id="file-selected">No files selected</div>
-                                    {% if image_form.images.errors %}
-                                    <div class="error-message">
-                                        {{ image_form.images.errors }}
-                                    </div>
-                                    {% endif %}
-                                </div>
-                                <div id="image-preview-container" class="image-preview-container"></div>
-                            </div>
-                        </div>
-                        <div class="form-section">
-                            <h3 class="section-title">Location Information</h3>
-                            <!-- Municipality, Barangay, Street, House Number -->
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="municipality-input">Municipality</label>
-                                    {{ form.municipality }}
-                                    {% if form.municipality.errors %}
-                                    <div class="error-message">{{ form.municipality.errors }}</div>
-                                    {% endif %}
-                                </div>
-                                <div class="form-group">
-                                    <label for="barangay-input">Barangay</label>
-                                    {{ form.barangay }}
-                                    {% if form.barangay.errors %}
-                                    <div class="error-message">{{ form.barangay.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <div class="form-row">
-                                <div class="form-group">
-                                    <label for="street">Street</label>
-                                    {{ form.street }}
-                                    {% if form.street.errors %}
-                                    <div class="error-message">{{ form.street.errors }}</div>
-                                    {% endif %}
-                                </div>
-                                <div class="form-group">
-                                    <label for="house_number">Building/House Number</label>
-                                    {{ form.house_number }}
-                                    {% if form.house_number.errors %}
-                                    <div class="error-message">{{ form.house_number.errors }}</div>
-                                    {% endif %}
-                                </div>
-                            </div>
-                            <input type="hidden" id="latitude" name="latitude" value="{{ object.latitude|default:'' }}">
-                            <input type="hidden" id="longitude" name="longitude" value="{{ object.longitude|default:'' }}">
-                            <p>Latitude: <span id="lat-display">{{ job.latitude|default:'Not set' }}</span></p>
-                            <p>Longitude: <span id="lon-display">{{ job.longitude|default:'Not set' }}</span></p>
-                        </div>
-                        <div class="form-section">
-    <h3 class="section-title">Additional Job Details</h3>
-    <div class="form-group full-width">
-        <label for="{{ form.tasks.id_for_label }}">Tasks</label>
-        {{ form.tasks }}
-        {% if form.tasks.errors %}
-            <div class="error-message">{{ form.tasks.errors }}</div>
-        {% endif %}
+{% block content %}
+<div class="job-form-wrapper">
+  <!-- Header Section -->
+  <div class="form-header-section">
+    <div class="container">
+      <div class="form-header-content">
+        <h1 class="form-header-title">
+          <i class="bi bi-briefcase-fill"></i>
+          {% if object %}Edit Job Posting{% else %}Post a New Job{% endif %}
+        </h1>
+        <p class="form-header-subtitle">
+          {% if object %}Update your job details to attract the right workers{% else %}Connect with skilled workers in your area{% endif %}
+        </p>
+      </div>
     </div>
-    <div class="form-row">
-        <div class="form-group">
-            <label for="{{ form.duration.id_for_label }}">Duration</label>
-            {{ form.duration }}
-            {% if form.duration.errors %}
-                <div class="error-message">{{ form.duration.errors }}</div>
-            {% endif %}
+  </div>
+
+  <div class="container">
+    <!-- Step Progress Indicator -->
+    <div class="step-progress-container">
+      <div class="step-progress">
+        <div class="step-item active" data-step="1">
+          <div class="step-circle">1</div>
+          <span class="step-label">Job Details</span>
         </div>
-        <div class="form-group">
-            <label for="{{ form.schedule.id_for_label }}">Schedule</label>
-            {{ form.schedule }}
-            {% if form.schedule.errors %}
-                <div class="error-message">{{ form.schedule.errors }}</div>
-            {% endif %}
+        <div class="step-item" data-step="2">
+          <div class="step-circle">2</div>
+          <span class="step-label">Location</span>
         </div>
+        <div class="step-item" data-step="3">
+          <div class="step-circle">3</div>
+          <span class="step-label">Requirements</span>
+        </div>
+        <div class="step-item" data-step="4">
+          <div class="step-circle">4</div>
+          <span class="step-label">Media</span>
+        </div>
+        <div class="step-item" data-step="5">
+          <div class="step-circle">5</div>
+          <span class="step-label">Review</span>
+        </div>
+      </div>
     </div>
-    <div class="form-row">
-        <div class="form-group">
-            <label for="{{ form.start_datetime.id_for_label }}">Start Date & Time</label>
+
+    <!-- Main Form -->
+    <form method="post" enctype="multipart/form-data" id="jobForm" novalidate>
+      {% csrf_token %}
+      
+      <!-- Display Messages -->
+      {% if messages %}
+      <div style="margin-bottom: 2rem;">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert" style="padding: 1rem; margin-bottom: 1rem; border-radius: 0.5rem; {% if message.tags == 'error' or message.tags == 'danger' %}background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5;{% elif message.tags == 'success' %}background: #d1fae5; color: #065f46; border: 1px solid #6ee7b7;{% elif message.tags == 'warning' %}background: #fef3c7; color: #92400e; border: 1px solid #fcd34d;{% else %}background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd;{% endif %}">
+          <strong>
+            {% if message.tags == 'error' or message.tags == 'danger' %}
+              <i class="bi bi-exclamation-triangle-fill"></i> Error:
+            {% elif message.tags == 'success' %}
+              <i class="bi bi-check-circle-fill"></i> Success:
+            {% elif message.tags == 'warning' %}
+              <i class="bi bi-exclamation-circle-fill"></i> Warning:
+            {% else %}
+              <i class="bi bi-info-circle-fill"></i> Info:
+            {% endif %}
+          </strong>
+          {{ message }}
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close" style="float: right;"></button>
+        </div>
+        {% endfor %}
+      </div>
+      {% endif %}
+      
+      <!-- Display Form Errors -->
+      {% if form.errors %}
+      <div class="alert alert-danger" style="padding: 1rem; margin-bottom: 2rem; border-radius: 0.5rem; background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5;">
+        <strong><i class="bi bi-exclamation-triangle-fill"></i> Please correct the following errors:</strong>
+        <ul style="margin: 0.5rem 0 0 1.5rem;">
+          {% for field, errors in form.errors.items %}
+            {% for error in errors %}
+              <li><strong>{{ field }}:</strong> {{ error }}</li>
+            {% endfor %}
+          {% endfor %}
+        </ul>
+      </div>
+      {% endif %}
+      
+      <div class="form-card">
+        <!-- Step 1: Job Details -->
+        <div class="form-step active" data-step="1">
+          <h2 class="step-section-title">
+            <i class="bi bi-briefcase"></i>
+            Job Details
+          </h2>
+          <p class="step-section-description">
+            Provide basic information about the job you're posting
+          </p>
+
+          <div class="form-group">
+            <label for="{{ form.title.id_for_label }}" class="form-label">
+              <i class="bi bi-card-heading"></i>
+              Job Title
+              <span class="required">*</span>
+            </label>
+            {{ form.title }}
+            {% if form.title.errors %}
+              <div class="error-message">
+                <i class="bi bi-exclamation-circle"></i>
+                {{ form.title.errors.0 }}
+              </div>
+            {% endif %}
+            <div class="help-text">
+              <i class="bi bi-info-circle"></i>
+              <span>Be specific and clear. Example: "Plumber Needed for Bathroom Renovation"</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="{{ form.category.id_for_label }}" class="form-label">
+                <i class="bi bi-tag"></i>
+                Category
+                <span class="required">*</span>
+              </label>
+              {{ form.category }}
+              {% if form.category.errors %}
+                <div class="error-message">
+                  <i class="bi bi-exclamation-circle"></i>
+                  {{ form.category.errors.0 }}
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.budget.id_for_label }}" class="form-label">
+                <i class="bi bi-cash-stack"></i>
+                Budget (₱)
+                <span class="required">*</span>
+              </label>
+              {{ form.budget }}
+              {% if form.budget.errors %}
+                <div class="error-message">
+                  <i class="bi bi-exclamation-circle"></i>
+                  {{ form.budget.errors.0 }}
+                </div>
+              {% endif %}
+              <div class="help-text">
+                <i class="bi bi-info-circle"></i>
+                <span>Set a fair budget to attract quality workers</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.description.id_for_label }}" class="form-label">
+              <i class="bi bi-file-text"></i>
+              Job Description
+              <span class="required">*</span>
+            </label>
+            {{ form.description }}
+            {% if form.description.errors %}
+              <div class="error-message">
+                <i class="bi bi-exclamation-circle"></i>
+                {{ form.description.errors.0 }}
+              </div>
+            {% endif %}
+            <div class="help-text">
+              <i class="bi bi-info-circle"></i>
+              <span>Describe the job in detail. Include what needs to be done and any important information.</span>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.tasks.id_for_label }}" class="form-label">
+              <i class="bi bi-list-task"></i>
+              Specific Tasks
+            </label>
+            {{ form.tasks }}
+            {% if form.tasks.errors %}
+              <div class="error-message">
+                <i class="bi bi-exclamation-circle"></i>
+                {{ form.tasks.errors.0 }}
+              </div>
+            {% endif %}
+            <div class="help-text">
+              <i class="bi bi-info-circle"></i>
+              <span>List specific tasks the worker will perform</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 2: Location -->
+        <div class="form-step" data-step="2">
+          <h2 class="step-section-title">
+            <i class="bi bi-geo-alt"></i>
+            Location Information
+          </h2>
+          <p class="step-section-description">
+            Specify where the job will take place
+          </p>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="{{ form.municipality.id_for_label }}" class="form-label">
+                <i class="bi bi-building"></i>
+                Municipality
+                <span class="required">*</span>
+              </label>
+              {{ form.municipality }}
+              {% if form.municipality.errors %}
+                <div class="error-message">
+                  <i class="bi bi-exclamation-circle"></i>
+                  {{ form.municipality.errors.0 }}
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.barangay.id_for_label }}" class="form-label">
+                <i class="bi bi-map"></i>
+                Barangay
+                <span class="required">*</span>
+              </label>
+              {{ form.barangay }}
+              {% if form.barangay.errors %}
+                <div class="error-message">
+                  <i class="bi bi-exclamation-circle"></i>
+                  {{ form.barangay.errors.0 }}
+                </div>
+              {% endif %}
+              <div class="help-text">
+                <i class="bi bi-info-circle"></i>
+                <span>The local administrative division within the municipality</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="{{ form.subdivision.id_for_label }}" class="form-label">
+                <i class="bi bi-houses"></i>
+                Subdivision (Optional)
+              </label>
+              {{ form.subdivision }}
+              {% if form.subdivision.errors %}
+                <div class="error-message">
+                  <i class="bi bi-exclamation-circle"></i>
+                  {{ form.subdivision.errors.0 }}
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.street.id_for_label }}" class="form-label">
+                <i class="bi bi-signpost"></i>
+                Street (Optional)
+              </label>
+              {{ form.street }}
+              {% if form.street.errors %}
+                <div class="error-message">
+                  <i class="bi bi-exclamation-circle"></i>
+                  {{ form.street.errors.0 }}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.house_number.id_for_label }}" class="form-label">
+              <i class="bi bi-house"></i>
+              House/Building Number (Optional)
+            </label>
+            {{ form.house_number }}
+            {% if form.house_number.errors %}
+              <div class="error-message">
+                <i class="bi bi-exclamation-circle"></i>
+                {{ form.house_number.errors.0 }}
+              </div>
+            {% endif %}
+          </div>
+
+          <div class="map-container">
+            <label class="form-label">
+              <i class="bi bi-pin-map"></i>
+              Pin Job Location on Map
+              <span class="required">*</span>
+            </label>
+            <div class="help-text" style="margin-bottom: 1rem;">
+              <i class="bi bi-info-circle"></i>
+              <span>Click on the map or drag the marker to set the exact location</span>
+            </div>
+            <div id="map"></div>
+            <input type="hidden" id="latitude" name="latitude" value="{{ object.latitude|default:'14.4310956' }}">
+            <input type="hidden" id="longitude" name="longitude" value="{{ object.longitude|default:'120.968096097231' }}">
+            
+            <div class="map-info-bar">
+              <div class="map-info-item">
+                <div class="map-info-label">Latitude</div>
+                <div class="map-info-value" id="lat-display">{{ object.latitude|default:'Not set' }}</div>
+              </div>
+              <div class="map-info-item">
+                <div class="map-info-label">Longitude</div>
+                <div class="map-info-value" id="lon-display">{{ object.longitude|default:'Not set' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Step 3: Requirements & Details -->
+        <div class="form-step" data-step="3">
+          <h2 class="step-section-title">
+            <i class="bi bi-list-check"></i>
+            Job Requirements & Details
+          </h2>
+          <p class="step-section-description">
+            Specify requirements, schedule, and payment details
+          </p>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="{{ form.duration.id_for_label }}" class="form-label">
+                <i class="bi bi-hourglass"></i>
+                Duration
+              </label>
+              {{ form.duration }}
+              {% if form.duration.errors %}
+                <div class="error-message">
+                  <i class="bi bi-exclamation-circle"></i>
+                  {{ form.duration.errors.0 }}
+                </div>
+              {% endif %}
+              <div class="help-text">
+                <i class="bi bi-info-circle"></i>
+                <span>Example: "2 days", "1 week", "3 hours"</span>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.schedule.id_for_label }}" class="form-label">
+                <i class="bi bi-calendar-week"></i>
+                Schedule
+              </label>
+              {{ form.schedule }}
+              {% if form.schedule.errors %}
+                <div class="error-message">
+                  <i class="bi bi-exclamation-circle"></i>
+                  {{ form.schedule.errors.0 }}
+                </div>
+              {% endif %}
+              <div class="help-text">
+                <i class="bi bi-info-circle"></i>
+                <span>Example: "Monday-Friday, 9AM-5PM"</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.start_datetime.id_for_label }}" class="form-label">
+              <i class="bi bi-calendar-event"></i>
+              Start Date & Time
+            </label>
             {{ form.start_datetime }}
             {% if form.start_datetime.errors %}
-                <div class="error-message">{{ form.start_datetime.errors }}</div>
+              <div class="error-message">
+                <i class="bi bi-exclamation-circle"></i>
+                {{ form.start_datetime.errors.0 }}
+              </div>
             {% endif %}
-        </div>
-    </div>
-    <div class="form-row">
-        <div class="form-group">
-            <label for="{{ form.tools_provided.id_for_label }}">Tools Provided?</label>
-            {{ form.tools_provided }}
-            {% if form.tools_provided.errors %}
-                <div class="error-message">{{ form.tools_provided.errors }}</div>
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.required_skills.id_for_label }}" class="form-label">
+              <i class="bi bi-star"></i>
+              Required Skills
+            </label>
+            {{ form.required_skills }}
+            {% if form.required_skills.errors %}
+              <div class="error-message">
+                <i class="bi bi-exclamation-circle"></i>
+                {{ form.required_skills.errors.0 }}
+              </div>
             {% endif %}
-        </div>
-        <div class="form-group">
-            <label for="{{ form.materials_provided.id_for_label }}">Materials Provided?</label>
-            {{ form.materials_provided }}
-            {% if form.materials_provided.errors %}
-                <div class="error-message">{{ form.materials_provided.errors }}</div>
-            {% endif %}
-        </div>
-    </div>
-    <div class="form-group full-width">
-        <label for="{{ form.required_skills.id_for_label }}">Required Skills</label>
-        {{ form.required_skills }}
-        {% if form.required_skills.errors %}
-            <div class="error-message">{{ form.required_skills.errors }}</div>
-        {% endif %}
-    </div>
-    <div class="form-row">
-        <div class="form-group">
-            <label for="{{ form.payment_method.id_for_label }}">Payment Method</label>
-            {{ form.payment_method }}
-            {% if form.payment_method.errors %}
-                <div class="error-message">{{ form.payment_method.errors }}</div>
-            {% endif %}
-        </div>
-        <div class="form-group">
-            <label for="{{ form.payment_schedule.id_for_label }}">Payment Schedule</label>
-            {{ form.payment_schedule }}
-            {% if form.payment_schedule.errors %}
-                <div class="error-message">{{ form.payment_schedule.errors }}</div>
-            {% endif %}
-        </div>
-    </div>
-    <div class="form-row">
-        <div class="form-group">
-            <label for="{{ form.urgency.id_for_label }}">Urgency</label>
-            {{ form.urgency }}
-            {% if form.urgency.errors %}
-                <div class="error-message">{{ form.urgency.errors }}</div>
-            {% endif %}
-        </div>
-        <div class="form-group">
-            <label for="{{ form.number_of_workers.id_for_label }}">Number of Workers</label>
-            {{ form.number_of_workers }}
-            {% if form.number_of_workers.errors %}
-                <div class="error-message">{{ form.number_of_workers.errors }}</div>
-            {% endif %}
-        </div>
-    </div>
-</div>
-                    </div>
-                    <div class="form-actions">
-                        <button type="submit" class="btn btn-primary btn-block">
-                            {% if object %}Update Job Listing{% else %}Post Job Opportunity{% endif %}
-                        </button>
-                    </div>
-                </form>
+            <div class="help-text">
+              <i class="bi bi-info-circle"></i>
+              <span>List skills or experience needed for this job</span>
             </div>
-            <!-- Right Column: Map and Guidelines -->
-            <div class="map-guidelines-container">
-                <div class="map-section">
-                    <h3 class="section-title">Job Location</h3>
-                    <p class="map-instructions">Drag the marker to set the exact job location or click on the map</p>
-                    <div id="map"></div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="{{ form.tools_provided.id_for_label }}" class="form-label">
+                <i class="bi bi-tools"></i>
+                Tools Provided?
+              </label>
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                {{ form.tools_provided }}
+                <span style="color: var(--text-medium);">Check if you will provide tools</span>
+              </div>
+              {% if form.tools_provided.errors %}
+                <div class="error-message">
+                  <i class="bi bi-exclamation-circle"></i>
+                  {{ form.tools_provided.errors.0 }}
                 </div>
-                <div class="guidelines-section">
-                    <h3 class="section-title">Posting Guidelines</h3>
-                    <ul class="guidelines-list">
-                        <li>Be specific about job requirements and responsibilities</li>
-                        <li>Include salary range for better responses from qualified candidates</li>
-                        <li>Clearly state required experience level and skills</li>
-                        <li>Specify work hours, schedule, and duration of employment</li>
-                        <li>Add complete contact details for applicants to reach you</li>
-                        <li>Provide accurate location information for the job site</li>
-                        <li>Use clear, professional language in your job description</li>
-                    </ul>
-                </div>
+              {% endif %}
             </div>
+
+            <div class="form-group">
+              <label for="{{ form.materials_provided.id_for_label }}" class="form-label">
+                <i class="bi bi-box-seam"></i>
+                Materials Provided?
+              </label>
+              <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
+                {{ form.materials_provided }}
+                <span style="color: var(--text-medium);">Check if you will provide materials</span>
+              </div>
+              {% if form.materials_provided.errors %}
+                <div class="error-message">
+                  <i class="bi bi-exclamation-circle"></i>
+                  {{ form.materials_provided.errors.0 }}
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="{{ form.payment_method.id_for_label }}" class="form-label">
+                <i class="bi bi-credit-card"></i>
+                Payment Method
+              </label>
+              {{ form.payment_method }}
+              {% if form.payment_method.errors %}
+                <div class="error-message">
+                  <i class="bi bi-exclamation-circle"></i>
+                  {{ form.payment_method.errors.0 }}
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.payment_schedule.id_for_label }}" class="form-label">
+                <i class="bi bi-calendar-check"></i>
+                Payment Schedule
+              </label>
+              {{ form.payment_schedule }}
+              {% if form.payment_schedule.errors %}
+                <div class="error-message">
+                  <i class="bi bi-exclamation-circle"></i>
+                  {{ form.payment_schedule.errors.0 }}
+                </div>
+              {% endif %}
+              <div class="help-text">
+                <i class="bi bi-info-circle"></i>
+                <span>Example: "Upon completion", "50% upfront, 50% after"</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label for="{{ form.urgency.id_for_label }}" class="form-label">
+                <i class="bi bi-exclamation-triangle"></i>
+                Urgency
+              </label>
+              {{ form.urgency }}
+              {% if form.urgency.errors %}
+                <div class="error-message">
+                  <i class="bi bi-exclamation-circle"></i>
+                  {{ form.urgency.errors.0 }}
+                </div>
+              {% endif %}
+            </div>
+
+            <div class="form-group">
+              <label for="{{ form.number_of_workers.id_for_label }}" class="form-label">
+                <i class="bi bi-people"></i>
+                Number of Workers Needed
+              </label>
+              {{ form.number_of_workers }}
+              {% if form.number_of_workers.errors %}
+                <div class="error-message">
+                  <i class="bi bi-exclamation-circle"></i>
+                  {{ form.number_of_workers.errors.0 }}
+                </div>
+              {% endif %}
+            </div>
+          </div>
         </div>
-    </div>
+
+        <!-- Step 4: Media Upload -->
+        <div class="form-step" data-step="4">
+          <h2 class="step-section-title">
+            <i class="bi bi-images"></i>
+            Job Images
+          </h2>
+          <p class="step-section-description">
+            Add images to help workers understand the job better (optional but recommended)
+          </p>
+
+          {% if existing_images %}
+          <div class="form-group">
+            <label class="form-label">
+              <i class="bi bi-image"></i>
+              Existing Images
+            </label>
+            <div class="image-preview-grid" id="existing-images">
+              {% for image in existing_images %}
+              <div class="preview-item" id="image-{{ image.id }}">
+                <img src="{{ image.image.url }}" alt="Job Image">
+                <button type="button" class="preview-delete-btn" onclick="deleteExistingImage('{{ image.id }}')">
+                  <i class="bi bi-trash"></i>
+                </button>
+              </div>
+              {% endfor %}
+            </div>
+          </div>
+          {% endif %}
+
+          <div class="image-upload-container">
+            <label class="form-label">
+              <i class="bi bi-cloud-upload"></i>
+              Upload New Images
+            </label>
+            <div class="help-text" style="margin-bottom: 1rem;">
+              <i class="bi bi-info-circle"></i>
+              <span>Add photos of the work area, materials, or examples of what you need done</span>
+            </div>
+            <label for="{{ image_form.images.id_for_label }}" class="image-upload-zone">
+              <i class="bi bi-cloud-arrow-up upload-icon"></i>
+              <div class="upload-text">Click to upload or drag and drop</div>
+              <div class="upload-hint">PNG, JPG up to 10MB each • Multiple files supported</div>
+              <input type="file" id="{{ image_form.images.id_for_label }}" name="{{ image_form.images.name }}" multiple accept="image/*" style="display: none;">
+            </label>
+            <div id="new-image-previews" class="image-preview-grid"></div>
+          </div>
+        </div>
+
+        <!-- Step 5: Review -->
+        <div class="form-step" data-step="5">
+          <h2 class="step-section-title">
+            <i class="bi bi-check-circle"></i>
+            Review Your Job Posting
+          </h2>
+          <p class="step-section-description">
+            Please review all the information before submitting
+          </p>
+
+          <div style="background: linear-gradient(135deg, #f0f9ff 0%, white 100%); border-radius: 16px; padding: 2rem; border: 2px solid var(--trabaholink-cyan);">
+            <div style="display: grid; gap: 1.5rem;">
+              <div>
+                <h3 style="color: var(--trabaholink-dark-blue); font-size: 1.125rem; margin: 0 0 0.5rem 0;">
+                  <i class="bi bi-briefcase" style="margin-right: 0.5rem;"></i>Job Details
+                </h3>
+                <div id="review-job-details" style="color: var(--text-medium); line-height: 1.8;"></div>
+              </div>
+              
+              <div>
+                <h3 style="color: var(--trabaholink-dark-blue); font-size: 1.125rem; margin: 0 0 0.5rem 0;">
+                  <i class="bi bi-geo-alt" style="margin-right: 0.5rem;"></i>Location
+                </h3>
+                <div id="review-location" style="color: var(--text-medium); line-height: 1.8;"></div>
+              </div>
+              
+              <div>
+                <h3 style="color: var(--trabaholink-dark-blue); font-size: 1.125rem; margin: 0 0 0.5rem 0;">
+                  <i class="bi bi-list-check" style="margin-right: 0.5rem;"></i>Requirements
+                </h3>
+                <div id="review-requirements" style="color: var(--text-medium); line-height: 1.8;"></div>
+              </div>
+
+              <div>
+                <h3 style="color: var(--trabaholink-dark-blue); font-size: 1.125rem; margin: 0 0 0.5rem 0;">
+                  <i class="bi bi-images" style="margin-right: 0.5rem;"></i>Images
+                </h3>
+                <div id="review-images" style="color: var(--text-medium);"></div>
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-top: 2rem; padding: 1.25rem; background: #fef3c7; border-radius: 12px; border-left: 4px solid var(--warning-color);">
+            <p style="margin: 0; color: var(--text-dark); display: flex; align-items: flex-start; gap: 0.75rem;">
+              <i class="bi bi-info-circle" style="color: var(--warning-color); font-size: 1.25rem; margin-top: 0.125rem;"></i>
+              <span>By submitting this job posting, you agree to Trabaholink's terms of service. Make sure all information is accurate and complete.</span>
+            </p>
+          </div>
+        </div>
+
+        <!-- Navigation Buttons -->
+        <div class="form-navigation">
+          <button type="button" class="btn btn-secondary" id="prevBtn" onclick="changeStep(-1)">
+            <i class="bi bi-arrow-left"></i>
+            Previous
+          </button>
+          <div style="flex: 1;"></div>
+          <button type="button" class="btn btn-primary" id="nextBtn" onclick="changeStep(1)">
+            Next
+            <i class="bi bi-arrow-right"></i>
+          </button>
+          <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">
+            <i class="bi bi-check-circle"></i>
+            {% if object %}Update Job Posting{% else %}Post Job{% endif %}
+          </button>
+        </div>
+      </div>
+    </form>
+  </div>
 </div>
 
-<!-- Scripts -->
+<!-- Unsaved Changes Warning -->
+<div class="unsaved-warning" id="unsavedWarning">
+  <i class="bi bi-exclamation-triangle" style="margin-right: 0.5rem;"></i>
+  You have unsaved changes
+</div>
+
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
+// Global variables
+let currentStep = 1;
+const totalSteps = 5;
+let formChanged = false;
+let map, marker;
+
 document.addEventListener('DOMContentLoaded', function() {
-    // Get default coordinates (from the object or use fallback values)
-    const defaultLat = parseFloat("{{ object.latitude|default:14.4311278|floatformat:7 }}");
-    const defaultLon = parseFloat("{{ object.longitude|default:120.9682000|floatformat:7 }}");
-
-    // Initialize the Leaflet map
-    const map = L.map('map').setView([defaultLat, defaultLon], 15);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-        attribution: '© OpenStreetMap contributors',
-        maxZoom: 19
-    }).addTo(map);
-
-    // Create a draggable marker
-    const marker = L.marker([defaultLat, defaultLon], {
-        draggable: true,
-        title: 'Drag to set job location'
-    }).addTo(map);
-
-    // Function to update hidden fields and display coordinates
-    function updateCoordinates(lat, lon) {
-        document.getElementById("latitude").value = lat;
-        document.getElementById("longitude").value = lon;
-        document.getElementById("lat-display").textContent = lat;
-        document.getElementById("lon-display").textContent = lon;
+  // Apply form control classes
+  const formControls = document.querySelectorAll('input[type="text"], input[type="number"], input[type="email"], input[type="datetime-local"], select, textarea');
+  formControls.forEach(control => {
+    if (!control.classList.contains('form-control')) {
+      control.classList.add('form-control');
     }
+  });
 
-    // Function to compile the full address string from existing fields
-    function getFullAddress() {
-         const municipality = document.getElementById("municipality-input").value.trim();
-         const barangay = document.getElementById("barangay-input").value.trim();
-         const street = document.getElementById("street").value.trim();
-         const houseNumber = document.getElementById("house_number").value.trim();
-         let parts = [];
-         if(houseNumber) parts.push(houseNumber);
-         if(street) parts.push(street);
-         if(barangay) parts.push(barangay);
-         if(municipality) parts.push(municipality);
-         return parts.join(', ');
+  // Track form changes
+  const form = document.getElementById('jobForm');
+  form.addEventListener('change', function() {
+    formChanged = true;
+    document.getElementById('unsavedWarning').style.display = 'block';
+  });
+
+  // Warn before leaving with unsaved changes
+  window.addEventListener('beforeunload', function(e) {
+    if (formChanged) {
+      e.preventDefault();
+      e.returnValue = '';
+      return '';
     }
+  });
 
-    // Reverse geocoding: update address fields based on marker position
-    function reverseGeocode(lat, lon) {
-         fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&addressdetails=1`)
-             .then(response => response.json())
-             .then(data => {
-                 if(data && data.address) {
-                     const address = data.address;
-                     document.getElementById("municipality-input").value = address.city || address.town || address.municipality || '';
-                     document.getElementById("barangay-input").value = address.suburb || address.neighbourhood || '';
-                     document.getElementById("street").value = address.road || '';
-                     document.getElementById("house_number").value = address.house_number || '';
-                 }
-             })
-             .catch(err => console.error("Reverse geocoding error:", err));
-    }
-
-    // Forward geocoding: update map based on concatenated address
-    function forwardGeocode() {
-         const fullAddress = getFullAddress();
-         if(fullAddress.trim() === '') return;
-         fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}`)
-             .then(response => response.json())
-             .then(data => {
-                 if(data && data.length > 0) {
-                     const result = data[0];
-                     const newLat = parseFloat(result.lat);
-                     const newLon = parseFloat(result.lon);
-                     map.setView([newLat, newLon], 15);
-                     marker.setLatLng([newLat, newLon]);
-                     updateCoordinates(newLat, newLon);
-                 }
-             })
-             .catch(err => console.error("Forward geocoding error:", err));
-    }
-
-    // Event: when marker is dragged
-    marker.on('dragend', function() {
-          const pos = marker.getLatLng();
-          updateCoordinates(pos.lat, pos.lng);
-          reverseGeocode(pos.lat, pos.lng);
-    });
+  // Form submission - remove warning and log data
+  form.addEventListener('submit', function(e) {
+    console.log('=== JOB FORM SUBMISSION STARTED ===');
+    console.log('Latitude:', document.getElementById('latitude').value);
+    console.log('Longitude:', document.getElementById('longitude').value);
     
-    // Event: when map is clicked
-    map.on('click', function(e) {
-         marker.setLatLng(e.latlng);
-         updateCoordinates(e.latlng.lat, e.latlng.lng);
-         reverseGeocode(e.latlng.lat, e.latlng.lng);
-    });
+    // Check if lat/lng are set
+    const lat = document.getElementById('latitude').value;
+    const lng = document.getElementById('longitude').value;
     
-    // Add change listeners to existing address input fields
-    const addressFields = ["municipality-input", "barangay-input", "street", "house_number"];
-    addressFields.forEach(function(fieldId) {
-         document.getElementById(fieldId).addEventListener('change', forwardGeocode);
-    });
+    if (!lat || !lng) {
+      e.preventDefault();
+      alert('Location is required. Please set a location on the map.');
+      console.log('BLOCKED: No location set');
+      return false;
+    }
+    
+    // Log all form data
+    const formData = new FormData(this);
+    console.log('=== FORM DATA ===');
+    for (let [key, value] of formData.entries()) {
+      if (value instanceof File) {
+        console.log(key + ':', value.name);
+      } else {
+        console.log(key + ':', value);
+      }
+    }
+    console.log('=== FORM WILL SUBMIT ===');
+    
+    formChanged = false;
+    document.getElementById('unsavedWarning').style.display = 'none';
+    return true;
+  });
 
-    // Initialize fields if no address present
-    updateCoordinates(defaultLat, defaultLon);
-    reverseGeocode(defaultLat, defaultLon);
+  // Initialize map
+  initializeMap();
 
-    // Force map to recalc its size if needed
-    setTimeout(() => { map.invalidateSize(); }, 100);
+  // Image preview
+  setupImagePreview();
+
+  // Show first step
+  showStep(currentStep);
 });
-</script>
-<script>
-document.addEventListener('DOMContentLoaded', function() {
-  // Get the file input element by id (using the form field's id)
+
+function showStep(step) {
+  const steps = document.querySelectorAll('.form-step');
+  const stepItems = document.querySelectorAll('.step-item');
+  
+  // Hide all steps
+  steps.forEach(s => s.classList.remove('active'));
+  
+  // Show current step
+  const currentStepEl = document.querySelector(`.form-step[data-step="${step}"]`);
+  if (currentStepEl) {
+    currentStepEl.classList.add('active');
+  }
+  
+  // Update step indicators
+  stepItems.forEach((item, index) => {
+    const stepNum = index + 1;
+    item.classList.remove('active', 'completed');
+    
+    if (stepNum < step) {
+      item.classList.add('completed');
+      item.querySelector('.step-circle').innerHTML = '<i class="bi bi-check"></i>';
+    } else if (stepNum === step) {
+      item.classList.add('active');
+      item.querySelector('.step-circle').textContent = stepNum;
+    } else {
+      item.querySelector('.step-circle').textContent = stepNum;
+    }
+  });
+  
+  // Update buttons
+  document.getElementById('prevBtn').style.display = step === 1 ? 'none' : 'inline-flex';
+  document.getElementById('nextBtn').style.display = step === totalSteps ? 'none' : 'inline-flex';
+  document.getElementById('submitBtn').style.display = step === totalSteps ? 'inline-flex' : 'none';
+  
+  // If on review step, populate review
+  if (step === 5) {
+    populateReview();
+  }
+  
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function changeStep(direction) {
+  // Validate current step before moving forward
+  if (direction === 1 && !validateStep(currentStep)) {
+    return;
+  }
+  
+  const newStep = currentStep + direction;
+  if (newStep >= 1 && newStep <= totalSteps) {
+    currentStep = newStep;
+    showStep(currentStep);
+  }
+}
+
+function validateStep(step) {
+  const currentStepEl = document.querySelector(`.form-step[data-step="${step}"]`);
+  if (!currentStepEl) return true;
+  
+  const requiredFields = currentStepEl.querySelectorAll('[required]');
+  let isValid = true;
+  
+  requiredFields.forEach(field => {
+    if (!field.value.trim()) {
+      isValid = false;
+      field.style.borderColor = 'var(--danger-color)';
+      
+      // Show error message
+      let errorDiv = field.parentElement.querySelector('.error-message');
+      if (!errorDiv) {
+        errorDiv = document.createElement('div');
+        errorDiv.className = 'error-message';
+        errorDiv.innerHTML = '<i class="bi bi-exclamation-circle"></i> This field is required';
+        field.parentElement.appendChild(errorDiv);
+      }
+    } else {
+      field.style.borderColor = '';
+      const errorDiv = field.parentElement.querySelector('.error-message');
+      if (errorDiv && !errorDiv.textContent.includes('{{')) {
+        errorDiv.remove();
+      }
+    }
+  });
+  
+  // Special validation for step 2 (location)
+  if (step === 2) {
+    const lat = document.getElementById('latitude').value;
+    const lng = document.getElementById('longitude').value;
+    if (!lat || !lng) {
+      alert('Please pin the job location on the map');
+      isValid = false;
+    }
+  }
+  
+  if (!isValid) {
+    alert('Please fill in all required fields before proceeding');
+  }
+  
+  return isValid;
+}
+
+function populateReview() {
+  // Job Details
+  const title = document.getElementById('{{ form.title.id_for_label }}').value;
+  const category = document.getElementById('{{ form.category.id_for_label }}').selectedOptions[0]?.text || '';
+  const budget = document.getElementById('{{ form.budget.id_for_label }}').value;
+  const description = document.getElementById('{{ form.description.id_for_label }}').value;
+  
+  document.getElementById('review-job-details').innerHTML = `
+    <p><strong>Title:</strong> ${title || 'Not specified'}</p>
+    <p><strong>Category:</strong> ${category || 'Not specified'}</p>
+    <p><strong>Budget:</strong> ₱${budget || 'Not specified'}</p>
+    <p><strong>Description:</strong> ${description || 'Not specified'}</p>
+  `;
+  
+  // Location
+  const municipality = document.getElementById('{{ form.municipality.id_for_label }}').value;
+  const barangay = document.getElementById('{{ form.barangay.id_for_label }}').value;
+  const street = document.getElementById('{{ form.street.id_for_label }}').value;
+  const lat = document.getElementById('latitude').value;
+  const lng = document.getElementById('longitude').value;
+  
+  document.getElementById('review-location').innerHTML = `
+    <p><strong>Municipality:</strong> ${municipality || 'Not specified'}</p>
+    <p><strong>Barangay:</strong> ${barangay || 'Not specified'}</p>
+    ${street ? `<p><strong>Street:</strong> ${street}</p>` : ''}
+    <p><strong>Coordinates:</strong> ${lat && lng ? `${parseFloat(lat).toFixed(6)}, ${parseFloat(lng).toFixed(6)}` : 'Not set'}</p>
+  `;
+  
+  // Requirements
+  const duration = document.getElementById('{{ form.duration.id_for_label }}').value;
+  const schedule = document.getElementById('{{ form.schedule.id_for_label }}').value;
+  const workers = document.getElementById('{{ form.number_of_workers.id_for_label }}').value;
+  
+  document.getElementById('review-requirements').innerHTML = `
+    <p><strong>Duration:</strong> ${duration || 'Not specified'}</p>
+    <p><strong>Schedule:</strong> ${schedule || 'Not specified'}</p>
+    <p><strong>Workers Needed:</strong> ${workers || '1'}</p>
+  `;
+  
+  // Images
+  const fileInput = document.getElementById('{{ image_form.images.id_for_label }}');
+  const imageCount = fileInput.files.length;
+  const existingCount = document.querySelectorAll('#existing-images .preview-item').length;
+  const totalImages = imageCount + existingCount;
+  
+  document.getElementById('review-images').innerHTML = `
+    <p>${totalImages} image(s) will be uploaded</p>
+  `;
+}
+
+function initializeMap() {
+  const defaultLat = parseFloat("{{ object.latitude|default:14.4310956|floatformat:7 }}");
+  const defaultLon = parseFloat("{{ object.longitude|default:120.968096097231|floatformat:7 }}");
+  
+  map = L.map('map').setView([defaultLat, defaultLon], 13);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '© OpenStreetMap contributors',
+    maxZoom: 19
+  }).addTo(map);
+  
+  marker = L.marker([defaultLat, defaultLon], {
+    draggable: true,
+    title: 'Drag to set job location'
+  }).addTo(map);
+  
+  function updateCoordinates(lat, lon) {
+    document.getElementById("latitude").value = lat;
+    document.getElementById("longitude").value = lon;
+    document.getElementById("lat-display").textContent = lat.toFixed(6);
+    document.getElementById("lon-display").textContent = lon.toFixed(6);
+    formChanged = true;
+  }
+  
+  marker.on('dragend', function() {
+    const pos = marker.getLatLng();
+    updateCoordinates(pos.lat, pos.lng);
+  });
+  
+  map.on('click', function(e) {
+    marker.setLatLng(e.latlng);
+    updateCoordinates(e.latlng.lat, e.latlng.lng);
+  });
+  
+  updateCoordinates(defaultLat, defaultLon);
+  
+  // Fix map display when step becomes visible
+  const observer = new MutationObserver(function(mutations) {
+    mutations.forEach(function(mutation) {
+      if (mutation.target.classList.contains('active')) {
+        setTimeout(() => { map.invalidateSize(); }, 100);
+      }
+    });
+  });
+  
+  const step2 = document.querySelector('.form-step[data-step="2"]');
+  if (step2) {
+    observer.observe(step2, { attributes: true, attributeFilter: ['class'] });
+  }
+}
+
+function setupImagePreview() {
   const fileInput = document.getElementById("{{ image_form.images.id_for_label }}");
-  const previewContainer = document.getElementById("image-preview-container");
-  const fileSelected = document.getElementById("file-selected");
+  const previewContainer = document.getElementById("new-image-previews");
   
   if (fileInput) {
     fileInput.addEventListener("change", function(event) {
-      // Clear any existing previews
       previewContainer.innerHTML = "";
       const files = event.target.files;
       
       if (files.length > 0) {
-        fileSelected.textContent = files.length + " file(s) selected";
-      } else {
-        fileSelected.textContent = "No files selected";
+        previewContainer.style.marginTop = "1.5rem";
       }
       
-      // Loop over each selected file and create an image preview
       for (let i = 0; i < files.length; i++) {
         const file = files[i];
         const reader = new FileReader();
         reader.onload = function(e) {
-          const img = document.createElement("img");
-          img.src = e.target.result;
-          img.width = 100;  // adjust size as needed
-          img.style.marginBottom = "8px";
-          previewContainer.appendChild(img);
+          const div = document.createElement("div");
+          div.className = "preview-item";
+          div.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+          previewContainer.appendChild(div);
         }
         reader.readAsDataURL(file);
       }
+      
+      formChanged = true;
     });
   }
+}
+
+function deleteExistingImage(imageId) {
+  if (confirm('Are you sure you want to delete this image?')) {
+    const imageEl = document.getElementById('image-' + imageId);
+    if (imageEl) {
+      imageEl.style.opacity = '0.5';
+      imageEl.style.pointerEvents = 'none';
+      
+      // Add hidden input to mark for deletion
+      const input = document.createElement('input');
+      input.type = 'hidden';
+      input.name = 'delete_image';
+      input.value = imageId;
+      document.getElementById('jobForm').appendChild(input);
+      
+      formChanged = true;
+    }
+  }
+}
+
+// Allow clicking on step indicators to navigate (only to completed steps)
+document.querySelectorAll('.step-item').forEach(item => {
+  item.addEventListener('click', function() {
+    const targetStep = parseInt(this.dataset.step);
+    if (targetStep < currentStep || this.classList.contains('completed')) {
+      currentStep = targetStep;
+      showStep(currentStep);
+    }
+  });
 });
 </script>
 {% endblock %}
-

@@ -1,26 +1,402 @@
 {% extends 'mainpages/base.html' %}
+{% load static %}
+
+{% block title %}Add Progress Update - TrabahoLink{% endblock %}
+
+{% block css %}
+<style>
+    body {
+        background: #f3f4f6 !important;
+    }
+
+    .progress-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .progress-header {
+        background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 16px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(5, 150, 105, 0.1);
+    }
+
+    .progress-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .progress-header p {
+        opacity: 0.9;
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    .form-container {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section h3 {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 1.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #f3f4f6;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        display: block;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 0.9375rem;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #059669;
+        box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.1);
+    }
+
+    textarea.form-control {
+        min-height: 150px;
+        resize: vertical;
+    }
+
+    .char-counter {
+        text-align: right;
+        font-size: 0.8125rem;
+        color: #6b7280;
+        margin-top: 0.25rem;
+    }
+
+    .char-counter.warning {
+        color: #f59e0b;
+    }
+
+    .char-counter.danger {
+        color: #ef4444;
+    }
+
+    .input-guide {
+        background: #f9fafb;
+        border: 1px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-top: 0.75rem;
+        font-size: 0.875rem;
+    }
+
+    .input-guide h6 {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .input-guide ul {
+        margin: 0.5rem 0 0 0;
+        padding-left: 1.25rem;
+        color: #6b7280;
+    }
+
+    .input-guide li {
+        margin-bottom: 0.375rem;
+    }
+
+    .example-box {
+        background: white;
+        border-left: 3px solid #059669;
+        padding: 0.75rem;
+        margin-top: 0.75rem;
+        border-radius: 4px;
+        font-size: 0.8125rem;
+        color: #4b5563;
+    }
+
+    .error-message {
+        background: #fee2e2;
+        border: 1px solid #fecaca;
+        color: #991b1b;
+        padding: 0.75rem 1rem;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        padding-top: 1.5rem;
+        border-top: 2px solid #f3f4f6;
+        flex-wrap: wrap;
+    }
+
+    .btn-action {
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.9375rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn-primary {
+        background: #059669;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #047857;
+        color: white;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.2);
+    }
+
+    .btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+
+    .btn-secondary:hover {
+        background: #e5e7eb;
+        color: #111827;
+    }
+
+    .contract-info-box {
+        background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        border: 1px solid #bbf7d0;
+        border-radius: 8px;
+        padding: 1rem;
+        margin-bottom: 2rem;
+    }
+
+    .contract-info-box h4 {
+        font-size: 0.9375rem;
+        font-weight: 600;
+        color: #065f46;
+        margin-bottom: 0.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+    }
+
+    .contract-info-box p {
+        margin: 0;
+        font-size: 0.875rem;
+        color: #047857;
+    }
+
+    @media (max-width: 768px) {
+        .progress-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .form-container {
+            padding: 1.5rem;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn-action {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-  <h2>Add Progress Log</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.non_field_errors }}
-    <div class="mb-3">
-      <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
-      {{ form.status }}
-      {% if form.status.errors %}
-        <div class="text-danger">{{ form.status.errors }}</div>
-      {% endif %}
+<div class="progress-container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" style="margin-bottom: 1.5rem;">
+        <ol class="breadcrumb" style="background: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+            <li class="breadcrumb-item"><a href="{% url 'jobs:home' %}" style="color: #2563eb; text-decoration: none;"><i class="bi bi-house-door"></i> Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'jobs:worker_dashboard' %}" style="color: #2563eb; text-decoration: none;"><i class="bi bi-person-workspace"></i> Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'jobs:contract_detail' contract_pk %}" style="color: #2563eb; text-decoration: none;"><i class="bi bi-file-earmark-check"></i> Contract</a></li>
+            <li class="breadcrumb-item active" aria-current="page"><i class="bi bi-plus-circle"></i> Add Progress Update</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="progress-header">
+        <h1><i class="bi bi-clipboard-check"></i> Add Progress Update</h1>
+        <p>Document your work progress and keep your client informed</p>
     </div>
-    <div class="mb-3">
-      <label for="{{ form.message.id_for_label }}" class="form-label">Message</label>
-      {{ form.message }}
-      {% if form.message.errors %}
-        <div class="text-danger">{{ form.message.errors }}</div>
-      {% endif %}
+
+    <!-- Form Container -->
+    <div class="form-container">
+        <!-- Contract Info -->
+        <div class="contract-info-box">
+            <h4><i class="bi bi-info-circle"></i> Contract Information</h4>
+            <p>Keep your client updated on the progress of your work. Regular updates build trust and ensure smooth project completion.</p>
+        </div>
+
+        <!-- Form -->
+        <form method="post" id="progressForm">
+            {% csrf_token %}
+            
+            <!-- Non-field errors -->
+            {% if form.non_field_errors %}
+            <div class="error-message">
+                <i class="bi bi-exclamation-triangle"></i>
+                <span>{{ form.non_field_errors }}</span>
+            </div>
+            {% endif %}
+
+            <div class="form-section">
+                <h3><i class="bi bi-clipboard-data"></i> Progress Details</h3>
+                
+                <!-- Status Field -->
+                <div class="form-group">
+                    <label for="{{ form.status.id_for_label }}" class="form-label">
+                        <i class="bi bi-flag"></i> Progress Status
+                    </label>
+                    {{ form.status }}
+                    {% if form.status.errors %}
+                    <div class="error-message" style="margin-top: 0.5rem;">
+                        <i class="bi bi-exclamation-circle"></i>
+                        <span>{{ form.status.errors }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="input-guide">
+                        <h6><i class="bi bi-lightbulb"></i> Status Examples:</h6>
+                        <ul>
+                            <li><strong>Started:</strong> "Began working on the project"</li>
+                            <li><strong>In Progress:</strong> "Completed 50% of the work"</li>
+                            <li><strong>Milestone Reached:</strong> "Finished Phase 1"</li>
+                            <li><strong>Nearly Complete:</strong> "Final touches being added"</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <!-- Message Field -->
+                <div class="form-group">
+                    <label for="{{ form.message.id_for_label }}" class="form-label">
+                        <i class="bi bi-chat-left-text"></i> Progress Description
+                    </label>
+                    {{ form.message }}
+                    <div class="char-counter" id="message-counter">0 / 1000 characters</div>
+                    {% if form.message.errors %}
+                    <div class="error-message" style="margin-top: 0.5rem;">
+                        <i class="bi bi-exclamation-circle"></i>
+                        <span>{{ form.message.errors }}</span>
+                    </div>
+                    {% endif %}
+                    <div class="input-guide">
+                        <h6><i class="bi bi-lightbulb"></i> What to include in your update:</h6>
+                        <ul>
+                            <li><strong>Work Completed:</strong> Describe what you've accomplished</li>
+                            <li><strong>Current Tasks:</strong> What you're working on now</li>
+                            <li><strong>Challenges:</strong> Any issues or blockers encountered</li>
+                            <li><strong>Next Steps:</strong> What you'll work on next</li>
+                            <li><strong>Timeline:</strong> Expected completion date if applicable</li>
+                        </ul>
+                        <div class="example-box">
+                            <strong>Example:</strong> "Completed the homepage design and implemented responsive layout. Currently working on the contact form functionality. Encountered a minor issue with email validation which has been resolved. Next, I'll implement the product gallery. Expected to complete by Friday."
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <button type="submit" class="btn-action btn-primary">
+                    <i class="bi bi-check-circle"></i> Submit Progress Update
+                </button>
+                <a href="{% url 'jobs:contract_detail' contract_pk %}" class="btn-action btn-secondary">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </a>
+            </div>
+        </form>
     </div>
-    <button type="submit" class="btn btn-primary">Add Log</button>
-    <a href="{% url 'jobs:contract_detail' contract_pk %}" class="btn btn-secondary">Cancel</a>
-  </form>
 </div>
+
+<script>
+// Character counter for message field
+document.addEventListener('DOMContentLoaded', function() {
+    const messageField = document.getElementById('{{ form.message.id_for_label }}');
+    const counter = document.getElementById('message-counter');
+    
+    if (messageField && counter) {
+        function updateCounter() {
+            const length = messageField.value.length;
+            const maxLength = 1000;
+            counter.textContent = `${length} / ${maxLength} characters`;
+            
+            // Update color based on length
+            counter.classList.remove('warning', 'danger');
+            if (length > maxLength * 0.9) {
+                counter.classList.add('danger');
+            } else if (length > maxLength * 0.7) {
+                counter.classList.add('warning');
+            }
+        }
+        
+        messageField.addEventListener('input', updateCounter);
+        updateCounter(); // Initial count
+    }
+    
+    // Form validation
+    document.getElementById('progressForm').addEventListener('submit', function(e) {
+        const status = document.getElementById('{{ form.status.id_for_label }}').value.trim();
+        const message = document.getElementById('{{ form.message.id_for_label }}').value.trim();
+        
+        if (!status || !message) {
+            e.preventDefault();
+            alert('Please fill in all required fields.');
+            return false;
+        }
+        
+        if (message.length < 20) {
+            e.preventDefault();
+            alert('Please provide a more detailed progress description (at least 20 characters).');
+            return false;
+        }
+    });
+});
+</script>
 {% endblock %}

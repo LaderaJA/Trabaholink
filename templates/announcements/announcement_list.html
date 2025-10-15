@@ -1,18 +1,28 @@
 {% extends "mainpages/base.html" %}
 
 {% block content %}
-<div class="announcements-container">
-    <div class="announcements-header">
-        <h2 class="announcements-title">Announcements</h2>
-        {% if user.is_staff %}
-            <a href="{% url 'announcements:announcement_create' %}" class="post-announcement-btn">
-                <span>Post Announcement</span>
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                </svg>
-            </a>
-        {% endif %}
+<!-- Hero Section -->
+<div class="announcements-hero">
+    <div class="container">
+        <div class="hero-content">
+            <div>
+                <h1 class="hero-title">
+                    <i class="bi bi-megaphone-fill"></i> Announcements
+                </h1>
+                <p class="hero-subtitle">Stay updated with the latest news and updates from TrabahoLink</p>
+            </div>
+            {% if user.is_staff %}
+                <a href="{% url 'announcements:announcement_create' %}" class="btn-create-announcement">
+                    <i class="bi bi-plus-circle-fill"></i>
+                    <span>Create Announcement</span>
+                </a>
+            {% endif %}
+        </div>
     </div>
+</div>
+
+<div class="announcements-container">
+    <div class="container">
 
     <div class="announcements-grid">
         {% for announcement in announcements %}
@@ -23,128 +33,148 @@
                     </div>
                 {% endif %}
                 <div class="announcement-content">
+                    <div class="announcement-badge">
+                        <i class="bi bi-bell-fill"></i> Announcement
+                    </div>
                     <h3 class="announcement-title">
                         <a href="{% url 'announcements:announcement_detail' announcement.pk %}">{{ announcement.title }}</a>
                     </h3>
-                    <p class="announcement-description">{{ announcement.description|truncatewords:20 }}</p>
+                    <p class="announcement-description">{{ announcement.description|truncatewords:25 }}</p>
                     <div class="announcement-meta">
-                        <div class="announcement-author">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M8 8a3 3 0 1 0 0-6 3 3 0 0 0 0 6zm2-3a2 2 0 1 1-4 0 2 2 0 0 1 4 0zm4 8c0 1-1 1-1 1H3s-1 0-1-1 1-4 6-4 6 3 6 4zm-1-.004c-.001-.246-.154-.986-.832-1.664C11.516 10.68 10.289 10 8 10c-2.29 0-3.516.68-4.168 1.332-.678.678-.83 1.418-.832 1.664h10z"/>
-                            </svg>
+                        <div class="meta-item">
+                            <i class="bi bi-person-circle"></i>
                             <span>{{ announcement.posted_by }}</span>
                         </div>
-                        <div class="announcement-date">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                <path d="M3.5 0a.5.5 0 0 1 .5.5V1h8V.5a.5.5 0 0 1 1 0V1h1a2 2 0 0 1 2 2v11a2 2 0 0 1-2 2H2a2 2 0 0 1-2-2V3a2 2 0 0 1 2-2h1V.5a.5.5 0 0 1 .5-.5zM1 4v10a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V4H1z"/>
-                            </svg>
+                        <div class="meta-item">
+                            <i class="bi bi-calendar3"></i>
                             <span>{{ announcement.created_at|date:"M d, Y" }}</span>
                         </div>
                     </div>
+                    <a href="{% url 'announcements:announcement_detail' announcement.pk %}" class="btn-read-more">
+                        Read More <i class="bi bi-arrow-right"></i>
+                    </a>
                 </div>
             </div>
         {% empty %}
             <div class="no-announcements">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="currentColor" viewBox="0 0 16 16">
-                    <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
-                    <path d="M7.002 11a1 1 0 1 1 2 0 1 1 0 0 1-2 0zM7.1 4.995a.905.905 0 1 1 1.8 0l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 4.995z"/>
-                </svg>
-                <p>No announcements available at this time.</p>
+                <div class="empty-icon">
+                    <i class="bi bi-megaphone"></i>
+                </div>
+                <h3>No Announcements Yet</h3>
+                <p>Check back later for updates and important information from TrabahoLink.</p>
             </div>
         {% endfor %}
+    </div>
     </div>
 </div>
 
 <style>
-    /* Announcements Container */
-    .announcements-container {
-        max-width: 1200px;
-        margin: 0 auto;
-        padding: 20px;
+    :root {
+        --trabaholink-blue: #1e40af;
+        --trabaholink-light-blue: #3b82f6;
+        --trabaholink-dark: #1e293b;
+        --trabaholink-gray: #64748b;
     }
 
-    /* Announcements Header */
-    .announcements-header {
+    /* Hero Section */
+    .announcements-hero {
+        background: #1A94D5;
+        color: white;
+        padding: 4rem 0 3rem;
+        margin-bottom: 3rem;
+        border-bottom: 1px solid #1A94D5;
+    }
+
+    .hero-content {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        margin-bottom: 30px;
-        border-bottom: 2px solid #f0f0f0;
-        padding-bottom: 15px;
+        gap: 2rem;
+        flex-wrap: wrap;
     }
 
-    .announcements-title {
-        font-size: 28px;
-        color: #333;
+    .hero-title {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        color: white;
+    }
+
+    .hero-subtitle {
+        font-size: 1.125rem;
         margin: 0;
-        position: relative;
-        padding-left: 15px;
+        color: rgba(255, 255, 255, 0.9);
     }
 
-    .announcements-title::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 5px;
-        height: 80%;
-        width: 5px;
-        background-color: #3b82f6;
-        border-radius: 3px;
-    }
-
-    /* Post Announcement Button */
-    .post-announcement-btn {
+    .btn-create-announcement {
         display: inline-flex;
         align-items: center;
-        gap: 8px;
-        background-color: #3b82f6;
-        color: white;
-        padding: 10px 16px;
-        border-radius: 6px;
+        gap: 0.5rem;
+        background: white;
+        color: #1A94D5;
+        padding: 0.875rem 1.5rem;
+        border-radius: 0.5rem;
         text-decoration: none;
-        font-weight: 500;
+        font-weight: 600;
         transition: all 0.3s ease;
-        box-shadow: 0 2px 5px rgba(59, 130, 246, 0.3);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
     }
 
-    .post-announcement-btn:hover {
-        background-color: #2563eb;
+    .btn-create-announcement:hover {
         transform: translateY(-2px);
-        box-shadow: 0 4px 8px rgba(59, 130, 246, 0.4);
+        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        background: rgba(255, 255, 255, 0.95);
+        color: #1A94D5;
     }
 
-    .post-announcement-btn:active {
-        transform: translateY(0);
+    /* Announcements Container */
+    .announcements-container {
+        padding: 0 0 4rem 0;
     }
 
     /* Announcements Grid */
     .announcements-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 25px;
+        grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+        gap: 2rem;
     }
 
     /* Announcement Card */
     .announcement-card {
-        background-color: white;
-        border-radius: 10px;
+        background: white;
+        border-radius: 1rem;
         overflow: hidden;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 1px 3px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
         display: flex;
         flex-direction: column;
-        height: 100%;
+        border: 1px solid #e2e8f0;
     }
 
     .announcement-card:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 15px rgba(0, 0, 0, 0.1);
+        transform: translateY(-8px);
+        box-shadow: 0 12px 24px rgba(30, 64, 175, 0.15);
+        border-color: var(--trabaholink-light-blue);
     }
 
     /* Announcement Image */
     .announcement-image {
-        height: 180px;
+        height: 220px;
         overflow: hidden;
+        position: relative;
+    }
+
+    .announcement-image::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 50%;
+        background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);
     }
 
     .announcement-image img {
@@ -155,56 +185,92 @@
     }
 
     .announcement-card:hover .announcement-image img {
-        transform: scale(1.05);
+        transform: scale(1.1);
     }
 
     /* Announcement Content */
     .announcement-content {
-        padding: 20px;
+        padding: 1.5rem;
         flex-grow: 1;
         display: flex;
         flex-direction: column;
     }
 
+    .announcement-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        background: linear-gradient(135deg, var(--trabaholink-blue), var(--trabaholink-light-blue));
+        color: white;
+        padding: 0.375rem 0.75rem;
+        border-radius: 0.375rem;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        width: fit-content;
+        margin-bottom: 1rem;
+    }
+
     .announcement-title {
-        margin-top: 0;
-        margin-bottom: 12px;
-        font-size: 18px;
+        margin: 0 0 1rem 0;
+        font-size: 1.25rem;
+        font-weight: 600;
         line-height: 1.4;
     }
 
     .announcement-title a {
-        color: #333;
+        color: var(--trabaholink-dark);
         text-decoration: none;
         transition: color 0.2s ease;
     }
 
     .announcement-title a:hover {
-        color: #3b82f6;
+        color: var(--trabaholink-blue);
     }
 
     .announcement-description {
-        color: #666;
-        margin-bottom: 15px;
-        line-height: 1.5;
+        color: var(--trabaholink-gray);
+        margin-bottom: 1.5rem;
+        line-height: 1.6;
         flex-grow: 1;
     }
 
     /* Announcement Meta */
     .announcement-meta {
         display: flex;
-        justify-content: space-between;
-        font-size: 14px;
-        color: #777;
-        margin-top: auto;
-        border-top: 1px solid #f0f0f0;
-        padding-top: 15px;
+        gap: 1.5rem;
+        font-size: 0.875rem;
+        color: var(--trabaholink-gray);
+        padding-top: 1rem;
+        border-top: 1px solid #e2e8f0;
+        margin-bottom: 1rem;
     }
 
-    .announcement-author, .announcement-date {
+    .meta-item {
         display: flex;
         align-items: center;
-        gap: 5px;
+        gap: 0.375rem;
+    }
+
+    .meta-item i {
+        color: var(--trabaholink-light-blue);
+    }
+
+    .btn-read-more {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: var(--trabaholink-blue);
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.875rem;
+        transition: all 0.2s ease;
+    }
+
+    .btn-read-more:hover {
+        gap: 0.75rem;
+        color: var(--trabaholink-light-blue);
     }
 
     /* No Announcements */
@@ -214,42 +280,68 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        padding: 60px 20px;
-        background-color: white;
-        border-radius: 10px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
-        color: #777;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 1rem;
+        border: 2px dashed #cbd5e1;
         text-align: center;
     }
 
-    .no-announcements svg {
-        margin-bottom: 15px;
-        color: #ccc;
+    .empty-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, var(--trabaholink-blue), var(--trabaholink-light-blue));
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .empty-icon i {
+        font-size: 2.5rem;
+        color: white;
+    }
+
+    .no-announcements h3 {
+        color: var(--trabaholink-dark);
+        margin: 0 0 0.5rem 0;
+        font-size: 1.5rem;
     }
 
     .no-announcements p {
-        font-size: 18px;
+        color: var(--trabaholink-gray);
         margin: 0;
+        font-size: 1rem;
     }
 
     /* Responsive Adjustments */
     @media (max-width: 768px) {
-        .announcements-header {
+        .hero-title {
+            font-size: 2rem;
+        }
+
+        .hero-content {
             flex-direction: column;
             align-items: flex-start;
-            gap: 15px;
+        }
+
+        .btn-create-announcement {
+            width: 100%;
+            justify-content: center;
         }
 
         .announcements-grid {
             grid-template-columns: 1fr;
+            gap: 1.5rem;
         }
     }
 
     /* Animation for cards */
-    @keyframes fadeIn {
+    @keyframes fadeInUp {
         from {
             opacity: 0;
-            transform: translateY(20px);
+            transform: translateY(30px);
         }
         to {
             opacity: 1;
@@ -258,27 +350,8 @@
     }
 
     .announcement-card {
-        animation: fadeIn 0.5s ease forwards;
+        animation: fadeInUp 0.6s ease forwards;
     }
-
-    /* {% for announcement in announcements %}
-        .announcement-card:nth-child({{ forloop.counter }}) {
-            animation-delay: {{ forloop.counter|add:"-1" }}00ms;
-        }
-    {% endfor %} */
     
 </style>
-
-<script>
-    // Add hover effect for cards
-    document.addEventListener('DOMContentLoaded', function() {
-        const cards = document.querySelectorAll('.announcement-card');
-        
-        cards.forEach(card => {
-            card.addEventListener('mouseenter', function() {
-                this.style.transition = 'all 0.3s ease';
-            });
-        });
-    });
-</script>
 {% endblock %}

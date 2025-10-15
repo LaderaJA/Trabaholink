@@ -1,0 +1,320 @@
+{% extends 'mainpages/base.html' %}
+{% load static %}
+
+{% block title %}Contracts - TrabahoLink{% endblock %}
+
+{% block css %}
+<style>
+    body {
+        background: #f3f4f6 !important;
+    }
+
+    .contracts-container {
+        max-width: 1400px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .page-header {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .page-subtitle {
+        color: #6b7280;
+        margin: 0;
+    }
+
+    .filter-section {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .contracts-grid {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .contract-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .contract-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .contract-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .contract-info h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .worker-name {
+        color: #2563eb;
+        font-size: 0.9375rem;
+        font-weight: 500;
+    }
+
+    .contract-body {
+        margin-bottom: 1rem;
+    }
+
+    .contract-details {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+        margin: 1rem 0;
+    }
+
+    .detail-item {
+        background: #f9fafb;
+        padding: 0.75rem;
+        border-radius: 8px;
+    }
+
+    .detail-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 0.25rem;
+    }
+
+    .detail-value {
+        font-size: 0.9375rem;
+        color: #111827;
+        font-weight: 600;
+    }
+
+    .contract-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-primary {
+        background: #2563eb;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #1d4ed8;
+        color: white;
+    }
+
+    .btn-success {
+        background: #10b981;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background: #059669;
+        color: white;
+    }
+
+    .btn-warning {
+        background: #f59e0b;
+        color: white;
+    }
+
+    .btn-warning:hover {
+        background: #d97706;
+        color: white;
+    }
+
+    .btn-danger {
+        background: #ef4444;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #dc2626;
+        color: white;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 12px;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #d1d5db;
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .contract-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .contract-actions {
+            width: 100%;
+        }
+
+        .btn {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="contracts-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="bi bi-file-earmark-text"></i> Contracts
+        </h1>
+        <p class="page-subtitle">Manage all your job contracts</p>
+    </div>
+
+    <!-- Filter Section -->
+    <div class="filter-section">
+        <form method="get" style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 200px;">
+                <label style="font-size: 0.875rem; font-weight: 600; color: #374151; margin-bottom: 0.5rem; display: block;">
+                    Filter by Status
+                </label>
+                <select name="status" class="form-select" onchange="this.form.submit()">
+                    <option value="">All Statuses</option>
+                    <option value="Negotiation" {% if request.GET.status == 'Negotiation' %}selected{% endif %}>Negotiation</option>
+                    <option value="Finalized" {% if request.GET.status == 'Finalized' %}selected{% endif %}>Finalized</option>
+                    <option value="In Progress" {% if request.GET.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                    <option value="Awaiting Review" {% if request.GET.status == 'Awaiting Review' %}selected{% endif %}>Awaiting Review</option>
+                    <option value="Completed" {% if request.GET.status == 'Completed' %}selected{% endif %}>Completed</option>
+                    <option value="Cancelled" {% if request.GET.status == 'Cancelled' %}selected{% endif %}>Cancelled</option>
+                </select>
+            </div>
+        </form>
+    </div>
+
+    <!-- Contracts Grid -->
+    {% if contracts %}
+    <div class="contracts-grid">
+        {% for contract in contracts %}
+        <div class="contract-card">
+            <div class="contract-header">
+                <div class="contract-info">
+                    <h3>{{ contract.job_title|default:contract.job.title }}</h3>
+                    <div class="worker-name">
+                        <i class="bi bi-person"></i> {{ contract.worker.get_full_name|default:contract.worker.username }}
+                    </div>
+                </div>
+                <div>
+                    {% include 'jobs/components/status_badge.html' with status=contract.status %}
+                </div>
+            </div>
+
+            <div class="contract-body">
+                <div class="contract-details">
+                    <div class="detail-item">
+                        <div class="detail-label">Agreed Rate</div>
+                        <div class="detail-value">₱{{ contract.agreed_rate|default:contract.job.budget }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Duration</div>
+                        <div class="detail-value">{{ contract.duration|default:"Not specified" }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Start Date</div>
+                        <div class="detail-value">{{ contract.start_date|date:"M d, Y"|default:"TBD" }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Last Updated</div>
+                        <div class="detail-value">{{ contract.updated_at|date:"M d, Y" }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="contract-actions">
+                {% if contract.status == 'Negotiation' %}
+                <a href="{% url 'jobs:contract_negotiation' contract.pk %}" class="btn btn-primary">
+                    <i class="bi bi-pencil"></i> Negotiate
+                </a>
+                {% else %}
+                <a href="{% url 'jobs:contract_detail' contract.pk %}" class="btn btn-primary">
+                    <i class="bi bi-eye"></i> View Details
+                </a>
+                {% endif %}
+
+                {% if contract.status == 'Finalized' or contract.status == 'In Progress' or contract.status == 'Awaiting Review' %}
+                <a href="{% url 'jobs:job_tracking' contract.pk %}" class="btn btn-success">
+                    <i class="bi bi-graph-up"></i> Track Job
+                </a>
+                {% endif %}
+
+                {% if contract.status == 'Negotiation' %}
+                <form method="post" action="{% url 'jobs:contract_cancel' contract.pk %}" 
+                      style="display: inline;" 
+                      onsubmit="return confirm('Are you sure you want to cancel this contract?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-x-circle"></i> Cancel
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="bi bi-file-earmark-x"></i>
+        <h3>No Contracts Yet</h3>
+        <p>Your contracts will appear here once you accept applications.</p>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

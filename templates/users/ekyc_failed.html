@@ -1,0 +1,295 @@
+{% extends "mainpages/base.html" %}
+{% load static %}
+
+{% block title %}Verification Failed - TrabahoLink{% endblock %}
+
+{% block css %}
+{{ block.super }}
+<style>
+    body {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .failed-container {
+        max-width: 600px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .failed-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        overflow: hidden;
+        text-align: center;
+    }
+
+    .failed-header {
+        background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+        padding: 3rem 2rem;
+        color: white;
+    }
+
+    .failed-icon {
+        width: 120px;
+        height: 120px;
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+    }
+
+    .failed-icon i {
+        font-size: 4rem;
+    }
+
+    .failed-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem;
+    }
+
+    .failed-header p {
+        margin: 0;
+        opacity: 0.95;
+        font-size: 1.1rem;
+    }
+
+    .failed-body {
+        padding: 2.5rem 2rem;
+    }
+
+    .reason-box {
+        background: #fee2e2;
+        border: 2px solid #ef4444;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin-bottom: 2rem;
+        text-align: left;
+    }
+
+    .reason-box h3 {
+        color: #991b1b;
+        font-size: 1.1rem;
+        font-weight: 600;
+        margin: 0 0 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .reason-box p {
+        margin: 0;
+        color: #7f1d1d;
+        line-height: 1.6;
+    }
+
+    .tips-box {
+        background: #fef3c7;
+        border-radius: 12px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+        text-align: left;
+    }
+
+    .tips-box h4 {
+        color: #92400e;
+        font-weight: 600;
+        margin: 0 0 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .tips-box ul {
+        margin: 0;
+        padding-left: 1.5rem;
+        color: #78350f;
+    }
+
+    .tips-box li {
+        margin-bottom: 0.5rem;
+    }
+
+    .common-issues {
+        text-align: left;
+        margin: 2rem 0;
+    }
+
+    .common-issues h4 {
+        color: #1f2937;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .issue-item {
+        background: #f9fafb;
+        padding: 1rem 1.25rem;
+        border-radius: 8px;
+        margin-bottom: 0.75rem;
+        border-left: 3px solid #ef4444;
+    }
+
+    .issue-item strong {
+        color: #1f2937;
+        display: block;
+        margin-bottom: 0.25rem;
+    }
+
+    .issue-item p {
+        margin: 0;
+        color: #6b7280;
+        font-size: 0.9rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        margin-top: 2rem;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 1rem 2rem;
+        border-radius: 10px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        border: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.4);
+        color: white;
+    }
+
+    .btn-secondary {
+        background: white;
+        color: #6b7280;
+        border: 2px solid #e5e7eb;
+    }
+
+    .btn-secondary:hover {
+        border-color: #667eea;
+        color: #667eea;
+    }
+
+    @media (max-width: 768px) {
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="failed-container">
+    <div class="failed-card">
+        <div class="failed-header">
+            <div class="failed-icon">
+                <i class="bi bi-x-circle-fill"></i>
+            </div>
+            <h1>Verification Not Approved</h1>
+            <p>We couldn't verify your account at this time</p>
+        </div>
+
+        <div class="failed-body">
+            {% if verification and verification.rejection_reason %}
+            <div class="reason-box">
+                <h3>
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    Reason for Rejection
+                </h3>
+                <p>{{ verification.rejection_reason }}</p>
+            </div>
+            {% else %}
+            <div class="reason-box">
+                <h3>
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    Verification Issues
+                </h3>
+                <p>Your verification could not be completed. Please review the common issues below and try again with valid documents.</p>
+            </div>
+            {% endif %}
+
+            <div class="common-issues">
+                <h4>Common Reasons for Rejection</h4>
+                
+                <div class="issue-item">
+                    <strong>Blurry or Unclear Photos</strong>
+                    <p>Make sure all photos are clear, well-lit, and in focus</p>
+                </div>
+
+                <div class="issue-item">
+                    <strong>ID Information Mismatch</strong>
+                    <p>Ensure the name on your ID matches the information you provided</p>
+                </div>
+
+                <div class="issue-item">
+                    <strong>Expired ID</strong>
+                    <p>Use a valid, non-expired government-issued ID</p>
+                </div>
+
+                <div class="issue-item">
+                    <strong>Selfie Doesn't Match ID</strong>
+                    <p>Your selfie must clearly show your face and match your ID photo</p>
+                </div>
+
+                <div class="issue-item">
+                    <strong>Incomplete Documents</strong>
+                    <p>Ensure all required documents are uploaded and visible</p>
+                </div>
+            </div>
+
+            <div class="tips-box">
+                <h4>
+                    <i class="bi bi-lightbulb-fill"></i>
+                    Tips for Successful Verification
+                </h4>
+                <ul>
+                    <li>Use a high-quality camera or phone</li>
+                    <li>Take photos in good lighting</li>
+                    <li>Ensure all text on your ID is readable</li>
+                    <li>Hold your ID next to your face for the selfie</li>
+                    <li>Make sure your face is clearly visible (no masks or sunglasses)</li>
+                    <li>Double-check that all information is accurate</li>
+                </ul>
+            </div>
+
+            <div style="background: #dbeafe; border-radius: 12px; padding: 1.5rem;">
+                <p style="margin: 0; color: #1e3a8a;">
+                    <i class="bi bi-info-circle-fill" style="font-size: 1.5rem; margin-right: 0.5rem;"></i>
+                    <strong>Need help?</strong> If you're having trouble with verification, please contact our support team for assistance.
+                </p>
+            </div>
+
+            <div class="action-buttons">
+                <a href="{% url 'ekyc_start' %}" class="btn btn-primary">
+                    <i class="bi bi-arrow-repeat"></i> Retry Verification
+                </a>
+                <a href="{% url 'profile' request.user.pk %}" class="btn btn-secondary">
+                    <i class="bi bi-person"></i> Go to Profile
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

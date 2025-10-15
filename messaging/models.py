@@ -39,6 +39,7 @@ class Message(models.Model):
     conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name="messages", null=True, blank=True)
     sender = models.ForeignKey(User, on_delete=models.CASCADE)
     content = models.TextField(blank=True, null=True, default="")
+    file = models.FileField(upload_to='chat_files/', null=True, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     is_flagged = models.BooleanField(default=False)
 

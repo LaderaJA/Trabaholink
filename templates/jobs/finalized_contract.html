@@ -1,0 +1,364 @@
+{% extends 'mainpages/base.html' %}
+{% load static %}
+
+{% block title %}Finalized Contract - {{ contract.job.title }}{% endblock %}
+
+{% block css %}
+<style>
+    body {
+        background: #f3f4f6 !important;
+    }
+
+    .contract-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .contract-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .contract-header {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .contract-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .contract-header p {
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    .finalized-banner {
+        background: #d1fae5;
+        color: #065f46;
+        padding: 1rem;
+        text-align: center;
+        font-weight: 600;
+        border-bottom: 3px solid #10b981;
+    }
+
+    .finalized-banner i {
+        font-size: 1.25rem;
+        margin-right: 0.5rem;
+    }
+
+    .contract-body {
+        padding: 2rem;
+    }
+
+    .section {
+        margin-bottom: 2rem;
+        padding-bottom: 2rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .section:last-child {
+        border-bottom: none;
+        margin-bottom: 0;
+        padding-bottom: 0;
+    }
+
+    .section-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title i {
+        color: #10b981;
+    }
+
+    .parties-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 1.5rem;
+    }
+
+    .party-card {
+        background: #f9fafb;
+        padding: 1.25rem;
+        border-radius: 12px;
+        border-left: 4px solid #10b981;
+    }
+
+    .party-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .party-name {
+        font-size: 1.125rem;
+        font-weight: 600;
+        color: #111827;
+        margin-bottom: 0.25rem;
+    }
+
+    .party-email {
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    .details-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .detail-item {
+        background: #f9fafb;
+        padding: 1rem;
+        border-radius: 8px;
+    }
+
+    .detail-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .detail-value {
+        font-size: 1rem;
+        color: #111827;
+        font-weight: 600;
+    }
+
+    .description-box {
+        background: #f9fafb;
+        padding: 1.25rem;
+        border-radius: 8px;
+        border-left: 4px solid #10b981;
+    }
+
+    .description-text {
+        color: #374151;
+        line-height: 1.7;
+        white-space: pre-line;
+        margin: 0;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        padding: 1.5rem 2rem;
+        background: #f9fafb;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .btn {
+        padding: 0.875rem 1.75rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+        font-size: 0.9375rem;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-primary {
+        background: #2563eb;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #1d4ed8;
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #6b7280;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #4b5563;
+        color: white;
+    }
+
+    @media (max-width: 768px) {
+        .parties-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="contract-container">
+    <div class="contract-card">
+        <!-- Header -->
+        <div class="contract-header">
+            <h1><i class="bi bi-file-earmark-check"></i> Finalized Contract</h1>
+            <p>Contract ID: #{{ contract.id }}</p>
+        </div>
+
+        <!-- Finalized Banner -->
+        <div class="finalized-banner">
+            <i class="bi bi-check-circle-fill"></i>
+            This contract has been finalized and accepted by both parties
+        </div>
+
+        <!-- Contract Body -->
+        <div class="contract-body">
+            <!-- Parties Section -->
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="bi bi-people"></i>
+                    Contract Parties
+                </h2>
+                <div class="parties-grid">
+                    <div class="party-card">
+                        <div class="party-label">Employer</div>
+                        <div class="party-name">{{ contract.client.get_full_name|default:contract.client.username }}</div>
+                        <div class="party-email">{{ contract.client.email }}</div>
+                    </div>
+                    <div class="party-card">
+                        <div class="party-label">Worker</div>
+                        <div class="party-name">{{ contract.worker.get_full_name|default:contract.worker.username }}</div>
+                        <div class="party-email">{{ contract.worker.email }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Job Details -->
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="bi bi-briefcase"></i>
+                    Job Details
+                </h2>
+                <h3 style="font-size: 1.25rem; font-weight: 600; color: #111827; margin-bottom: 1rem;">
+                    {{ contract.job_title|default:contract.job.title }}
+                </h3>
+                <div class="description-box">
+                    <p class="description-text">{{ contract.job_description|default:contract.job.description }}</p>
+                </div>
+            </div>
+
+            <!-- Contract Terms -->
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="bi bi-file-text"></i>
+                    Contract Terms
+                </h2>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Agreed Rate</div>
+                        <div class="detail-value">₱{{ contract.agreed_rate|default:contract.job.budget }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Duration</div>
+                        <div class="detail-value">{{ contract.duration|default:"Not specified" }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Schedule</div>
+                        <div class="detail-value">{{ contract.schedule|default:"Not specified" }}</div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Start Date</div>
+                        <div class="detail-value">{{ contract.start_date|date:"F d, Y"|default:"TBD" }}</div>
+                    </div>
+                </div>
+
+                {% if contract.notes %}
+                <div style="margin-top: 1rem;">
+                    <div class="detail-label">Special Terms / Notes</div>
+                    <div class="description-box">
+                        <p class="description-text">{{ contract.notes }}</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+
+            <!-- Contract Status -->
+            <div class="section">
+                <h2 class="section-title">
+                    <i class="bi bi-info-circle"></i>
+                    Contract Status
+                </h2>
+                <div class="details-grid">
+                    <div class="detail-item">
+                        <div class="detail-label">Current Status</div>
+                        <div class="detail-value">
+                            {% include 'jobs/components/status_badge.html' with status=contract.status %}
+                        </div>
+                    </div>
+                    <div class="detail-item">
+                        <div class="detail-label">Finalized On</div>
+                        <div class="detail-value">{{ contract.updated_at|date:"F d, Y" }}</div>
+                    </div>
+                    {% if contract.started_at %}
+                    <div class="detail-item">
+                        <div class="detail-label">Started On</div>
+                        <div class="detail-value">{{ contract.started_at|date:"F d, Y" }}</div>
+                    </div>
+                    {% endif %}
+                    {% if contract.completed_at %}
+                    <div class="detail-item">
+                        <div class="detail-label">Completed On</div>
+                        <div class="detail-value">{{ contract.completed_at|date:"F d, Y" }}</div>
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+            {% if contract.status == 'In Progress' or contract.status == 'Awaiting Review' %}
+            <a href="{% url 'jobs:job_tracking' contract.pk %}" class="btn btn-primary">
+                <i class="bi bi-graph-up"></i> Track Job Progress
+            </a>
+            {% endif %}
+
+            {% if user == contract.worker %}
+            <a href="{% url 'jobs:worker_dashboard' %}" class="btn btn-secondary">
+                <i class="bi bi-house"></i> Back to Dashboard
+            </a>
+            {% else %}
+            <a href="{% url 'jobs:employer_dashboard' %}" class="btn btn-secondary">
+                <i class="bi bi-house"></i> Back to Dashboard
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

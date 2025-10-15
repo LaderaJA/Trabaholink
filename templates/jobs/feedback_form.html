@@ -1,0 +1,230 @@
+{% extends "mainpages/base.html" %}
+{% load static %}
+
+{% block title %}Leave Feedback - {{ contract.job.title }}{% endblock %}
+
+{% block css %}
+{{ block.super }}
+<script src="https://cdn.tailwindcss.com"></script>
+{% endblock %}
+
+{% block content %}
+<div class="container mx-auto px-4 py-8 max-w-2xl">
+    <!-- Header -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <div class="text-center mb-4">
+            <div class="text-end">
+            <a href="{% url 'jobs:contract_detail' contract.pk %}" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left"></i> Back to Contract
+            </a>
+        </div>
+        <div class="text-6xl mb-4">⭐</div>
+        <h1 class="text-3xl font-bold text-gray-800 mb-2">Leave Feedback</h1>
+        <p class="text-gray-600">{{ contract.job.title }}</p>
+    </div>
+
+    <!-- Receiver Info -->
+    <div class="bg-blue-50 border-l-4 border-blue-500 p-4 mt-4">
+        <p class="text-sm text-gray-700">
+            <strong>Leaving feedback for:</strong> 
+            {{ receiver.get_full_name|default:receiver.username }}
+        </p>
+        <p class="text-xs text-gray-600 mt-1">
+            {% if is_worker %}
+                Rate your experience working with this employer
+            {% else %}
+                Rate your experience with this worker
+            {% endif %}
+        </p>
+    </div>
+                {{ receiver.get_full_name|default:receiver.username }}
+            </p>
+            <p class="text-xs text-gray-600 mt-1">
+                {% if is_worker %}
+                    Rate your experience working with this employer
+                {% else %}
+                    Rate your experience with this worker
+                {% endif %}
+            </p>
+        </div>
+    </div>
+
+    <!-- Feedback Form -->
+    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
+        <form method="post" id="feedback-form">
+            {% csrf_token %}
+            
+            <!-- Rating Section -->
+            <div class="mb-6">
+                <label class="block text-lg font-semibold text-gray-800 mb-3">
+                    Rating *
+                </label>
+                <div class="flex justify-center gap-2 mb-2">
+                    <input type="radio" name="rating" value="1" id="star1" class="hidden" required>
+                    <label for="star1" class="star-label text-5xl cursor-pointer transition-transform hover:scale-110" data-rating="1">☆</label>
+                    
+                    <input type="radio" name="rating" value="2" id="star2" class="hidden">
+                    <label for="star2" class="star-label text-5xl cursor-pointer transition-transform hover:scale-110" data-rating="2">☆</label>
+                    
+                    <input type="radio" name="rating" value="3" id="star3" class="hidden">
+                    <label for="star3" class="star-label text-5xl cursor-pointer transition-transform hover:scale-110" data-rating="3">☆</label>
+                    
+                    <input type="radio" name="rating" value="4" id="star4" class="hidden">
+                    <label for="star4" class="star-label text-5xl cursor-pointer transition-transform hover:scale-110" data-rating="4">☆</label>
+                    
+                    <input type="radio" name="rating" value="5" id="star5" class="hidden">
+                    <label for="star5" class="star-label text-5xl cursor-pointer transition-transform hover:scale-110" data-rating="5">☆</label>
+                </div>
+                <p class="text-center text-sm text-gray-500" id="rating-text">Click to rate</p>
+            </div>
+
+            <!-- Feedback Message -->
+            <div class="mb-6">
+                <label for="message" class="block text-lg font-semibold text-gray-800 mb-3">
+                    Your Feedback *
+                </label>
+                <textarea name="message" id="message" required
+                          class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                          rows="6" 
+                          placeholder="Share your experience working together..."></textarea>
+                <p class="text-xs text-gray-500 mt-2">
+                    Be honest and constructive. Your feedback helps build trust in the community.
+                </p>
+            </div>
+
+            <!-- Submit Button -->
+            <div class="flex gap-3">
+                <button type="submit" 
+                        class="flex-1 bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 flex items-center justify-center gap-2">
+                    <span>📝</span>
+                    <span>Submit Feedback</span>
+                </button>
+                
+                <a href="{% url 'jobs:contract_detail' contract.pk %}" 
+                   class="flex-1 bg-gray-500 hover:bg-gray-600 text-white font-semibold py-3 px-6 rounded-lg transition duration-200 text-center">
+                    Skip for Now
+                </a>
+            </div>
+        </form>
+    </div>
+
+    <!-- Info Box -->
+    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4 rounded-lg">
+        <p class="text-sm text-gray-700">
+            <strong>Note:</strong> Your feedback will be visible on the user's profile and helps other users make informed decisions. 
+            Please be respectful and honest.
+        </p>
+    </div>
+</div>
+
+<style>
+    .star-label {
+        color: #d1d5db;
+        user-select: none;
+    }
+
+    .star-label.active,
+    .star-label.hover {
+        color: #fbbf24;
+    }
+
+    textarea:focus {
+        outline: none;
+    }
+</style>
+
+<script>
+    // Star rating functionality
+    const stars = document.querySelectorAll('.star-label');
+    const ratingInputs = document.querySelectorAll('input[name="rating"]');
+    const ratingText = document.getElementById('rating-text');
+    let selectedRating = 0;
+
+    const ratingDescriptions = {
+        1: 'Poor - Not satisfied',
+        2: 'Fair - Below expectations',
+        3: 'Good - Met expectations',
+        4: 'Very Good - Exceeded expectations',
+        5: 'Excellent - Outstanding!'
+    };
+
+    // Handle star click
+    stars.forEach((star, index) => {
+        star.addEventListener('click', () => {
+            selectedRating = index + 1;
+            ratingInputs[index].checked = true;
+            updateStars(selectedRating);
+            ratingText.textContent = ratingDescriptions[selectedRating];
+        });
+
+        // Handle hover
+        star.addEventListener('mouseenter', () => {
+            updateStars(index + 1, true);
+        });
+    });
+
+    // Reset on mouse leave
+    document.querySelector('.flex.justify-center').addEventListener('mouseleave', () => {
+        updateStars(selectedRating);
+        if (selectedRating > 0) {
+            ratingText.textContent = ratingDescriptions[selectedRating];
+        } else {
+            ratingText.textContent = 'Click to rate';
+        }
+    });
+
+    function updateStars(rating, isHover = false) {
+        stars.forEach((star, index) => {
+            star.classList.remove('active', 'hover');
+            if (index < rating) {
+                star.classList.add(isHover ? 'hover' : 'active');
+                star.textContent = '★';
+            } else {
+                star.textContent = '☆';
+            }
+        });
+    }
+
+    // Form validation
+    const form = document.getElementById('feedback-form');
+    form.addEventListener('submit', (e) => {
+        const rating = document.querySelector('input[name="rating"]:checked');
+        const message = document.getElementById('message').value.trim();
+
+        if (!rating) {
+            e.preventDefault();
+            alert('Please select a rating.');
+            return;
+        }
+
+        if (!message) {
+            e.preventDefault();
+            alert('Please write your feedback message.');
+            return;
+        }
+
+        if (message.length < 10) {
+            e.preventDefault();
+            alert('Please write a more detailed feedback (at least 10 characters).');
+            return;
+        }
+
+        // Confirmation
+        const confirmed = confirm('Are you sure you want to submit this feedback? This action cannot be undone.');
+        if (!confirmed) {
+            e.preventDefault();
+        }
+    });
+
+    // Character counter
+    const messageTextarea = document.getElementById('message');
+    messageTextarea.addEventListener('input', () => {
+        const length = messageTextarea.value.length;
+        if (length < 10) {
+            messageTextarea.style.borderColor = '#ef4444';
+        } else {
+            messageTextarea.style.borderColor = '#d1d5db';
+        }
+    });
+</script>
+{% endblock %}

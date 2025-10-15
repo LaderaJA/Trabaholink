@@ -1,0 +1,23 @@
+<div class="flex flex-wrap items-center gap-3">
+    {% if submission.id_image_front %}
+    <a href="{{ submission.id_image_front.url }}" target="_blank" class="inline-flex items-center gap-1 text-trabaholink-blue hover:text-trabaholink-dark-blue">
+        <i data-lucide="id-card" class="w-4 h-4"></i>
+        <span class="text-sm">Front</span>
+    </a>
+    {% endif %}
+    {% if submission.id_image_back %}
+    <a href="{{ submission.id_image_back.url }}" target="_blank" class="inline-flex items-center gap-1 text-trabaholink-blue hover:text-trabaholink-dark-blue">
+        <i data-lucide="id-card" class="w-4 h-4"></i>
+        <span class="text-sm">Back</span>
+    </a>
+    {% endif %}
+    {% if submission.selfie_image %}
+    <a href="{{ submission.selfie_image.url }}" target="_blank" class="inline-flex items-center gap-1 text-trabaholink-blue hover:text-trabaholink-dark-blue">
+        <i data-lucide="camera" class="w-4 h-4"></i>
+        <span class="text-sm">Selfie</span>
+    </a>
+    {% endif %}
+    {% if not submission.id_image_front and not submission.id_image_back and not submission.selfie_image %}
+    <span class="text-xs text-gray-400">No documents uploaded</span>
+    {% endif %}
+</div>

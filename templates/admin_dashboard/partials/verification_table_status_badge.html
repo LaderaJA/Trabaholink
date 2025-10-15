@@ -1,0 +1,16 @@
+{% if skill.status == 'verified' %}
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-green-100 text-green-700 text-xs font-semibold">
+    <i data-lucide="check-circle" class="w-3.5 h-3.5"></i>
+    Verified
+</span>
+{% elif skill.status == 'pending' %}
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-yellow-100 text-yellow-800 text-xs font-semibold">
+    <i data-lucide="clock" class="w-3.5 h-3.5"></i>
+    Pending
+</span>
+{% else %}
+<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full bg-red-100 text-red-700 text-xs font-semibold">
+    <i data-lucide="x-octagon" class="w-3.5 h-3.5"></i>
+    Rejected
+</span>
+{% endif %}

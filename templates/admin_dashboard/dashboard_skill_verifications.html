@@ -1,0 +1,377 @@
+{% extends 'admin_dashboard/dashboard_base.html' %}
+
+{% block title %}Skill Verifications{% endblock %}
+{% block page_title %}Skill Verification Management{% endblock %}
+
+{% block breadcrumb_items %}
+<li><i data-lucide="chevron-right" class="w-4 h-4 inline"></i></li>
+<li class="text-gray-800">Skill Verifications</li>
+{% endblock %}
+
+{% block content %}
+<!-- Stats Overview -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm mb-1">Pending</p>
+                <h3 class="text-2xl font-bold text-yellow-600">{{ pending_count }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                <i data-lucide="clock" class="w-6 h-6 text-yellow-600"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm mb-1">Verified</p>
+                <h3 class="text-2xl font-bold text-green-600">{{ verified_count }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-red-500">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm mb-1">Rejected</p>
+                <h3 class="text-2xl font-bold text-red-600">{{ unverified_count }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                <i data-lucide="x-circle" class="w-6 h-6 text-red-600"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-trabaholink-blue">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm mb-1">Total Submissions</p>
+                <h3 class="text-2xl font-bold text-gray-800">{{ total_count }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <i data-lucide="award" class="w-6 h-6 text-trabaholink-blue"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="bg-white rounded-xl shadow-md p-6 mb-6">
+    <form method="get" class="flex flex-col md:flex-row md:items-center gap-4">
+        <div class="flex-1">
+            <div class="relative">
+                <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                <input type="text" name="search" value="{{ request.GET.search }}" placeholder="Search by worker name or skill..." 
+                       class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+            </div>
+        </div>
+        
+        <select name="status" class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+            <option value="">All Status</option>
+            <option value="pending" {% if request.GET.status == 'pending' %}selected{% endif %}>Pending</option>
+            <option value="verified" {% if request.GET.status == 'verified' %}selected{% endif %}>Verified</option>
+            <option value="unverified" {% if request.GET.status == 'unverified' %}selected{% endif %}>Rejected</option>
+        </select>
+        
+        <button type="submit" class="px-6 py-2 bg-trabaholink-blue text-white rounded-lg hover:bg-trabaholink-dark-blue transition flex items-center gap-2">
+            <i data-lucide="filter" class="w-4 h-4"></i>
+            Apply Filters
+        </button>
+        
+        <a href="{% url 'admin_dashboard:skill_verification_list' %}" class="px-6 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+            Clear
+        </a>
+    </form>
+</div>
+
+<!-- Skill Verifications Table -->
+<div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <div class="p-6 border-b border-gray-200">
+        <h3 class="text-lg font-bold text-gray-800">Skill Verification Requests</h3>
+    </div>
+    
+    <div class="overflow-x-auto">
+        <table class="w-full">
+            <thead class="bg-gray-50">
+                <tr>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Worker</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Skill</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Proof</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
+                    <th class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date Submitted</th>
+                    <th class="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="bg-white divide-y divide-gray-200">
+                {% for skill in skill_verifications %}
+                <tr class="hover:bg-gray-50 transition" data-skill-id="{{ skill.pk }}">
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <div class="flex items-center">
+                            <div class="flex-shrink-0 h-10 w-10">
+                                {% if skill.user.profile_picture %}
+                                <img class="h-10 w-10 rounded-full object-cover" src="{{ skill.user.profile_picture.url }}" alt="{{ skill.user.username }}">
+                                {% else %}
+                                <div class="h-10 w-10 rounded-full bg-trabaholink-blue flex items-center justify-center text-white font-semibold">
+                                    {{ skill.user.username|slice:":1"|upper }}
+                                </div>
+                                {% endif %}
+                            </div>
+                            <div class="ml-4">
+                                <div class="text-sm font-medium text-gray-900">{{ skill.user.get_full_name|default:skill.user.username }}</div>
+                                <div class="text-sm text-gray-500">@{{ skill.user.username }}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td class="px-6 py-4">
+                        <div class="text-sm font-medium text-gray-900">{{ skill.name }}</div>
+                        {% if skill.description %}
+                        <div class="text-sm text-gray-500">{{ skill.description|truncatewords:10 }}</div>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        {% if skill.proof %}
+                        <a href="{{ skill.proof.url }}" target="_blank" class="inline-flex items-center gap-1 text-trabaholink-blue hover:text-trabaholink-dark-blue">
+                            <i data-lucide="file-text" class="w-4 h-4"></i>
+                            <span class="text-sm">View Proof</span>
+                        </a>
+                        {% else %}
+                        <span class="text-sm text-gray-400">No proof</span>
+                        {% endif %}
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap">
+                        <span class="status-badge px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full 
+                            {% if skill.status == 'pending' %}bg-yellow-100 text-yellow-800
+                            {% elif skill.status == 'verified' %}bg-green-100 text-green-800
+                            {% else %}bg-red-100 text-red-800{% endif %}">
+                            {{ skill.get_status_display }}
+                        </span>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        {{ skill.submitted_at|date:"M d, Y" }}
+                        <div class="text-xs text-gray-400">{{ skill.submitted_at|timesince }} ago</div>
+                    </td>
+                    <td class="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                        <div class="flex items-center justify-end gap-2">
+                            <a href="{% url 'admin_dashboard:skill_verification_detail' skill.pk %}" 
+                               class="text-trabaholink-blue hover:text-trabaholink-dark-blue" 
+                               title="View Details">
+                                <i data-lucide="eye" class="w-4 h-4"></i>
+                            </a>
+                            
+                            {% if skill.status == 'pending' %}
+                            <button type="button" onclick="approveSkill({{ skill.pk }})" 
+                                    class="text-green-600 hover:text-green-800 p-1 rounded hover:bg-green-50 transition" 
+                                    title="Approve">
+                                <i data-lucide="check-circle" class="w-4 h-4"></i>
+                            </button>
+                            <button type="button" onclick="rejectSkill({{ skill.pk }})" 
+                                    class="text-red-600 hover:text-red-800 p-1 rounded hover:bg-red-50 transition" 
+                                    title="Reject">
+                                <i data-lucide="x-circle" class="w-4 h-4"></i>
+                            </button>
+                            {% endif %}
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="6" class="px-6 py-12 text-center text-gray-500">
+                        <i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
+                        <p class="text-lg font-medium">No skill verification requests</p>
+                        <p class="text-sm">All verification requests will appear here</p>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    
+    <!-- Pagination -->
+    {% if is_paginated %}
+    <div class="px-6 py-4 border-t border-gray-200 flex items-center justify-between">
+        <div class="text-sm text-gray-700">
+            Showing {{ page_obj.start_index }} to {{ page_obj.end_index }} of {{ page_obj.paginator.count }} results
+        </div>
+        <div class="flex gap-2">
+            {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+               class="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-50">Previous</a>
+            {% endif %}
+            
+            <span class="px-3 py-1 bg-trabaholink-blue text-white rounded-lg">{{ page_obj.number }}</span>
+            
+            {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}{% if request.GET.status %}&status={{ request.GET.status }}{% endif %}{% if request.GET.search %}&search={{ request.GET.search }}{% endif %}" 
+               class="px-3 py-1 border border-gray-300 rounded-lg hover:bg-gray-50">Next</a>
+            {% endif %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<!-- Reject Modal -->
+<div id="rejectModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-bold text-gray-800">Reject Skill Verification</h3>
+                <button onclick="closeRejectModal()" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-6">
+            <p class="text-sm text-gray-600 mb-4">Please provide a reason for rejection:</p>
+            <textarea id="rejectReason" rows="4" 
+                      class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-trabaholink-blue"
+                      placeholder="Enter reason for rejection..."></textarea>
+        </div>
+        <div class="p-6 border-t border-gray-200 flex justify-end gap-3">
+            <button onclick="closeRejectModal()" 
+                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                Cancel
+            </button>
+            <button onclick="confirmReject()" 
+                    class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
+                Reject Skill
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <div class="bg-white rounded-lg p-6 flex items-center gap-3">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-trabaholink-blue"></div>
+        <span class="text-gray-700">Processing...</span>
+    </div>
+</div>
+
+<script>
+    const csrfToken = '{{ csrf_token }}';
+    let currentSkillId = null;
+    
+    function showLoading() {
+        document.getElementById('loadingOverlay').classList.remove('hidden');
+    }
+    
+    function hideLoading() {
+        document.getElementById('loadingOverlay').classList.add('hidden');
+    }
+    
+    // Approve skill
+    function approveSkill(skillId) {
+        if (confirm('Are you sure you want to approve this skill verification?')) {
+            showLoading();
+            
+            fetch(`/admin_dashboard/skill-verifications/${skillId}/approve/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                if (data.success) {
+                    // Update status badge
+                    const row = document.querySelector(`[data-skill-id="${skillId}"]`);
+                    if (row) {
+                        const badge = row.querySelector('.status-badge');
+                        badge.className = 'status-badge px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-green-100 text-green-800';
+                        badge.textContent = 'Verified';
+                        
+                        // Hide action buttons
+                        const actions = row.querySelectorAll('button');
+                        actions.forEach(btn => btn.style.display = 'none');
+                    }
+                    alert('Skill verified successfully! Worker has been notified.');
+                } else {
+                    alert('Failed to approve skill: ' + (data.message || 'Unknown error'));
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                console.error('Error:', error);
+                alert('An error occurred while approving the skill');
+            });
+        }
+    }
+    
+    // Reject skill - open modal
+    function rejectSkill(skillId) {
+        currentSkillId = skillId;
+        document.getElementById('rejectModal').classList.remove('hidden');
+        document.getElementById('rejectReason').value = '';
+        lucide.createIcons();
+    }
+    
+    function closeRejectModal() {
+        document.getElementById('rejectModal').classList.add('hidden');
+        currentSkillId = null;
+    }
+    
+    function confirmReject() {
+        const reason = document.getElementById('rejectReason').value.trim();
+        
+        if (!reason) {
+            alert('Please provide a reason for rejection');
+            return;
+        }
+        
+        // Store the skillId before closing modal (which sets it to null)
+        const skillIdToReject = currentSkillId;
+        
+        showLoading();
+        closeRejectModal();
+        
+        fetch(`/admin_dashboard/skill-verifications/${skillIdToReject}/reject/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ reason: reason })
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            if (data.success) {
+                // Update status badge
+                const row = document.querySelector(`[data-skill-id="${skillIdToReject}"]`);
+                if (row) {
+                    const badge = row.querySelector('.status-badge');
+                    badge.className = 'status-badge px-3 py-1 inline-flex text-xs leading-5 font-semibold rounded-full bg-red-100 text-red-800';
+                    badge.textContent = 'Rejected';
+                    
+                    // Hide action buttons
+                    const actions = row.querySelectorAll('button');
+                    actions.forEach(btn => btn.style.display = 'none');
+                }
+                alert('Skill verification rejected. Worker has been notified.');
+            } else {
+                alert('Failed to reject skill: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            console.error('Error:', error);
+            alert('An error occurred while rejecting the skill');
+        });
+    }
+    
+    // Initialize Lucide icons on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        lucide.createIcons();
+        console.log('Skill verification page loaded - icons initialized');
+    });
+    
+    // Also initialize immediately in case DOMContentLoaded already fired
+    lucide.createIcons();
+</script>
+{% endblock %}

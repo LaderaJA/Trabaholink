@@ -1,292 +1,275 @@
 {% extends 'mainpages/base.html' %}
+{% load static %}
 
-{% block content %}
+{% block css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <style>
-/* Enhanced CSS Variables */
+/* ===== TRABAHOLINK THEME VARIABLES ===== */
 :root {
-  --primary-blue: #3b82f6;
-  --primary-blue-dark: #2563eb;
-  --primary-blue-light: #dbeafe;
-  --success-green: #10b981;
-  --success-green-light: #d1fae5;
-  --danger-red: #ef4444;
-  --danger-red-light: #fee2e2;
-  --text-dark: #111827;
-  --text-medium: #374151;
-  --text-light: #6b7280;
-  --text-white: #ffffff;
-  --background-white: #ffffff;
-  --background-gray: #f9fafb;
-  --background-gray-light: #f3f4f6;
-  --border-color: #e5e7eb;
-  --border-color-focus: #3b82f6;
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --trabaholink-cyan: #AFE4E6;
+  --trabaholink-blue: #5271FF;
+  --trabaholink-dark-blue: #004AAD;
+  --trabaholink-light-blue: #84C7EE;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --text-dark: #1a202c;
+  --text-medium: #4a5568;
+  --text-light: #718096;
+  --bg-light: #f7fafc;
+  --bg-white: #ffffff;
+  --border-color: #e2e8f0;
+  --gradient-primary: linear-gradient(135deg, var(--trabaholink-blue) 0%, var(--trabaholink-dark-blue) 100%);
+  --gradient-accent: linear-gradient(135deg, var(--trabaholink-cyan) 0%, var(--trabaholink-light-blue) 100%);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
 /* Global Styles */
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: var(--background-gray);
-  line-height: 1.6;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: var(--bg-light);
 }
 
-/* Page Header */
-.page-header {
-  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
-  color: var(--text-white);
-  padding: 2rem 0;
-  margin-bottom: 2rem;
-  border-radius: 0 0 1rem 1rem;
-  box-shadow: var(--shadow-lg);
+/* Page Wrapper */
+.service-form-wrapper {
+  min-height: 100vh;
+  padding: 2rem 0 4rem;
+  background: linear-gradient(180deg, #f0f9ff 0%, var(--bg-light) 100%);
 }
 
-.page-title {
-  font-size: 2rem;
+/* Header Section */
+.form-header-section {
+  background: var(--gradient-primary);
+  color: white;
+  padding: 3rem 0;
+  margin-bottom: 2.5rem;
+  position: relative;
+  overflow: hidden;
+  border-radius: 0 0 24px 24px;
+  box-shadow: var(--shadow-xl);
+}
+
+.form-header-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  opacity: 0.3;
+}
+
+.form-header-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+
+.form-header-title {
+  font-size: 2.5rem;
   font-weight: 700;
-  margin: 0;
-  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin: 0 0 0.75rem 0;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  justify-content: center;
+  gap: 1rem;
 }
 
-.page-title i {
-  font-size: 1.75rem;
+.form-header-subtitle {
+  font-size: 1.125rem;
+  opacity: 0.95;
+  margin: 0;
 }
 
 /* Form Container */
-.form-container {
+.form-main-container {
   max-width: 1200px;
   margin: 0 auto;
-  background: var(--background-white);
-  border-radius: 1rem;
+}
+
+.form-card {
+  background: white;
+  border-radius: 20px;
   box-shadow: var(--shadow-xl);
   overflow: hidden;
-}
-
-/* Two Column Layout */
-.form-layout {
-  display: grid;
-  grid-template-columns: 1fr 350px;
-  gap: 2rem;
-  align-items: start;
-  padding: 2rem;
-}
-
-.form-fields {
-  min-width: 0;
-}
-
-.form-guides {
-  position: sticky;
-  top: 2rem;
-  background: var(--background-gray-light);
-  border-radius: 0.75rem;
-  padding: 1.5rem;
-  border: 1px solid var(--border-color);
-}
-
-.guide-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-dark);
-  margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.guide-content {
-  font-size: 0.875rem;
-  color: var(--text-medium);
-  line-height: 1.5;
-}
-
-.guide-content h5 {
-  margin: 1rem 0 0.5rem 0;
-  font-size: 0.875rem;
-  font-weight: 600;
-  color: var(--text-dark);
-}
-
-.guide-content ul {
-  margin: 0.5rem 0;
-  padding-left: 1.25rem;
-}
-
-.guide-content li {
-  margin-bottom: 0.25rem;
-}
-
-/* Form Sections */
-.form-section {
   margin-bottom: 2rem;
-  padding: 1.5rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0.75rem;
-  background: var(--background-white);
-  transition: all 0.3s ease;
 }
 
-.form-section:hover {
-  border-color: var(--primary-blue);
-  box-shadow: var(--shadow-md);
+.form-content {
+  padding: 3rem;
+}
+
+/* Section Styling */
+.form-section {
+  margin-bottom: 3rem;
+  padding: 2rem;
+  background: linear-gradient(135deg, #f0f9ff 0%, white 100%);
+  border-radius: 16px;
+  border: 2px solid var(--trabaholink-cyan);
 }
 
 .section-header {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
+  gap: 1rem;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color);
+  border-bottom: 2px solid var(--trabaholink-blue);
 }
 
 .section-icon {
-  width: 2.5rem;
-  height: 2.5rem;
-  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
-  color: var(--text-white);
-  border-radius: 0.5rem;
+  width: 3rem;
+  height: 3rem;
+  background: var(--gradient-primary);
+  color: white;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.125rem;
+  font-size: 1.5rem;
   flex-shrink: 0;
+  box-shadow: 0 4px 12px rgba(82, 113, 255, 0.3);
 }
 
 .section-title {
-  font-size: 1.25rem;
-  font-weight: 600;
+  font-size: 1.5rem;
+  font-weight: 700;
   color: var(--text-dark);
   margin: 0;
 }
 
-/* Form Controls */
+/* Form Groups */
+.form-group {
+  margin-bottom: 1.75rem;
+}
+
+.form-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.625rem;
+  font-size: 0.95rem;
+}
+
+.form-label i {
+  color: var(--trabaholink-blue);
+  font-size: 1.1rem;
+}
+
+.form-label .required {
+  color: var(--danger-color);
+  margin-left: 0.25rem;
+}
+
 .form-control {
   width: 100%;
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
-  background: var(--background-white);
+  padding: 0.875rem 1.125rem;
+  border: 2px solid var(--border-color);
+  border-radius: 12px;
+  font-size: 1rem;
+  transition: all 0.3s ease;
+  background: var(--bg-white);
+  font-family: inherit;
   box-sizing: border-box;
 }
 
 .form-control:focus {
   outline: none;
-  border-color: var(--border-color-focus);
-  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+  border-color: var(--trabaholink-blue);
+  background: white;
+  box-shadow: 0 0 0 4px rgba(82, 113, 255, 0.1);
 }
 
 .form-control:hover {
-  border-color: var(--primary-blue);
+  border-color: var(--trabaholink-light-blue);
 }
 
 textarea.form-control {
+  min-height: 120px;
   resize: vertical;
-  min-height: 100px;
 }
 
 select.form-control {
   cursor: pointer;
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234a5568' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
 }
 
-/* Form Labels */
-label {
-  display: block;
-  font-weight: 600;
-  color: var(--text-dark);
-  margin-bottom: 0.5rem;
+/* Form Row */
+.form-row {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.25rem;
+  margin-bottom: 1.75rem;
+}
+
+/* Help Text */
+.help-text {
   font-size: 0.875rem;
-}
-
-/* Field Instructions */
-.field-instruction {
-  background: var(--primary-blue-light);
-  padding: 0.75rem;
-  border-radius: 0.5rem;
-  font-size: 0.8rem;
-  color: var(--text-medium);
+  color: var(--text-light);
   margin-top: 0.5rem;
-  border-left: 3px solid var(--primary-blue);
   display: flex;
   align-items: flex-start;
   gap: 0.5rem;
+  padding: 0.75rem;
+  background: #e0f2fe;
+  border-radius: 8px;
+  border-left: 3px solid var(--trabaholink-cyan);
 }
 
-.instruction-icon {
-  color: var(--primary-blue);
+.help-text i {
+  color: var(--trabaholink-blue);
   margin-top: 0.125rem;
   flex-shrink: 0;
 }
 
-/* Service Items */
-.service-item {
-  border: 1px solid var(--border-color);
-  border-radius: 0.5rem;
-  padding: 1.5rem;
-  margin-bottom: 1rem;
-  background: var(--background-white);
-  transition: all 0.3s ease;
-}
-
-.service-item:hover {
-  border-color: var(--primary-blue);
-  box-shadow: var(--shadow-sm);
+/* Error Messages */
+.error-message, .errorlist {
+  color: var(--danger-color);
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  background: #fee2e2;
+  border-radius: 8px;
+  border-left: 3px solid var(--danger-color);
+  list-style: none;
 }
 
 /* Image Upload */
-.image-upload-area {
-  border: 2px dashed var(--border-color);
-  border-radius: 0.75rem;
-  padding: 2rem;
-  text-align: center;
-  transition: all 0.3s ease;
-  cursor: pointer;
-  background: var(--background-gray-light);
+.image-upload-container {
+  margin-top: 1rem;
 }
 
-.image-upload-area:hover {
-  border-color: var(--primary-blue);
-  background: var(--primary-blue-light);
-}
-
-.upload-icon {
-  font-size: 2.5rem;
-  color: var(--text-light);
-  margin-bottom: 1rem;
-}
-
-.upload-text {
-  font-size: 1rem;
-  font-weight: 500;
-  color: var(--text-medium);
-  margin-bottom: 0.5rem;
-}
-
-.upload-hint {
-  font-size: 0.875rem;
-  color: var(--text-light);
-}
-
-/* Existing Images */
 .existing-images {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-  gap: 1rem;
-  margin-bottom: 1rem;
+  gap: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
 .image-item {
   position: relative;
-  border-radius: 0.5rem;
+  border-radius: 12px;
   overflow: hidden;
   box-shadow: var(--shadow-sm);
+  transition: all 0.3s ease;
+}
+
+.image-item:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--shadow-md);
 }
 
 .image-item img {
@@ -295,466 +278,465 @@ label {
   object-fit: cover;
 }
 
-/* Map Styling */
-#map {
-  border-radius: 0.75rem;
-  overflow: hidden;
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-color);
+.image-upload-zone {
+  border: 3px dashed var(--border-color);
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  text-align: center;
+  transition: all 0.3s ease;
+  cursor: pointer;
+  background: linear-gradient(135deg, #f0f9ff 0%, white 100%);
 }
 
-/* Buttons */
+.image-upload-zone:hover {
+  border-color: var(--trabaholink-blue);
+  background: linear-gradient(135deg, var(--trabaholink-cyan) 0%, white 100%);
+  transform: translateY(-2px);
+}
+
+.upload-icon {
+  font-size: 3.5rem;
+  color: var(--trabaholink-blue);
+  margin-bottom: 1rem;
+  display: block;
+}
+
+.upload-text {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+}
+
+.upload-hint {
+  font-size: 0.875rem;
+  color: var(--text-light);
+}
+
+/* Map */
+.map-container {
+  margin-top: 1.5rem;
+}
+
+#map {
+  height: 400px;
+  border-radius: 16px;
+  border: 2px solid var(--border-color);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+}
+
+.map-info-bar {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+  margin-top: 1rem;
+  padding: 1.25rem;
+  background: linear-gradient(135deg, var(--trabaholink-cyan) 0%, var(--trabaholink-light-blue) 100%);
+  border-radius: 12px;
+}
+
+.map-info-item {
+  text-align: center;
+}
+
+.map-info-label {
+  font-size: 0.875rem;
+  color: var(--trabaholink-dark-blue);
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.map-info-value {
+  font-size: 1.125rem;
+  color: var(--text-dark);
+  font-weight: 700;
+}
+
+/* Action Buttons */
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 1rem;
+  padding: 2rem 3rem;
+  background: var(--bg-light);
+  border-top: 2px solid var(--border-color);
+}
+
 .btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-weight: 500;
-  text-decoration: none;
+  padding: 0.875rem 2rem;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-  transition: all 0.2s ease;
-  border: 1px solid transparent;
-  cursor: pointer;
-  font-size: 0.875rem;
+  gap: 0.625rem;
+  border: none;
+  text-decoration: none;
 }
 
-.btn:hover {
-  transform: translateY(-1px);
+.btn-secondary {
+  background: white;
+  color: var(--text-medium);
+  border: 2px solid var(--border-color);
+}
+
+.btn-secondary:hover {
+  background: var(--bg-light);
+  border-color: var(--text-medium);
+  transform: translateY(-2px);
   box-shadow: var(--shadow-md);
   text-decoration: none;
 }
 
 .btn-success {
-  background: linear-gradient(135deg, var(--success-green) 0%, #059669 100%);
-  color: var(--text-white);
+  background: linear-gradient(135deg, var(--success-color) 0%, #059669 100%);
+  color: white;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
 }
 
 .btn-success:hover {
-  color: var(--text-white);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
+  text-decoration: none;
+  color: white;
 }
 
-.btn-secondary {
-  background: var(--background-white);
-  color: var(--text-medium);
-  border-color: var(--border-color);
-}
-
-.btn-secondary:hover {
-  background: var(--background-gray-light);
-  color: var(--text-dark);
-}
-
-/* Form Actions */
-.form-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: flex-end;
-  padding: 2rem;
-  background: var(--background-gray-light);
-  border-top: 1px solid var(--border-color);
-  grid-column: 1 / -1;
-}
-
-/* Error Styling */
-.errorlist {
-  list-style: none;
-  padding: 0;
-  margin: 0.5rem 0 0 0;
-}
-
-.errorlist li {
-  background: var(--danger-red-light);
-  color: var(--danger-red);
-  padding: 0.5rem 0.75rem;
-  border-radius: 0.375rem;
-  font-size: 0.875rem;
-  border-left: 3px solid var(--danger-red);
-}
-
-/* Responsive Design */
-@media (max-width: 1024px) {
-  .form-layout {
-    grid-template-columns: 1fr;
-    gap: 1.5rem;
+/* Responsive */
+@media (max-width: 768px) {
+  .form-header-title {
+    font-size: 1.75rem;
+    flex-direction: column;
   }
   
-  .form-guides {
-    position: static;
-    order: -1;
+  .form-content {
+    padding: 1.5rem;
   }
-}
-
-@media (max-width: 768px) {
-  .form-layout {
-    padding: 1rem;
+  
+  .form-section {
+    padding: 1.25rem;
   }
   
   .form-actions {
+    padding: 1.5rem;
     flex-direction: column;
-    padding: 1rem;
   }
   
   .btn {
+    width: 100%;
     justify-content: center;
   }
-}
-
-/* Animation */
-@keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
+  
+  .form-row {
+    grid-template-columns: 1fr;
   }
 }
 
-.form-section {
-  animation: fadeInUp 0.5s ease-out;
+@media (max-width: 576px) {
+  .service-form-wrapper {
+    padding: 1rem 0 2rem;
+  }
+  
+  .form-header-section {
+    padding: 2rem 0;
+  }
 }
 </style>
+{% endblock %}
 
-<!-- Page Header -->
-<div class="page-header">
-  <div class="container">
-    <h1 class="page-title">
-      <i class="fa fa-tools"></i>
-      {{ form.instance.pk|yesno:"Edit Service Post,Create New Service Post" }}
-    </h1>
+{% block content %}
+<div class="service-form-wrapper">
+  <!-- Header Section -->
+  <div class="form-header-section">
+    <div class="container">
+      <div class="form-header-content">
+        <h1 class="form-header-title">
+          <i class="bi bi-tools"></i>
+          {% if form.instance.pk %}Edit Service Post{% else %}Create Service Post{% endif %}
+        </h1>
+        <p class="form-header-subtitle">
+          {% if form.instance.pk %}Update your service information to attract more clients{% else %}Showcase your skills and connect with clients{% endif %}
+        </p>
+      </div>
+    </div>
   </div>
-</div>
 
-<div class="container">
-  <div class="form-container">
-    <form method="post" enctype="multipart/form-data" id="serviceForm">
-      <div class="form-layout">
+  <div class="container">
+    <div class="form-main-container">
+      <form method="post" enctype="multipart/form-data" id="serviceForm">
         {% csrf_token %}
         
-        <!-- Left Side - Form Fields -->
-        <div class="form-fields">
-          <!-- Basic Information Section -->
-          <div class="form-section">
-            <div class="section-header">
-              <div class="section-icon">
-                <i class="fa fa-info-circle"></i>
-              </div>
-              <h3 class="section-title">Basic Information</h3>
-            </div>
-            
+        <div class="form-card">
+          <div class="form-content">
             {{ form.non_field_errors }}
             
-            <!-- Service Headline -->
-            <div class="mb-3">
-              <label for="{{ form.headline.id_for_label }}" class="form-label">
-                <i class="fa fa-heading" style="color: var(--primary-blue); margin-right: 0.5rem;"></i>
-                Service Headline
-                {% if form.headline.field.required %}<span style="color: var(--danger-red);">*</span>{% endif %}
-              </label>
-              {{ form.headline }}
-              <div class="field-instruction">
-                <i class="fa fa-lightbulb instruction-icon"></i>
-                <div>
-                  <strong>Create an eye-catching headline!</strong><br>
-                  Keep it short (50-80 characters) and highlight your main service. 
-                  Example: "Professional Web Design & Development Services"
+            <!-- Basic Information Section -->
+            <div class="form-section">
+              <div class="section-header">
+                <div class="section-icon">
+                  <i class="bi bi-info-circle"></i>
+                </div>
+                <h3 class="section-title">Basic Information</h3>
+              </div>
+              
+              <div class="form-group">
+                <label for="{{ form.headline.id_for_label }}" class="form-label">
+                  <i class="bi bi-card-heading"></i>
+                  Service Headline
+                  {% if form.headline.field.required %}<span class="required">*</span>{% endif %}
+                </label>
+                {{ form.headline }}
+                {{ form.headline.errors }}
+                <div class="help-text">
+                  <i class="bi bi-lightbulb"></i>
+                  <div>
+                    <strong>Create an eye-catching headline!</strong><br>
+                    Keep it short (50-80 characters) and highlight your main service. 
+                    Example: "Professional Web Design & Development Services"
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="{{ form.category.id_for_label }}" class="form-label">
+                  <i class="bi bi-tag"></i>
+                  Category
+                  {% if form.category.field.required %}<span class="required">*</span>{% endif %}
+                </label>
+                {{ form.category }}
+                {{ form.category.errors }}
+                <div class="help-text">
+                  <i class="bi bi-info-circle"></i>
+                  <div>
+                    Choose the category that best describes your service. This helps customers find you more easily.
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="{{ form.description.id_for_label }}" class="form-label">
+                  <i class="bi bi-align-left"></i>
+                  Service Description
+                  {% if form.description.field.required %}<span class="required">*</span>{% endif %}
+                </label>
+                {{ form.description }}
+                {{ form.description.errors }}
+                <div class="help-text">
+                  <i class="bi bi-edit"></i>
+                  <div>
+                    <strong>Describe your service in detail:</strong><br>
+                    • What services do you offer?<br>
+                    • What makes you different from competitors?<br>
+                    • What can customers expect?<br>
+                    • Include your experience and qualifications
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="{{ form.availability.id_for_label }}" class="form-label">
+                  <i class="bi bi-clock"></i>
+                  Availability
+                  {% if form.availability.field.required %}<span class="required">*</span>{% endif %}
+                </label>
+                {{ form.availability }}
+                {{ form.availability.errors }}
+                <div class="help-text">
+                  <i class="bi bi-calendar"></i>
+                  <div>
+                    Let customers know when you're available. Example: "Monday-Friday 9AM-6PM" or "Weekends only"
+                  </div>
                 </div>
               </div>
             </div>
-            
-            <!-- Category -->
-            <div class="mb-3">
-              <label for="{{ form.category.id_for_label }}" class="form-label">
-                <i class="fa fa-tag" style="color: var(--primary-blue); margin-right: 0.5rem;"></i>
-                Category
-                {% if form.category.field.required %}<span style="color: var(--danger-red);">*</span>{% endif %}
-              </label>
-              {{ form.category }}
-              <div class="field-instruction">
-                <i class="fa fa-info-circle instruction-icon"></i>
-                <div>
-                  Choose the category that best describes your service. This helps customers find you more easily.
+
+            <!-- Contact Information Section -->
+            <div class="form-section">
+              <div class="section-header">
+                <div class="section-icon">
+                  <i class="bi bi-telephone"></i>
                 </div>
+                <h3 class="section-title">Contact Information</h3>
               </div>
-            </div>
-            
-            <!-- Description -->
-            <div class="mb-3">
-              <label for="{{ form.description.id_for_label }}" class="form-label">
-                <i class="fa fa-align-left" style="color: var(--primary-blue); margin-right: 0.5rem;"></i>
-                Service Description
-                {% if form.description.field.required %}<span style="color: var(--danger-red);">*</span>{% endif %}
-              </label>
-              {{ form.description }}
-              <div class="field-instruction">
-                <i class="fa fa-edit instruction-icon"></i>
-                <div>
-                  <strong>Describe your service in detail:</strong><br>
-                  • What services do you offer?<br>
-                  • What makes you different from competitors?<br>
-                  • What can customers expect?<br>
-                  • Include your experience and qualifications
-                </div>
-              </div>
-            </div>
-            
-            <!-- Additional fields with instructions -->
-            {% for field in form %}
-              {% if field.name not in 'headline,category,description' %}
-                <div class="mb-3">
-                  <label for="{{ field.id_for_label }}" class="form-label">
-                    {% if field.name == 'availability' %}
-                      <i class="fa fa-clock" style="color: var(--primary-blue); margin-right: 0.5rem;"></i>
-                    {% elif field.name == 'contact_number' %}
-                      <i class="fa fa-phone" style="color: var(--primary-blue); margin-right: 0.5rem;"></i>
-                    {% elif field.name == 'email' %}
-                      <i class="fa fa-envelope" style="color: var(--primary-blue); margin-right: 0.5rem;"></i>
-                    {% else %}
-                      <i class="fa fa-info" style="color: var(--primary-blue); margin-right: 0.5rem;"></i>
-                    {% endif %}
-                    {{ field.label }}
-                    {% if field.field.required %}<span style="color: var(--danger-red);">*</span>{% endif %}
+              
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="{{ form.contact_number.id_for_label }}" class="form-label">
+                    <i class="bi bi-phone"></i>
+                    Contact Number
+                    {% if form.contact_number.field.required %}<span class="required">*</span>{% endif %}
                   </label>
-                  {{ field }}
-                  
-                  {% if field.name == 'availability' %}
-                    <div class="field-instruction">
-                      <i class="fa fa-calendar instruction-icon"></i>
-                      <div>
-                        Let customers know when you're available. Example: "Monday-Friday 9AM-6PM" or "Weekends only"
-                      </div>
+                  {{ form.contact_number }}
+                  {{ form.contact_number.errors }}
+                  <div class="help-text">
+                    <i class="bi bi-phone"></i>
+                    <div>
+                      Provide a valid phone number where customers can reach you. Include area code.
                     </div>
-                  {% elif field.name == 'contact_number' %}
-                    <div class="field-instruction">
-                      <i class="fa fa-phone instruction-icon"></i>
-                      <div>
-                        Provide a valid phone number where customers can reach you. Include area code.
-                      </div>
+                  </div>
+                </div>
+                
+                <div class="form-group">
+                  <label for="{{ form.email.id_for_label }}" class="form-label">
+                    <i class="bi bi-envelope"></i>
+                    Email Address
+                    {% if form.email.field.required %}<span class="required">*</span>{% endif %}
+                  </label>
+                  {{ form.email }}
+                  {{ form.email.errors }}
+                  <div class="help-text">
+                    <i class="bi bi-envelope"></i>
+                    <div>
+                      Professional email address for business inquiries. This will be visible to potential customers.
                     </div>
-                  {% elif field.name == 'email' %}
-                    <div class="field-instruction">
-                      <i class="fa fa-envelope instruction-icon"></i>
-                      <div>
-                        Professional email address for business inquiries. This will be visible to potential customers.
+                  </div>
+                </div>
+              </div>
+              
+              <div class="form-group">
+                <label for="{{ form.address.id_for_label }}" class="form-label">
+                  <i class="bi bi-map"></i>
+                  Address
+                  {% if form.address.field.required %}<span class="required">*</span>{% endif %}
+                </label>
+                {{ form.address }}
+                {{ form.address.errors }}
+                <div class="help-text">
+                  <i class="bi bi-geo-alt"></i>
+                  <div>
+                    General service area or business address
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Location Section -->
+            <div class="form-section">
+              <div class="section-header">
+                <div class="section-icon">
+                  <i class="bi bi-geo-alt"></i>
+                </div>
+                <h3 class="section-title">Service Location</h3>
+              </div>
+              
+              <div class="map-container">
+                <label class="form-label">
+                  <i class="bi bi-pin-map"></i>
+                  Pin Your Service Location
+                  <span class="required">*</span>
+                </label>
+                <div class="help-text" style="margin-bottom: 1rem;">
+                  <i class="bi bi-map"></i>
+                  <div>
+                    <strong>Pin your service location on the map:</strong><br>
+                    • Click on the map or drag the marker to set your location<br>
+                    • This helps customers find services near them<br>
+                    • Your exact address won't be shown publicly
+                  </div>
+                </div>
+                <div id="map"></div>
+                <input type="hidden" name="latitude" id="latitude" value="{{ form.instance.location.y|default:'14.4310956' }}">
+                <input type="hidden" name="longitude" id="longitude" value="{{ form.instance.location.x|default:'120.968096097231' }}">
+                
+                <div class="map-info-bar">
+                  <div class="map-info-item">
+                    <div class="map-info-label">Latitude</div>
+                    <div class="map-info-value" id="lat-display">{{ form.instance.location.y|default:'Not set' }}</div>
+                  </div>
+                  <div class="map-info-item">
+                    <div class="map-info-label">Longitude</div>
+                    <div class="map-info-value" id="lon-display">{{ form.instance.location.x|default:'Not set' }}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Images Section -->
+            <div class="form-section">
+              <div class="section-header">
+                <div class="section-icon">
+                  <i class="bi bi-images"></i>
+                </div>
+                <h3 class="section-title">Service Images</h3>
+              </div>
+              
+              {% if form.instance.pk and form.instance.images.all %}
+                <div class="form-group">
+                  <label class="form-label">
+                    <i class="bi bi-image"></i>
+                    Existing Images
+                  </label>
+                  <div class="existing-images">
+                    {% for image in form.instance.images.all %}
+                      <div class="image-item">
+                        <img src="{{ image.image.url }}" alt="Service Image">
                       </div>
-                    </div>
-                  {% endif %}
+                    {% endfor %}
+                  </div>
                 </div>
               {% endif %}
-            {% endfor %}
-          </div>
-
-          <!-- Individual Services Section -->
-          <div class="form-section">
-            <div class="section-header">
-              <div class="section-icon">
-                <i class="fa fa-list"></i>
-              </div>
-              <h3 class="section-title">Individual Services</h3>
-            </div>
-            
-            {{ service_formset.management_form }}
-            {% for service_form in service_formset %}
-              <div class="service-item">
-                {{ service_form.non_field_errors }}
-                
-                {% for field in service_form %}
-                  {% if not field.is_hidden %}
-                    <div class="mb-3">
-                      <label for="{{ field.id_for_label }}" class="form-label">
-                        {% if field.name == 'service_name' or field.name == 'title' %}
-                          <i class="fa fa-wrench" style="color: var(--primary-blue); margin-right: 0.5rem;"></i>
-                        {% elif field.name == 'price' or field.name == 'price_start' %}
-                          <i class="fa fa-peso-sign" style="color: var(--primary-blue); margin-right: 0.5rem;"></i>
-                        {% elif field.name == 'duration' %}
-                          <i class="fa fa-hourglass-half" style="color: var(--primary-blue); margin-right: 0.5rem;"></i>
-                        {% elif field.name == 'description' %}
-                          <i class="fa fa-align-left" style="color: var(--primary-blue); margin-right: 0.5rem;"></i>
-                        {% else %}
-                          <i class="fa fa-info" style="color: var(--primary-blue); margin-right: 0.5rem;"></i>
-                        {% endif %}
-                        {{ field.label }}
-                        {% if field.field.required %}<span style="color: var(--danger-red);">*</span>{% endif %}
-                      </label>
-                      {{ field }}
-                      
-                      {% if field.name == 'service_name' or field.name == 'title' %}
-                        <div class="field-instruction">
-                          <i class="fa fa-lightbulb instruction-icon"></i>
-                          <div>
-                            Be specific about this service. Example: "Logo Design", "Website Maintenance", "Home Cleaning"
-                          </div>
-                        </div>
-                      {% elif field.name == 'price' or field.name == 'price_start' %}
-                        <div class="field-instruction">
-                          <i class="fa fa-calculator instruction-icon"></i>
-                          <div>
-                            Set a competitive price. Research similar services in your area for reference.
-                          </div>
-                        </div>
-                      {% elif field.name == 'duration' %}
-                        <div class="field-instruction">
-                          <i class="fa fa-clock instruction-icon"></i>
-                          <div>
-                            How long does this service take? Example: "2 hours", "1-3 days", "1 week"
-                          </div>
-                        </div>
-                      {% elif field.name == 'description' %}
-                        <div class="field-instruction">
-                          <i class="fa fa-info-circle instruction-icon"></i>
-                          <div>
-                            Describe what's included in this specific service. What will the customer receive?
-                          </div>
-                        </div>
-                      {% endif %}
-                    </div>
-                  {% else %}
-                    {{ field }}
-                  {% endif %}
-                {% endfor %}
-              </div>
-            {% endfor %}
-          </div>
-
-          <!-- Images Section -->
-          <div class="form-section">
-            <div class="section-header">
-              <div class="section-icon">
-                <i class="fa fa-images"></i>
-              </div>
-              <h3 class="section-title">Upload Images</h3>
-            </div>
-            
-            {% if form.instance.pk and form.instance.images.all %}
-              <div class="mb-3">
-                <h5 style="color: var(--text-dark); margin-bottom: 1rem;">Existing Images:</h5>
-                <div class="existing-images">
-                  {% for image in form.instance.images.all %}
-                    <div class="image-item">
-                      <img src="{{ image.image.url }}" alt="Service Image">
-                    </div>
-                  {% endfor %}
+              
+              <div class="image-upload-container">
+                <label class="form-label">
+                  <i class="bi bi-cloud-upload"></i>
+                  {% if form.instance.pk %}Upload Additional Images{% else %}Upload Images{% endif %}
+                </label>
+                <div class="help-text" style="margin-bottom: 1rem;">
+                  <i class="bi bi-camera"></i>
+                  <div>
+                    <strong>Upload high-quality images that showcase your work:</strong><br>
+                    • Before/after photos<br>
+                    • Examples of completed projects<br>
+                    • Your workspace or tools<br>
+                    • Professional headshot (recommended for first image)
+                  </div>
                 </div>
-              </div>
-            {% endif %}
-            
-            <div class="form-group mb-3">
-              <label for="id_images" class="form-label">
-                <i class="fa fa-upload" style="color: var(--primary-blue); margin-right: 0.5rem;"></i>
-                Select New Images
-              </label>
-              <div class="image-upload-area" onclick="document.getElementById('id_images').click()">
-                <input type="file" name="images" id="id_images" multiple class="form-control" style="display: none;">
-                <i class="fa fa-cloud-upload-alt upload-icon"></i>
-                <div class="upload-text">Click to upload or drag and drop</div>
-                <div class="upload-hint">PNG, JPG, JPEG up to 5MB each</div>
-              </div>
-              <div class="field-instruction">
-                <i class="fa fa-camera instruction-icon"></i>
-                <div>
-                  <strong>Upload high-quality images that showcase your work:</strong><br>
-                  • Before/after photos<br>
-                  • Examples of completed projects<br>
-                  • Your workspace or tools<br>
-                  • Professional headshot (recommended for first image)
-                </div>
+                <label for="id_images" class="image-upload-zone">
+                  <input type="file" name="images" id="id_images" multiple class="form-control" style="display: none;">
+                  <i class="bi bi-cloud-arrow-up upload-icon"></i>
+                  <div class="upload-text">Click to upload or drag and drop</div>
+                  <div class="upload-hint">PNG, JPG, JPEG up to 5MB each • Multiple files supported</div>
+                </label>
+                <div id="image-previews" class="existing-images" style="margin-top: 1.5rem;"></div>
               </div>
             </div>
           </div>
 
-          <!-- Location Section -->
-          <div class="form-section">
-            <div class="section-header">
-              <div class="section-icon">
-                <i class="fa fa-map-marker-alt"></i>
-              </div>
-              <h3 class="section-title">Set Location</h3>
-            </div>
-            
-            <div id="map" style="height: 400px;"></div>
-            <input type="hidden" name="latitude" id="latitude" value="{{ form.instance.location.y|default:'14.5995' }}">
-            <input type="hidden" name="longitude" id="longitude" value="{{ form.instance.location.x|default:'120.9842' }}">
-            
-            <div class="field-instruction" style="margin-top: 1rem;">
-              <i class="fa fa-map instruction-icon"></i>
-              <div>
-                <strong>Pin your service location on the map:</strong><br>
-                • Click on the map or drag the marker to set your location<br>
-                • This helps customers find services near them<br>
-                • Your exact address won't be shown publicly
-              </div>
-            </div>
+          <!-- Form Actions -->
+          <div class="form-actions">
+            <a href="{% url 'jobs:job_list' %}" class="btn btn-secondary">
+              <i class="bi bi-x-circle"></i>
+              Cancel
+            </a>
+            <button type="submit" class="btn btn-success">
+              <i class="bi bi-check-circle"></i>
+              {% if form.instance.pk %}Update Service{% else %}Create Service{% endif %}
+            </button>
           </div>
         </div>
-
-        <!-- Right Side - Guides -->
-        <div class="form-guides">
-          <div class="guide-title">
-            <i class="fa fa-lightbulb" style="color: var(--primary-blue);"></i>
-            Form Guidelines
-          </div>
-          <div class="guide-content">
-            <h5>Service Headline</h5>
-            <p>Create an eye-catching headline! Keep it short (50-80 characters) and highlight your main service.</p>
-            <p><strong>Example:</strong> "Professional Web Design & Development Services"</p>
-            
-            <h5>Category</h5>
-            <p>Choose the category that best describes your service. This helps customers find you more easily.</p>
-            
-            <h5>Service Description</h5>
-            <p>Describe your service in detail:</p>
-            <ul>
-              <li>What services do you offer?</li>
-              <li>What makes you different from competitors?</li>
-              <li>What can customers expect?</li>
-              <li>Include your experience and qualifications</li>
-            </ul>
-            
-            <h5>Individual Services</h5>
-            <p>Be specific about each service. Examples: "Logo Design", "Website Maintenance", "Home Cleaning"</p>
-            <p>Set competitive prices by researching similar services in your area.</p>
-            
-            <h5>Service Images</h5>
-            <p>Upload high-quality images that showcase your work:</p>
-            <ul>
-              <li>Before/after photos</li>
-              <li>Examples of completed projects</li>
-              <li>Your workspace or tools</li>
-              <li>Professional headshot (recommended for first image)</li>
-            </ul>
-            
-            <h5>Location</h5>
-            <p>Pin your service location on the map. This helps customers find services near them. Your exact address won't be shown publicly.</p>
-          </div>
-        </div>
-
-        <!-- Form Actions -->
-        <div class="form-actions">
-          <a href="{% url 'jobs:job_list' %}" class="btn btn-secondary">
-            <i class="fa fa-times"></i>
-            Cancel
-          </a>
-          <button type="submit" class="btn btn-success">
-            <i class="fa fa-save"></i>
-            Save
-          </button>
-        </div>
-      </div>
-    </form>
+      </form>
+    </div>
   </div>
 </div>
 
-<!-- Include Leaflet CSS and JS -->
-<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
 document.addEventListener("DOMContentLoaded", function(){
+  // Apply form control classes
+  const formControls = document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], select, textarea');
+  formControls.forEach(control => {
+    if (!control.classList.contains('form-control')) {
+      control.classList.add('form-control');
+    }
+  });
+
   // Get hidden input values or set default coordinates
   const latInput = document.getElementById('latitude');
   const lngInput = document.getElementById('longitude');
-  let lat = parseFloat(latInput.value) || 14.5995;
-  let lng = parseFloat(lngInput.value) || 120.9842;
+  let lat = parseFloat(latInput.value) || 14.4310956;
+  let lng = parseFloat(lngInput.value) || 120.968096097231;
   
   // Initialize the map and marker
   var map = L.map('map').setView([lat, lng], 13);
@@ -763,30 +745,53 @@ document.addEventListener("DOMContentLoaded", function(){
   }).addTo(map);
   var marker = L.marker([lat, lng], { draggable: true }).addTo(map);
   
+  function updateCoordinates(lat, lng) {
+    latInput.value = lat;
+    lngInput.value = lng;
+    document.getElementById('lat-display').textContent = lat.toFixed(6);
+    document.getElementById('lon-display').textContent = lng.toFixed(6);
+  }
+  
   // Update hidden fields when marker is dragged
   marker.on('dragend', function(e){
     var pos = e.target.getLatLng();
-    latInput.value = pos.lat;
-    lngInput.value = pos.lng;
+    updateCoordinates(pos.lat, pos.lng);
   });
   
   // Also update marker and hidden fields on map click
   map.on('click', function(e){
     marker.setLatLng(e.latlng);
-    latInput.value = e.latlng.lat;
-    lngInput.value = e.latlng.lng;
+    updateCoordinates(e.latlng.lat, e.latlng.lng);
   });
+  
+  // Initialize display
+  updateCoordinates(lat, lng);
 
   // File upload visual feedback
   const fileInput = document.getElementById('id_images');
-  const uploadArea = document.querySelector('.image-upload-area');
+  const uploadArea = document.querySelector('.image-upload-zone');
+  const previewContainer = document.getElementById('image-previews');
   
   fileInput.addEventListener('change', function(e) {
-    if (e.target.files.length > 0) {
-      const fileCount = e.target.files.length;
+    previewContainer.innerHTML = '';
+    const files = e.target.files;
+    
+    if (files.length > 0) {
+      for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          const div = document.createElement('div');
+          div.className = 'image-item';
+          div.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
+          previewContainer.appendChild(div);
+        }
+        reader.readAsDataURL(file);
+      }
+      
       uploadArea.innerHTML = `
-        <i class="fa fa-check-circle upload-icon" style="color: var(--success-green);"></i>
-        <div class="upload-text" style="color: var(--success-green);">${fileCount} file(s) selected</div>
+        <i class="bi bi-check-circle upload-icon" style="color: var(--success-color);"></i>
+        <div class="upload-text" style="color: var(--success-color);">${files.length} file(s) selected</div>
         <div class="upload-hint">Click to change files</div>
       `;
     }
@@ -795,20 +800,20 @@ document.addEventListener("DOMContentLoaded", function(){
   // Drag and drop functionality
   uploadArea.addEventListener('dragover', function(e) {
     e.preventDefault();
-    this.style.borderColor = 'var(--primary-blue)';
-    this.style.backgroundColor = 'var(--primary-blue-light)';
+    this.style.borderColor = 'var(--trabaholink-blue)';
+    this.style.backgroundColor = 'var(--trabaholink-cyan)';
   });
 
   uploadArea.addEventListener('dragleave', function(e) {
     e.preventDefault();
-    this.style.borderColor = 'var(--border-color)';
-    this.style.backgroundColor = 'var(--background-gray-light)';
+    this.style.borderColor = '';
+    this.style.backgroundColor = '';
   });
 
   uploadArea.addEventListener('drop', function(e) {
     e.preventDefault();
-    this.style.borderColor = 'var(--border-color)';
-    this.style.backgroundColor = 'var(--background-gray-light)';
+    this.style.borderColor = '';
+    this.style.backgroundColor = '';
     
     const files = e.dataTransfer.files;
     if (files.length > 0) {
@@ -816,6 +821,9 @@ document.addEventListener("DOMContentLoaded", function(){
       fileInput.dispatchEvent(new Event('change'));
     }
   });
+  
+  // Fix map display
+  setTimeout(() => { map.invalidateSize(); }, 100);
 });
 </script>
 {% endblock %}

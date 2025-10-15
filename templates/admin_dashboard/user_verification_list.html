@@ -1,0 +1,266 @@
+{% extends 'admin_dashboard/dashboard_base.html' %}
+{% load static %}
+
+{% block title %}User Identity Verifications{% endblock %}
+{% block page_title %}Identity Verification Management{% endblock %}
+
+{% block breadcrumb_items %}
+<li><i data-lucide="chevron-right" class="w-4 h-4 inline"></i></li>
+<li class="text-gray-800">Identity Verifications</li>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-8">
+
+    <section class="grid grid-cols-1 md:grid-cols-4 gap-6">
+        <article class="bg-white rounded-2xl shadow-sm border-l-4 border-yellow-500 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-500">Pending</p>
+                    <h3 class="text-2xl font-bold text-yellow-600">{{ pending_count }}</h3>
+                </div>
+                <span class="w-12 h-12 rounded-full bg-yellow-100 flex items-center justify-center">
+                    <i data-lucide="clock" class="w-6 h-6 text-yellow-600"></i>
+                </span>
+            </div>
+        </article>
+        <article class="bg-white rounded-2xl shadow-sm border-l-4 border-green-500 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-500">Approved</p>
+                    <h3 class="text-2xl font-bold text-green-600">{{ approved_count }}</h3>
+                </div>
+                <span class="w-12 h-12 rounded-full bg-green-100 flex items-center justify-center">
+                    <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+                </span>
+            </div>
+        </article>
+        <article class="bg-white rounded-2xl shadow-sm border-l-4 border-red-500 p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-500">Rejected</p>
+                    <h3 class="text-2xl font-bold text-red-600">{{ rejected_count }}</h3>
+                </div>
+                <span class="w-12 h-12 rounded-full bg-red-100 flex items-center justify-center">
+                    <i data-lucide="x-octagon" class="w-6 h-6 text-red-600"></i>
+                </span>
+            </div>
+        </article>
+        <article class="bg-white rounded-2xl shadow-sm border-l-4 border-trabaholink-blue p-6">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm text-slate-500">Total Requests</p>
+                    <h3 class="text-2xl font-bold text-slate-800">{{ total_count }}</h3>
+                </div>
+                <span class="w-12 h-12 rounded-full bg-trabaholink-blue/10 flex items-center justify-center">
+                    <i data-lucide="award" class="w-6 h-6 text-trabaholink-blue"></i>
+                </span>
+            </div>
+        </article>
+    </section>
+
+    <section class="bg-white rounded-2xl shadow-sm border border-slate-100">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-100 px-6 py-4">
+            <div>
+                <p class="text-xs uppercase tracking-wide text-slate-400">Identity verification queue</p>
+                <h3 class="text-lg font-semibold text-slate-900">Manage submissions by status</h3>
+            </div>
+            <div class="flex flex-wrap gap-2">
+                <a href="?status=pending{% if request.GET.user %}&user={{ request.GET.user }}{% endif %}" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full border {% if active_status == 'pending' %}bg-trabaholink-blue text-white border-trabaholink-blue{% else %}border-slate-200 text-slate-600 hover:bg-slate-100{% endif %}">
+                    <i data-lucide="clock" class="w-4 h-4"></i>
+                    Pending ({{ pending_count }})
+                </a>
+                <a href="?status=approved{% if request.GET.user %}&user={{ request.GET.user }}{% endif %}" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full border {% if active_status == 'approved' %}bg-trabaholink-blue text-white border-trabaholink-blue{% else %}border-slate-200 text-slate-600 hover:bg-slate-100{% endif %}">
+                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                    Approved ({{ approved_count }})
+                </a>
+                <a href="?status=rejected{% if request.GET.user %}&user={{ request.GET.user }}{% endif %}" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full border {% if active_status == 'rejected' %}bg-trabaholink-blue text-white border-trabaholink-blue{% else %}border-slate-200 text-slate-600 hover:bg-slate-100{% endif %}">
+                    <i data-lucide="x-octagon" class="w-4 h-4"></i>
+                    Rejected ({{ rejected_count }})
+                </a>
+                <a href="?status=overview{% if request.GET.user %}&user={{ request.GET.user }}{% endif %}" class="inline-flex items-center gap-2 px-3 py-1.5 text-sm font-medium rounded-full border {% if active_status == 'overview' %}bg-trabaholink-blue text-white border-trabaholink-blue{% else %}border-slate-200 text-slate-600 hover:bg-slate-100{% endif %}">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i>
+                    Overview
+                </a>
+            </div>
+        </div>
+
+        <div class="px-6 py-5 space-y-6">
+            <div class="flex items-center justify-between">
+                <h4 class="text-base font-semibold text-slate-900 flex items-center gap-2">
+                    <i data-lucide="{% if active_status == 'pending' %}clock{% elif active_status == 'approved' %}check-circle{% elif active_status == 'rejected' %}x-octagon{% else %}layout-dashboard{% endif %}" class="w-5 h-5"></i>
+                    {{ active_label }}
+                </h4>
+                {% if active_status == 'pending' %}
+                <span class="inline-flex items-center gap-2 px-3 py-1 text-sm font-medium rounded-full bg-yellow-50 text-yellow-700 border border-yellow-200">
+                    <i data-lucide="alert-circle" class="w-4 h-4"></i>
+                    {{ pending_count }} awaiting review
+                </span>
+                {% elif active_status == 'approved' %}
+                <span class="inline-flex items-center gap-2 px-3 py-1 text-sm font-medium rounded-full bg-green-50 text-green-700 border border-green-200">
+                    <i data-lucide="shield-check" class="w-4 h-4"></i>
+                    {{ approved_count }} approved
+                </span>
+                {% elif active_status == 'rejected' %}
+                <span class="inline-flex items-center gap-2 px-3 py-1 text-sm font-medium rounded-full bg-red-50 text-red-600 border border-red-200">
+                    <i data-lucide="ban" class="w-4 h-4"></i>
+                    {{ rejected_count }} rejected
+                </span>
+                {% else %}
+                <span class="inline-flex items-center gap-2 px-3 py-1 text-sm font-medium rounded-full bg-slate-50 text-slate-600 border border-slate-200">
+                    <i data-lucide="database" class="w-4 h-4"></i>
+                    {{ total_count }} submissions
+                </span>
+                {% endif %}
+            </div>
+
+            {% if active_status == 'overview' %}
+            <div class="grid gap-6 lg:grid-cols-3">
+                <div class="rounded-xl border border-yellow-200 bg-yellow-50/40 p-5">
+                    <h4 class="text-sm font-semibold text-yellow-700 mb-3 flex items-center gap-2">
+                        <i data-lucide="clock" class="w-4 h-4"></i>
+                        Pending verifications
+                    </h4>
+                    {% include 'admin_dashboard/partials/identity_verification_table.html' with requests=pending_verifications status='pending' compact=True user_id=request.GET.user %}
+                </div>
+                <div class="rounded-xl border border-green-200 bg-green-50/40 p-5">
+                    <h4 class="text-sm font-semibold text-green-700 mb-3 flex items-center gap-2">
+                        <i data-lucide="check-circle" class="w-4 h-4"></i>
+                        Approved verifications
+                    </h4>
+                    {% include 'admin_dashboard/partials/identity_verification_table.html' with requests=approved_verifications status='approved' compact=True user_id=request.GET.user %}
+                </div>
+                <div class="rounded-xl border border-red-200 bg-red-50/40 p-5">
+                    <h4 class="text-sm font-semibold text-red-700 mb-3 flex items-center gap-2">
+                        <i data-lucide="x-octagon" class="w-4 h-4"></i>
+                        Rejected submissions
+                    </h4>
+                    {% include 'admin_dashboard/partials/identity_verification_table.html' with requests=rejected_verifications status='rejected' compact=True user_id=request.GET.user %}
+                </div>
+            </div>
+            {% else %}
+            {% include 'admin_dashboard/partials/identity_verification_table.html' with requests=verifications status=active_status user_id=request.GET.user %}
+            {% endif %}
+        </div>
+    </section>
+
+</div>
+
+<div id="identityRejectModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+            <h3 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                <i data-lucide="x-octagon" class="w-5 h-5 text-red-500"></i>
+                Reject verification
+            </h3>
+            <button type="button" class="text-slate-400 hover:text-slate-600" onclick="closeRejectModal()">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div class="px-6 py-5 space-y-4">
+            <p class="text-sm text-slate-600">Provide a reason for rejecting this identity verification request.</p>
+            <textarea id="identityRejectReason" rows="4" class="w-full rounded-lg border border-slate-200 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-trabaholink-blue" placeholder="Enter rejection reason"></textarea>
+        </div>
+        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100">
+            <button type="button" class="px-4 py-2 text-sm font-medium rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50" onclick="closeRejectModal()">Cancel</button>
+            <button type="button" class="px-4 py-2 text-sm font-semibold rounded-lg bg-red-500 text-white hover:bg-red-600" onclick="submitRejectReason()">Reject request</button>
+        </div>
+    </div>
+</div>
+
+<div id="identityLoadingOverlay" class="hidden fixed inset-0 z-40 flex items-center justify-center bg-black/50">
+    <div class="bg-white rounded-xl px-6 py-4 flex items-center gap-3 shadow-lg">
+        <div class="h-8 w-8 border-2 border-trabaholink-blue border-t-transparent rounded-full animate-spin"></div>
+        <span class="text-sm text-slate-700">Processing...</span>
+    </div>
+</div>
+
+<script>
+    const identityCsrfToken = '{{ csrf_token }}';
+    let currentRejectUrl = null;
+
+    function handleVerificationApprove(url) {
+        if (!url) {
+            return;
+        }
+        showIdentityLoading();
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': identityCsrfToken
+            }
+        }).then(response => response.json())
+          .then(data => {
+              hideIdentityLoading();
+              if (data.success) {
+                  window.location.reload();
+              } else {
+                  alert(data.message || 'Failed to approve verification.');
+              }
+          }).catch(() => {
+              hideIdentityLoading();
+              alert('An error occurred while approving the verification.');
+          });
+    }
+
+    function openRejectModal(url) {
+        currentRejectUrl = url;
+        document.getElementById('identityRejectModal').classList.remove('hidden');
+        document.getElementById('identityRejectReason').value = '';
+        lucide.createIcons();
+    }
+
+    function closeRejectModal() {
+        document.getElementById('identityRejectModal').classList.add('hidden');
+        currentRejectUrl = null;
+    }
+
+    function submitRejectReason() {
+        if (!currentRejectUrl) {
+            alert('No verification selected.');
+            return;
+        }
+        const reasonInput = document.getElementById('identityRejectReason');
+        const reason = reasonInput.value.trim();
+        if (!reason) {
+            alert('Please provide a rejection reason.');
+            return;
+        }
+
+        showIdentityLoading();
+        fetch(currentRejectUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': identityCsrfToken
+            },
+            body: JSON.stringify({ reason })
+        }).then(response => response.json())
+          .then(data => {
+              hideIdentityLoading();
+              if (data.success) {
+                  closeRejectModal();
+                  window.location.reload();
+              } else {
+                  alert(data.message || 'Failed to reject verification.');
+              }
+          }).catch(() => {
+              hideIdentityLoading();
+              alert('An error occurred while rejecting the verification.');
+          });
+    }
+
+    function showIdentityLoading() {
+        document.getElementById('identityLoadingOverlay').classList.remove('hidden');
+    }
+
+    function hideIdentityLoading() {
+        document.getElementById('identityLoadingOverlay').classList.add('hidden');
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        lucide.createIcons();
+    });
+    lucide.createIcons();
+</script>
+{% endblock %}

@@ -1,0 +1,445 @@
+{% extends 'admin_dashboard/dashboard_base.html' %}
+
+{% block title %}Dashboard Overview{% endblock %}
+{% block page_title %}Dashboard Overview{% endblock %}
+
+{% block content %}
+<!-- Stats Cards -->
+<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-6 mb-8">
+    <!-- Total Users -->
+    <div class="stat-card bg-white rounded-xl shadow-md p-6 border-l-4 border-trabaholink-blue">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm font-medium mb-1">Total Users</p>
+                <h3 class="text-3xl font-bold text-gray-800">{{ total_users }}</h3>
+                <p class="text-green-500 text-sm mt-2">
+                    <i data-lucide="trending-up" class="w-4 h-4 inline"></i>
+                    {{ active_users }} active
+                </p>
+            </div>
+            <div class="w-14 h-14 bg-trabaholink-blue/10 rounded-full flex items-center justify-center">
+                <i data-lucide="users" class="w-7 h-7 text-trabaholink-blue"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Active Jobs -->
+    <div class="stat-card bg-white rounded-xl shadow-md p-6 border-l-4 border-trabaholink-cyan">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm font-medium mb-1">Active Jobs</p>
+                <h3 class="text-3xl font-bold text-gray-800">{{ total_jobs }}</h3>
+                <p class="text-blue-500 text-sm mt-2">
+                    <i data-lucide="briefcase" class="w-4 h-4 inline"></i>
+                    {{ new_jobs_today }} new today
+                </p>
+            </div>
+            <div class="w-14 h-14 bg-trabaholink-cyan/20 rounded-full flex items-center justify-center">
+                <i data-lucide="briefcase" class="w-7 h-7 text-trabaholink-dark-blue"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Active Services -->
+    <div class="stat-card bg-white rounded-xl shadow-md p-6 border-l-4 border-trabaholink-light-blue">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm font-medium mb-1">Active Services</p>
+                <h3 class="text-3xl font-bold text-gray-800">{{ total_services }}</h3>
+                <p class="text-purple-500 text-sm mt-2">
+                    <i data-lucide="wrench" class="w-4 h-4 inline"></i>
+                    {{ new_services_today }} new today
+                </p>
+            </div>
+            <div class="w-14 h-14 bg-trabaholink-light-blue/20 rounded-full flex items-center justify-center">
+                <i data-lucide="wrench" class="w-7 h-7 text-trabaholink-dark-blue"></i>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Total Reports -->
+    <div class="stat-card bg-white rounded-xl shadow-md p-6 border-l-4 border-red-500">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm font-medium mb-1">Total Reports</p>
+                <h3 class="text-3xl font-bold text-gray-800">{{ total_reports }}</h3>
+                <p class="text-red-500 text-sm mt-2">
+                    <i data-lucide="alert-circle" class="w-4 h-4 inline"></i>
+                    {{ pending_reports }} pending
+                </p>
+            </div>
+            <div class="w-14 h-14 bg-red-50 rounded-full flex items-center justify-center">
+                <i data-lucide="flag" class="w-7 h-7 text-red-500"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- Skill Verifications -->
+    <div class="stat-card bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm font-medium mb-1">Skill Verifications</p>
+                <h3 class="text-3xl font-bold text-gray-800">{{ total_skill_verifications }}</h3>
+                <p class="text-yellow-500 text-sm mt-2">
+                    <i data-lucide="clock" class="w-4 h-4 inline"></i>
+                    {{ pending_skill_verifications }} pending · {{ verified_skill_verifications }} verified
+                </p>
+            </div>
+            <div class="w-14 h-14 bg-yellow-100 rounded-full flex items-center justify-center">
+                <i data-lucide="award" class="w-7 h-7 text-yellow-500"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Charts Row -->
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-8">
+    <!-- User Growth Chart -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-gray-800">User Growth</h3>
+            <select class="text-sm border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+                <option>Last 7 days</option>
+                <option>Last 30 days</option>
+                <option>Last 3 months</option>
+            </select>
+        </div>
+        <canvas id="userGrowthChart" height="250"></canvas>
+    </div>
+    
+    <!-- Job Posting Trends -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-gray-800">Job Posting Trends</h3>
+            <select class="text-sm border border-gray-300 rounded-lg px-3 py-1.5 focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+                <option>Last 7 days</option>
+                <option>Last 30 days</option>
+                <option>Last 3 months</option>
+            </select>
+        </div>
+        <canvas id="jobTrendsChart" height="250"></canvas>
+    </div>
+</div>
+
+<!-- Recent Activity & Quick Actions -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Recent Reports -->
+    <div class="lg:col-span-2 bg-white rounded-xl shadow-md p-6">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-lg font-bold text-gray-800">Recent Reports</h3>
+            <a href="{% url 'admin_dashboard:report_list' %}" class="text-trabaholink-blue hover:text-trabaholink-dark-blue text-sm font-medium">
+                View All <i data-lucide="arrow-right" class="w-4 h-4 inline"></i>
+            </a>
+        </div>
+        
+        <div class="space-y-4">
+            {% for report in recent_reports %}
+            <div class="flex items-start space-x-4 p-4 hover:bg-gray-50 rounded-lg transition">
+                <div class="w-10 h-10 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="flag" class="w-5 h-5 text-red-500"></i>
+                </div>
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-center justify-between">
+                        <h4 class="text-sm font-semibold text-gray-800 truncate">{{ report.get_report_type_display }}</h4>
+                        <span class="text-xs text-gray-500">{{ report.created_at|timesince }} ago</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-1 line-clamp-2">{{ report.reported_content|truncatewords:15 }}</p>
+                    <div class="flex items-center space-x-2 mt-2">
+                        <span class="px-2 py-1 text-xs rounded-full {% if report.status == 'pending' %}bg-yellow-100 text-yellow-800{% elif report.status == 'reviewed' %}bg-blue-100 text-blue-800{% else %}bg-green-100 text-green-800{% endif %}">
+                            {{ report.get_status_display }}
+                        </span>
+                        <span class="text-xs text-gray-500">by {{ report.user.username }}</span>
+                    </div>
+                </div>
+                <a href="{% url 'admin_dashboard:report_detail' report.pk %}" class="text-trabaholink-blue hover:text-trabaholink-dark-blue">
+                    <i data-lucide="chevron-right" class="w-5 h-5"></i>
+                </a>
+            </div>
+            {% empty %}
+            <div class="text-center py-8 text-gray-500">
+                <i data-lucide="inbox" class="w-12 h-12 mx-auto mb-3 text-gray-300"></i>
+                <p>No recent reports</p>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    
+    <!-- Quick Actions -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-6">Quick Actions</h3>
+        
+        <div class="space-y-3">
+            <a href="{% url 'admin_dashboard:admin_announcement_create' %}" class="flex items-center space-x-3 p-3 bg-trabaholink-blue/10 hover:bg-trabaholink-blue/20 rounded-lg transition">
+                <div class="w-10 h-10 bg-trabaholink-blue rounded-lg flex items-center justify-center">
+                    <i data-lucide="megaphone" class="w-5 h-5 text-white"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-800">New Announcement</p>
+                    <p class="text-xs text-gray-500">Create announcement</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'admin_dashboard:user_list' %}" class="flex items-center space-x-3 p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition">
+                <div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <i data-lucide="users" class="w-5 h-5 text-gray-600"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-800">Manage Users</p>
+                    <p class="text-xs text-gray-500">View all users</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'admin_dashboard:moderated_word_list' %}" class="flex items-center space-x-3 p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition">
+                <div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <i data-lucide="shield-alert" class="w-5 h-5 text-gray-600"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-800">Moderation</p>
+                    <p class="text-xs text-gray-500">Manage banned words</p>
+                </div>
+            </a>
+            
+            <a href="{% url 'admin_dashboard:report_list' %}" class="flex items-center space-x-3 p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition">
+                <div class="w-10 h-10 bg-gray-200 rounded-lg flex items-center justify-center">
+                    <i data-lucide="flag" class="w-5 h-5 text-gray-600"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-800">View Reports</p>
+                    <p class="text-xs text-gray-500">{{ pending_reports }} pending</p>
+                </div>
+            </a>
+
+            <a href="{% url 'admin_dashboard:skill_verification_list' %}" class="flex items-center space-x-3 p-3 bg-gray-50 hover:bg-gray-100 rounded-lg transition">
+                <div class="w-10 h-10 bg-yellow-100 rounded-lg flex items-center justify-center">
+                    <i data-lucide="award" class="w-5 h-5 text-yellow-600"></i>
+                </div>
+                <div>
+                    <p class="text-sm font-semibold text-gray-800">Review Skills</p>
+                    <p class="text-xs text-gray-500">{{ pending_skill_verifications }} awaiting review</p>
+                </div>
+            </a>
+        </div>
+        
+        <!-- System Status -->
+        <div class="mt-6 pt-6 border-t border-gray-200">
+            <h4 class="text-sm font-bold text-gray-800 mb-3">System Status</h4>
+            <div class="space-y-2">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs text-gray-600">Server</span>
+                    <span class="flex items-center text-xs text-green-600">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-1.5"></span>
+                        Online
+                    </span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs text-gray-600">Database</span>
+                    <span class="flex items-center text-xs text-green-600">
+                        <span class="w-2 h-2 bg-green-500 rounded-full mr-1.5"></span>
+                        Connected
+                    </span>
+                </div>
+                <div class="flex items-center justify-between">
+                    <span class="text-xs text-gray-600">Last Backup</span>
+                    <span class="text-xs text-gray-600">2 hours ago</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Most Reported Categories Chart -->
+<div class="mt-6 bg-white rounded-xl shadow-md p-6">
+    <h3 class="text-lg font-bold text-gray-800 mb-6">Most Reported Categories</h3>
+    <canvas id="reportCategoriesChart" height="100"></canvas>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script id="chart-data" type="application/json">
+{
+    "userGrowth": {
+        "labels": {{ user_growth_labels|safe }},
+        "data": {{ user_growth_data|safe }}
+    },
+    "jobTrends": {
+        "labels": {{ job_trends_labels|safe }},
+        "data": {{ job_trends_data|safe }}
+    },
+    "reportCategories": {
+        "labels": {{ report_categories_labels|safe }},
+        "data": {{ report_categories_data|safe }}
+    }
+}
+</script>
+<script>
+(function() {
+    'use strict';
+    
+    console.log('[Charts] Script executing...');
+    
+    // Check if charts already exist in the DOM
+    const existingUserChart = Chart.getChart('userGrowthChart');
+    const existingJobChart = Chart.getChart('jobTrendsChart');
+    const existingReportChart = Chart.getChart('reportCategoriesChart');
+    
+    console.log('[Charts] Existing charts:', {
+        userGrowth: !!existingUserChart,
+        jobTrends: !!existingJobChart,
+        reportCategories: !!existingReportChart
+    });
+    
+    // If all charts already exist, destroy them first
+    if (existingUserChart || existingJobChart || existingReportChart) {
+        console.log('[Charts] Charts already exist, destroying before recreating...');
+        if (existingUserChart) existingUserChart.destroy();
+        if (existingJobChart) existingJobChart.destroy();
+        if (existingReportChart) existingReportChart.destroy();
+    }
+    
+    // Get chart data from JSON script tag
+    const chartDataElement = document.getElementById('chart-data');
+    if (!chartDataElement) {
+        console.error('[Charts] Chart data element not found!');
+        return;
+    }
+    
+    const chartData = JSON.parse(chartDataElement.textContent);
+    console.log('[Charts] Data loaded:', Object.keys(chartData));
+    
+    // Initialize charts
+    function initCharts() {
+        console.log('[Charts] Initializing charts...');
+        
+        // Destroy ALL Chart.js instances first
+        Chart.helpers.each(Chart.instances, function(instance) {
+            console.log('[Charts] Destroying chart instance:', instance.canvas.id);
+            instance.destroy();
+        });
+        
+        // User Growth Chart
+        const userCanvas = document.getElementById('userGrowthChart');
+        if (userCanvas) {
+            console.log('[Charts] Creating User Growth chart...');
+            
+            // Clear canvas
+            const ctx = userCanvas.getContext('2d');
+            ctx.clearRect(0, 0, userCanvas.width, userCanvas.height);
+            
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: chartData.userGrowth.labels,
+                    datasets: [{
+                        label: 'New Users',
+                        data: chartData.userGrowth.data,
+                        borderColor: '#5271FF',
+                        backgroundColor: 'rgba(82, 113, 255, 0.1)',
+                        tension: 0.4,
+                        fill: true
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { precision: 0 }
+                        }
+                    }
+                }
+            });
+            console.log('[Charts] User Growth chart created');
+        }
+        
+        // Job Trends Chart
+        const jobCanvas = document.getElementById('jobTrendsChart');
+        if (jobCanvas) {
+            console.log('[Charts] Creating Job Trends chart...');
+            
+            // Clear canvas
+            const ctx = jobCanvas.getContext('2d');
+            ctx.clearRect(0, 0, jobCanvas.width, jobCanvas.height);
+            
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: chartData.jobTrends.labels,
+                    datasets: [{
+                        label: 'Job Posts',
+                        data: chartData.jobTrends.data,
+                        backgroundColor: '#AFE4E6',
+                        borderColor: '#84C7EE',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: { precision: 0 }
+                        }
+                    }
+                }
+            });
+            console.log('[Charts] Job Trends chart created');
+        }
+        
+        // Report Categories Chart
+        const reportCanvas = document.getElementById('reportCategoriesChart');
+        if (reportCanvas) {
+            console.log('[Charts] Creating Report Categories chart...');
+            
+            // Clear canvas
+            const ctx = reportCanvas.getContext('2d');
+            ctx.clearRect(0, 0, reportCanvas.width, reportCanvas.height);
+            
+            new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: chartData.reportCategories.labels,
+                    datasets: [{
+                        data: chartData.reportCategories.data,
+                        backgroundColor: ['#5271FF', '#AFE4E6', '#84C7EE', '#004AAD', '#FF6B6B']
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    aspectRatio: 2,
+                    plugins: {
+                        legend: { position: 'right' }
+                    }
+                }
+            });
+            console.log('[Charts] Report Categories chart created');
+        }
+        
+        console.log('[Charts] All charts initialized successfully');
+        
+        // Initialize Lucide icons
+        if (typeof lucide !== 'undefined') {
+            lucide.createIcons();
+        }
+    }
+    
+    // Initialize when DOM is ready
+    if (document.readyState === 'loading') {
+        console.log('[Charts] Waiting for DOM...');
+        document.addEventListener('DOMContentLoaded', initCharts);
+    } else {
+        console.log('[Charts] DOM already ready, initializing now...');
+        initCharts();
+    }
+    
+    console.log('[Charts] Script complete');
+})();
+</script>
+{% endblock %}

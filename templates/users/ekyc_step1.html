@@ -1,0 +1,261 @@
+{% extends "mainpages/base.html" %}
+{% load static %}
+
+{% block title %}Step 1: Personal Information - TrabahoLink{% endblock %}
+
+{% block css %}
+{{ block.super }}
+<style>
+    body {
+        background: #f3f4f6;
+    }
+
+    .verification-container {
+        max-width: 700px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .verification-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .progress-bar-container {
+        background: #e5e7eb;
+        height: 8px;
+        position: relative;
+    }
+
+    .progress-bar-fill {
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        height: 100%;
+        transition: width 0.3s;
+    }
+
+    .card-header {
+        padding: 2rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .step-indicator {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        margin-bottom: 1rem;
+    }
+
+    .step-number {
+        width: 50px;
+        height: 50px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 1.25rem;
+    }
+
+    .step-info h2 {
+        margin: 0;
+        font-size: 1.5rem;
+        color: #1f2937;
+    }
+
+    .step-info p {
+        margin: 0.25rem 0 0;
+        color: #6b7280;
+    }
+
+    .card-body {
+        padding: 2rem;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+
+    .form-group label .required {
+        color: #ef4444;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 0.75rem 1rem;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        font-size: 1rem;
+        transition: all 0.3s;
+    }
+
+    .form-control:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-control.is-invalid {
+        border-color: #ef4444;
+    }
+
+    .invalid-feedback {
+        color: #ef4444;
+        font-size: 0.875rem;
+        margin-top: 0.25rem;
+    }
+
+    .help-text {
+        font-size: 0.875rem;
+        color: #6b7280;
+        margin-top: 0.25rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        padding: 2rem;
+        border-top: 1px solid #e5e7eb;
+        background: #f9fafb;
+    }
+
+    .btn {
+        flex: 1;
+        padding: 0.875rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        text-decoration: none;
+        border: none;
+    }
+
+    .btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-secondary {
+        background: white;
+        color: #6b7280;
+        border: 2px solid #e5e7eb;
+    }
+
+    .btn-secondary:hover {
+        border-color: #667eea;
+        color: #667eea;
+    }
+
+    @media (max-width: 768px) {
+        .action-buttons {
+            flex-direction: column-reverse;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="verification-container">
+    <div class="verification-card">
+        <div class="progress-bar-container">
+            <div class="progress-bar-fill" style="width: 25%;"></div>
+        </div>
+
+        <div class="card-header">
+            <div class="step-indicator">
+                <div class="step-number">1</div>
+                <div class="step-info">
+                    <h2>Personal Information</h2>
+                    <p>Step 1 of 4 - Please provide your personal details</p>
+                </div>
+            </div>
+        </div>
+
+        <form method="post" class="card-body">
+            {% csrf_token %}
+            
+            <div class="form-group">
+                <label for="{{ form.full_name.id_for_label }}">
+                    Full Name <span class="required">*</span>
+                </label>
+                {{ form.full_name }}
+                {% if form.full_name.errors %}
+                    <div class="invalid-feedback">{{ form.full_name.errors.0 }}</div>
+                {% endif %}
+                <div class="help-text">Enter your full name as it appears on your ID</div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.date_of_birth.id_for_label }}">
+                    Date of Birth <span class="required">*</span>
+                </label>
+                {{ form.date_of_birth }}
+                {% if form.date_of_birth.errors %}
+                    <div class="invalid-feedback">{{ form.date_of_birth.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.address.id_for_label }}">
+                    Complete Address <span class="required">*</span>
+                </label>
+                {{ form.address }}
+                {% if form.address.errors %}
+                    <div class="invalid-feedback">{{ form.address.errors.0 }}</div>
+                {% endif %}
+                <div class="help-text">Include house number, street, barangay, city/municipality, and province</div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.contact_number.id_for_label }}">
+                    Contact Number <span class="required">*</span>
+                </label>
+                {{ form.contact_number }}
+                {% if form.contact_number.errors %}
+                    <div class="invalid-feedback">{{ form.contact_number.errors.0 }}</div>
+                {% endif %}
+                <div class="help-text">e.g., 09123456789</div>
+            </div>
+
+            <div class="form-group">
+                <label for="{{ form.gender.id_for_label }}">
+                    Gender <span class="required">*</span>
+                </label>
+                {{ form.gender }}
+                {% if form.gender.errors %}
+                    <div class="invalid-feedback">{{ form.gender.errors.0 }}</div>
+                {% endif %}
+            </div>
+
+            <div class="action-buttons">
+                <a href="{% url 'ekyc_start' %}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </a>
+                <button type="submit" class="btn btn-primary">
+                    Next <i class="bi bi-arrow-right"></i>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

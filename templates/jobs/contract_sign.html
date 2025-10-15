@@ -1,0 +1,519 @@
+{% extends 'mainpages/base.html' %}
+{% load static %}
+
+{% block title %}Sign Contract - {{ contract.job.title }} - TrabahoLink{% endblock %}
+
+{% block css %}
+<style>
+    body {
+        background: #f3f4f6 !important;
+    }
+
+    .sign-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    /* Header */
+    .sign-header {
+        background: linear-gradient(135deg, #7c3aed 0%, #8b5cf6 100%);
+        color: white;
+        border-radius: 16px 16px 0 0;
+        padding: 2rem;
+        text-align: center;
+    }
+
+    .sign-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .sign-header p {
+        margin: 0;
+        opacity: 0.9;
+    }
+
+    /* Contract Preview */
+    .contract-preview {
+        background: white;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    .preview-section {
+        padding: 2rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .preview-section:last-child {
+        border-bottom: none;
+    }
+
+    .section-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 1rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title i {
+        color: #7c3aed;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .info-item {
+        background: #f9fafb;
+        padding: 1rem;
+        border-radius: 8px;
+    }
+
+    .info-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .info-value {
+        font-size: 1rem;
+        color: #111827;
+        font-weight: 600;
+    }
+
+    .terms-box {
+        background: #f9fafb;
+        padding: 1.5rem;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        white-space: pre-line;
+        line-height: 1.7;
+        color: #374151;
+        max-height: 300px;
+        overflow-y: auto;
+    }
+
+    /* Agreement Checkbox */
+    .agreement-section {
+        background: #fef3c7;
+        border-left: 4px solid #f59e0b;
+        padding: 1.5rem;
+        border-radius: 8px;
+    }
+
+    .checkbox-container {
+        display: flex;
+        align-items: start;
+        gap: 1rem;
+    }
+
+    .checkbox-container input[type="checkbox"] {
+        width: 24px;
+        height: 24px;
+        margin-top: 0.25rem;
+        cursor: pointer;
+    }
+
+    .checkbox-label {
+        font-size: 1rem;
+        color: #78350f;
+        line-height: 1.6;
+    }
+
+    /* Signature Pad */
+    .signature-pad-section {
+        background: #f9fafb;
+        padding: 2rem;
+        border-radius: 8px;
+        text-align: center;
+    }
+
+    .signature-canvas {
+        border: 2px solid #d1d5db;
+        border-radius: 8px;
+        background: white;
+        cursor: crosshair;
+        display: block;
+        margin: 1rem auto;
+    }
+
+    .signature-controls {
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+        margin-top: 1rem;
+    }
+
+    .btn-clear {
+        padding: 0.5rem 1rem;
+        background: #6b7280;
+        color: white;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+    }
+
+    .btn-clear:hover {
+        background: #4b5563;
+    }
+
+    /* Action Buttons */
+    .action-section {
+        padding: 2rem;
+        background: #f9fafb;
+        display: flex;
+        gap: 1rem;
+        justify-content: center;
+    }
+
+    .btn-action {
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .btn-action:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-sign {
+        background: #10b981;
+        color: white;
+    }
+
+    .btn-sign:hover {
+        background: #059669;
+        color: white;
+    }
+
+    .btn-sign:disabled {
+        background: #9ca3af;
+        cursor: not-allowed;
+        transform: none;
+    }
+
+    .btn-cancel {
+        background: #6b7280;
+        color: white;
+    }
+
+    .btn-cancel:hover {
+        background: #4b5563;
+        color: white;
+    }
+
+    /* Alert */
+    .alert-box {
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: start;
+        gap: 0.75rem;
+    }
+
+    .alert-info {
+        background: #dbeafe;
+        border-left: 4px solid #2563eb;
+        color: #1e40af;
+    }
+
+    @media (max-width: 768px) {
+        .info-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .action-section {
+            flex-direction: column;
+        }
+
+        .btn-action {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="sign-container">
+    <div class="sign-header">
+        <h1><i class="bi bi-pen"></i> Sign Contract</h1>
+        <p>Review and sign the contract for {{ contract.job.title }}</p>
+        {% if user_role %}
+        <p style="margin-top: 0.5rem; font-size: 0.875rem; opacity: 0.9;">
+            Signing as: <strong>{{ user_role|title }}</strong>
+        </p>
+        {% endif %}
+    </div>
+
+    <div class="contract-preview">
+        <!-- Alert -->
+        <div class="preview-section">
+            {% if already_signed %}
+            <div class="alert-box alert-success">
+                <i class="bi bi-check-circle" style="font-size: 1.25rem;"></i>
+                <div>
+                    <strong>You have already signed this contract</strong>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.875rem;">
+                        You signed this contract as the {{ user_role }}. Waiting for the other party to sign.
+                    </p>
+                </div>
+            </div>
+            {% else %}
+            <div class="alert-box alert-info">
+                <i class="bi bi-info-circle" style="font-size: 1.25rem;"></i>
+                <div>
+                    <strong>Please review carefully</strong>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.875rem;">
+                        By signing this contract, you agree to all terms and conditions outlined below.
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Contract Details -->
+        <div class="preview-section">
+            <h2 class="section-title">
+                <i class="bi bi-file-text"></i>
+                Contract Details
+            </h2>
+            <div class="info-grid">
+                <div class="info-item">
+                    <div class="info-label">Contract ID</div>
+                    <div class="info-value">#{{ contract.id|stringformat:"05d" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Job Title</div>
+                    <div class="info-value">{{ contract.job.title }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Client</div>
+                    <div class="info-value">{{ contract.client.get_full_name|default:contract.client.username }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Worker</div>
+                    <div class="info-value">{{ contract.worker.get_full_name|default:contract.worker.username }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">Start Date</div>
+                    <div class="info-value">{{ contract.start_date|date:"M d, Y"|default:"TBD" }}</div>
+                </div>
+                <div class="info-item">
+                    <div class="info-label">End Date</div>
+                    <div class="info-value">{{ contract.end_date|date:"M d, Y"|default:"TBD" }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Scope of Work -->
+        <div class="preview-section">
+            <h2 class="section-title">
+                <i class="bi bi-list-check"></i>
+                Scope of Work
+            </h2>
+            <div class="terms-box">{{ contract.scope_of_work|default:"Not specified" }}</div>
+        </div>
+
+        <!-- Payment Terms -->
+        {% if contract.payment_terms %}
+        <div class="preview-section">
+            <h2 class="section-title">
+                <i class="bi bi-cash-stack"></i>
+                Payment Terms
+            </h2>
+            <div class="terms-box">{{ contract.payment_terms }}</div>
+        </div>
+        {% endif %}
+
+        <!-- Deliverables -->
+        {% if contract.deliverables %}
+        <div class="preview-section">
+            <h2 class="section-title">
+                <i class="bi bi-box-seam"></i>
+                Deliverables
+            </h2>
+            <div class="terms-box">{{ contract.deliverables }}</div>
+        </div>
+        {% endif %}
+
+        {% if not already_signed %}
+        <!-- Agreement Checkbox -->
+        <div class="preview-section">
+            <div class="agreement-section">
+                <div class="checkbox-container">
+                    <input type="checkbox" id="agreeCheckbox" required>
+                    <label for="agreeCheckbox" class="checkbox-label">
+                        <strong>I have read and agree to all terms and conditions of this contract.</strong>
+                        I understand that by signing this contract, I am legally bound to fulfill my obligations as outlined above.
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <!-- Signature Pad -->
+        <div class="preview-section">
+            <div class="signature-pad-section">
+                <h3 style="margin: 0 0 1rem 0; color: #111827;">Your Signature</h3>
+                <p style="color: #6b7280; margin-bottom: 1rem;">Sign below to confirm your agreement</p>
+                <canvas id="signaturePad" class="signature-canvas" width="600" height="200"></canvas>
+                <div class="signature-controls">
+                    <button type="button" class="btn-clear" onclick="clearSignature()">
+                        <i class="bi bi-arrow-counterclockwise"></i> Clear
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        <div class="action-section">
+            {% if not already_signed %}
+            <form method="post" id="signForm" style="display: inline;">
+                {% csrf_token %}
+                <input type="hidden" name="signature" id="signatureData">
+                <button type="submit" class="btn-action btn-sign" id="signButton" disabled>
+                    <i class="bi bi-check-circle-fill"></i> Sign Contract
+                </button>
+            </form>
+            {% endif %}
+            <a href="javascript:history.back()" class="btn-action btn-cancel">
+                <i class="bi bi-arrow-left"></i> Back
+            </a>
+        </div>
+    </div>
+</div>
+
+<script>
+{% if not already_signed %}
+    // Signature Pad
+    const canvas = document.getElementById('signaturePad');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let hasSignature = false;
+
+    // Set canvas size for retina displays
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width * 2;
+    canvas.height = rect.height * 2;
+    ctx.scale(2, 2);
+
+    canvas.addEventListener('mousedown', startDrawing);
+    canvas.addEventListener('mousemove', draw);
+    canvas.addEventListener('mouseup', stopDrawing);
+    canvas.addEventListener('mouseout', stopDrawing);
+
+    // Touch events for mobile
+    canvas.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const mouseEvent = new MouseEvent('mousedown', {
+            clientX: touch.clientX,
+            clientY: touch.clientY
+        });
+        canvas.dispatchEvent(mouseEvent);
+    });
+
+    canvas.addEventListener('touchmove', (e) => {
+        e.preventDefault();
+        const touch = e.touches[0];
+        const mouseEvent = new MouseEvent('mousemove', {
+            clientX: touch.clientX,
+            clientY: touch.clientY
+        });
+        canvas.dispatchEvent(mouseEvent);
+    });
+
+    canvas.addEventListener('touchend', (e) => {
+        e.preventDefault();
+        const mouseEvent = new MouseEvent('mouseup', {});
+        canvas.dispatchEvent(mouseEvent);
+    });
+
+    function startDrawing(e) {
+        isDrawing = true;
+        const rect = canvas.getBoundingClientRect();
+        ctx.beginPath();
+        ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+    }
+
+    function draw(e) {
+        if (!isDrawing) return;
+        
+        const rect = canvas.getBoundingClientRect();
+        ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top);
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = 2;
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        
+        hasSignature = true;
+        checkFormValidity();
+    }
+
+    function stopDrawing() {
+        isDrawing = false;
+    }
+
+    function clearSignature() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        hasSignature = false;
+        checkFormValidity();
+    }
+
+    // Form validation
+    const agreeCheckbox = document.getElementById('agreeCheckbox');
+    const signButton = document.getElementById('signButton');
+
+    agreeCheckbox.addEventListener('change', checkFormValidity);
+
+    function checkFormValidity() {
+        signButton.disabled = !(agreeCheckbox.checked && hasSignature);
+    }
+
+    // Form submission
+    document.getElementById('signForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        
+        if (!agreeCheckbox.checked) {
+            alert('Please agree to the terms and conditions');
+            return;
+        }
+        
+        if (!hasSignature) {
+            alert('Please provide your signature');
+            return;
+        }
+        
+        // Save signature as data URL
+        const signatureData = canvas.toDataURL();
+        document.getElementById('signatureData').value = signatureData;
+        
+        // Submit form
+        this.submit();
+    });
+{% endif %}
+</script>
+{% endblock %}

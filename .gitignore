@@ -75,3 +75,6 @@ Thumbs.db
 *.bak
 *.orig
 *.rej
+
+# Documentation
+/documentation/

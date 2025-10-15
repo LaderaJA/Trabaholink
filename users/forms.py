@@ -1,6 +1,6 @@
 from django import forms
 from django.contrib.auth.forms import UserCreationForm
-from .models import CustomUser, Skill, CompletedJobGallery
+from .models import CustomUser, Skill, CompletedJobGallery, AccountVerification
 
 # Custom Registration Form
 class CustomUserRegistrationForm(UserCreationForm):
@@ -58,6 +58,10 @@ class UserProfileForm(forms.ModelForm):
         required=False,
         widget=forms.Textarea(attrs={'class': 'form-control', 'placeholder': 'Write something about yourself...', 'rows': 3})
     )
+    job_title = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Software Developer, Electrician, Plumber'})
+    )
     address = forms.CharField(
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your address'})
@@ -67,17 +71,36 @@ class UserProfileForm(forms.ModelForm):
         required=False,
         widget=forms.Select(attrs={'class': 'form-control'})
     )
+    cover_photo = forms.ChoiceField(
+        choices=[
+            ('default1', 'Purple Gradient'),
+            ('default2', 'Pink Gradient'),
+            ('default3', 'Blue Gradient'),
+            ('default4', 'Green Gradient'),
+            ('default5', 'Sunset Gradient'),
+            ('default6', 'Ocean Gradient'),
+        ],
+        required=False,
+        widget=forms.RadioSelect(attrs={'class': 'cover-photo-choice'})
+    )
+    cover_photo_custom = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'})
+    )
 
     class Meta:
         model = CustomUser
         fields = [
             'profile_picture',
+            'cover_photo',
+            'cover_photo_custom',
             'username',
             'first_name',
             'last_name',
             'email',
             'contact_number',
             'bio',
+            'job_title',
             'address',
             'gender'
         ]
@@ -90,12 +113,12 @@ class UserProfileForm(forms.ModelForm):
 
 # Skill Verification Form
 class SkillVerificationForm(forms.ModelForm):
-    skill_name = forms.CharField(
+    name = forms.CharField(
         label='Skill Name',
         widget=forms.TextInput(attrs={
             'class': 'form-control',
             'placeholder': 'Enter your skill, e.g. Driving',
-            'id': 'id_skill_name'
+            'id': 'id_name'
         })
     )
     description = forms.CharField(
@@ -109,6 +132,7 @@ class SkillVerificationForm(forms.ModelForm):
     )
     proof = forms.FileField(
         label='Upload Proof',
+        required=False,
         widget=forms.FileInput(attrs={
             'class': 'form-control',
             'id': 'id_proof'
@@ -117,12 +141,13 @@ class SkillVerificationForm(forms.ModelForm):
 
     class Meta:
         model = Skill
-        fields = ['skill_name', 'description', 'proof']
-        widgets = {
-            'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your skill, e.g. Driving'}),
-            'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Brief description'}),
-            'proof': forms.FileInput(attrs={'class': 'form-control'}),
-        }
+        fields = ['name', 'description', 'proof']
+        
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Make proof field not required if we're updating an existing skill
+        if self.instance and self.instance.pk:
+            self.fields['proof'].required = False
 
 # Completed Job Gallery Form
 class CompletedJobGalleryForm(forms.ModelForm):
@@ -161,3 +186,71 @@ class IdentityVerificationForm(forms.ModelForm):
             # Optionally use ClearableFileInput or custom widget
             'identity_document': forms.ClearableFileInput(attrs={'class': 'form-control'}),
         }
+
+
+# eKYC Verification Forms
+class VerificationStep1Form(forms.Form):
+    """Personal Information Step"""
+    full_name = forms.CharField(
+        max_length=255,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'Enter your full name as it appears on your ID'
+        })
+    )
+    date_of_birth = forms.DateField(
+        widget=forms.DateInput(attrs={
+            'class': 'form-control',
+            'type': 'date'
+        })
+    )
+    address = forms.CharField(
+        widget=forms.Textarea(attrs={
+            'class': 'form-control',
+            'rows': 3,
+            'placeholder': 'Enter your complete address'
+        })
+    )
+    contact_number = forms.CharField(
+        max_length=15,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control',
+            'placeholder': 'e.g. 09123456789'
+        })
+    )
+    gender = forms.ChoiceField(
+        choices=[('', 'Select Gender')] + list(CustomUser._meta.get_field('gender').choices),
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+
+
+class VerificationStep2Form(forms.Form):
+    """ID Upload Step"""
+    id_type = forms.ChoiceField(
+        choices=[('', 'Select ID Type')] + AccountVerification.ID_TYPE_CHOICES,
+        widget=forms.Select(attrs={'class': 'form-control'})
+    )
+    id_image_front = forms.ImageField(
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': 'image/*'
+        })
+    )
+    id_image_back = forms.ImageField(
+        required=False,
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': 'image/*'
+        })
+    )
+
+
+class VerificationStep3Form(forms.Form):
+    """Selfie Verification Step"""
+    selfie_image = forms.ImageField(
+        widget=forms.FileInput(attrs={
+            'class': 'form-control',
+            'accept': 'image/*',
+            'capture': 'user'
+        })
+    )

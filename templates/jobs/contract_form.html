@@ -1,68 +1,441 @@
 {% extends 'mainpages/base.html' %}
+{% load static %}
+
+{% block title %}
+  {% if form.status.value == 'Submitted for Review' %}
+    Submit Work for Review - {{ object.job.title }} - TrabahoLink
+  {% else %}
+    Update Contract - {{ object.job.title }} - TrabahoLink
+  {% endif %}
+{% endblock %}
+
+{% block css %}
+<style>
+    body {
+        background: #f3f4f6 !important;
+    }
+
+    .submit-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .submit-header {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 16px 16px 0 0;
+        margin-bottom: 0;
+    }
+
+    .submit-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .submit-header p {
+        opacity: 0.9;
+        margin: 0;
+    }
+
+    .submit-card {
+        background: white;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    .submit-body {
+        padding: 2rem;
+    }
+
+    .info-banner {
+        background: #dbeafe;
+        border-left: 4px solid #2563eb;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .info-banner h3 {
+        color: #1e40af;
+        font-size: 1.125rem;
+        font-weight: 700;
+        margin-bottom: 0.75rem;
+    }
+
+    .info-banner ul {
+        margin: 0;
+        padding-left: 1.5rem;
+        color: #1e3a8a;
+    }
+
+    .info-banner li {
+        margin-bottom: 0.5rem;
+    }
+
+    .form-section {
+        margin-bottom: 2rem;
+    }
+
+    .form-section-title {
+        font-size: 1.125rem;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 2px solid #e5e7eb;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+        display: block;
+        font-size: 0.9375rem;
+    }
+
+    .form-control, .form-select {
+        width: 100%;
+        padding: 0.75rem;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 0.9375rem;
+        transition: all 0.2s;
+    }
+
+    .form-control:focus, .form-select:focus {
+        outline: none;
+        border-color: #10b981;
+        box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.1);
+    }
+
+    textarea.form-control {
+        min-height: 120px;
+        resize: vertical;
+    }
+
+    .form-help {
+        font-size: 0.8125rem;
+        color: #6b7280;
+        margin-top: 0.25rem;
+    }
+
+    .error-message {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: 0.75rem;
+        border-radius: 6px;
+        font-size: 0.875rem;
+        margin-top: 0.5rem;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        padding: 2rem;
+        background: #f9fafb;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .btn-submit {
+        flex: 1;
+        background: #10b981;
+        color: white;
+        padding: 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-align: center;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+        font-size: 1rem;
+    }
+
+    .btn-submit:hover {
+        background: #059669;
+        transform: translateY(-1px);
+        box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+    }
+
+    .btn-cancel {
+        flex: 1;
+        background: #f3f4f6;
+        color: #374151;
+        padding: 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        text-align: center;
+        transition: all 0.2s;
+        display: inline-block;
+        border: 1px solid #d1d5db;
+    }
+
+    .btn-cancel:hover {
+        background: #e5e7eb;
+        color: #111827;
+    }
+
+    .contract-summary {
+        background: #f9fafb;
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 2rem;
+    }
+
+    .contract-summary-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .contract-summary-item:last-child {
+        border-bottom: none;
+    }
+
+    .contract-summary-label {
+        font-size: 0.875rem;
+        color: #6b7280;
+        font-weight: 500;
+    }
+
+    .contract-summary-value {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .checklist {
+        background: #fef3c7;
+        border-left: 4px solid #f59e0b;
+        padding: 1.5rem;
+        border-radius: 8px;
+        margin-bottom: 2rem;
+    }
+
+    .checklist h3 {
+        color: #78350f;
+        font-size: 1.125rem;
+        font-weight: 700;
+        margin-bottom: 1rem;
+    }
+
+    .checklist-item {
+        display: flex;
+        align-items: start;
+        gap: 0.75rem;
+        margin-bottom: 0.75rem;
+        color: #78350f;
+    }
+
+    .checklist-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .checklist-icon {
+        color: #f59e0b;
+        font-size: 1.25rem;
+        flex-shrink: 0;
+    }
+
+    @media (max-width: 768px) {
+        .submit-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .submit-body {
+            padding: 1.5rem;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container mt-5">
-  <h2>Edit Contract for {{ object.job.title }}</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.non_field_errors }}
-    <div class="mb-3">
-      <label for="{{ form.status.id_for_label }}" class="form-label">Status</label>
-      {{ form.status }}
-      {% if form.status.errors %}
-        <div class="text-danger">{{ form.status.errors }}</div>
-      {% endif %}
-    </div>
-    <div class="mb-3">
-      <label for="{{ form.payment_status.id_for_label }}" class="form-label">Payment Status</label>
-      {{ form.payment_status }}
-      {% if form.payment_status.errors %}
-        <div class="text-danger">{{ form.payment_status.errors }}</div>
-      {% endif %}
-    </div>
-    <div class="mb-3">
-      <label for="{{ form.is_revision_requested.id_for_label }}" class="form-label">Revision Requested?</label>
-      {{ form.is_revision_requested }}
-      {% if form.is_revision_requested.errors %}
-        <div class="text-danger">{{ form.is_revision_requested.errors }}</div>
-      {% endif %}
-    </div>
-    <div class="mb-3">
-      <label for="{{ form.feedback_by_client.id_for_label }}" class="form-label">Feedback by Client</label>
-      {{ form.feedback_by_client }}
-      {% if form.feedback_by_client.errors %}
-        <div class="text-danger">{{ form.feedback_by_client.errors }}</div>
-      {% endif %}
-    </div>
-    <div class="mb-3">
-      <label for="{{ form.rating_by_client.id_for_label }}" class="form-label">Rating by Client</label>
-      {{ form.rating_by_client }}
-      {% if form.rating_by_client.errors %}
-        <div class="text-danger">{{ form.rating_by_client.errors }}</div>
-      {% endif %}
-    </div>
-    <div class="mb-3">
-      <label for="{{ form.feedback_by_worker.id_for_label }}" class="form-label">Feedback by Worker</label>
-      {{ form.feedback_by_worker }}
-      {% if form.feedback_by_worker.errors %}
-        <div class="text-danger">{{ form.feedback_by_worker.errors }}</div>
-      {% endif %}
-    </div>
-    <div class="mb-3">
-      <label for="{{ form.start_date.id_for_label }}" class="form-label">Start Date</label>
-      {{ form.start_date }}
-      {% if form.start_date.errors %}
-        <div class="text-danger">{{ form.start_date.errors }}</div>
-      {% endif %}
-    </div>
-    <div class="mb-3">
-      <label for="{{ form.end_date.id_for_label }}" class="form-label">End Date</label>
-      {{ form.end_date }}
-      {% if form.end_date.errors %}
-        <div class="text-danger">{{ form.end_date.errors }}</div>
-      {% endif %}
-    </div>
-    <button type="submit" class="btn btn-primary">Update Contract</button>
-    <a href="{% url 'jobs:contract_detail' object.pk %}" class="btn btn-secondary">Cancel</a>
-  </form>
+<div class="submit-container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" style="margin-bottom: 1.5rem;">
+        <ol class="breadcrumb" style="background: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+            <li class="breadcrumb-item"><a href="{% url 'jobs:home' %}" style="color: #10b981; text-decoration: none;"><i class="bi bi-house-door"></i> Home</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'jobs:worker_dashboard' %}" style="color: #10b981; text-decoration: none;"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'jobs:contract_detail' object.pk %}" style="color: #10b981; text-decoration: none;"><i class="bi bi-file-earmark-check"></i> Contract</a></li>
+            <li class="breadcrumb-item active" aria-current="page"><i class="bi bi-send-check"></i> Submit for Review</li>
+        </ol>
+    </nav>
+
+    <form method="post">
+        {% csrf_token %}
+        
+        <div class="submit-header">
+            <h1><i class="bi bi-send-check"></i> Submit Work for Review</h1>
+            <p>{{ object.job.title }}</p>
+        </div>
+
+        <div class="submit-card">
+            <div class="submit-body">
+                <!-- Info Banner -->
+                <div class="info-banner">
+                    <h3><i class="bi bi-info-circle"></i> What Happens Next?</h3>
+                    <ul>
+                        <li>Your work will be submitted to the client for review</li>
+                        <li>The client will review your deliverables and provide feedback</li>
+                        <li>If approved, payment will be released</li>
+                        <li>If revisions are needed, you'll receive specific feedback</li>
+                    </ul>
+                </div>
+
+                <!-- Pre-Submission Checklist -->
+                <div class="checklist">
+                    <h3><i class="bi bi-clipboard-check"></i> Pre-Submission Checklist</h3>
+                    <div class="checklist-item">
+                        <i class="bi bi-check-circle-fill checklist-icon"></i>
+                        <span>All deliverables are complete and meet the requirements</span>
+                    </div>
+                    <div class="checklist-item">
+                        <i class="bi bi-check-circle-fill checklist-icon"></i>
+                        <span>Work has been tested and quality-checked</span>
+                    </div>
+                    <div class="checklist-item">
+                        <i class="bi bi-check-circle-fill checklist-icon"></i>
+                        <span>All files and documentation are included</span>
+                    </div>
+                    <div class="checklist-item">
+                        <i class="bi bi-check-circle-fill checklist-icon"></i>
+                        <span>Progress updates have been provided throughout</span>
+                    </div>
+                    <div class="checklist-item">
+                        <i class="bi bi-check-circle-fill checklist-icon"></i>
+                        <span>Ready for client review and feedback</span>
+                    </div>
+                </div>
+
+                <!-- Contract Summary -->
+                <div class="form-section">
+                    <h2 class="form-section-title">
+                        <i class="bi bi-file-earmark-text"></i> Contract Summary
+                    </h2>
+                    <div class="contract-summary">
+                        <div class="contract-summary-item">
+                            <span class="contract-summary-label">Client</span>
+                            <span class="contract-summary-value">{{ object.client.get_full_name|default:object.client.username }}</span>
+                        </div>
+                        <div class="contract-summary-item">
+                            <span class="contract-summary-label">Worker</span>
+                            <span class="contract-summary-value">{{ object.worker.get_full_name|default:object.worker.username }}</span>
+                        </div>
+                        <div class="contract-summary-item">
+                            <span class="contract-summary-label">Start Date</span>
+                            <span class="contract-summary-value">{{ object.start_date|date:"M d, Y"|default:"Not set" }}</span>
+                        </div>
+                        <div class="contract-summary-item">
+                            <span class="contract-summary-label">Deadline</span>
+                            <span class="contract-summary-value">{{ object.end_date|date:"M d, Y"|default:"Not set" }}</span>
+                        </div>
+                        <div class="contract-summary-item">
+                            <span class="contract-summary-label">Current Status</span>
+                            <span class="contract-summary-value">{{ object.status }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Hidden Fields -->
+                {{ form.non_field_errors }}
+                
+                <!-- Status Field (Hidden) -->
+                <input type="hidden" name="status" value="Submitted for Review">
+                
+                <!-- Payment Status (Hidden if not needed) -->
+                {% if form.payment_status %}
+                <input type="hidden" name="payment_status" value="{{ form.payment_status.value|default:'Pending' }}">
+                {% endif %}
+                
+                <!-- Revision Requested (Hidden) -->
+                {% if form.is_revision_requested %}
+                <input type="hidden" name="is_revision_requested" value="{{ form.is_revision_requested.value|default:False }}">
+                {% endif %}
+                
+                <!-- Client Feedback (Hidden) -->
+                {% if form.feedback_by_client %}
+                <input type="hidden" name="feedback_by_client" value="{{ form.feedback_by_client.value|default:'' }}">
+                {% endif %}
+                
+                <!-- Client Rating (Hidden) -->
+                {% if form.rating_by_client %}
+                <input type="hidden" name="rating_by_client" value="{{ form.rating_by_client.value|default:'' }}">
+                {% endif %}
+                
+                <!-- Start Date (Hidden) -->
+                {% if form.start_date %}
+                <input type="hidden" name="start_date" value="{{ form.start_date.value|default:object.start_date }}">
+                {% endif %}
+                
+                <!-- End Date (Hidden) -->
+                {% if form.end_date %}
+                <input type="hidden" name="end_date" value="{{ form.end_date.value|default:object.end_date }}">
+                {% endif %}
+
+                <!-- Worker Feedback Section -->
+                <div class="form-section">
+                    <h2 class="form-section-title">
+                        <i class="bi bi-chat-left-text"></i> Submission Notes (Optional)
+                    </h2>
+                    <div class="form-group">
+                        <label for="{{ form.feedback_by_worker.id_for_label }}" class="form-label">
+                            Add any notes or comments for the client
+                        </label>
+                        {{ form.feedback_by_worker }}
+                        <div class="form-help">
+                            Provide any additional information, instructions, or notes about your completed work
+                        </div>
+                        {% if form.feedback_by_worker.errors %}
+                        <div class="error-message">
+                            {{ form.feedback_by_worker.errors }}
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="action-buttons">
+                <a href="{% url 'jobs:contract_detail' object.pk %}" class="btn-cancel">
+                    <i class="bi bi-x-circle"></i> Cancel
+                </a>
+                <button type="submit" class="btn-submit" onclick="return confirmSubmission()">
+                    <i class="bi bi-send-check"></i> Submit Work for Review
+                </button>
+            </div>
+        </div>
+    </form>
 </div>
+
+<script>
+function confirmSubmission() {
+    return confirm(
+        '⚠️ IMPORTANT REMINDERS BEFORE SUBMITTING:\n\n' +
+        '✓ All deliverables are complete and ready for review\n' +
+        '✓ Work meets all requirements in the contract\n' +
+        '✓ Quality has been checked and verified\n' +
+        '✓ The client will be notified immediately\n' +
+        '✓ You cannot make changes after submission\n' +
+        '✓ Client may approve or request revisions\n\n' +
+        'Are you ready to submit your work for review?'
+    );
+}
+</script>
 {% endblock %}

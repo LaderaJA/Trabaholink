@@ -1,0 +1,595 @@
+{% extends 'mainpages/base.html' %}
+{% load static %}
+
+{% block css %}
+<style>
+:root {
+  --primary-color: #1a94d4;
+  --primary-dark: #0d6efd;
+  --primary-light: #e6f4ff;
+  --success-color: #10b981;
+  --warning-color: #f59e0b;
+  --danger-color: #ef4444;
+  --text-dark: #2d3748;
+  --text-medium: #4a5568;
+  --text-light: #718096;
+  --bg-light: #f7fafc;
+  --bg-white: #ffffff;
+  --border-color: #e2e8f0;
+  --gradient-primary: linear-gradient(135deg, #1a94d4 0%, #0d6efd 100%);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+body {
+  background: var(--bg-light);
+}
+
+/* Header */
+.settings-header {
+  background: var(--gradient-primary);
+  color: white;
+  padding: 2rem 0;
+  margin-bottom: 2rem;
+}
+
+.settings-header h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Settings Container */
+.settings-container {
+  max-width: 900px;
+  margin: 0 auto 3rem;
+}
+
+.settings-card {
+  background: white;
+  border-radius: 12px;
+  box-shadow: var(--shadow-md);
+  margin-bottom: 2rem;
+  overflow: hidden;
+}
+
+.settings-card-header {
+  padding: 1.5rem 2rem;
+  border-bottom: 2px solid var(--border-color);
+  background: var(--bg-light);
+}
+
+.settings-card-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-dark);
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.settings-card-title i {
+  color: var(--primary-color);
+}
+
+.settings-card-body {
+  padding: 2rem;
+}
+
+/* Form Groups */
+.form-group-settings {
+  margin-bottom: 2rem;
+}
+
+.form-group-settings:last-child {
+  margin-bottom: 0;
+}
+
+.form-label-settings {
+  display: block;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.form-help-text {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  margin-top: 0.35rem;
+}
+
+/* Toggle Switch */
+.toggle-switch {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1rem 1.5rem;
+  background: var(--bg-light);
+  border-radius: 10px;
+  margin-bottom: 1rem;
+  transition: all 0.2s;
+}
+
+.toggle-switch:hover {
+  background: #e6f4ff;
+}
+
+.toggle-info {
+  flex: 1;
+}
+
+.toggle-title {
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.25rem;
+}
+
+.toggle-description {
+  font-size: 0.85rem;
+  color: var(--text-medium);
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+}
+
+.switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: #cbd5e0;
+  transition: 0.4s;
+  border-radius: 28px;
+}
+
+.slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 4px;
+  bottom: 4px;
+  background-color: white;
+  transition: 0.4s;
+  border-radius: 50%;
+}
+
+input:checked + .slider {
+  background-color: var(--primary-color);
+}
+
+input:checked + .slider:before {
+  transform: translateX(22px);
+}
+
+/* Form Controls */
+.form-control-settings {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 1rem;
+  transition: all 0.3s;
+}
+
+.form-control-settings:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(26, 148, 212, 0.1);
+}
+
+.form-select-settings {
+  appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%234a5568' d='M6 9L1 4h10z'/%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 1rem center;
+  padding-right: 2.5rem;
+}
+
+/* DND Section */
+.dnd-section {
+  background: rgba(245, 158, 11, 0.1);
+  border: 2px solid var(--warning-color);
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+
+.dnd-title {
+  font-weight: 600;
+  color: var(--warning-color);
+  margin-bottom: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.time-inputs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+/* Submit Button */
+.submit-section {
+  padding: 1.5rem 2rem;
+  background: var(--bg-light);
+  border-top: 2px solid var(--border-color);
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+}
+
+.btn-save {
+  padding: 0.875rem 2rem;
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 4px 15px rgba(26, 148, 212, 0.3);
+}
+
+.btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(26, 148, 212, 0.4);
+}
+
+.btn-cancel {
+  padding: 0.875rem 2rem;
+  background: white;
+  color: var(--text-dark);
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  font-weight: 600;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-cancel:hover {
+  background: var(--bg-light);
+  transform: translateY(-2px);
+  color: var(--text-dark);
+}
+
+/* Alert */
+.alert-success {
+  background: rgba(16, 185, 129, 0.1);
+  border: 2px solid var(--success-color);
+  color: var(--success-color);
+  padding: 1rem 1.5rem;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .settings-header h1 {
+    font-size: 1.5rem;
+  }
+  
+  .settings-card-body {
+    padding: 1.5rem;
+  }
+  
+  .toggle-switch {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .time-inputs {
+    grid-template-columns: 1fr;
+  }
+  
+  .submit-section {
+    flex-direction: column-reverse;
+  }
+  
+  .btn-save,
+  .btn-cancel {
+    width: 100%;
+    justify-content: center;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Header -->
+<div class="settings-header">
+  <div class="container">
+    <h1>
+      <i class="bi bi-gear-fill"></i>
+      Notification Settings
+    </h1>
+  </div>
+</div>
+
+<!-- Main Content -->
+<div class="container settings-container">
+  {% if messages %}
+    {% for message in messages %}
+    <div class="alert-success">
+      <i class="bi bi-check-circle-fill" style="font-size: 1.5rem;"></i>
+      <span>{{ message }}</span>
+    </div>
+    {% endfor %}
+  {% endif %}
+  
+  <form method="post">
+    {% csrf_token %}
+    
+    <!-- In-App Notifications -->
+    <div class="settings-card">
+      <div class="settings-card-header">
+        <h2 class="settings-card-title">
+          <i class="bi bi-bell"></i>
+          In-App Notifications
+        </h2>
+      </div>
+      <div class="settings-card-body">
+        <div class="toggle-switch">
+          <div class="toggle-info">
+            <div class="toggle-title">New Jobs Nearby</div>
+            <div class="toggle-description">Get notified when new jobs are posted in your area</div>
+          </div>
+          <label class="switch">
+            {{ form.notify_job_post }}
+            <span class="slider"></span>
+          </label>
+        </div>
+        
+        <div class="toggle-switch">
+          <div class="toggle-info">
+            <div class="toggle-title">New Messages</div>
+            <div class="toggle-description">Get notified when you receive a new message</div>
+          </div>
+          <label class="switch">
+            {{ form.notify_message }}
+            <span class="slider"></span>
+          </label>
+        </div>
+        
+        <div class="toggle-switch">
+          <div class="toggle-info">
+            <div class="toggle-title">Job Applications</div>
+            <div class="toggle-description">Get notified when someone applies to your job</div>
+          </div>
+          <label class="switch">
+            {{ form.notify_application }}
+            <span class="slider"></span>
+          </label>
+        </div>
+        
+        <div class="toggle-switch">
+          <div class="toggle-info">
+            <div class="toggle-title">Application Updates</div>
+            <div class="toggle-description">Get notified about your application status changes</div>
+          </div>
+          <label class="switch">
+            {{ form.notify_application_updates }}
+            <span class="slider"></span>
+          </label>
+        </div>
+        
+        <div class="toggle-switch">
+          <div class="toggle-info">
+            <div class="toggle-title">Contracts</div>
+            <div class="toggle-description">Get notified about contract updates and changes</div>
+          </div>
+          <label class="switch">
+            {{ form.notify_contract }}
+            <span class="slider"></span>
+          </label>
+        </div>
+        
+        <div class="toggle-switch">
+          <div class="toggle-info">
+            <div class="toggle-title">Announcements</div>
+            <div class="toggle-description">Get notified about new announcements</div>
+          </div>
+          <label class="switch">
+            {{ form.notify_announcement }}
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Email Notifications -->
+    <div class="settings-card">
+      <div class="settings-card-header">
+        <h2 class="settings-card-title">
+          <i class="bi bi-envelope"></i>
+          Email Notifications
+        </h2>
+      </div>
+      <div class="settings-card-body">
+        <div class="form-group-settings">
+          <label class="form-label-settings">Email Frequency</label>
+          {{ form.email_frequency }}
+          <div class="form-help-text">Choose how often you want to receive email notifications</div>
+        </div>
+        
+        <div class="toggle-switch">
+          <div class="toggle-info">
+            <div class="toggle-title">Email on New Jobs</div>
+            <div class="toggle-description">Receive emails when new jobs are posted nearby</div>
+          </div>
+          <label class="switch">
+            {{ form.email_on_job_post }}
+            <span class="slider"></span>
+          </label>
+        </div>
+        
+        <div class="toggle-switch">
+          <div class="toggle-info">
+            <div class="toggle-title">Email on Messages</div>
+            <div class="toggle-description">Receive emails when you get new messages</div>
+          </div>
+          <label class="switch">
+            {{ form.email_on_message }}
+            <span class="slider"></span>
+          </label>
+        </div>
+        
+        <div class="toggle-switch">
+          <div class="toggle-info">
+            <div class="toggle-title">Email on Applications</div>
+            <div class="toggle-description">Receive emails when someone applies to your job</div>
+          </div>
+          <label class="switch">
+            {{ form.email_on_application }}
+            <span class="slider"></span>
+          </label>
+        </div>
+        
+        <div class="toggle-switch">
+          <div class="toggle-info">
+            <div class="toggle-title">Email on Contracts</div>
+            <div class="toggle-description">Receive emails about contract updates</div>
+          </div>
+          <label class="switch">
+            {{ form.email_on_contract }}
+            <span class="slider"></span>
+          </label>
+        </div>
+        
+        <div class="toggle-switch">
+          <div class="toggle-info">
+            <div class="toggle-title">Email on Announcements</div>
+            <div class="toggle-description">Receive emails about new announcements</div>
+          </div>
+          <label class="switch">
+            {{ form.email_on_announcement }}
+            <span class="slider"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Preferences -->
+    <div class="settings-card">
+      <div class="settings-card-header">
+        <h2 class="settings-card-title">
+          <i class="bi bi-sliders"></i>
+          Preferences
+        </h2>
+      </div>
+      <div class="settings-card-body">
+        <div class="form-group-settings">
+          <label class="form-label-settings">Notification Radius (km)</label>
+          {{ form.notification_radius }}
+          <div class="form-help-text">How far away should jobs be to notify you (in kilometers)</div>
+        </div>
+        
+        <div class="toggle-switch">
+          <div class="toggle-info">
+            <div class="toggle-title">Do Not Disturb</div>
+            <div class="toggle-description">Pause all notifications temporarily</div>
+          </div>
+          <label class="switch">
+            {{ form.do_not_disturb }}
+            <span class="slider"></span>
+          </label>
+        </div>
+        
+        <div class="dnd-section" id="dndSchedule" style="display: none;">
+          <div class="dnd-title">
+            <i class="bi bi-moon-stars"></i>
+            Do Not Disturb Schedule
+          </div>
+          <div class="time-inputs">
+            <div class="form-group-settings">
+              <label class="form-label-settings">Start Time</label>
+              {{ form.dnd_start_time }}
+            </div>
+            <div class="form-group-settings">
+              <label class="form-label-settings">End Time</label>
+              {{ form.dnd_end_time }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    
+    <!-- Submit -->
+    <div class="settings-card">
+      <div class="submit-section">
+        <a href="{% url 'notifications:notification_list' %}" class="btn-cancel">
+          <i class="bi bi-x-circle"></i>
+          <span>Cancel</span>
+        </a>
+        <button type="submit" class="btn-save">
+          <i class="bi bi-check-circle"></i>
+          <span>Save Settings</span>
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
+<script>
+// Apply form control classes
+document.addEventListener('DOMContentLoaded', function() {
+  // Style select and input fields
+  document.querySelectorAll('select').forEach(select => {
+    select.classList.add('form-control-settings', 'form-select-settings');
+  });
+  
+  document.querySelectorAll('input[type="number"], input[type="time"]').forEach(input => {
+    input.classList.add('form-control-settings');
+  });
+  
+  // Toggle DND schedule visibility
+  const dndCheckbox = document.querySelector('input[name="do_not_disturb"]');
+  const dndSchedule = document.getElementById('dndSchedule');
+  
+  function toggleDndSchedule() {
+    if (dndCheckbox.checked) {
+      dndSchedule.style.display = 'block';
+    } else {
+      dndSchedule.style.display = 'none';
+    }
+  }
+  
+  if (dndCheckbox) {
+    toggleDndSchedule();
+    dndCheckbox.addEventListener('change', toggleDndSchedule);
+  }
+});
+</script>
+{% endblock %}

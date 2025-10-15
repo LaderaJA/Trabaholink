@@ -13,76 +13,788 @@
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
   />
   <style>
-    /* Minimal toggler collapse CSS */
-    .tl-navbar-collapse {
+    /* ===== BACOOR CAVITE INSPIRED NAVBAR ===== */
+    
+    /* CRITICAL: Override any external CSS that might hide text */
+    * {
+      -webkit-text-fill-color: initial !important;
+    }
+    
+    /* Body padding for fixed navbar */
+    body {
+      padding-top: 85px !important;
+    }
+    
+    /* Navbar container - Modern & Beautiful */
+    .tl-navbar,
+    nav.tl-navbar {
+      position: fixed !important;
+      top: 0 !important;
+      left: 0 !important;
+      right: 0 !important;
+      z-index: 1030 !important;
+      background: #FFFFFF !important;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+      padding: 0 !important;
+      border-bottom: 1px solid #e5e7eb !important;
+    }
+    
+    /* Top accent stripe - Bacoor colors */
+    .tl-navbar::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 4px;
+      background: linear-gradient(90deg, #2563eb 0%, #3b82f6 50%, #2563eb 100%);
+    }
+    
+    .tl-navbar .container {
+      position: relative;
+      padding: 1rem 0;
+    }
+    
+    .tl-navbar-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    
+    /* Brand logo - Modern & Clean */
+    .tl-navbar-brand {
+      font-size: 1.625rem;
+      font-weight: 800;
+      text-decoration: none;
+      z-index: 1031;
+      display: flex;
+      align-items: center;
+      gap: 0.125rem;
+      padding: 0;
+      transition: all 0.2s ease;
+      letter-spacing: -0.02em;
+    }
+    
+    .tl-navbar-brand:hover {
+      opacity: 0.85;
+    }
+    
+    .tl-brand-text {
+      color: #1e40af !important;
+      font-weight: 800;
+    }
+    
+    .tl-brand-highlight {
+      color: #f59e0b !important;
+      font-weight: 800;
+    }
+    
+    /* Hamburger button - Modern */
+    .tl-navbar-toggler {
+      display: none;
+      border: none;
+      padding: 0.5rem;
+      border-radius: 8px;
+      background: #f3f4f6;
+      cursor: pointer;
+      transition: all 0.2s;
+      z-index: 1031;
+      margin-left: auto;
+    }
+    
+    .tl-navbar-toggler:hover {
+      background: #e5e7eb;
+    }
+    
+    .tl-navbar-toggler:active {
+      background: #d1d5db;
+    }
+    
+    .tl-toggler-icon {
+      color: #1e40af;
+      font-size: 1.5rem;
+      display: block;
+      line-height: 1;
+    }
+    
+    /* Navigation menu - Modern & Clean */
+    .tl-navbar-nav {
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      list-style: none;
+      margin: 0;
+      padding: 0;
+      gap: 0.25rem;
+    }
+    
+    .tl-nav-item {
+      display: inline-block;
+    }
+    
+    .tl-nav-link {
+      color: #4b5563 !important;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.9375rem;
+      padding: 0.625rem 1rem;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      display: inline-block;
+      position: relative;
+    }
+    
+    .tl-nav-link:hover {
+      color: #1e40af !important;
+      background: #eff6ff;
+    }
+    
+    .tl-nav-link.active {
+      color: #FFFFFF !important;
+      background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+    }
+    
+    /* Hide icons on desktop, show only text */
+    .nav-icon {
       display: none;
     }
-    .tl-navbar-collapse.show {
+    
+    /* Mobile styles - Bacoor themed */
+    @media (max-width: 991px) {
+      /* Show hamburger */
+      .tl-navbar-toggler {
+        display: block;
+      }
+      
+      /* Hide/show menu - Modern mobile */
+      .tl-navbar-nav,
+      ul.tl-navbar-nav {
+        position: absolute !important;
+        top: calc(100% + 0.5rem) !important;
+        left: 0 !important;
+        right: 0 !important;
+        background: #FFFFFF !important;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1) !important;
+        border-radius: 0 0 16px 16px !important;
+        border: 1px solid #e5e7eb !important;
+        border-top: none !important;
+        flex-direction: column !important;
+        align-items: stretch !important;
+        padding: 0 !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+        transition: max-height 0.3s ease, padding 0.3s ease !important;
+      }
+      
+      .tl-navbar-nav.show,
+      ul.tl-navbar-nav.show {
+        max-height: 600px !important;
+        padding: 1rem !important;
+      }
+      
+      /* Ensure all children are visible when menu is open */
+      .tl-navbar-nav.show *,
+      .tl-navbar-nav.show li,
+      .tl-navbar-nav.show a,
+      .tl-navbar-nav.show button {
+        opacity: 1 !important;
+        visibility: visible !important;
+        color: #4b5563 !important;
+        -webkit-text-fill-color: #4b5563 !important;
+      }
+      
+      .tl-nav-item {
+        display: block;
+        width: 100%;
+        margin: 0 !important;
+      }
+      
+      /* Show icons in mobile menu */
+      .nav-icon {
+        display: inline-block !important;
+        margin-right: 0.75rem;
+        font-size: 1.1rem;
+        vertical-align: middle;
+      }
+      
+      .nav-text {
+        vertical-align: middle;
+      }
+      
+      /* Mobile menu links - Modern */
+      .tl-navbar-nav .tl-nav-link,
+      .tl-navbar-nav .tl-nav-item .tl-nav-link,
+      .tl-navbar-nav .tl-nav-item a,
+      ul.tl-navbar-nav .tl-nav-link,
+      ul.tl-navbar-nav li a,
+      .tl-navbar-nav.show .tl-nav-link,
+      .tl-navbar-nav.show a {
+        display: block !important;
+        width: 100% !important;
+        padding: 0.875rem 1rem !important;
+        color: #4b5563 !important;
+        -webkit-text-fill-color: #4b5563 !important;
+        text-align: left !important;
+        font-size: 0.9375rem !important;
+        font-weight: 600 !important;
+        background: transparent !important;
+        opacity: 1 !important;
+        visibility: visible !important;
+        border-radius: 8px !important;
+        margin-bottom: 0.25rem !important;
+      }
+      
+      .tl-navbar-nav .tl-nav-link:hover,
+      .tl-navbar-nav .tl-nav-item a:hover {
+        background: #eff6ff !important;
+        color: #1e40af !important;
+        -webkit-text-fill-color: #1e40af !important;
+      }
+      
+      .tl-navbar-nav .tl-nav-link.active,
+      .tl-navbar-nav .tl-nav-item a.active {
+        background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%) !important;
+        color: #FFFFFF !important;
+        -webkit-text-fill-color: #FFFFFF !important;
+        font-weight: 700 !important;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3) !important;
+      }
+      
+      /* Button links in mobile menu - Modern */
+      .tl-navbar-nav .tl-nav-item button,
+      .tl-navbar-nav .tl-nav-item button.tl-nav-link,
+      .tl-navbar-nav button,
+      ul.tl-navbar-nav button {
+        text-align: left !important;
+        width: 100% !important;
+        border: none !important;
+        background: transparent !important;
+        color: #4b5563 !important;
+        font-size: 0.9375rem !important;
+        padding: 0.875rem 1rem !important;
+        border-radius: 8px !important;
+        margin-bottom: 0.25rem !important;
+        font-weight: 600 !important;
+      }
+      
+      .tl-navbar-nav .tl-nav-item button:hover {
+        background: #eff6ff !important;
+        color: #1e40af !important;
+      }
+      
+      /* Icons in mobile menu - Modern */
+      .tl-navbar-nav .tl-nav-link i,
+      .tl-navbar-nav i,
+      ul.tl-navbar-nav i {
+        color: #2563eb !important;
+      }
+      
+      .tl-navbar-nav .tl-nav-link:hover i {
+        color: #1e40af !important;
+      }
+      
+      .tl-navbar-nav .tl-nav-link.active i {
+        color: #FFFFFF !important;
+      }
+      
+      .tl-navbar-nav .tl-nav-item form {
+        width: 100% !important;
+        margin: 0 !important;
+      }
+      
+      .tl-navbar-nav .tl-nav-item form button {
+        color: #1e3a8a !important;
+      }
+    }
+    
+    /* Notification badge */
+    .notification-badge-number {
+      position: absolute;
+      top: -5px;
+      right: -5px;
+      background: #ef4444;
+      color: white;
+      border-radius: 10px;
+      padding: 2px 6px;
+      font-size: 0.7rem;
+      font-weight: 700;
+      min-width: 18px;
+      text-align: center;
+      animation: pulse 2s infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.1); }
+    }
+    
+    /* Notification Dropdown Panel */
+    .notification-dropdown {
+      position: fixed;
+      top: 80px;
+      right: -400px;
+      width: 400px;
+      max-width: 90vw;
+      height: calc(100vh - 80px);
+      background: white;
+      box-shadow: -4px 0 20px rgba(0, 0, 0, 0.15);
+      z-index: 1025;
+      transition: right 0.3s ease;
+      display: flex;
+      flex-direction: column;
+    }
+    
+    .notification-dropdown.show {
+      right: 0;
+    }
+    
+    .notification-dropdown-header {
+      padding: 1.5rem;
+      border-bottom: 2px solid #e2e8f0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: linear-gradient(135deg, #1a94d4 0%, #0d6efd 100%);
+      color: white;
+    }
+    
+    .notification-dropdown-header h3 {
+      margin: 0;
+      font-size: 1.25rem;
+      font-weight: 700;
+    }
+    
+    .notification-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+    
+    .mark-all-read-btn,
+    .view-all-btn {
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      font-size: 1.1rem;
+    }
+    
+    .mark-all-read-btn:hover,
+    .view-all-btn:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: scale(1.1);
+    }
+    
+    .notification-dropdown-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 0;
+    }
+    
+    .notification-item-dropdown {
+      padding: 1rem 1.5rem;
+      border-bottom: 1px solid #f1f5f9;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      gap: 1rem;
+      align-items: flex-start;
+      text-decoration: none;
+      color: inherit;
+    }
+    
+    .notification-item-dropdown:hover {
+      background: #f8fafc;
+    }
+    
+    .notification-item-dropdown.unread {
+      background: #e6f4ff;
+    }
+    
+    .notification-icon-wrapper {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-size: 1.1rem;
+    }
+    
+    .notification-icon-wrapper.job {
+      background: rgba(16, 185, 129, 0.1);
+      color: #10b981;
+    }
+    
+    .notification-icon-wrapper.message {
+      background: rgba(59, 130, 246, 0.1);
+      color: #3b82f6;
+    }
+    
+    .notification-icon-wrapper.announcement {
+      background: rgba(245, 158, 11, 0.1);
+      color: #f59e0b;
+    }
+    
+    .notification-icon-wrapper.application {
+      background: rgba(139, 92, 246, 0.1);
+      color: #8b5cf6;
+    }
+    
+    .notification-icon-wrapper.contract {
+      background: rgba(236, 72, 153, 0.1);
+      color: #ec4899;
+    }
+    
+    .notification-content-wrapper {
+      flex: 1;
+      min-width: 0;
+    }
+    
+    .notification-message-text {
+      font-size: 0.9rem;
+      color: #2d3748;
+      margin-bottom: 0.25rem;
+      line-height: 1.5;
+    }
+    
+    .notification-item-dropdown.unread .notification-message-text {
+      font-weight: 600;
+    }
+    
+    .notification-time-text {
+      font-size: 0.8rem;
+      color: #718096;
+    }
+    
+    .notification-unread-dot {
+      width: 8px;
+      height: 8px;
+      background: #3b82f6;
+      border-radius: 50%;
+      flex-shrink: 0;
+      margin-top: 0.5rem;
+    }
+    
+    .empty-notifications {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: #718096;
+    }
+    
+    .empty-notifications i {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+    
+    .loading-notifications {
+      text-align: center;
+      padding: 2rem;
+      color: #718096;
+    }
+    
+    .loading-notifications i {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+    
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    
+    .spin {
+      animation: spin 1s linear infinite;
+    }
+    
+    /* Notification Overlay */
+    .notification-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 1024;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.3s;
+    }
+    
+    .notification-overlay.show {
       display: block;
+      opacity: 1;
+    }
+    
+    /* ===== GLOBAL INPUT FIELD STYLES ===== */
+    
+    /* Enhanced Input Fields - HIGHLY VISIBLE */
+    input.form-control,
+    textarea.form-control,
+    select.form-select,
+    select.form-control {
+      padding: 0.875rem 1.125rem !important;
+      border: 2px solid #64748b !important;
+      border-radius: 0.5rem !important;
+      font-size: 1.05rem !important;
+      background-color: #ffffff !important;
+      transition: all 0.3s ease !important;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1) !important;
+      font-weight: 500 !important;
+    }
+    
+    /* Focus State - VERY VISIBLE */
+    input.form-control:focus,
+    textarea.form-control:focus,
+    select.form-select:focus,
+    select.form-control:focus {
+      border-color: #1A94D5 !important;
+      border-width: 3px !important;
+      box-shadow: 0 0 0 5px rgba(26, 148, 213, 0.25), 0 4px 8px rgba(0, 0, 0, 0.15) !important;
+      outline: none !important;
+      background-color: #ffffff !important;
+      transform: translateY(-1px) !important;
+    }
+    
+    /* Hover State - VISIBLE */
+    input.form-control:hover:not(:focus),
+    textarea.form-control:hover:not(:focus),
+    select.form-select:hover:not(:focus),
+    select.form-control:hover:not(:focus) {
+      border-color: #475569 !important;
+      box-shadow: 0 3px 6px rgba(0, 0, 0, 0.12) !important;
+    }
+    
+    /* Placeholder Styling */
+    input.form-control::placeholder,
+    textarea.form-control::placeholder {
+      color: #94a3b8 !important;
+      opacity: 1 !important;
+      font-size: 0.95rem !important;
+    }
+    
+    input.form-control::-webkit-input-placeholder,
+    textarea.form-control::-webkit-input-placeholder {
+      color: #94a3b8 !important;
+      opacity: 1 !important;
+    }
+    
+    input.form-control::-moz-placeholder,
+    textarea.form-control::-moz-placeholder {
+      color: #94a3b8 !important;
+      opacity: 1 !important;
+    }
+    
+    input.form-control:-ms-input-placeholder,
+    textarea.form-control:-ms-input-placeholder {
+      color: #94a3b8 !important;
+      opacity: 1 !important;
+    }
+    
+    /* Disabled State */
+    input.form-control:disabled,
+    textarea.form-control:disabled,
+    select.form-select:disabled,
+    select.form-control:disabled {
+      background-color: #f1f5f9 !important;
+      border-color: #e2e8f0 !important;
+      color: #64748b !important;
+      cursor: not-allowed !important;
+    }
+    
+    /* Invalid/Error State */
+    input.form-control.is-invalid,
+    textarea.form-control.is-invalid,
+    select.form-select.is-invalid,
+    select.form-control.is-invalid {
+      border-color: #dc2626 !important;
+    }
+    
+    input.form-control.is-invalid:focus,
+    textarea.form-control.is-invalid:focus,
+    select.form-select.is-invalid:focus,
+    select.form-control.is-invalid:focus {
+      box-shadow: 0 0 0 4px rgba(220, 38, 38, 0.1) !important;
+    }
+    
+    /* Valid State */
+    input.form-control.is-valid,
+    textarea.form-control.is-valid,
+    select.form-select.is-valid,
+    select.form-control.is-valid {
+      border-color: #10b981 !important;
+    }
+    
+    input.form-control.is-valid:focus,
+    textarea.form-control.is-valid:focus,
+    select.form-select.is-valid:focus,
+    select.form-control.is-valid:focus {
+      box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.1) !important;
+    }
+    
+    /* Form Labels */
+    .form-label {
+      font-weight: 600 !important;
+      color: #1e293b !important;
+      margin-bottom: 0.5rem !important;
+      font-size: 0.95rem !important;
+    }
+    
+    /* Required Field Indicator */
+    .form-label.required::after {
+      content: " *";
+      color: #dc2626;
+    }
+    
+    /* Search Inputs */
+    input[type="search"].form-control {
+      padding-left: 2.5rem !important;
+    }
+    
+    /* File Inputs */
+    input[type="file"].form-control {
+      padding: 0.5rem 1rem !important;
+    }
+    
+    /* Textarea Specific */
+    textarea.form-control {
+      resize: vertical !important;
+      min-height: 100px !important;
+    }
+    
+    /* Select Dropdown Arrow */
+    select.form-select,
+    select.form-control {
+      background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23343a40' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e") !important;
+      background-repeat: no-repeat !important;
+      background-position: right 0.75rem center !important;
+      background-size: 16px 12px !important;
+      padding-right: 2.5rem !important;
+    }
+    
+    /* Navbar container - prevent overflow clipping */
+    .tl-navbar .container {
+      overflow: visible !important;
+      position: relative;
+    }
+    
+    /* Navbar Content Flex */
+    .tl-navbar-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: relative;
+      overflow: visible !important;
+    }
+    
+    /* Desktop: hide toggler, show collapse normally */
+    @media (min-width: 992px) {
+      .tl-navbar-toggler {
+        display: none !important;
+        pointer-events: none !important;
+      }
+      
+      .tl-navbar-collapse {
+        display: flex !important;
+        position: static !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        max-height: none !important;
+        overflow: visible !important;
+      }
+      
+      /* Remove .show class effects on desktop */
+      .tl-navbar-collapse.show {
+        display: flex !important;
+        position: static !important;
+        max-height: none !important;
+      }
+      
+      .tl-navbar-nav {
+        flex-direction: row !important;
+        align-items: center !important;
+        display: flex !important;
+      }
     }
   </style>
   {% block css %}{% endblock %}
 </head>
-<body class="d-flex flex-column min-vh-100">
+<body class="d-flex flex-column min-vh-100" style="padding-top: 80px !important;">
   <nav class="tl-navbar">
     <div class="container">
-      <div class="tl-navbar-content d-flex align-items-center justify-content-between">
+      <div class="tl-navbar-content">
         <a class="tl-navbar-brand" href="{% url 'jobs:home' %}">
           <span class="tl-brand-text">Trabaho</span>
           <span class="tl-brand-text tl-brand-highlight">Link</span>
         </a>
-        <button
-          class="tl-navbar-toggler btn btn-light"
-          type="button"
-          aria-label="Toggle navigation"
-        >
-          <i class="tl-toggler-icon bi bi-list" style="font-size: 1.5rem;"></i>
+        
+        <button class="tl-navbar-toggler" id="navbarToggler" type="button">
+          <i class="tl-toggler-icon bi bi-list"></i>
         </button>
-        <div class="tl-navbar-collapse">
-          <ul class="tl-navbar-nav list-unstyled d-flex mb-0">
+        
+        <ul class="tl-navbar-nav" id="navbarNav">
             <li class="tl-nav-item me-3">
               <a
                 class="tl-nav-link {% if request.path == '/' %}active{% endif %}"
                 href="{% url 'jobs:home' %}"
-                >Home</a
               >
+                <i class="bi bi-house-door nav-icon"></i>
+                <span class="nav-text">Home</span>
+              </a>
             </li>
             <li class="tl-nav-item me-3">
               <a
                 class="tl-nav-link {% if request.path == '/jobs/' %}active{% endif %}"
                 href="{% url 'jobs:job_list' %}"
-                >Postings</a
               >
+                <i class="bi bi-briefcase nav-icon"></i>
+                <span class="nav-text">Postings</span>
+              </a>
             </li>
             <li class="tl-nav-item me-3">
               <a
                 class="tl-nav-link {% if request.path == '/announcements/' %}active{% endif %}"
                 href="{% url 'announcements:announcement_list' %}"
-                >Announcements</a
               >
+                <i class="bi bi-megaphone nav-icon"></i>
+                <span class="nav-text">Announcements</span>
+              </a>
             </li>
             {% if user.is_authenticated %}
             <li class="tl-nav-item me-3">
               <a
                 class="tl-nav-link {% if request.path == '/conversation_list/' %}active{% endif %}"
                 href="{% url 'messaging:conversation_list' %}"
-                >Messages</a
               >
+                <i class="bi bi-chat-dots nav-icon"></i>
+                <span class="nav-text">Messages</span>
+              </a>
             </li>
             <li class="tl-nav-item position-relative me-3">
-              <a
-                class="tl-nav-link"
-                href="{% url 'notifications:notification_list' %}"
-                style="position:relative;"
+              <button
+                class="tl-nav-link notification-bell-btn"
+                id="notificationBellBtn"
+                type="button"
+                style="position:relative; background: none; border: none; cursor: pointer;"
               >
-                <i
-                  class="bi bi-bell"
-                  style="font-size: 1rem; position: relative;"
-                ></i>
+                <i class="bi bi-bell nav-icon" style="position: relative;"></i>
+                <span class="nav-text">Notifications</span>
                 {% if unread_notification_count > 0 %}
                 <span class="notification-badge-number">{{ unread_notification_count }}</span>
                 {% endif %}
-              </a>
+              </button>
             </li>
             <li class="tl-nav-item me-3">
               <a
@@ -90,17 +802,16 @@
                 href="{% url 'profile' user.pk %}"
                 title="Profile"
               >
-                <i
-                  class="bi bi-person-circle"
-                  style="font-size: 1.1rem; position: relative;"
-                ></i>
+                <i class="bi bi-person-circle nav-icon"></i>
+                <span class="nav-text">Profile</span>
               </a>
             </li>
             <li class="tl-nav-item">
-              <form method="post" action="{% url 'logout' %}" style="display: inline">
+              <form method="post" action="{% url 'logout' %}" id="logoutForm" style="display: inline; margin: 0;">
                 {% csrf_token %}
-                <button type="submit" class="tl-btn-logout" title="Logout">
-                  <i class="bi bi-box-arrow-right"></i>
+                <button type="button" onclick="confirmLogout()" class="btn btn-link tl-nav-link" style="padding: 0.5rem 1rem; border: none; background: none; text-align: left; width: 100%;">
+                  <i class="bi bi-box-arrow-right nav-icon"></i>
+                  <span class="nav-text">Logout</span>
                 </button>
               </form>
             </li>
@@ -109,26 +820,55 @@
               <a
                 class="tl-nav-link {% if request.path == '/users/login/' %}active{% endif %}"
                 href="{% url 'login' %}"
-                >Login</a
               >
+                <i class="bi bi-box-arrow-in-right nav-icon"></i>
+                <span class="nav-text">Login</span>
+              </a>
             </li>
             <li class="tl-nav-item">
               <a
                 class="tl-nav-link {% if request.path == '/users/register/' %}active{% endif %}"
                 href="{% url 'register' %}"
-                >Register</a
               >
+                <i class="bi bi-person-plus nav-icon"></i>
+                <span class="nav-text">Register</span>
+              </a>
             </li>
             {% endif %}
-          </ul>
-        </div>
+        </ul>
       </div>
     </div>
   </nav>
+  
+  <!-- Notification Overlay -->
+  <div class="notification-overlay" id="notificationOverlay"></div>
+  
+  <!-- Notification Dropdown Panel -->
+  {% if user.is_authenticated %}
+  <div class="notification-dropdown" id="notificationDropdown">
+    <div class="notification-dropdown-header">
+      <h3>Notifications</h3>
+      <div class="notification-actions">
+        <button class="mark-all-read-btn" id="markAllReadBtn" title="Mark all as read">
+          <i class="bi bi-check-all"></i>
+        </button>
+        <a href="{% url 'notifications:notification_list' %}" class="view-all-btn" title="View all">
+          <i class="bi bi-arrow-right-circle"></i>
+        </a>
+      </div>
+    </div>
+    <div class="notification-dropdown-body" id="notificationDropdownBody">
+      <div class="loading-notifications">
+        <i class="bi bi-arrow-repeat spin"></i>
+        <span>Loading notifications...</span>
+      </div>
+    </div>
+  </div>
+  {% endif %}
 
   <!-- Main Content -->
   <main class="flex-grow-1">
-    <!-- {% if messages %}
+    {% if messages %}
     <div class="container mt-3">
       {% for message in messages %}
       <div
@@ -145,114 +885,167 @@
       </div>
       {% endfor %}
     </div>
-    {% endif %} -->
+    {% endif %}
 
     {% block content %}{% endblock %}
   </main>
 
   <!-- Footer Section -->
-  <footer class="bg-dark text-white py-4 mt-5">
-    <div class="container text-center">
-      <p>&copy; {{ current_year }} TrabahoLink. All rights reserved.</p>
-      <button
-        class="btn btn-danger report-btn"
-        data-bs-toggle="modal"
-        data-bs-target="#reportModal"
-      >
-        <i class="bi bi-flag"></i> Report Suspicious Activity
-      </button>
+  <footer class="bg-dark text-white py-5 mt-5">
+    <div class="container">
+      <div class="row">
+        <!-- About Section -->
+        <div class="col-lg-4 col-md-6 mb-4">
+          <h5 class="text-uppercase mb-3" style="color: var(--trabaholink-blue); font-weight: 600;">
+            <i class="bi bi-briefcase-fill"></i> TrabahoLink
+          </h5>
+          <p style="color: #cbd5e1; line-height: 1.6;">
+            Connecting skilled workers with opportunities. Your trusted platform for finding jobs and services in the Philippines.
+          </p>
+          <div class="mt-3">
+            <button
+              class="btn btn-sm"
+              data-bs-toggle="modal"
+              data-bs-target="#reportModal"
+              style="background: #dc2626; color: white; border: none; padding: 0.5rem 1rem; border-radius: 0.375rem;"
+            >
+              <i class="bi bi-flag-fill"></i> Report Issue
+            </button>
+          </div>
+        </div>
+
+        <!-- Quick Links -->
+        <div class="col-lg-2 col-md-6 mb-4">
+          <h6 class="text-uppercase mb-3" style="font-weight: 600;">Quick Links</h6>
+          <ul class="list-unstyled">
+            <li class="mb-2"><a href="{% url 'jobs:job_list' %}" style="color: #cbd5e1; text-decoration: none;"><i class="bi bi-chevron-right"></i> Browse Jobs</a></li>
+            <li class="mb-2"><a href="{% url 'services:servicepost_list' %}" style="color: #cbd5e1; text-decoration: none;"><i class="bi bi-chevron-right"></i> Find Services</a></li>
+            <li class="mb-2"><a href="{% url 'jobs:job_create' %}" style="color: #cbd5e1; text-decoration: none;"><i class="bi bi-chevron-right"></i> Post a Job</a></li>
+            <li class="mb-2"><a href="{% url 'services:servicepost_create' %}" style="color: #cbd5e1; text-decoration: none;"><i class="bi bi-chevron-right"></i> Offer Service</a></li>
+          </ul>
+        </div>
+
+        <!-- Support -->
+        <div class="col-lg-3 col-md-6 mb-4">
+          <h6 class="text-uppercase mb-3" style="font-weight: 600;">Support</h6>
+          <ul class="list-unstyled">
+            <li class="mb-2"><a href="#" style="color: #cbd5e1; text-decoration: none;"><i class="bi bi-question-circle"></i> Help Center</a></li>
+            <li class="mb-2"><a href="#" style="color: #cbd5e1; text-decoration: none;"><i class="bi bi-shield-check"></i> Safety Tips</a></li>
+            <li class="mb-2"><a href="#" style="color: #cbd5e1; text-decoration: none;"><i class="bi bi-file-text"></i> Terms of Service</a></li>
+            <li class="mb-2"><a href="#" style="color: #cbd5e1; text-decoration: none;"><i class="bi bi-lock"></i> Privacy Policy</a></li>
+          </ul>
+        </div>
+
+        <!-- Contact -->
+        <div class="col-lg-3 col-md-6 mb-4">
+          <h6 class="text-uppercase mb-3" style="font-weight: 600;">Contact Us</h6>
+          <ul class="list-unstyled" style="color: #cbd5e1;">
+            <li class="mb-2"><i class="bi bi-envelope"></i> support@trabaholink.ph</li>
+            <li class="mb-2"><i class="bi bi-telephone"></i> +63 (2) 1234-5678</li>
+            <li class="mb-2"><i class="bi bi-geo-alt"></i> Bacoor, Philippines</li>
+          </ul>
+          <div class="mt-3">
+            <a href="#" class="text-white me-3" style="font-size: 1.5rem;"><i class="bi bi-facebook"></i></a>
+            <a href="#" class="text-white me-3" style="font-size: 1.5rem;"><i class="bi bi-twitter"></i></a>
+            <a href="#" class="text-white" style="font-size: 1.5rem;"><i class="bi bi-instagram"></i></a>
+          </div>
+        </div>
+      </div>
+
+      <hr style="border-color: #475569; margin: 2rem 0;">
+
+      <div class="row">
+        <div class="col-md-6 text-center text-md-start">
+          <p class="mb-0" style="color: #94a3b8;">&copy; {{ current_year }} TrabahoLink. All rights reserved.</p>
+        </div>
+        <div class="col-md-6 text-center text-md-end">
+          <p class="mb-0" style="color: #94a3b8;">Made with <i class="bi bi-heart-fill" style="color: #dc2626;"></i> in the Philippines</p>
+        </div>
+      </div>
     </div>
   </footer>
 
   <!-- Report Modal -->
-  <div
-    class="modal fade"
-    id="reportModal"
-    tabindex="-1"
-    aria-labelledby="reportModalLabel"
-    aria-hidden="true"
-  >
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header bg-danger text-white">
-          <h5 class="modal-title" id="reportModalLabel">
-            Report Suspicious Activity
-          </h5>
-          <button
-            type="button"
-            class="btn-close"
-            data-bs-dismiss="modal"
-            aria-label="Close"
-          ></button>
+  <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+      <div class="modal-content" style="border: none; border-radius: 1rem; overflow: hidden;">
+        <div class="modal-header" style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; padding: 1.5rem; border: none;">
+          <div>
+            <h5 class="modal-title" id="reportModalLabel" style="font-size: 1.5rem; font-weight: 600; margin: 0;">
+              <i class="bi bi-flag-fill"></i> Report an Issue
+            </h5>
+            <p style="margin: 0.5rem 0 0 0; font-size: 0.875rem; opacity: 0.9;">Help us keep TrabahoLink safe and trustworthy</p>
+          </div>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body">
-          <form
-            id="reportForm"
-            method="POST"
-            action="{% url 'admin_dashboard:submit_report' %}"
-            enctype="multipart/form-data"
-          >
+        <div class="modal-body" style="padding: 2rem;">
+          <form id="reportForm" method="POST" action="{% url 'admin_dashboard:submit_report' %}" enctype="multipart/form-data" onsubmit="return submitReportForm(event)">
             {% csrf_token %}
-            <div class="mb-3">
-              <label for="reportType" class="form-label">Report Type:</label>
-              <select
-                id="reportType"
-                class="form-select"
-                name="report_type"
-                required
-              >
-                <option value="user">User</option>
-                <option value="job_posting">Job Posting</option>
-                <option value="chat_message">Chat Message</option>
-                <option value="other">Other</option>
+            
+            <!-- Report Type -->
+            <div class="mb-4">
+              <label for="reportType" class="form-label" style="font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">
+                <i class="bi bi-card-list"></i> What are you reporting?
+              </label>
+              <select id="reportType" class="form-select" name="report_type" required style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 0.5rem; font-size: 1rem;">
+                <option value="">Select report type...</option>
+                <option value="user">👤 Suspicious User</option>
+                <option value="job_posting">💼 Fraudulent Job Posting</option>
+                <option value="service_posting">🔧 Fraudulent Service Posting</option>
+                <option value="chat_message">💬 Inappropriate Chat Message</option>
+                <option value="scam">⚠️ Scam or Fraud</option>
+                <option value="other">📝 Other Issue</option>
               </select>
             </div>
-            <div class="mb-3" id="entityField">
-              <label for="username" class="form-label"
-                >Username (if applicable):</label
-              >
-              <input
-                type="text"
-                id="username"
-                name="username"
-                class="form-control"
-                placeholder="Enter Username"
-              />
+
+            <!-- Entity Field -->
+            <div class="mb-4" id="entityField">
+              <label for="username" class="form-label" style="font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">
+                <i class="bi bi-person"></i> Username or ID (if applicable)
+              </label>
+              <input type="text" id="username" name="username" class="form-control" placeholder="Enter username, job ID, or service ID" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 0.5rem; font-size: 1rem;" />
+              <small class="text-muted">Optional - helps us investigate faster</small>
             </div>
-            <div class="mb-3">
-              <label for="reportContent" class="form-label"
-                >Describe the issue:</label
-              >
-              <textarea
-                id="reportContent"
-                name="content"
-                class="form-control"
-                rows="4"
-                placeholder="Provide details about the suspicious activity..."
-                required
-              ></textarea>
+
+            <!-- Description -->
+            <div class="mb-4">
+              <label for="reportContent" class="form-label" style="font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">
+                <i class="bi bi-chat-left-text"></i> Describe the issue <span style="color: #dc2626;">*</span>
+              </label>
+              <textarea id="reportContent" name="content" class="form-control" rows="5" placeholder="Please provide detailed information about the issue you're reporting. Include dates, times, and any relevant context..." required style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 0.5rem; font-size: 1rem; resize: vertical;"></textarea>
+              <small class="text-muted">Be as specific as possible to help us investigate</small>
             </div>
-            <div class="mb-3">
-              <label for="screenshot" class="form-label"
-                >Upload Screenshot (optional):</label
-              >
-              <input
-                type="file"
-                id="screenshot"
-                name="screenshot"
-                class="form-control"
-                accept="image/*"
-              />
+
+            <!-- Screenshot Upload -->
+            <div class="mb-4">
+              <label for="screenshot" class="form-label" style="font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">
+                <i class="bi bi-image"></i> Upload Evidence (optional)
+              </label>
+              <input type="file" id="screenshot" name="screenshot" class="form-control" accept="image/*" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 0.5rem; font-size: 1rem;" />
+              <small class="text-muted">Screenshots or photos that support your report</small>
             </div>
-            <div class="text-end">
-              <button
-                type="button"
-                class="btn btn-secondary"
-                data-bs-dismiss="modal"
-              >
-                Cancel
+
+            <!-- Privacy Notice -->
+            <div class="alert" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1.5rem;">
+              <div style="display: flex; gap: 0.75rem;">
+                <i class="bi bi-shield-check" style="color: #3b82f6; font-size: 1.5rem;"></i>
+                <div>
+                  <strong style="color: #1e293b;">Your report is confidential</strong>
+                  <p style="margin: 0.25rem 0 0 0; color: #64748b; font-size: 0.875rem;">
+                    We take all reports seriously and will investigate promptly. Your identity will be protected throughout the process.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="d-flex gap-2 justify-content-end">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 500;">
+                <i class="bi bi-x-circle"></i> Cancel
               </button>
-              <button type="submit" class="btn btn-danger">Submit Report</button>
+              <button type="submit" class="btn" style="background: #dc2626; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 500; border: none;">
+                <i class="bi bi-send-fill"></i> Submit Report
+              </button>
             </div>
           </form>
         </div>
@@ -263,40 +1056,299 @@
   <!-- Your custom script -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
   <script>
-    document.addEventListener("DOMContentLoaded", function () {
-      const navbarToggler = document.querySelector(".tl-navbar-toggler");
-      const navbarCollapse = document.querySelector(".tl-navbar-collapse");
-      const togglerIcon = document.querySelector(".tl-toggler-icon");
-
-      if (navbarToggler && navbarCollapse && togglerIcon) {
-        navbarToggler.addEventListener("click", function () {
-          navbarCollapse.classList.toggle("show");
-
-          if (navbarCollapse.classList.contains("show")) {
-            togglerIcon.classList.remove("bi-list");
-            togglerIcon.classList.add("bi-x");
+    // ===== SIMPLE HAMBURGER MENU =====
+    document.addEventListener('DOMContentLoaded', function() {
+      const toggler = document.getElementById('navbarToggler');
+      const nav = document.getElementById('navbarNav');
+      
+      if (toggler && nav) {
+        toggler.addEventListener('click', function(e) {
+          e.stopPropagation();
+          nav.classList.toggle('show');
+          
+          // Change icon
+          const icon = toggler.querySelector('.tl-toggler-icon');
+          if (nav.classList.contains('show')) {
+            icon.classList.remove('bi-list');
+            icon.classList.add('bi-x');
           } else {
-            togglerIcon.classList.remove("bi-x");
-            togglerIcon.classList.add("bi-list");
+            icon.classList.remove('bi-x');
+            icon.classList.add('bi-list');
+          }
+        });
+        
+        // Close when clicking outside
+        document.addEventListener('click', function(e) {
+          if (!nav.contains(e.target) && !toggler.contains(e.target)) {
+            nav.classList.remove('show');
+            const icon = toggler.querySelector('.tl-toggler-icon');
+            icon.classList.remove('bi-x');
+            icon.classList.add('bi-list');
           }
         });
       }
-
-      // Ensure toggler visibility based on screen size
-      const updateTogglerVisibility = () => {
-        if (window.innerWidth >= 992) {
-          navbarToggler.style.display = "none";
-        } else {
-          navbarToggler.style.display = "block";
+    });
+  </script>
+  
+  <script>
+    // Notification Dropdown
+    document.addEventListener("DOMContentLoaded", function() {
+      const notificationBellBtn = document.getElementById("notificationBellBtn");
+      const notificationDropdown = document.getElementById("notificationDropdown");
+      const notificationOverlay = document.getElementById("notificationOverlay");
+      const notificationBody = document.getElementById("notificationDropdownBody");
+      
+      if (notificationBellBtn && notificationDropdown && notificationOverlay) {
+        // Toggle notification panel
+        notificationBellBtn.addEventListener("click", function(e) {
+          e.stopPropagation();
+          const isOpen = notificationDropdown.classList.contains("show");
+          
+          if (isOpen) {
+            closeNotificationPanel();
+          } else {
+            openNotificationPanel();
+          }
+        });
+        
+        // Close when clicking overlay
+        notificationOverlay.addEventListener("click", closeNotificationPanel);
+        
+        // Load notifications when opening
+        function openNotificationPanel() {
+          notificationDropdown.classList.add("show");
+          notificationOverlay.classList.add("show");
+          loadNotifications();
         }
-      };
-
-      updateTogglerVisibility();
-      window.addEventListener("resize", updateTogglerVisibility);
+        
+        function closeNotificationPanel() {
+          notificationDropdown.classList.remove("show");
+          notificationOverlay.classList.remove("show");
+        }
+        
+        // Load notifications via AJAX
+        function loadNotifications() {
+          fetch('/notifications/api/recent/')
+            .then(response => response.json())
+            .then(data => {
+              renderNotifications(data.notifications);
+            })
+            .catch(error => {
+              notificationBody.innerHTML = `
+                <div class="empty-notifications">
+                  <i class="bi bi-exclamation-triangle"></i>
+                  <p>Failed to load notifications</p>
+                </div>
+              `;
+            });
+        }
+        
+        // Render notifications
+        function renderNotifications(notifications) {
+          if (!notifications || notifications.length === 0) {
+            notificationBody.innerHTML = `
+              <div class="empty-notifications">
+                <i class="bi bi-bell-slash"></i>
+                <p>No notifications yet</p>
+              </div>
+            `;
+            return;
+          }
+          
+          let html = '';
+          notifications.forEach(notif => {
+            const iconClass = getNotificationIcon(notif.notif_type);
+            const iconType = getNotificationType(notif.notif_type);
+            const timeAgo = getTimeAgo(notif.created_at);
+            const unreadClass = notif.is_read ? '' : 'unread';
+            const unreadDot = notif.is_read ? '' : '<div class="notification-unread-dot"></div>';
+            
+            html += `
+              <a href="${notif.target_url}?notification_id=${notif.id}" class="notification-item-dropdown ${unreadClass}" data-notification-id="${notif.id}">
+                <div class="notification-icon-wrapper ${iconType}">
+                  <i class="${iconClass}"></i>
+                </div>
+                <div class="notification-content-wrapper">
+                  <div class="notification-message-text">${escapeHtml(notif.message)}</div>
+                  <div class="notification-time-text">${timeAgo}</div>
+                </div>
+                ${unreadDot}
+              </a>
+            `;
+          });
+          
+          notificationBody.innerHTML = html;
+          
+          // Add click handlers to mark as read
+          document.querySelectorAll('.notification-item-dropdown').forEach(item => {
+            item.addEventListener('click', function(e) {
+              const notifId = this.getAttribute('data-notification-id');
+              markNotificationAsRead(notifId);
+            });
+          });
+        }
+        
+        // Get notification icon
+        function getNotificationIcon(type) {
+          const icons = {
+            'job_post': 'bi bi-briefcase-fill',
+            'announcement': 'bi bi-megaphone-fill',
+            'message': 'bi bi-chat-dots-fill',
+            'application': 'bi bi-file-earmark-text-fill',
+            'contract': 'bi bi-file-earmark-check-fill',
+            'progress_log': 'bi bi-graph-up',
+            'contract_update': 'bi bi-file-earmark-arrow-up',
+            'job_application_update': 'bi bi-arrow-repeat',
+            'job_application_hire': 'bi bi-check-circle-fill',
+            'job_application_deny': 'bi bi-x-circle-fill',
+            'contract_draft_update': 'bi bi-pencil-square',
+            'contract_cancel': 'bi bi-x-octagon',
+            'contract_accept': 'bi bi-hand-thumbs-up-fill',
+            'contract_finalize': 'bi bi-check2-all'
+          };
+          return icons[type] || 'bi bi-bell-fill';
+        }
+        
+        // Get notification type for styling
+        function getNotificationType(type) {
+          if (type.includes('job')) return 'job';
+          if (type.includes('message')) return 'message';
+          if (type.includes('announcement')) return 'announcement';
+          if (type.includes('application')) return 'application';
+          if (type.includes('contract')) return 'contract';
+          return 'job';
+        }
+        
+        // Get time ago
+        function getTimeAgo(dateString) {
+          const date = new Date(dateString);
+          const now = new Date();
+          const seconds = Math.floor((now - date) / 1000);
+          
+          if (seconds < 60) return 'Just now';
+          if (seconds < 3600) return Math.floor(seconds / 60) + ' minutes ago';
+          if (seconds < 86400) return Math.floor(seconds / 3600) + ' hours ago';
+          if (seconds < 604800) return Math.floor(seconds / 86400) + ' days ago';
+          return date.toLocaleDateString();
+        }
+        
+        // Escape HTML
+        function escapeHtml(text) {
+          const div = document.createElement('div');
+          div.textContent = text;
+          return div.innerHTML;
+        }
+        
+        // Mark notification as read
+        function markNotificationAsRead(notifId) {
+          fetch(`/notifications/mark-as-read/${notifId}/`, {
+            method: 'POST',
+            headers: {
+              'X-CSRFToken': '{{ csrf_token }}',
+              'Content-Type': 'application/json'
+            }
+          });
+        }
+        
+        // Mark all as read
+        const markAllReadBtn = document.getElementById("markAllReadBtn");
+        if (markAllReadBtn) {
+          markAllReadBtn.addEventListener("click", function(e) {
+            e.preventDefault();
+            fetch('/notifications/mark-all-read/', {
+              method: 'POST',
+              headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+              }
+            })
+            .then(response => response.json())
+            .then(data => {
+              if (data.status === 'success') {
+                loadNotifications();
+                // Update badge
+                const badge = document.querySelector('.notification-badge-number');
+                if (badge) badge.remove();
+              }
+            });
+          });
+        }
+      }
     });
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="{% static 'js/base.js' %}"></script>
   {% block js %}{% endblock %}
+  
+  <script>
+    function confirmLogout() {
+      if (confirm('Are you sure you want to log out?')) {
+        document.getElementById('logoutForm').submit();
+      }
+    }
+  </script>
+  
+  <!-- Report Form Handling -->
+  <script>
+    function submitReportForm(event) {
+      event.preventDefault();
+      
+      const form = event.target;
+      const formData = new FormData(form);
+      const submitBtn = form.querySelector('button[type="submit"]');
+      const originalBtnText = submitBtn.innerHTML;
+      
+      // Disable submit button and show loading state
+      submitBtn.disabled = true;
+      submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Submitting...';
+      
+      // Submit form via AJAX
+      fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'X-Requested-With': 'XMLHttpRequest',
+          'X-CSRFToken': document.querySelector('[name=csrfmiddlewaretoken]').value
+        },
+        credentials: 'same-origin'
+      })
+      .then(response => response.json())
+      .then(data => {
+        if (data.success) {
+          // Show success message
+          alert('Report submitted successfully!');
+          // Close the modal
+          const modal = bootstrap.Modal.getInstance(document.getElementById('reportModal'));
+          if (modal) {
+            modal.hide();
+          }
+          // Reset the form
+          form.reset();
+        } else {
+          // Show error message
+          alert(data.message || 'An error occurred. Please try again.');
+        }
+      })
+      .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while submitting the report. Please try again.');
+      })
+      .finally(() => {
+        // Re-enable submit button
+        submitBtn.disabled = false;
+        submitBtn.innerHTML = originalBtnText;
+      });
+      
+      return false;
+    }
+    
+    // Reset form when modal is hidden
+    document.getElementById('reportModal').addEventListener('hidden.bs.modal', function () {
+      const form = document.getElementById('reportForm');
+      if (form) {
+        form.reset();
+      }
+    });
+  </script>
 </body>
 </html>

@@ -1,0 +1,392 @@
+{% extends 'admin_dashboard/dashboard_base.html' %}
+
+{% block title %}Report Management{% endblock %}
+{% block page_title %}Report Center{% endblock %}
+
+{% block breadcrumb_items %}
+<li><i data-lucide="chevron-right" class="w-4 h-4 inline"></i></li>
+<li class="text-gray-800">Reports</li>
+{% endblock %}
+
+{% block content %}
+<!-- Stats Overview -->
+<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm mb-1">Pending</p>
+                <h3 class="text-2xl font-bold text-yellow-600">{{ pending_count }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
+                <i data-lucide="clock" class="w-6 h-6 text-yellow-600"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-blue-500">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm mb-1">Under Review</p>
+                <h3 class="text-2xl font-bold text-blue-600">{{ reviewed_count }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
+                <i data-lucide="eye" class="w-6 h-6 text-blue-600"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm mb-1">Resolved</p>
+                <h3 class="text-2xl font-bold text-green-600">{{ resolved_count }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                <i data-lucide="check-circle" class="w-6 h-6 text-green-600"></i>
+            </div>
+        </div>
+    </div>
+    
+    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-red-500">
+        <div class="flex items-center justify-between">
+            <div>
+                <p class="text-gray-500 text-sm mb-1">Total Reports</p>
+                <h3 class="text-2xl font-bold text-gray-800">{{ reports.count }}</h3>
+            </div>
+            <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
+                <i data-lucide="flag" class="w-6 h-6 text-red-600"></i>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Filters -->
+<div class="bg-white rounded-xl shadow-md p-6 mb-6">
+    <div class="flex flex-col md:flex-row md:items-center gap-4">
+        <div class="flex-1">
+            <div class="relative">
+                <i data-lucide="search" class="absolute left-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400"></i>
+                <input type="text" id="reportSearch" placeholder="Search reports..." 
+                       class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+            </div>
+        </div>
+        
+        <select id="typeFilter" class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+            <option value="">All Types</option>
+            <option value="user">User Reports</option>
+            <option value="job_posting">Job Posting</option>
+            <option value="chat_message">Chat Message</option>
+            <option value="other">Other</option>
+        </select>
+        
+        <select id="statusFilterReport" class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+            <option value="">All Status</option>
+            <option value="pending">Pending</option>
+            <option value="reviewed">Reviewed</option>
+            <option value="resolved">Resolved</option>
+        </select>
+    </div>
+</div>
+
+<!-- Reports List -->
+<div class="bg-white rounded-xl shadow-md overflow-hidden">
+    <div class="p-6 border-b border-gray-200">
+        <h3 class="text-lg font-bold text-gray-800">All Reports</h3>
+    </div>
+    
+    <div class="divide-y divide-gray-200" id="reportsList">
+        {% for report in reports %}
+        <div class="p-6 hover:bg-gray-50 transition report-item" 
+             data-type="{{ report.report_type }}" 
+             data-status="{{ report.status }}"
+             data-content="{{ report.reported_content|lower }}">
+            <div class="flex items-start gap-4">
+                <!-- Icon -->
+                <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center flex-shrink-0">
+                    <i data-lucide="{% if report.report_type == 'user' %}user-x{% elif report.report_type == 'job_posting' %}briefcase{% elif report.report_type == 'chat_message' %}message-square{% else %}flag{% endif %}" 
+                       class="w-6 h-6 text-red-600"></i>
+                </div>
+                
+                <!-- Content -->
+                <div class="flex-1 min-w-0">
+                    <div class="flex items-start justify-between mb-2">
+                        <div>
+                            <h4 class="text-base font-semibold text-gray-800">{{ report.get_report_type_display }} Report</h4>
+                            <p class="text-sm text-gray-500">
+                                Reported by <span class="font-medium text-gray-700">{{ report.user.username }}</span>
+                                • {{ report.created_at|timesince }} ago
+                            </p>
+                        </div>
+                        <span class="px-3 py-1 text-xs font-semibold rounded-full
+                            {% if report.status == 'pending' %}bg-yellow-100 text-yellow-800
+                            {% elif report.status == 'reviewed' %}bg-blue-100 text-blue-800
+                            {% else %}bg-green-100 text-green-800{% endif %}">
+                            {{ report.get_status_display }}
+                        </span>
+                    </div>
+                    
+                    <p class="text-sm text-gray-700 mb-3 line-clamp-2">{{ report.reported_content }}</p>
+                    
+                    {% if report.reported_user %}
+                    <div class="flex items-center gap-2 mb-3">
+                        <span class="text-xs text-gray-500">Reported User:</span>
+                        <a href="{% url 'admin_dashboard:user_detail' report.reported_user.pk %}" 
+                           class="text-xs font-medium text-trabaholink-blue hover:text-trabaholink-dark-blue">
+                            {{ report.reported_user.username }}
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    {% if report.screenshot %}
+                    <div class="mb-3">
+                        <a href="{{ report.screenshot.url }}" target="_blank" 
+                           class="inline-flex items-center gap-2 text-sm text-trabaholink-blue hover:text-trabaholink-dark-blue">
+                            <i data-lucide="image" class="w-4 h-4"></i>
+                            View Screenshot
+                        </a>
+                    </div>
+                    {% endif %}
+                    
+                    <!-- Actions -->
+                    <div class="flex items-center gap-2">
+                        <a href="{% url 'admin_dashboard:report_detail' report.pk %}" 
+                           class="inline-flex items-center gap-2 px-3 py-1.5 bg-trabaholink-blue text-white text-sm rounded-lg hover:bg-trabaholink-dark-blue transition">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                            View Details
+                        </a>
+                        
+                        {% if report.status == 'pending' %}
+                        <button onclick="updateReportStatus({{ report.pk }}, 'reviewed')" 
+                                class="inline-flex items-center gap-2 px-3 py-1.5 bg-blue-500 text-white text-sm rounded-lg hover:bg-blue-600 transition">
+                            <i data-lucide="eye" class="w-4 h-4"></i>
+                            Mark as Reviewed
+                        </button>
+                        {% endif %}
+                        
+                        {% if report.status != 'resolved' %}
+                        <button onclick="updateReportStatus({{ report.pk }}, 'resolved')" 
+                                class="inline-flex items-center gap-2 px-3 py-1.5 bg-green-500 text-white text-sm rounded-lg hover:bg-green-600 transition">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i>
+                            Mark as Resolved
+                        </button>
+                        {% endif %}
+                        
+                        {% if report.reported_user %}
+                        <button onclick="openActionModal({{ report.reported_user.pk }}, '{{ report.reported_user.username }}')" 
+                                class="inline-flex items-center gap-2 px-3 py-1.5 bg-yellow-500 text-white text-sm rounded-lg hover:bg-yellow-600 transition">
+                            <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                            Take Action
+                        </button>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="p-12 text-center text-gray-500">
+            <i data-lucide="inbox" class="w-16 h-16 mx-auto mb-4 text-gray-300"></i>
+            <p class="text-lg font-medium">No reports found</p>
+            <p class="text-sm">All reports will appear here</p>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+<!-- Action Modal -->
+<div id="actionModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-bold text-gray-800">Take Action</h3>
+                <button onclick="closeActionModal()" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-6">
+            <p class="text-sm text-gray-600 mb-4">Take action against <span id="actionUsername" class="font-semibold"></span></p>
+            
+            <div class="space-y-3">
+                <button onclick="sendWarningToUser()" class="w-full flex items-center gap-3 p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                    <i data-lucide="alert-triangle" class="w-5 h-5 text-yellow-500"></i>
+                    <div class="text-left">
+                        <p class="text-sm font-semibold text-gray-800">Send Warning</p>
+                        <p class="text-xs text-gray-500">Notify user about violation</p>
+                    </div>
+                </button>
+                
+                <button onclick="suspendUser()" class="w-full flex items-center gap-3 p-3 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
+                    <i data-lucide="user-x" class="w-5 h-5 text-red-500"></i>
+                    <div class="text-left">
+                        <p class="text-sm font-semibold text-gray-800">Suspend User</p>
+                        <p class="text-xs text-gray-500">Temporarily disable account</p>
+                    </div>
+                </button>
+                
+                <button onclick="banUser()" class="w-full flex items-center gap-3 p-3 border border-red-300 bg-red-50 rounded-lg hover:bg-red-100 transition">
+                    <i data-lucide="ban" class="w-5 h-5 text-red-600"></i>
+                    <div class="text-left">
+                        <p class="text-sm font-semibold text-red-800">Ban User</p>
+                        <p class="text-xs text-red-600">Permanently disable account</p>
+                    </div>
+                </button>
+            </div>
+        </div>
+        <div class="p-6 border-t border-gray-200 flex justify-end">
+            <button onclick="closeActionModal()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let currentActionUserId = null;
+    
+    // Search functionality
+    document.getElementById('reportSearch').addEventListener('input', function(e) {
+        const searchTerm = e.target.value.toLowerCase();
+        const reports = document.querySelectorAll('.report-item');
+        
+        reports.forEach(report => {
+            const content = report.dataset.content;
+            if (content.includes(searchTerm)) {
+                report.style.display = '';
+            } else {
+                report.style.display = 'none';
+            }
+        });
+    });
+    
+    // Filter functionality
+    document.getElementById('typeFilter').addEventListener('change', filterReports);
+    document.getElementById('statusFilterReport').addEventListener('change', filterReports);
+    
+    function filterReports() {
+        const typeFilter = document.getElementById('typeFilter').value;
+        const statusFilter = document.getElementById('statusFilterReport').value;
+        const reports = document.querySelectorAll('.report-item');
+        
+        reports.forEach(report => {
+            const type = report.dataset.type;
+            const status = report.dataset.status;
+            
+            let showReport = true;
+            
+            if (typeFilter && type !== typeFilter) showReport = false;
+            if (statusFilter && status !== statusFilter) showReport = false;
+            
+            report.style.display = showReport ? '' : 'none';
+        });
+    }
+    
+    // Update report status
+    function updateReportStatus(reportId, newStatus) {
+        fetch('/admin_dashboard/update-report-status/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': '{{ csrf_token }}',
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                report_id: reportId,
+                status: newStatus
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload();
+            } else {
+                alert('Failed to update report status');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('An error occurred');
+        });
+    }
+    
+    // Action modal
+    function openActionModal(userId, username) {
+        currentActionUserId = userId;
+        document.getElementById('actionUsername').textContent = username;
+        document.getElementById('actionModal').classList.remove('hidden');
+        lucide.createIcons();
+    }
+    
+    function closeActionModal() {
+        document.getElementById('actionModal').classList.add('hidden');
+        currentActionUserId = null;
+    }
+    
+    function sendWarningToUser() {
+        const message = prompt('Enter warning message:');
+        if (message) {
+            fetch(`/admin_dashboard/users/${currentActionUserId}/send-warning/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}',
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ message: message })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Warning sent successfully');
+                    closeActionModal();
+                } else {
+                    alert('Failed to send warning');
+                }
+            });
+        }
+    }
+    
+    function suspendUser() {
+        if (confirm('Are you sure you want to suspend this user?')) {
+            fetch(`/admin_dashboard/users/${currentActionUserId}/suspend/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('User suspended successfully');
+                    closeActionModal();
+                    location.reload();
+                } else {
+                    alert('Failed to suspend user');
+                }
+            });
+        }
+    }
+    
+    function banUser() {
+        if (confirm('Are you sure you want to permanently ban this user? This action cannot be undone.')) {
+            fetch(`/admin_dashboard/users/${currentActionUserId}/ban/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('User banned successfully');
+                    closeActionModal();
+                    location.reload();
+                } else {
+                    alert('Failed to ban user');
+                }
+            });
+        }
+    }
+    
+    // Initialize Lucide icons
+    lucide.createIcons();
+</script>
+{% endblock %}

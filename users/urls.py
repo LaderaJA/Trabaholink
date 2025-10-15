@@ -1,7 +1,10 @@
 from users.views import (
     RegisterView, UserLoginView, UserLogoutView, UserProfileDetailView,
     UserProfileUpdateView, UserProfileDeleteView, ChangePasswordView,
-    PrivacySettingsView, SkillVerificationView
+    PrivacySettingsView, SkillVerificationView, search_users,
+    VerificationStartView, VerificationStep1View, VerificationStep2View,
+    VerificationStep3View, VerificationStep4View, VerificationPendingView,
+    VerificationSuccessView, VerificationFailedView
 )
 from . import views
 from django.urls import path
@@ -39,4 +42,17 @@ urlpatterns = [
     # Identity Verification Views
     path('verify-identity/<int:pk>', IdentityVerificationView.as_view(), name='identity_verification'),
     path('verify-identity/skip/', SkipIdentityVerificationView.as_view(), name='skip_identity_verification'),
+    
+    # User Search API
+    path('api/search/', search_users, name='user_search_api'),
+    
+    # eKYC Verification URLs
+    path('verification/start/', VerificationStartView.as_view(), name='ekyc_start'),
+    path('verification/step1/', VerificationStep1View.as_view(), name='ekyc_step1'),
+    path('verification/step2/', VerificationStep2View.as_view(), name='ekyc_step2'),
+    path('verification/step3/', VerificationStep3View.as_view(), name='ekyc_step3'),
+    path('verification/step4/', VerificationStep4View.as_view(), name='ekyc_step4'),
+    path('verification/pending/', VerificationPendingView.as_view(), name='ekyc_pending'),
+    path('verification/success/', VerificationSuccessView.as_view(), name='ekyc_success'),
+    path('verification/failed/', VerificationFailedView.as_view(), name='ekyc_failed'),
 ]

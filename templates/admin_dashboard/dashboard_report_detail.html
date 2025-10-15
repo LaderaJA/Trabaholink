@@ -1,0 +1,551 @@
+{% extends 'admin_dashboard/dashboard_base.html' %}
+
+{% block title %}Report Details #{{ report.pk }}{% endblock %}
+{% block page_title %}Report Details{% endblock %}
+
+{% block breadcrumb_items %}
+<li><i data-lucide="chevron-right" class="w-4 h-4 inline"></i></li>
+<li><a href="{% url 'admin_dashboard:report_list' %}" class="hover:text-trabaholink-blue">Reports</a></li>
+<li><i data-lucide="chevron-right" class="w-4 h-4 inline"></i></li>
+<li class="text-gray-800">Report #{{ report.pk }}</li>
+{% endblock %}
+
+{% block content %}
+<!-- Report Header -->
+<div class="bg-white rounded-xl shadow-md p-6 mb-6">
+    <div class="flex items-start justify-between">
+        <div class="flex-1">
+            <div class="flex items-center gap-3 mb-3">
+                <h1 class="text-2xl font-bold text-gray-900">{{ report.get_report_type_display }} Report</h1>
+                <span id="statusBadge" class="px-3 py-1 text-sm font-semibold rounded-full
+                    {% if report.status == 'pending' %}bg-yellow-100 text-yellow-800
+                    {% elif report.status == 'reviewed' %}bg-blue-100 text-blue-800
+                    {% else %}bg-green-100 text-green-800{% endif %}">
+                    {{ report.get_status_display }}
+                </span>
+            </div>
+            
+            <div class="flex items-center gap-6 text-gray-600 text-sm">
+                <div class="flex items-center gap-2">
+                    <i data-lucide="user" class="w-4 h-4"></i>
+                    <span>Reported by <a href="{% url 'admin_dashboard:user_detail' report.user.pk %}" class="text-trabaholink-blue hover:underline font-medium">{{ report.user.username }}</a></span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i data-lucide="calendar" class="w-4 h-4"></i>
+                    <span>{{ report.created_at|date:"F d, Y g:i A" }}</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <i data-lucide="clock" class="w-4 h-4"></i>
+                    <span>{{ report.created_at|timesince }} ago</span>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Quick Status Update -->
+        <div class="flex items-center gap-2">
+            <select id="quickStatusUpdate" onchange="quickUpdateStatus()" class="px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+                <option value="">Change Status...</option>
+                <option value="pending" {% if report.status == 'pending' %}selected{% endif %}>Pending</option>
+                <option value="reviewed" {% if report.status == 'reviewed' %}selected{% endif %}>Reviewed</option>
+                <option value="resolved" {% if report.status == 'resolved' %}selected{% endif %}>Resolved</option>
+            </select>
+        </div>
+    </div>
+</div>
+
+<!-- Report Content Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    <!-- Main Content -->
+    <div class="lg:col-span-2 space-y-6">
+        <!-- Report Details -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i data-lucide="file-text" class="w-5 h-5 text-trabaholink-blue"></i>
+                Report Content
+            </h3>
+            <div class="prose max-w-none">
+                <p class="text-gray-700 whitespace-pre-wrap">{{ report.reported_content }}</p>
+            </div>
+        </div>
+        
+        <!-- Evidence/Screenshot -->
+        {% if report.screenshot %}
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i data-lucide="image" class="w-5 h-5 text-trabaholink-blue"></i>
+                Evidence
+            </h3>
+            <div class="border border-gray-200 rounded-lg overflow-hidden">
+                <img src="{{ report.screenshot.url }}" alt="Evidence" class="w-full h-auto cursor-pointer hover:opacity-90 transition" onclick="openImageModal('{{ report.screenshot.url }}')">
+            </div>
+            <a href="{{ report.screenshot.url }}" download class="mt-3 inline-flex items-center gap-2 text-trabaholink-blue hover:text-trabaholink-dark-blue text-sm">
+                <i data-lucide="download" class="w-4 h-4"></i>
+                Download Evidence
+            </a>
+        </div>
+        {% endif %}
+        
+        <!-- Reported User/Content -->
+        {% if report.reported_user %}
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i data-lucide="user-x" class="w-5 h-5 text-red-500"></i>
+                Reported User
+            </h3>
+            <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                <div class="flex items-center gap-3">
+                    <div class="w-12 h-12 bg-trabaholink-blue rounded-full flex items-center justify-center text-white font-bold text-lg">
+                        {{ report.reported_user.username.0|upper }}
+                    </div>
+                    <div>
+                        <p class="font-medium text-gray-800">{{ report.reported_user.get_full_name|default:report.reported_user.username }}</p>
+                        <p class="text-sm text-gray-500">@{{ report.reported_user.username }}</p>
+                    </div>
+                </div>
+                <a href="{% url 'admin_dashboard:user_detail' report.reported_user.pk %}" class="px-4 py-2 bg-trabaholink-blue text-white rounded-lg hover:bg-trabaholink-dark-blue transition text-sm">
+                    View Profile
+                </a>
+            </div>
+        </div>
+        {% endif %}
+        
+        {% if report.job_posting %}
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i data-lucide="briefcase" class="w-5 h-5 text-trabaholink-blue"></i>
+                Reported Job Post
+            </h3>
+            <div class="border border-gray-200 rounded-lg p-4">
+                <h4 class="font-semibold text-gray-800 mb-2">{{ report.job_posting.title }}</h4>
+                <p class="text-sm text-gray-600 mb-3">{{ report.job_posting.description|truncatewords:30 }}</p>
+                <a href="/admin/jobs/{{ report.job_posting.pk }}/" class="inline-flex items-center gap-2 text-trabaholink-blue hover:text-trabaholink-dark-blue text-sm">
+                    View Job Details <i data-lucide="arrow-right" class="w-4 h-4"></i>
+                </a>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Admin Notes -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i data-lucide="sticky-note" class="w-5 h-5 text-trabaholink-blue"></i>
+                Admin Notes
+            </h3>
+            <textarea id="adminNotes" rows="4" placeholder="Add internal notes about this report..." 
+                      class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-trabaholink-blue mb-3">{{ report.admin_notes|default:"" }}</textarea>
+            <button onclick="saveAdminNotes()" class="px-4 py-2 bg-trabaholink-blue text-white rounded-lg hover:bg-trabaholink-dark-blue transition">
+                Save Notes
+            </button>
+        </div>
+    </div>
+    
+    <!-- Sidebar - Actions -->
+    <div class="space-y-6">
+        <!-- Report Information -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i data-lucide="info" class="w-5 h-5 text-trabaholink-blue"></i>
+                Report Information
+            </h3>
+            <div class="space-y-3">
+                <div>
+                    <p class="text-sm text-gray-500">Report ID</p>
+                    <p class="text-gray-800 font-medium">#{{ report.pk }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Type</p>
+                    <p class="text-gray-800 font-medium">{{ report.get_report_type_display }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Status</p>
+                    <p class="text-gray-800 font-medium">{{ report.get_status_display }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Submitted</p>
+                    <p class="text-gray-800 font-medium">{{ report.created_at|date:"M d, Y" }}</p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-500">Last Updated</p>
+                    <p class="text-gray-800 font-medium">{{ report.updated_at|timesince }} ago</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Primary Actions -->
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i data-lucide="zap" class="w-5 h-5 text-trabaholink-blue"></i>
+                Actions
+            </h3>
+            <div class="space-y-2">
+                <!-- Mark as Reviewed -->
+                <button onclick="updateReportStatus('reviewed')" 
+                        class="w-full px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition flex items-center justify-center gap-2"
+                        {% if report.status == 'reviewed' %}disabled{% endif %}>
+                    <i data-lucide="eye" class="w-4 h-4"></i>
+                    Mark as Reviewed
+                </button>
+                
+                <!-- Mark as Resolved -->
+                <button onclick="updateReportStatus('resolved')" 
+                        class="w-full px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition flex items-center justify-center gap-2"
+                        {% if report.status == 'resolved' %}disabled{% endif %}>
+                    <i data-lucide="check-circle" class="w-4 h-4"></i>
+                    Mark as Resolved
+                </button>
+                
+                <!-- Dismiss Report -->
+                <button onclick="dismissReport()" 
+                        class="w-full px-4 py-2 bg-gray-500 text-white rounded-lg hover:bg-gray-600 transition flex items-center justify-center gap-2">
+                    <i data-lucide="x-circle" class="w-4 h-4"></i>
+                    Dismiss Report
+                </button>
+            </div>
+        </div>
+        
+        <!-- User Actions (if reported user exists) -->
+        {% if report.reported_user %}
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i data-lucide="shield-alert" class="w-5 h-5 text-red-500"></i>
+                User Actions
+            </h3>
+            <div class="space-y-2">
+                <!-- Send Warning -->
+                <button onclick="openWarningModal()" 
+                        class="w-full px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition flex items-center justify-center gap-2">
+                    <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                    Send Warning
+                </button>
+                
+                <!-- Suspend User -->
+                <button onclick="suspendUser({{ report.reported_user.pk }})" 
+                        class="w-full px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition flex items-center justify-center gap-2">
+                    <i data-lucide="user-x" class="w-4 h-4"></i>
+                    Suspend User
+                </button>
+                
+                <!-- Ban User -->
+                <button onclick="banUser({{ report.reported_user.pk }})" 
+                        class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center justify-center gap-2">
+                    <i data-lucide="ban" class="w-4 h-4"></i>
+                    Ban User
+                </button>
+            </div>
+        </div>
+        {% endif %}
+        
+        <!-- Content Actions (if job posting exists) -->
+        {% if report.job_posting %}
+        <div class="bg-white rounded-xl shadow-md p-6">
+            <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
+                <i data-lucide="trash-2" class="w-5 h-5 text-red-500"></i>
+                Content Actions
+            </h3>
+            <div class="space-y-2">
+                <!-- Delete Content -->
+                <button onclick="deleteReportedContent()" 
+                        class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center justify-center gap-2">
+                    <i data-lucide="trash-2" class="w-4 h-4"></i>
+                    Delete Reported Content
+                </button>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+<!-- Warning Modal -->
+<div id="warningModal" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
+        <div class="p-6 border-b border-gray-200">
+            <div class="flex items-center justify-between">
+                <h3 class="text-lg font-bold text-gray-800">Send Warning</h3>
+                <button onclick="closeWarningModal()" class="text-gray-400 hover:text-gray-600">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+        </div>
+        <div class="p-6">
+            <p class="text-sm text-gray-600 mb-4">Send a warning to <span class="font-semibold">{{ report.reported_user.username }}</span></p>
+            <textarea id="warningMessage" rows="4" placeholder="Enter warning message..." 
+                      class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-trabaholink-blue"></textarea>
+        </div>
+        <div class="p-6 border-t border-gray-200 flex justify-end gap-3">
+            <button onclick="closeWarningModal()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+            <button onclick="sendWarning()" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">Send Warning</button>
+        </div>
+    </div>
+</div>
+
+<!-- Image Modal -->
+<div id="imageModal" class="hidden fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4" onclick="closeImageModal()">
+    <div class="max-w-4xl w-full">
+        <img id="modalImage" src="" alt="Evidence" class="w-full h-auto rounded-lg">
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
+    <div class="bg-white rounded-xl p-6 flex items-center gap-3">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-trabaholink-blue"></div>
+        <span class="text-gray-800 font-medium">Processing...</span>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const reportId = {{ report.pk }};
+    const csrfToken = '{{ csrf_token }}';
+    
+    // Show/hide loading overlay
+    function showLoading() {
+        document.getElementById('loadingOverlay').classList.remove('hidden');
+    }
+    
+    function hideLoading() {
+        document.getElementById('loadingOverlay').classList.add('hidden');
+    }
+    
+    // Update report status
+    function updateReportStatus(newStatus) {
+        showLoading();
+        
+        fetch('/admin_dashboard/update-report-status/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                report_id: reportId,
+                status: newStatus
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            if (data.success) {
+                // Update status badge
+                const badge = document.getElementById('statusBadge');
+                badge.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
+                badge.className = 'px-3 py-1 text-sm font-semibold rounded-full';
+                
+                if (newStatus === 'pending') {
+                    badge.classList.add('bg-yellow-100', 'text-yellow-800');
+                } else if (newStatus === 'reviewed') {
+                    badge.classList.add('bg-blue-100', 'text-blue-800');
+                } else {
+                    badge.classList.add('bg-green-100', 'text-green-800');
+                }
+                
+                // Update select
+                document.getElementById('quickStatusUpdate').value = newStatus;
+                
+                alert('Report status updated successfully');
+            } else {
+                alert('Failed to update report status: ' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            console.error('Error:', error);
+            alert('An error occurred while updating the report status');
+        });
+    }
+    
+    // Quick status update from dropdown
+    function quickUpdateStatus() {
+        const select = document.getElementById('quickStatusUpdate');
+        const newStatus = select.value;
+        
+        if (newStatus) {
+            updateReportStatus(newStatus);
+        }
+    }
+    
+    // Dismiss report
+    function dismissReport() {
+        if (confirm('Are you sure you want to dismiss this report?')) {
+            updateReportStatus('resolved');
+        }
+    }
+    
+    // Send warning
+    function openWarningModal() {
+        document.getElementById('warningModal').classList.remove('hidden');
+        lucide.createIcons();
+    }
+    
+    function closeWarningModal() {
+        document.getElementById('warningModal').classList.add('hidden');
+        document.getElementById('warningMessage').value = '';
+    }
+    
+    function sendWarning() {
+        const message = document.getElementById('warningMessage').value;
+        
+        if (!message.trim()) {
+            alert('Please enter a warning message');
+            return;
+        }
+        
+        showLoading();
+        
+        fetch(`/admin/users/{{ report.reported_user.pk }}/send-warning/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message: message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            if (data.success) {
+                alert('Warning sent successfully');
+                closeWarningModal();
+                updateReportStatus('reviewed');
+            } else {
+                alert('Failed to send warning');
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            console.error('Error:', error);
+            alert('An error occurred');
+        });
+    }
+    
+    // Suspend user
+    function suspendUser(userId) {
+        if (confirm('Are you sure you want to suspend this user?')) {
+            showLoading();
+            
+            fetch(`/admin_dashboard/users/${userId}/suspend/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(data => {
+                hideLoading();
+                if (data.success) {
+                    alert('User suspended successfully');
+                    updateReportStatus('resolved');
+                } else {
+                    alert('Failed to suspend user');
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+        }
+    }
+    
+    // Ban user
+    function banUser(userId) {
+        if (confirm('Are you sure you want to permanently ban this user? This action cannot be undone.')) {
+            showLoading();
+            
+            fetch(`/admin_dashboard/users/${userId}/ban/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                if (data.success) {
+                    alert('User banned successfully');
+                    updateReportStatus('resolved');
+                } else {
+                    alert('Failed to ban user');
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+        }
+    }
+    
+    // Delete reported content
+    function deleteReportedContent() {
+        if (confirm('Are you sure you want to delete the reported content? This action cannot be undone.')) {
+            showLoading();
+            
+            fetch(`/admin_dashboard/reports/{{ report.pk }}/delete-content/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                hideLoading();
+                if (data.success) {
+                    alert('Content deleted successfully');
+                    updateReportStatus('resolved');
+                } else {
+                    alert('Failed to delete content');
+                }
+            })
+            .catch(error => {
+                hideLoading();
+                console.error('Error:', error);
+                alert('An error occurred');
+            });
+        }
+    }
+    
+    // Save admin notes
+    function saveAdminNotes() {
+        const notes = document.getElementById('adminNotes').value;
+        showLoading();
+        
+        fetch(`/admin_dashboard/reports/{{ report.pk }}/save-notes/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrfToken,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ notes: notes })
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideLoading();
+            if (data.success) {
+                alert('Notes saved successfully');
+            } else {
+                alert('Failed to save notes');
+            }
+        })
+        .catch(error => {
+            hideLoading();
+            console.error('Error:', error);
+            alert('An error occurred');
+        });
+    }
+    
+    // Image modal
+    function openImageModal(imageUrl) {
+        document.getElementById('modalImage').src = imageUrl;
+        document.getElementById('imageModal').classList.remove('hidden');
+    }
+    
+    function closeImageModal() {
+        document.getElementById('imageModal').classList.add('hidden');
+    }
+    
+    // Initialize Lucide icons
+    lucide.createIcons();
+</script>
+{% endblock %}

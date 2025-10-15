@@ -1,0 +1,371 @@
+{% extends 'admin_dashboard/dashboard_base.html' %}
+
+{% block title %}Settings{% endblock %}
+{% block page_title %}Platform Settings{% endblock %}
+
+{% block breadcrumb_items %}
+<li><i data-lucide="chevron-right" class="w-4 h-4 inline"></i></li>
+<li class="text-gray-800">Settings</li>
+{% endblock %}
+
+{% block content %}
+<!-- Settings Tabs -->
+<div class="bg-white rounded-xl shadow-md mb-6">
+    <div class="border-b border-gray-200">
+        <nav class="flex -mb-px">
+            <button onclick="switchSettingsTab('general')" 
+                    class="settings-tab-btn px-6 py-4 text-sm font-medium border-b-2 border-trabaholink-blue text-trabaholink-blue"
+                    data-tab="general">
+                <i data-lucide="settings" class="w-4 h-4 inline mr-2"></i>
+                General
+            </button>
+            <button onclick="switchSettingsTab('notifications')" 
+                    class="settings-tab-btn px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700"
+                    data-tab="notifications">
+                <i data-lucide="bell" class="w-4 h-4 inline mr-2"></i>
+                Notifications
+            </button>
+            <button onclick="switchSettingsTab('api')" 
+                    class="settings-tab-btn px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700"
+                    data-tab="api">
+                <i data-lucide="key" class="w-4 h-4 inline mr-2"></i>
+                API Keys
+            </button>
+            <button onclick="switchSettingsTab('maintenance')" 
+                    class="settings-tab-btn px-6 py-4 text-sm font-medium border-b-2 border-transparent text-gray-500 hover:text-gray-700"
+                    data-tab="maintenance">
+                <i data-lucide="wrench" class="w-4 h-4 inline mr-2"></i>
+                Maintenance
+            </button>
+        </nav>
+    </div>
+</div>
+
+<!-- General Settings Tab -->
+<div id="general-tab" class="settings-tab-content">
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-6">Platform Information</h3>
+        
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Platform Name</label>
+                <input type="text" value="Trabaholink" 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Contact Email</label>
+                <input type="email" value="support@trabaholink.com" 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Support Phone</label>
+                <input type="tel" value="+63 XXX XXX XXXX" 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Platform Description</label>
+                <textarea rows="4" 
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">Connecting blue-collar workers and clients in the Philippines</textarea>
+            </div>
+            
+            <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                <button type="button" disabled class="px-6 py-2 bg-gray-400 text-white rounded-lg cursor-not-allowed opacity-60">
+                    Save Changes (Not Implemented)
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Notifications Settings Tab -->
+<div id="notifications-tab" class="settings-tab-content hidden">
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-6">Notification Preferences</h3>
+        
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="space-y-4">
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="font-medium text-gray-800">New Reports</p>
+                        <p class="text-sm text-gray-500">Get notified when new reports are submitted</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" checked class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-trabaholink-blue/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-trabaholink-blue"></div>
+                    </label>
+                </div>
+                
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="font-medium text-gray-800">Flagged Content</p>
+                        <p class="text-sm text-gray-500">Get notified when content is flagged</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" checked class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-trabaholink-blue/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-trabaholink-blue"></div>
+                    </label>
+                </div>
+                
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="font-medium text-gray-800">New User Registrations</p>
+                        <p class="text-sm text-gray-500">Get notified when new users register</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-trabaholink-blue/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-trabaholink-blue"></div>
+                    </label>
+                </div>
+                
+                <div class="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+                    <div>
+                        <p class="font-medium text-gray-800">System Alerts</p>
+                        <p class="text-sm text-gray-500">Get notified about system issues</p>
+                    </div>
+                    <label class="relative inline-flex items-center cursor-pointer">
+                        <input type="checkbox" checked class="sr-only peer">
+                        <div class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-trabaholink-blue/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-trabaholink-blue"></div>
+                    </label>
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                <button type="button" disabled class="px-6 py-2 bg-gray-400 text-white rounded-lg cursor-not-allowed opacity-60">
+                    Save Preferences (Not Implemented)
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- API Keys Tab -->
+<div id="api-tab" class="settings-tab-content hidden">
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-6">API Configuration</h3>
+        
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="p-4 bg-yellow-50 border border-yellow-200 rounded-lg flex items-start gap-3">
+                <i data-lucide="alert-triangle" class="w-5 h-5 text-yellow-600 flex-shrink-0 mt-0.5"></i>
+                <div class="text-sm text-yellow-800">
+                    <p class="font-medium mb-1">Security Warning</p>
+                    <p>Keep your API keys secure. Never share them publicly or commit them to version control.</p>
+                </div>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Nominatim API (Geocoding)</label>
+                <input type="text" placeholder="Enter Nominatim API key..." 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+                <p class="text-xs text-gray-500 mt-1">Used for location services and mapping</p>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Firebase Cloud Messaging (Push Notifications)</label>
+                <input type="text" placeholder="Enter Firebase server key..." 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+                <p class="text-xs text-gray-500 mt-1">Used for push notifications</p>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Email Service API</label>
+                <input type="text" placeholder="Enter email service API key..." 
+                       class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+                <p class="text-xs text-gray-500 mt-1">Used for sending transactional emails</p>
+            </div>
+            
+            <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                <button type="button" disabled class="px-6 py-2 bg-gray-400 text-white rounded-lg cursor-not-allowed opacity-60">
+                    Save API Keys (Not Implemented)
+                </button>
+                <button type="button" disabled class="px-6 py-2 border border-gray-300 rounded-lg cursor-not-allowed opacity-60">
+                    Test Connections (Not Implemented)
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Maintenance Tab -->
+<div id="maintenance-tab" class="settings-tab-content hidden">
+    <div class="bg-white rounded-xl shadow-md p-6 mb-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-6">Maintenance Mode</h3>
+        
+        <div class="p-4 bg-blue-50 border border-blue-200 rounded-lg flex items-start gap-3 mb-6">
+            <i data-lucide="info" class="w-5 h-5 text-blue-600 flex-shrink-0 mt-0.5"></i>
+            <div class="text-sm text-blue-800">
+                <p class="font-medium mb-1">About Maintenance Mode</p>
+                <p>When enabled, the platform will display a maintenance message to all users except administrators.</p>
+            </div>
+        </div>
+        
+        <form method="post" class="space-y-6">
+            {% csrf_token %}
+            
+            <div class="flex items-center justify-between p-6 bg-gray-50 rounded-lg">
+                <div>
+                    <p class="font-medium text-gray-800 text-lg">Maintenance Mode</p>
+                    <p class="text-sm text-gray-500">Enable to take the platform offline for maintenance</p>
+                </div>
+                <label class="relative inline-flex items-center cursor-pointer">
+                    <input type="checkbox" id="maintenanceToggle" class="sr-only peer">
+                    <div class="w-14 h-7 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-trabaholink-blue/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all peer-checked:bg-trabaholink-blue"></div>
+                </label>
+            </div>
+            
+            <div>
+                <label class="block text-sm font-medium text-gray-700 mb-2">Maintenance Message</label>
+                <textarea rows="4" placeholder="Enter message to display during maintenance..." 
+                          class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">We're currently performing scheduled maintenance. We'll be back shortly!</textarea>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Estimated End Time</label>
+                    <input type="datetime-local" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+                </div>
+                
+                <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-2">Contact Email</label>
+                    <input type="email" value="support@trabaholink.com" 
+                           class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
+                </div>
+            </div>
+            
+            <div class="flex items-center justify-between pt-4 border-t border-gray-200">
+                <button type="button" disabled class="px-6 py-2 bg-gray-400 text-white rounded-lg cursor-not-allowed opacity-60">
+                    Save Settings (Not Implemented)
+                </button>
+            </div>
+        </form>
+    </div>
+    
+    <!-- System Actions -->
+    <div class="bg-white rounded-xl shadow-md p-6">
+        <h3 class="text-lg font-bold text-gray-800 mb-6">System Actions</h3>
+        
+        <div class="space-y-4">
+            <div class="flex items-center justify-between p-4 border border-gray-300 rounded-lg">
+                <div>
+                    <p class="font-medium text-gray-800">Clear Cache</p>
+                    <p class="text-sm text-gray-500">Clear all cached data to improve performance</p>
+                </div>
+                <button disabled class="px-4 py-2 bg-gray-400 text-white rounded-lg cursor-not-allowed opacity-60">
+                    Clear Cache (Not Implemented)
+                </button>
+            </div>
+            
+            <div class="flex items-center justify-between p-4 border border-gray-300 rounded-lg">
+                <div>
+                    <p class="font-medium text-gray-800">Database Backup</p>
+                    <p class="text-sm text-gray-500">Create a backup of the database</p>
+                </div>
+                <button disabled class="px-4 py-2 bg-gray-400 text-white rounded-lg cursor-not-allowed opacity-60">
+                    Backup Now (Not Implemented)
+                </button>
+            </div>
+            
+            <div class="flex items-center justify-between p-4 border border-red-300 bg-red-50 rounded-lg">
+                <div>
+                    <p class="font-medium text-red-800">Reset Platform</p>
+                    <p class="text-sm text-red-600">Danger: This will reset all platform data</p>
+                </div>
+                <button disabled class="px-4 py-2 bg-gray-400 text-white rounded-lg cursor-not-allowed opacity-60">
+                    Reset (Not Implemented)
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Tab switching
+    function switchSettingsTab(tabName) {
+        // Hide all tabs
+        document.querySelectorAll('.settings-tab-content').forEach(tab => {
+            tab.classList.add('hidden');
+        });
+        
+        // Remove active state from all buttons
+        document.querySelectorAll('.settings-tab-btn').forEach(btn => {
+            btn.classList.remove('border-trabaholink-blue', 'text-trabaholink-blue');
+            btn.classList.add('border-transparent', 'text-gray-500');
+        });
+        
+        // Show selected tab
+        document.getElementById(tabName + '-tab').classList.remove('hidden');
+        
+        // Add active state to clicked button
+        const activeBtn = document.querySelector(`[data-tab="${tabName}"]`);
+        activeBtn.classList.add('border-trabaholink-blue', 'text-trabaholink-blue');
+        activeBtn.classList.remove('border-transparent', 'text-gray-500');
+        
+        lucide.createIcons();
+    }
+    
+    // System actions
+    function clearCache() {
+        if (confirm('Are you sure you want to clear the cache?')) {
+            fetch('/admin/settings/clear-cache/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Cache cleared successfully');
+                } else {
+                    alert('Failed to clear cache');
+                }
+            });
+        }
+    }
+    
+    function backupDatabase() {
+        if (confirm('Create a database backup?')) {
+            fetch('/admin/settings/backup-database/', {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': '{{ csrf_token }}'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.success) {
+                    alert('Backup created successfully');
+                } else {
+                    alert('Failed to create backup');
+                }
+            });
+        }
+    }
+    
+    function resetPlatform() {
+        const confirmation = prompt('Type "RESET" to confirm platform reset:');
+        if (confirmation === 'RESET') {
+            alert('Platform reset functionality is disabled for safety. Contact system administrator.');
+        }
+    }
+    
+    function testAPIs() {
+        alert('Testing API connections...\n\nThis feature will test all configured API endpoints.');
+    }
+    
+    // Initialize Lucide icons
+    lucide.createIcons();
+</script>
+{% endblock %}

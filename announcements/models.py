@@ -36,8 +36,18 @@ class Announcement(models.Model):
 @receiver(post_save, sender=Announcement)
 def notify_users_about_announcement(sender, instance, created, **kwargs):
     if created:
-        all_users = User.objects.all()
-        for user in all_users:
-            subject = "New Announcement from Trabaholink!"
-            message = f"{instance.title}\n\n{instance.description}"
-            send_notification_email(subject, message, user.email)
+        try:
+            all_users = User.objects.all()
+            for user in all_users:
+                try:
+                    subject = "New Announcement from Trabaholink!"
+                    message = f"{instance.title}\n\n{instance.description}"
+                    send_notification_email(subject, message, user.email)
+                except Exception as e:
+                    # Log the error but don't stop the process
+                    print(f"Failed to send email to {user.email}: {str(e)}")
+                    continue
+        except Exception as e:
+            # If email sending fails completely, just log and continue
+            print(f"Email notification failed: {str(e)}")
+            pass

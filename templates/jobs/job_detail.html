@@ -1,3815 +1,762 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
-{% block title %}Job Details - {{ job.title }}{% endblock %}
-{%block css%}<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">{% endblock %}
 
+{% block title %}{{ job.title }} - TrabahoLink{% endblock %}
 
-
-{% block content %}
+{% block css %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 <style>
-  /* Enhanced CSS Variables */
-  :root {
-    --primary-blue: #2563eb;
-    --primary-blue-dark: #1d4ed8;
-    --primary-blue-light: #3b82f6;
-    --secondary-blue: #1e40af;
-    --accent-yellow: #f59e0b;
-    --accent-yellow-dark: #d97706;
-    --success-green: #10b981;
-    --success-green-dark: #059669;
-    --warning-orange: #f97316;
-    --warning-orange-dark: #ea580c;
-    --danger-red: #ef4444;
-    --danger-red-dark: #dc2626;
-    --text-dark: #111827;
-    --text-medium: #374151;
-    --text-light: #6b7280;
-    --text-white: #ffffff;
-    --background-white: #ffffff;
-    --background-gray: #f9fafb;
-    --background-gray-light: #f3f4f6;
-    --border-color: #e5e7eb;
-    --border-color-light: #f3f4f6;
-    --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-    --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-    --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  }
-
-  /* Global Styles */
-  body {
-    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    background-color: var(--background-gray);
-    color: var(--text-dark);
-    line-height: 1.6;
-  }
-
-  .job-details-container {
-    max-width: 1200px;
-    margin: 0 auto;
-    padding: 2rem 1rem;
-  }
-
-  /* Enhanced Job Card */
-  .job-card {
-    background-color: var(--background-white);
-    border-radius: 16px;
-    box-shadow: var(--shadow-lg);
-    overflow: hidden;
-    margin-bottom: 2rem;
-    transition: all 0.3s ease;
-    border: 1px solid var(--border-color);
-  }
-
-  .job-card:hover {
-    transform: translateY(-4px);
-    box-shadow: var(--shadow-xl);
-  }
-
-  /* Job Header */
-  .job-header {
-    padding: 2rem 2rem 1rem;
-    background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
-    color: var(--text-white);
-    position: relative;
-    overflow: hidden;
-  }
-
-  .job-header::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grain" width="100" height="100" patternUnits="userSpaceOnUse"><circle cx="50" cy="50" r="1" fill="white" opacity="0.1"/></pattern></defs><rect width="100" height="100" fill="url(%23grain)"/></svg>');
-    opacity: 0.1;
-  }
-
-  .job-title {
-    font-size: 2.25rem;
-    font-weight: 700;
-    margin-bottom: 1rem;
-    line-height: 1.2;
-    position: relative;
-    z-index: 1;
-    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  }
-
-  /* Enhanced Image Gallery */
-  .job-image-container {
-    width: 100%;
-    min-height: 400px;
-    background-color: var(--background-gray-light);
-    position: relative;
-  }
-
-  .job-images-gallery {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1rem;
-    padding: 1rem;
-    min-height: 400px;
-  }
-
-  .job-image-item {
-    position: relative;
-    border-radius: 12px;
-    overflow: hidden;
-    background-color: var(--background-white);
-    box-shadow: var(--shadow-md);
-    transition: all 0.3s ease;
-    cursor: pointer;
-    aspect-ratio: 4/3;
-  }
-
-  .job-image-item:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-lg);
-  }
-
-  .job-image {
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    transition: transform 0.3s ease;
-  }
-
-  .job-image-item:hover .job-image {
-    transform: scale(1.05);
-  }
-
-  .image-overlay {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    background: linear-gradient(transparent, rgba(0, 0, 0, 0.7));
-    color: var(--text-white);
-    padding: 1rem;
-    font-size: 0.875rem;
-    font-weight: 500;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-
-  .zoom-icon {
-    position: absolute;
-    top: 1rem;
-    right: 1rem;
-    background-color: rgba(0, 0, 0, 0.7);
-    color: var(--text-white);
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    opacity: 0;
-    transition: opacity 0.3s ease;
-    font-size: 16px;
-  }
-
-  .job-image-item:hover .zoom-icon {
-    opacity: 1;
-  }
-
-  .no-image {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    height: 400px;
-    color: var(--text-light);
-    font-style: italic;
-    font-size: 1.125rem;
-  }
-
-  .no-image i {
-    font-size: 4rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
-  }
-
-  /* Image Modal/Lightbox */
-  .image-modal {
-    display: none;
-    position: fixed;
-    z-index: 9999;
-    left: 0;
-    top: 0;
-    width: 100%;
-    height: 100%;
-    background-color: rgba(0, 0, 0, 0.9);
-    backdrop-filter: blur(5px);
-  }
-
-  .image-modal.active {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-content {
-    position: relative;
-    max-width: 90%;
-    max-height: 90%;
-    margin: auto;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-image {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: contain;
-    border-radius: 8px;
-    box-shadow: var(--shadow-xl);
-  }
-
-  .modal-close {
-    position: absolute;
-    top: -50px;
-    right: 0;
-    color: var(--text-white);
-    font-size: 2rem;
-    font-weight: bold;
-    cursor: pointer;
-    background: none;
-    border: none;
-    padding: 10px;
-    border-radius: 50%;
-    background-color: rgba(0, 0, 0, 0.5);
-    width: 50px;
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-  }
-
-  .modal-close:hover {
-    background-color: rgba(0, 0, 0, 0.8);
-    transform: scale(1.1);
-  }
-
-  .modal-nav {
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    background-color: rgba(0, 0, 0, 0.5);
-    color: var(--text-white);
-    border: none;
-    padding: 15px 20px;
-    cursor: pointer;
-    font-size: 1.5rem;
-    border-radius: 50%;
-    transition: all 0.3s ease;
-    width: 60px;
-    height: 60px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-  }
-
-  .modal-nav:hover {
-    background-color: rgba(0, 0, 0, 0.8);
-    transform: translateY(-50%) scale(1.1);
-  }
-
-  .modal-nav.prev {
-    left: -80px;
-  }
-
-  .modal-nav.next {
-    right: -80px;
-  }
-
-  .modal-nav:disabled {
-    opacity: 0.3;
-    cursor: not-allowed;
-  }
-
-  .modal-nav:disabled:hover {
-    transform: translateY(-50%) scale(1);
-    background-color: rgba(0, 0, 0, 0.5);
-  }
-
-  .modal-info {
-    position: absolute;
-    bottom: -60px;
-    left: 0;
-    right: 0;
-    text-align: center;
-    color: var(--text-white);
-    font-size: 1rem;
-    background-color: rgba(0, 0, 0, 0.5);
-    padding: 10px 20px;
-    border-radius: 20px;
-    backdrop-filter: blur(10px);
-  }
-
-  .modal-zoom-controls {
-    position: absolute;
-    top: -50px;
-    left: 0;
-    display: flex;
-    gap: 10px;
-  }
-
-  .zoom-btn {
-    background-color: rgba(0, 0, 0, 0.5);
-    color: var(--text-white);
-    border: none;
-    padding: 10px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 1rem;
-    width: 40px;
-    height: 40px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: all 0.3s ease;
-  }
-
-  .zoom-btn:hover {
-    background-color: rgba(0, 0, 0, 0.8);
-    transform: scale(1.1);
-  }
-
-  /* Job Content */
-  .job-content {
-    padding: 2rem;
-  }
-
-  .job-info-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-  }
-
-  .job-info-item {
-    padding: 1.5rem;
-    background-color: var(--background-gray-light);
-    border-radius: 12px;
-    border-left: 4px solid var(--border-color);
-    transition: all 0.2s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .job-info-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 4px;
-    height: 100%;
-    transition: width 0.3s ease;
-  }
-
-  .job-info-item:hover::before {
-    width: 8px;
-  }
-
-  .job-info-item.category {
-    border-left-color: var(--primary-blue);
-  }
-
-  .job-info-item.category::before {
-    background-color: var(--primary-blue);
-  }
-
-  .job-info-item.budget {
-    border-left-color: var(--success-green);
-  }
-
-  .job-info-item.budget::before {
-    background-color: var(--success-green);
-  }
-
-  .job-info-item.location {
-    border-left-color: var(--warning-orange);
-  }
-
-  .job-info-item.location::before {
-    background-color: var(--warning-orange);
-  }
-
-  .job-info-label {
-    font-weight: 600;
-    color: var(--text-medium);
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .job-info-value {
-    color: var(--text-dark);
-    font-size: 1.125rem;
-    font-weight: 600;
-  }
-
-  .job-description {
-    background-color: var(--background-white);
-    padding: 2rem;
-    border-radius: 12px;
-    margin-bottom: 2rem;
-    line-height: 1.8;
-    color: var(--text-medium);
-    white-space: pre-line;
-    border: 1px solid var(--border-color);
-    box-shadow: var(--shadow-sm);
-  }
-
-  .job-description strong {
-    color: var(--text-dark);
-    font-size: 1.125rem;
-    margin-bottom: 1rem;
-    display: block;
-  }
-
-  /* Enhanced Job Extra Details Section */
-  .job-extra-details {
-    background-color: var(--background-white);
-    border-radius: 16px;
-    padding: 2rem;
-    margin-bottom: 2rem;
-    box-shadow: var(--shadow-lg);
-    border: 1px solid var(--border-color);
-  }
-
-  .job-extra-details h3 {
-    color: var(--text-dark);
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 2rem;
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    padding-bottom: 1rem;
-    border-bottom: 2px solid var(--border-color);
-  }
-
-  .job-extra-details h3 i {
-    color: var(--primary-blue);
-    font-size: 1.25rem;
-  }
-
-  .details-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-    gap: 1.5rem;
-  }
-
-  .detail-item {
-    padding: 1.5rem;
-    background: linear-gradient(135deg, var(--background-gray-light) 0%, var(--background-white) 100%);
-    border-radius: 12px;
-    border-left: 4px solid var(--primary-blue);
-    transition: all 0.3s ease;
-    position: relative;
-    overflow: hidden;
-  }
-
-  .detail-item:hover {
-    transform: translateY(-2px);
-    box-shadow: var(--shadow-md);
-    border-left-width: 6px;
-  }
-
-  .detail-item::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 60px;
-    height: 60px;
-    background: linear-gradient(135deg, var(--primary-blue-light) 0%, transparent 70%);
-    border-radius: 0 0 0 60px;
-    opacity: 0.1;
-  }
-
-  .detail-label {
-    font-weight: 600;
-    color: var(--text-dark);
-    margin-bottom: 0.75rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-    font-size: 0.875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .detail-label i {
-    color: var(--primary-blue);
-    font-size: 1rem;
-    width: 16px;
-    text-align: center;
-  }
-
-  .detail-value {
-    color: var(--text-medium);
-    font-size: 1rem;
-    line-height: 1.6;
-    position: relative;
-    z-index: 1;
-  }
-
-  .detail-value.highlight {
-    color: var(--text-dark);
-    font-weight: 600;
-  }
-
-  .detail-value.success {
-    color: var(--success-green);
-    font-weight: 600;
-  }
-
-  .detail-value.warning {
-    color: var(--warning-orange);
-    font-weight: 600;
-  }
-
-  .detail-value.danger {
-    color: var(--danger-red);
-    font-weight: 600;
-  }
-
-  /* Special styling for boolean values */
-  .boolean-value {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    text-transform: uppercase;
-    letter-spacing: 0.025em;
-  }
-
-  .boolean-value.yes {
-    background-color: var(--success-green);
-    color: var(--text-white);
-  }
-
-  .boolean-value.no {
-    background-color: var(--danger-red-light);
-    color: var(--danger-red);
-    border: 1px solid var(--danger-red);
-  }
-
-  .boolean-value i {
-    font-size: 0.875rem;
-  }
-
-  /* Urgency badges */
-  .urgency-badge {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.875rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    letter-spacing: 0.025em;
-  }
-
-  .urgency-badge.low {
-    background-color: var(--success-green-light);
-    color: var(--success-green);
-    border: 1px solid var(--success-green);
-  }
-
-  .urgency-badge.medium {
-    background-color: var(--warning-yellow-light);
-    color: var(--warning-orange);
-    border: 1px solid var(--warning-orange);
-  }
-
-  .urgency-badge.high {
-    background-color: var(--danger-red-light);
-    color: var(--danger-red);
-    border: 1px solid var(--danger-red);
-  }
-
-  .urgency-badge.urgent {
-    background-color: var(--danger-red);
-    color: var(--text-white);
-    animation: pulse 2s infinite;
-  }
-
-  @keyframes pulse {
-    0%, 100% { opacity: 1; }
-    50% { opacity: 0.7; }
-  }
-
-  /* Enhanced Buttons */
-  .btn {
-    padding: 0.75rem 1.5rem;
-    border-radius: 8px;
-    font-weight: 500;
-    text-decoration: none;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    transition: all 0.2s ease;
-    border: 1px solid transparent;
-    cursor: pointer;
-    font-size: 0.875rem;
-    letter-spacing: 0.025em;
-  }
-
-  .btn:hover {
-    transform: translateY(-1px);
-    box-shadow: var(--shadow-md);
-  }
-
-  .btn-warning {
-    background-color: var(--accent-yellow);
-    color: var(--text-dark);
-    border-color: var(--accent-yellow);
-  }
-
-  .btn-warning:hover {
-    background-color: var(--accent-yellow-dark);
-    color: var(--text-white);
-    border-color: var(--accent-yellow-dark);
-  }
-
-  .btn-danger {
-    background-color: var(--danger-red);
-    color: var(--text-white);
-    border-color: var(--danger-red);
-  }
-
-  .btn-danger:hover {
-    background-color: var(--danger-red-dark);
-    border-color: var(--danger-red-dark);
-  }
-
-  .btn-success {
-    background-color: var(--success-green);
-    color: var(--text-white);
-    border-color: var(--success-green);
-  }
-
-  .btn-success:hover {
-    background-color: var(--success-green-dark);
-    border-color: var(--success-green-dark);
-  }
-
-  .btn-primary {
-    background-color: var(--primary-blue);
-    color: var(--text-white);
-    border-color: var(--primary-blue);
-  }
-
-  .btn-primary:hover {
-    background-color: var(--primary-blue-dark);
-    border-color: var(--primary-blue-dark);
-  }
-
-  .btn-info {
-    background-color: #06b6d4;
-    color: var(--text-white);
-    border-color: #06b6d4;
-  }
-
-  .btn-info:hover {
-    background-color: #0891b2;
-    border-color: #0891b2;
-  }
-
-  .btn:disabled {
-    opacity: 0.6;
-    cursor: not-allowed;
-    transform: none !important;
-    box-shadow: none !important;
-  }
-
-  .job-actions {
-    margin: 2rem 0;
-    display: flex;
-    gap: 1rem;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-
-  .login-prompt {
-    padding: 1.5rem;
-    background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-    border-radius: 12px;
-    color: var(--primary-blue-dark);
-    text-align: center;
-    border: 1px solid #93c5fd;
-  }
-
-  .login-prompt a {
-    color: var(--primary-blue);
-    font-weight: 600;
-    text-decoration: none;
-  }
-
-  .login-prompt a:hover {
-    text-decoration: underline;
-  }
-
-  /* Enhanced Map Container */
-  .map-container {
-    border-radius: 16px;
-    overflow: hidden;
-    box-shadow: var(--shadow-lg);
-    margin-top: 2rem;
-    border: 1px solid var(--border-color);
-  }
-
-  .map-title {
-    background: linear-gradient(135deg, var(--background-gray-light) 0%, var(--background-white) 100%);
-    padding: 1rem 1.5rem;
-    font-weight: 600;
-    color: var(--text-dark);
-    border-bottom: 1px solid var(--border-color);
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .map-title i {
-    color: var(--primary-blue);
-  }
-
-  #map {
-    height: 400px;
-    width: 100%;
-  }
-
-  .coordinates-info {
-    padding: 1rem 1.5rem;
-    background-color: var(--background-gray-light);
-    border-top: 1px solid var(--border-color);
-    font-size: 0.875rem;
-    color: var(--text-light);
-    display: flex;
-    gap: 2rem;
-  }
-
-  /* Enhanced Applicants Section */
-  .applicants-section {
-    background-color: var(--background-white);
-    border-radius: 16px;
-    padding: 2rem;
-    margin-top: 2rem;
-    box-shadow: var(--shadow-lg);
-    border: 1px solid var(--border-color);
-  }
-
-  .applicants-header {
-    margin-bottom: 2rem;
-    padding-bottom: 1rem;
-    border-bottom: 1px solid var(--border-color);
-  }
-
-  .applicants-header h3 {
-    color: var(--text-dark);
-    font-size: 1.5rem;
-    font-weight: 700;
-    margin-bottom: 0.5rem;
-    display: flex;
-    align-items: center;
-    gap: 0.5rem;
-  }
-
-  .applicants-header h3 i {
-    color: var(--primary-blue);
-  }
-
-  .search-form {
-    display: flex;
-    gap: 1rem;
-    margin-bottom: 2rem;
-    align-items: flex-end;
-  }
-
-  .search-input-group {
-    flex: 1;
-  }
-
-  .search-input-group label {
-    display: block;
-    font-weight: 500;
-    color: var(--text-medium);
-    margin-bottom: 0.5rem;
-    font-size: 0.875rem;
-  }
-
-  .form-control {
-    width: 100%;
-    padding: 0.75rem 1rem;
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    font-size: 0.875rem;
-    transition: all 0.2s ease;
-    background-color: var(--background-white);
-  }
-
-  .form-control:focus {
-    outline: none;
-    border-color: var(--primary-blue);
-    box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
-  }
-
-  /* Enhanced Table */
-  .table-container {
-    overflow-x: auto;
-    border-radius: 12px;
-    border: 1px solid var(--border-color);
-    margin-bottom: 2rem;
-  }
-
-  .table {
-    width: 100%;
-    border-collapse: collapse;
-    margin: 0;
-    background-color: var(--background-white);
-  }
-
-  .table thead {
-    background-color: var(--background-gray-light);
-  }
-
-  .table th {
-    padding: 1rem 1.5rem;
-    text-align: left;
-    font-weight: 600;
-    color: var(--text-dark);
-    border-bottom: 1px solid var(--border-color);
-    font-size: 0.875rem;
-    text-transform: uppercase;
-    letter-spacing: 0.05em;
-  }
-
-  .table td {
-    padding: 1rem 1.5rem;
-    border-bottom: 1px solid var(--border-color-light);
-    color: var(--text-medium);
-  }
-
-  .table tbody tr:hover {
-    background-color: var(--background-gray-light);
-  }
-
-  .table tbody tr:last-child td {
-    border-bottom: none;
-  }
-
-  .table .btn-sm {
-    padding: 0.375rem 0.75rem;
-    font-size: 0.75rem;
-    margin-right: 0.5rem;
-    margin-bottom: 0.25rem;
-  }
-
-  .table .actions-cell {
-    white-space: nowrap;
-  }
-
-  .table .actions-cell form {
-    display: inline;
-  }
-
-  /* Enhanced Pagination */
-  .pagination-container {
-    display: flex;
-    justify-content: center;
-    margin-top: 2rem;
-  }
-
-  .pagination {
-    display: flex;
-    gap: 0.25rem;
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-
-  .pagination .page-item {
-    margin: 0;
-  }
-
-  .pagination .page-link {
-    color: var(--text-medium);
-    border: 1px solid var(--border-color);
-    border-radius: 8px;
-    padding: 0.5rem 0.75rem;
-    text-decoration: none;
-    transition: all 0.2s ease;
-    background-color: var(--background-white);
-    font-size: 0.875rem;
-  }
-
-  .pagination .page-item.active .page-link {
-    background-color: var(--primary-blue);
-    border-color: var(--primary-blue);
-    color: var(--text-white);
-  }
-
-  .pagination .page-link:hover {
-    background-color: var(--primary-blue);
-    color: var(--text-white);
-    border-color: var(--primary-blue);
-    transform: translateY(-1px);
-  }
-
-  .no-applicants {
-    text-align: center;
-    padding: 3rem 2rem;
-    color: var(--text-light);
-  }
-
-  .no-applicants i {
-    font-size: 3rem;
-    margin-bottom: 1rem;
-    opacity: 0.5;
-  }
-
-  .no-applicants h4 {
-    color: var(--text-medium);
-    margin-bottom: 0.5rem;
-  }
-
-  /* Application Count Badge */
-  .application-count {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    background-color: var(--primary-blue);
-    color: var(--text-white);
-    padding: 0.5rem 1rem;
-    border-radius: 20px;
-    font-size: 0.875rem;
-    font-weight: 500;
-    margin-bottom: 1rem;
-  }
-
-  .application-count i {
-    font-size: 1rem;
-  }
-
-  /* Responsive Design */
-  @media (max-width: 768px) {
-    .job-details-container {
-      padding: 1rem 0.5rem;
+    body {
+        background: #f3f4f6 !important;
+    }
+
+    .job-detail-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    /* Header Section */
+    .job-header-card {
+        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+        color: white;
+        border-radius: 16px 16px 0 0;
+        padding: 2rem;
+        position: relative;
+        overflow: hidden;
+    }
+
+    .job-header-card::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 300px;
+        height: 300px;
+        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+        border-radius: 50%;
+        transform: translate(30%, -30%);
+    }
+
+    .job-title-section {
+        position: relative;
+        z-index: 1;
+    }
+
+    .job-category-badge {
+        display: inline-block;
+        background: rgba(255, 255, 255, 0.2);
+        padding: 0.375rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        margin-bottom: 0.75rem;
     }
 
     .job-title {
-      font-size: 1.75rem;
+        font-size: 2rem;
+        font-weight: 700;
+        margin: 0 0 1rem 0;
+        line-height: 1.2;
     }
 
-    .job-header {
-      padding: 1.5rem 1rem 1rem;
+    .job-meta {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        font-size: 0.875rem;
+        opacity: 0.95;
     }
 
-    .job-content {
-      padding: 1.5rem 1rem;
+    .job-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
     }
 
-    .job-info-grid {
-      grid-template-columns: 1fr;
-      gap: 1rem;
+    .job-meta-item i {
+        font-size: 1rem;
     }
 
+    /* Main Content Card */
+    .job-content-card {
+        background: white;
+        border-radius: 0 0 16px 16px;
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+    }
+
+    /* Quick Stats */
+    .quick-stats {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .stat-item {
+        padding: 1.5rem;
+        text-align: center;
+        border-right: 1px solid #e5e7eb;
+    }
+
+    .stat-item:last-child {
+        border-right: none;
+    }
+
+    .stat-value {
+        font-size: 1.75rem;
+        font-weight: 700;
+        color: #2563eb;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+    }
+
+    /* Content Sections */
+    .content-section {
+        padding: 2rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .content-section:last-child {
+        border-bottom: none;
+    }
+
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 1.5rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .section-title i {
+        color: #2563eb;
+        font-size: 1.125rem;
+    }
+
+    .description-text {
+        color: #374151;
+        line-height: 1.7;
+        white-space: pre-line;
+    }
+
+    /* Details Grid */
     .details-grid {
-      grid-template-columns: 1fr;
-      gap: 1rem;
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
     }
 
-    .job-images-gallery {
-      grid-template-columns: 1fr;
-      padding: 0.5rem;
+    .detail-box {
+        background: #f9fafb;
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 3px solid #2563eb;
     }
 
-    .job-actions {
-      flex-direction: column;
-      align-items: stretch;
+    .detail-label {
+        font-size: 0.75rem;
+        color: #6b7280;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-weight: 600;
+        margin-bottom: 0.5rem;
     }
 
-    .btn {
-      justify-content: center;
+    .detail-value {
+        font-size: 1rem;
+        color: #111827;
+        font-weight: 600;
     }
 
-    .search-form {
-      flex-direction: column;
+    /* Image Gallery */
+    .image-gallery {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+        gap: 1rem;
     }
 
-    .table-container {
-      font-size: 0.875rem;
+    .gallery-item {
+        position: relative;
+        aspect-ratio: 4/3;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        transition: transform 0.2s;
     }
 
-    .table th,
-    .table td {
-      padding: 0.75rem 0.5rem;
+    .gallery-item:hover {
+        transform: scale(1.02);
     }
 
-    .applicants-section {
-      padding: 1.5rem 1rem;
+    .gallery-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
     }
 
-    .job-extra-details {
-      padding: 1.5rem 1rem;
+    .no-images {
+        text-align: center;
+        padding: 3rem;
+        color: #9ca3af;
+    }
+
+    .no-images i {
+        font-size: 3rem;
+        margin-bottom: 1rem;
+        opacity: 0.5;
+    }
+
+    /* Map Section */
+    .map-wrapper {
+        border-radius: 12px;
+        overflow: hidden;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
     }
 
     #map {
-      height: 300px;
+        height: 350px;
+        width: 100%;
     }
 
-    .coordinates-info {
-      flex-direction: column;
-      gap: 0.5rem;
+    /* Action Buttons */
+    .action-section {
+        padding: 2rem;
+        background: #f9fafb;
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+        align-items: center;
     }
 
-    .modal-nav {
-      width: 50px;
-      height: 50px;
-      font-size: 1.2rem;
-    }
-
-    .modal-nav.prev {
-      left: -60px;
-    }
-
-    .modal-nav.next {
-      right: -60px;
-    }
-
-    .modal-close {
-      width: 40px;
-      height: 40px;
-      font-size: 1.5rem;
-      top: -45px;
-    }
-  }
-
-  @media (max-width: 480px) {
-    .job-title {
-      font-size: 1.5rem;
-    }
-
-    .job-info-item {
-      padding: 1rem;
-    }
-
-    .job-description {
-      padding: 1.5rem;
-    }
-
-    .detail-item {
-      padding: 1rem;
-    }
-
-    .table th,
-    .table td {
-      padding: 0.5rem 0.25rem;
-      font-size: 0.75rem;
-    }
-
-    .table .btn-sm {
-      padding: 0.25rem 0.5rem;
-      font-size: 0.625rem;
-    }
-
-    .modal-nav.prev {
-      left: 10px;
-    }
-
-    .modal-nav.next {
-      right: 10px;
-    }
-
-    .modal-close {
-      top: 10px;
-      right: 10px;
-    }
-
-    .modal-zoom-controls {
-      top: 10px;
-      left: 10px;
-    }
-  }
-
-  /* Formal Document Styles */
-.document-header {
-  background: linear-gradient(135deg, var(--background-white) 0%, var(--background-gray-light) 100%);
-  border: 2px solid var(--border-color);
-  border-radius: 12px;
-  padding: 2rem;
-  margin-bottom: 2rem;
-  box-shadow: var(--shadow-lg);
-}
-
-.document-meta {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 2rem;
-  padding-bottom: 1rem;
-  border-bottom: 1px solid var(--border-color);
-  font-size: 0.875rem;
-}
-
-.document-id, .document-date {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.document-meta .label {
-  font-weight: 500;
-  color: var(--text-light);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  font-size: 0.75rem;
-}
-
-.document-meta .value {
-  font-weight: 600;
-  color: var(--text-dark);
-  font-size: 0.875rem;
-}
-
-.status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.5rem 1rem;
-  background: var(--success-green);
-  color: var(--text-white);
-  border-radius: 20px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.status-badge.active i {
-  animation: pulse 2s infinite;
-}
-
-.document-title-section {
-  text-align: center;
-  margin-bottom: 2rem;
-}
-
-.document-title {
-  font-size: 2.5rem;
-  font-weight: 700;
-  color: var(--text-dark);
-  margin: 0 0 0.5rem 0;
-  line-height: 1.2;
-}
-
-.document-subtitle {
-  font-size: 1.125rem;
-  color: var(--text-medium);
-  font-weight: 500;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-}
-
-.document-summary {
-  background: var(--background-white);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 1.5rem;
-}
-
-.summary-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-}
-
-.summary-item {
-  text-align: center;
-}
-
-.summary-label {
-  font-size: 0.75rem;
-  font-weight: 500;
-  color: var(--text-light);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-bottom: 0.5rem;
-}
-
-.summary-value {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--text-dark);
-}
-
-.summary-value.budget {
-  font-size: 1.5rem;
-  color: var(--success-green);
-}
-
-/* Document Body */
-.document-body {
-  background: var(--background-white);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  overflow: hidden;
-  box-shadow: var(--shadow-lg);
-}
-
-.document-section {
-  border-bottom: 1px solid var(--border-color);
-}
-
-.document-section:last-child {
-  border-bottom: none;
-}
-
-.section-header {
-  display: flex;
-  align-items: center;
-  gap: 1.5rem;
-  padding: 2rem;
-  background: var(--background-gray-light);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.section-number {
-  width: 3rem;
-  height: 3rem;
-  background: var(--primary-blue);
-  color: var(--text-white);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  font-weight: 700;
-  flex-shrink: 0;
-}
-
-.section-info {
-  flex: 1;
-}
-
-.section-title {
-  font-size: 1.5rem;
-  font-weight: 700;
-  color: var(--text-dark);
-  margin: 0 0 0.25rem 0;
-}
-
-.section-subtitle {
-  font-size: 0.875rem;
-  color: var(--text-medium);
-  margin: 0;
-}
-
-.section-content {
-  padding: 2rem;
-}
-
-/* Content Blocks */
-.content-block {
-  margin-bottom: 2rem;
-}
-
-.content-block:last-child {
-  margin-bottom: 0;
-}
-
-.content-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--text-dark);
-  margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.content-title i {
-  color: var(--primary-blue);
-}
-
-.content-text {
-  color: var(--text-medium);
-  line-height: 1.7;
-  font-size: 1rem;
-  white-space: pre-line;
-}
-
-/* Specifications Grid */
-.specifications-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 2rem;
-}
-
-.spec-group {
-  background: var(--background-gray-light);
-  border-radius: 8px;
-  padding: 1.5rem;
-  border: 1px solid var(--border-color);
-}
-
-.spec-group-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-dark);
-  margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.spec-group-title i {
-  color: var(--primary-blue);
-}
-
-.spec-items {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.spec-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem;
-  background: var(--background-white);
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
-}
-
-.spec-label {
-  font-weight: 500;
-  color: var(--text-medium);
-  font-size: 0.875rem;
-}
-
-.spec-value {
-  font-weight: 600;
-  color: var(--text-dark);
-  font-size: 0.875rem;
-  text-align: right;
-}
-
-.spec-value.highlight {
-  color: var(--primary-blue);
-}
-
-/* Priority and Provision Status */
-.priority-badge {
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.priority-badge.low {
-  background: var(--success-green-light);
-  color: var(--success-green);
-}
-
-.priority-badge.medium {
-  background: var(--warning-yellow-light);
-  color: var(--warning-orange);
-}
-
-.priority-badge.high, .priority-badge.urgent {
-  background: var(--danger-red-light);
-  color: var(--danger-red);
-}
-
-.provision-status {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  font-size: 0.875rem;
-}
-
-.provision-status.provided {
-  color: var(--success-green);
-}
-
-.provision-status.not-provided {
-  color: var(--danger-red);
-}
-
-/* Compensation Section */
-.compensation-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 2rem;
-  align-items: start;
-}
-
-.budget-display {
-  background: linear-gradient(135deg, var(--success-green) 0%, var(--success-green-dark) 100%);
-  color: var(--text-white);
-  padding: 2rem;
-  border-radius: 12px;
-  text-align: center;
-}
-
-.budget-label {
-  font-size: 0.875rem;
-  opacity: 0.9;
-  margin-bottom: 0.5rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.budget-amount {
-  font-size: 2.5rem;
-  font-weight: 700;
-  margin-bottom: 0.5rem;
-}
-
-.budget-note {
-  font-size: 0.75rem;
-  opacity: 0.8;
-}
-
-.payment-terms {
-  background: var(--background-gray-light);
-  border-radius: 8px;
-  padding: 1.5rem;
-  border: 1px solid var(--border-color);
-}
-
-.terms-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-dark);
-  margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.terms-title i {
-  color: var(--primary-blue);
-}
-
-.terms-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.75rem;
-}
-
-.term-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 0.75rem;
-  background: var(--background-white);
-  border-radius: 6px;
-  border: 1px solid var(--border-color);
-}
-
-.term-label {
-  font-weight: 500;
-  color: var(--text-medium);
-  font-size: 0.875rem;
-}
-
-.term-value {
-  font-weight: 600;
-  color: var(--text-dark);
-  font-size: 0.875rem;
-}
-
-/* Formal Image Gallery */
-.image-gallery-formal {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-}
-
-.formal-image-item {
-  background: var(--background-white);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  overflow: hidden;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.formal-image-item:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.formal-image {
-  width: 100%;
-  height: 200px;
-  object-fit: cover;
-}
-
-.image-caption {
-  padding: 1rem;
-  background: var(--background-gray-light);
-  border-top: 1px solid var(--border-color);
-}
-
-.image-number {
-  font-weight: 600;
-  color: var(--text-dark);
-  font-size: 0.875rem;
-}
-
-.image-description {
-  color: var(--text-medium);
-  font-size: 0.875rem;
-  margin-left: 0.5rem;
-}
-
-/* Location Section */
-.location-info-formal {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 2rem;
-  align-items: start;
-}
-
-.location-details {
-  background: var(--background-gray-light);
-  border-radius: 8px;
-  padding: 1.5rem;
-  border: 1px solid var(--border-color);
-}
-
-.location-title {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-dark);
-  margin: 0 0 1rem 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding-bottom: 0.75rem;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.location-title i {
-  color: var(--primary-blue);
-}
-
-.address-line {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--text-dark);
-  margin-bottom: 0.5rem;
-}
-
-.coordinates {
-  font-size: 0.875rem;
-  color: var(--text-light);
-}
-
-.map-container-formal {
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  overflow: hidden;
-}
-
-/* Application Section */
-.application-info {
-  display: grid;
-  grid-template-columns: 1fr 2fr;
-  gap: 2rem;
-  align-items: center;
-}
-
-.application-stats {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-
-.stat-item {
-  text-align: center;
-  padding: 1rem;
-  background: var(--background-gray-light);
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-}
-
-.stat-number {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--primary-blue);
-  margin-bottom: 0.25rem;
-}
-
-.stat-label {
-  font-size: 0.875rem;
-  color: var(--text-medium);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* Formal Buttons */
-.btn-formal {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 1rem 2rem;
-  border-radius: 8px;
-  font-weight: 600;
-  text-decoration: none;
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
-  font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin-right: 1rem;
-  margin-bottom: 0.5rem;
-}
-
-.btn-formal:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-  text-decoration: none;
-}
-
-.btn-apply {
-  background: var(--success-green);
-  color: var(--text-white);
-  border-color: var(--success-green);
-}
-
-.btn-apply:hover {
-  background: var(--success-green-dark);
-  border-color: var(--success-green-dark);
-  color: var(--text-white);
-}
-
-.btn-contact {
-  background: var(--primary-blue);
-  color: var(--text-white);
-  border-color: var(--primary-blue);
-}
-
-.btn-contact:hover {
-  background: var(--primary-blue-dark);
-  border-color: var(--primary-blue-dark);
-  color: var(--text-white);
-}
-
-.btn-edit {
-  background: var(--accent-yellow);
-  color: var(--text-dark);
-  border-color: var(--accent-yellow);
-}
-
-.btn-edit:hover {
-  background: var(--accent-yellow-dark);
-  border-color: var(--accent-yellow-dark);
-  color: var(--text-white);
-}
-
-.btn-delete {
-  background: var(--danger-red);
-  color: var(--text-white);
-  border-color: var(--danger-red);
-}
-
-.btn-delete:hover {
-  background: var(--danger-red-dark);
-  border-color: var(--danger-red-dark);
-  color: var(--text-white);
-}
-
-.btn-applied {
-  background: var(--background-gray-light);
-  color: var(--text-medium);
-  border-color: var(--border-color);
-  cursor: not-allowed;
-}
-
-.login-required {
-  grid-column: 1 / -1;
-  text-align: center;
-  padding: 2rem;
-  background: var(--background-gray-light);
-  border-radius: 8px;
-  border: 1px solid var(--border-color);
-}
-
-.login-message {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  color: var(--text-medium);
-  font-size: 1rem;
-}
-
-.login-message a {
-  color: var(--primary-blue);
-  font-weight: 600;
-  text-decoration: none;
-}
-
-.login-message a:hover {
-  text-decoration: underline;
-}
-
-/* Responsive Design for Formal Layout */
-@media (max-width: 768px) {
-  .document-meta {
-    flex-direction: column;
-    gap: 1rem;
-    text-align: center;
-  }
-
-  .document-title {
-    font-size: 2rem;
-  }
-
-  .summary-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 1rem;
-  }
-
-  .specifications-grid,
-  .compensation-grid,
-  .location-info-formal,
-  .application-info {
-    grid-template-columns: 1fr;
-    gap: 1rem;
-  }
-
-  .section-header {
-    flex-direction: column;
-    text-align: center;
-    gap: 1rem;
-  }
-
-  .spec-item,
-  .term-item {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-
-  .spec-value,
-  .term-value {
-    text-align: left;
-  }
-
-  .btn-formal {
-    width: 100%;
-    justify-content: center;
-    margin-right: 0;
-  }
-}
-
-@media (max-width: 480px) {
-  .document-header,
-  .section-content {
-    padding: 1rem;
-  }
-
-  .summary-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .budget-amount {
-    font-size: 2rem;
-  }
-
-  .image-gallery-formal {
-    grid-template-columns: 1fr;
-  }
-}
-/* Formal Document Styles End */
-
-/* Applicant Management Styles */
-.applicant-overview {
-  margin-bottom: 2rem;
-}
-
-.overview-stats {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1.5rem;
-  margin-bottom: 2rem;
-}
-
-.stat-card {
-  background: var(--background-white);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  padding: 1.5rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  transition: all 0.3s ease;
-}
-
-.stat-card:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
-}
-
-.stat-icon {
-  width: 3rem;
-  height: 3rem;
-  background: var(--primary-blue);
-  color: var(--text-white);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 1.25rem;
-  flex-shrink: 0;
-}
-
-.stat-icon.pending {
-  background: var(--warning-orange);
-}
-
-.stat-icon.accepted {
-  background: var(--success-green);
-}
-
-.stat-icon.rejected {
-  background: var(--danger-red);
-}
-
-.stat-info {
-  flex: 1;
-}
-
-.stat-number {
-  font-size: 2rem;
-  font-weight: 700;
-  color: var(--text-dark);
-  margin-bottom: 0.25rem;
-}
-
-.stat-label {
-  font-size: 0.875rem;
-  color: var(--text-medium);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-/* Applicant Filters */
-.applicant-filters {
-  display: flex;
-  align-items: center;
-  gap: 2rem;
-  padding: 1.5rem;
-  background: var(--background-gray-light);
-  border-radius: 8px;
-  margin-bottom: 2rem;
-  border: 1px solid var(--border-color);
-}
-
-.filter-group {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.filter-label {
-  font-size: 0.875rem;
-  font-weight: 500;
-  color: var(--text-dark);
-}
-
-.filter-select {
-  padding: 0.75rem 1rem;
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  background: var(--background-white);
-  color: var(--text-dark);
-  font-size: 0.875rem;
-  min-width: 150px;
-}
-
-.bulk-action-btn {
-  padding: 0.75rem 1.5rem;
-  background: var(--primary-blue);
-  color: var(--text-white);
-  border: none;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  margin-top: 1.5rem;
-}
-
-.bulk-action-btn:hover {
-  background: var(--primary-blue-dark);
-  transform: translateY(-1px);
-}
-
-/* Bulk Actions Panel */
-.bulk-actions-panel {
-  background: var(--primary-blue-light);
-  border: 1px solid var(--primary-blue);
-  border-radius: 8px;
-  padding: 1rem;
-  margin-bottom: 2rem;
-}
-
-.bulk-actions-content {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
-
-.bulk-actions-info {
-  font-weight: 500;
-  color: var(--primary-blue-dark);
-}
-
-.bulk-actions-buttons {
-  display: flex;
-  gap: 1rem;
-}
-
-.bulk-btn {
-  padding: 0.5rem 1rem;
-  border: none;
-  border-radius: 6px;
-  font-size: 0.875rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.bulk-btn.accept {
-  background: var(--success-green);
-  color: var(--text-white);
-}
-
-.bulk-btn.reject {
-  background: var(--danger-red);
-  color: var(--text-white);
-}
-
-.bulk-btn.message {
-  background: var(--primary-blue);
-  color: var(--text-white);
-}
-
-.bulk-btn:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-sm);
-}
-
-/* Applications Container */
-.applications-container {
-  background: var(--background-white);
-  border: 1px solid var(--border-color);
-  border-radius: 12px;
-  overflow: hidden;
-}
-
-.applications-table-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  padding: 1.5rem;
-  background: var(--background-gray-light);
-  border-bottom: 1px solid var(--border-color);
-}
-
-.applications-title {
-  font-size: 1.125rem;
-  font-weight: 600;
-  color: var(--text-dark);
-  margin: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.applications-title i {
-  color: var(--primary-blue);
-}
-
-.export-btn {
-  padding: 0.5rem 1rem;
-  background: var(--background-white);
-  color: var(--text-medium);
-  border: 1px solid var(--border-color);
-  border-radius: 6px;
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.export-btn:hover {
-  background: var(--background-gray-light);
-  border-color: var(--primary-blue);
-}
-
-/* Applications Table */
-.applications-table-wrapper {
-  overflow-x: auto;
-}
-
-.applications-table {
-  width: 100%;
-  border-collapse: collapse;
-}
-
-.applications-table th {
-  background: var(--background-gray-light);
-  padding: 1rem;
-  text-align: left;
-  font-weight: 600;
-  color: var(--text-dark);
-  font-size: 0.875rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  border-bottom: 1px solid var(--border-color);
-}
-
-.applications-table td {
-  padding: 1rem;
-  border-bottom: 1px solid var(--border-color-light);
-  vertical-align: top;
-}
-
-.application-row:hover {
-  background: var(--background-gray-light);
-}
-
-.application-row:last-child td {
-  border-bottom: none;
-}
-
-/* Table Columns */
-.checkbox-column {
-  width: 40px;
-  text-align: center;
-}
-
-.applicant-column {
-  min-width: 200px;
-}
-
-.rate-column,
-.date-column,
-.duration-column,
-.status-column,
-.applied-column {
-  min-width: 120px;
-}
-
-.actions-column {
-  width: 80px;
-  text-align: center;
-}
-
-/* Applicant Info */
-.applicant-info {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.applicant-avatar {
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  overflow: hidden;
-  flex-shrink: 0;
-}
-
-.applicant-avatar img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
-.avatar-placeholder {
-  width: 100%;
-  height: 100%;
-  background: var(--primary-blue);
-  color: var(--text-white);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-weight: 600;
-  font-size: 1rem;
-}
-
-.applicant-details {
-  flex: 1;
-  min-width: 0;
-}
-
-.applicant-name {
-  margin-bottom: 0.25rem;
-}
-
-.profile-link {
-  color: var(--text-dark);
-  text-decoration: none;
-  font-weight: 500;
-  font-size: 0.875rem;
-}
-
-.profile-link:hover {
-  color: var(--primary-blue);
-  text-decoration: underline;
-}
-
-.applicant-meta {
-  display: flex;
-  flex-direction: column;
-  gap: 0.125rem;
-}
-
-.rating {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.rating i {
-  color: #fbbf24;
-  font-size: 0.75rem;
-}
-
-.rating-count {
-  font-size: 0.75rem;
-  color: var(--text-light);
-  margin-left: 0.25rem;
-}
-
-.experience-level {
-  font-size: 0.75rem;
-  color: var(--text-light);
-}
-
-/* Rate Info */
-.rate-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.rate-amount {
-  font-weight: 600;
-  color: var(--text-dark);
-  font-size: 0.875rem;
-}
-
-.rate-comparison {
-  font-size: 0.75rem;
-}
-
-.rate-status {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.rate-status.within-budget {
-  color: var(--success-green);
-}
-
-.rate-status.over-budget {
-  color: var(--warning-orange);
-}
-
-.rate-not-specified {
-  color: var(--text-light);
-  font-style: italic;
-  font-size: 0.875rem;
-}
-
-/* Date Info */
-.start-date {
-  font-weight: 500;
-  color: var(--text-dark);
-  font-size: 0.875rem;
-  margin-bottom: 0.25rem;
-}
-
-.date-relative {
-  font-size: 0.75rem;
-}
-
-.availability {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-}
-
-.availability.immediate {
-  color: var(--success-green);
-}
-
-.availability.future {
-  color: var(--text-medium);
-}
-
-.date-not-specified,
-.duration-not-specified {
-  color: var(--text-light);
-  font-style: italic;
-  font-size: 0.875rem;
-}
-
-/* Duration */
-.duration-estimate {
-  font-weight: 500;
-  color: var(--text-dark);
-  font-size: 0.875rem;
-}
-
-/* Status Badge */
-.application-status-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 600;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-}
-
-.application-status-badge.pending {
-  background: var(--warning-yellow-light);
-  color: var(--warning-orange);
-}
-
-.application-status-badge.accepted {
-  background: var(--success-green-light);
-  color: var(--success-green);
-}
-
-.application-status-badge.rejected {
-  background: var(--danger-red-light);
-  color: var(--danger-red);
-}
-
-.application-status-badge.under_review {
-  background: var(--primary-blue-light);
-  color: var(--primary-blue);
-}
-
-/* Applied Time */
-.applied-time {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-}
-
-.applied-date {
-  font-weight: 500;
-  color: var(--text-dark);
-  font-size: 0.875rem;
-  margin-bottom: 0.25rem;
-}
-
-.applied-relative {
-  font-size: 0.75rem;
-  color: var(--text-light);
-}
-
-/* Action Buttons */
-.action-buttons-group {
-  display: flex;
-  align-items: center;
-  gap: 0.25rem;
-  position: relative;
-}
-
-.action-btn {
-  width: 32px;
-  height: 32px;
-  border: 1px solid var(--border-color);
-  background: var(--background-white);
-  color: var(--text-medium);
-  border-radius: 6px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 0.875rem;
-  transition: all 0.2s ease;
-}
-
-.action-btn:hover {
-  background: var(--primary-blue);
-  color: var(--text-white);
-}
-
-.action-btn.view:hover {
-  background: var(--success-green);
-  border-color: var(--success-green);
-}
-
-/* Action Dropdown */
-.action-dropdown {
-  position: relative;
-}
-
-.action-menu {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background: var(--background-white);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  box-shadow: var(--shadow-lg);
-  min-width: 180px;
-  z-index: 100;
-  display: none;
-}
-
-.action-menu.show {
-  display: block;
-}
-
-.menu-item {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1rem;
-  color: var(--text-medium);
-  text-decoration: none;
-  font-size: 0.875rem;
-  border: none;
-  background: none;
-  width: 100%;
-  text-align: left;
-  cursor: pointer;
-  transition: all 0.2s ease;
-}
-
-.menu-item:hover {
-  background: var(--background-gray-light);
-  color: var(--text-dark);
-}
-
-.menu-item.accept:hover {
-  background: var(--success-green-light);
-  color: var(--success-green);
-}
-
-.menu-item.reject:hover {
-  background: var(--danger-red-light);
-  color: var(--danger-red);
-}
-
-.menu-item.message:hover {
-  background: var(--primary-blue-light);
-  color: var(--primary-blue);
-}
-
-.menu-item:first-child {
-  border-radius: 8px 8px 0 0;
-}
-
-.menu-item:last-child {
-  border-radius: 0 0 8px 8px;
-}
-
-/* No Applications State */
-.no-applications {
-  text-align: center;
-  padding: 4rem 2rem;
-  background: var(--background-gray-light);
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-}
-
-.no-applications-icon {
-  font-size: 4rem;
-  color: var(--text-light);
-  margin-bottom: 2rem;
-  opacity: 0.5;
-}
-
-.no-applications-content h4 {
-  color: var(--text-dark);
-  font-size: 1.5rem;
-  margin-bottom: 1rem;
-}
-
-.no-applications-content p {
-  color: var(--text-medium);
-  margin-bottom: 2rem;
-  max-width: 500px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.improvement-tips {
-  list-style: none;
-  padding: 0;
-  margin: 0 0 2rem 0;
-  max-width: 400px;
-  margin-left: auto;
-  margin-right: auto;
-}
-
-.improvement-tips li {
-  display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 0;
-  color: var(--text-medium);
-  font-size: 0.875rem;
-}
-
-.improvement-tips i {
-  color: var(--primary-blue);
-  font-size: 1rem;
-  width: 16px;
-}
-
-.promotion-actions {
-  display: flex;
-  gap: 1rem;
-  justify-content: center;
-  flex-wrap: wrap;
-}
-
-/* Responsive Design */
-@media (max-width: 1024px) {
-  .overview-stats {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  .applicant-filters {
-    flex-direction: column;
-    align-items: stretch;
-    gap: 1rem;
-  }
-  
-  .filter-group {
-    flex-direction: row;
-    align-items: center;
-    justify-content: space-between;
-  }
-  
-  .bulk-actions-content {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: stretch;
-  }
-  
-  .bulk-actions-buttons {
-    justify-content: center;
-  }
-}
-
-@media (max-width: 768px) {
-  .overview-stats {
-    grid-template-columns: 1fr;
-  }
-  
-  .applications-table th,
-  .applications-table td {
-    padding: 0.75rem 0.5rem;
-    font-size: 0.875rem;
-  }
-  
-  .applicant-info {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.5rem;
-  }
-  
-  .rate-column,
-  .date-column,
-  .duration-column,
-  .applied-column {
-    min-width: 100px;
-  }
-  
-  .action-buttons-group {
-    flex-direction: column;
-  }
-  
-  .promotion-actions {
-    flex-direction: column;
-  }
-  
-  .applications-table-header {
-    flex-direction: column;
-    gap: 1rem;
-    align-items: stretch;
-  }
-}
-
-/* Applicant Management Styles End */
-</style>
-
-<div class="job-details-container">
-  <!-- Formal Document Header -->
-  <div class="document-header">
-    <div class="document-meta">
-      <div class="document-id">
-        <span class="label">Job ID:</span>
-        <span class="value">JOB-{{ job.pk|stringformat:"04d" }}</span>
-      </div>
-      <div class="document-date">
-        <span class="label">Posted:</span>
-        <span class="value">{{ job.created_at|date:"F j, Y" }}</span>
-      </div>
-      <div class="document-status">
-        <span class="status-badge active">
-          <i class="fa fa-circle"></i>
-          Active Posting
-        </span>
-      </div>
-    </div>
-    
-    <div class="document-title-section">
-      <h1 class="document-title">{{ job.title }}</h1>
-      <div class="document-subtitle">Professional Service Request</div>
-    </div>
-    
-    <div class="document-summary">
-      <div class="summary-grid">
-        <div class="summary-item">
-          <div class="summary-label">Project Budget</div>
-          <div class="summary-value budget">₱{{ job.budget|floatformat:0 }}</div>
-        </div>
-        <div class="summary-item">
-          <div class="summary-label">Service Category</div>
-          <div class="summary-value">{{ job.category }}</div>
-        </div>
-        <div class="summary-item">
-          <div class="summary-label">Location</div>
-          <div class="summary-value">{{ job.municipality }}, {{ job.barangay }}</div>
-        </div>
-        <div class="summary-item">
-          <div class="summary-label">Workers Needed</div>
-          <div class="summary-value">{{ job.number_of_workers }}</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Formal Document Body -->
-  <div class="document-body">
-    
-    <!-- Section 1: Project Overview -->
-    <section class="document-section">
-      <div class="section-header">
-        <div class="section-number">01</div>
-        <div class="section-info">
-          <h2 class="section-title">Project Overview</h2>
-          <p class="section-subtitle">Detailed description of the required services</p>
-        </div>
-      </div>
-      
-      <div class="section-content">
-        <div class="content-block">
-          <h3 class="content-title">
-            <i class="fa fa-file-text"></i>
-            Project Description
-          </h3>
-          <div class="content-text">{{ job.description }}</div>
-        </div>
-        
-        <div class="content-block">
-          <h3 class="content-title">
-            <i class="fa fa-tasks"></i>
-            Scope of Work
-          </h3>
-          <div class="content-text">{{ job.tasks }}</div>
-        </div>
-        
-        <div class="content-block">
-          <h3 class="content-title">
-            <i class="fa fa-star"></i>
-            Required Qualifications
-          </h3>
-          <div class="content-text">{{ job.required_skills }}</div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Section 2: Project Specifications -->
-    <section class="document-section">
-      <div class="section-header">
-        <div class="section-number">02</div>
-        <div class="section-info">
-          <h2 class="section-title">Project Specifications</h2>
-          <p class="section-subtitle">Timeline, schedule, and technical requirements</p>
-        </div>
-      </div>
-      
-      <div class="section-content">
-        <div class="specifications-grid">
-          <div class="spec-group">
-            <h4 class="spec-group-title">
-              <i class="fa fa-clock"></i>
-              Timeline & Schedule
-            </h4>
-            <div class="spec-items">
-              <div class="spec-item">
-                <span class="spec-label">Project Duration:</span>
-                <span class="spec-value">{{ job.duration }}</span>
-              </div>
-              <div class="spec-item">
-                <span class="spec-label">Work Schedule:</span>
-                <span class="spec-value">{{ job.schedule }}</span>
-              </div>
-              {% if job.start_datetime %}
-              <div class="spec-item">
-                <span class="spec-label">Start Date:</span>
-                <span class="spec-value highlight">{{ job.start_datetime|date:"F j, Y, g:i a" }}</span>
-              </div>
-              {% endif %}
-              <div class="spec-item">
-                <span class="spec-label">Priority Level:</span>
-                <span class="spec-value">
-                  <span class="priority-badge {{ job.urgency|lower }}">
-                    {{ job.urgency|title }}
-                  </span>
-                </span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="spec-group">
-            <h4 class="spec-group-title">
-              <i class="fa fa-cogs"></i>
-              Resources & Equipment
-            </h4>
-            <div class="spec-items">
-              <div class="spec-item">
-                <span class="spec-label">Tools Provided:</span>
-                <span class="spec-value">
-                  <span class="provision-status {{ job.tools_provided|yesno:'provided,not-provided' }}">
-                    <i class="fa fa-{{ job.tools_provided|yesno:'check,times' }}"></i>
-                    {{ job.tools_provided|yesno:"Provided by Client,Bring Your Own" }}
-                  </span>
-                </span>
-              </div>
-              <div class="spec-item">
-                <span class="spec-label">Materials Provided:</span>
-                <span class="spec-value">
-                  <span class="provision-status {{ job.materials_provided|yesno:'provided,not-provided' }}">
-                    <i class="fa fa-{{ job.materials_provided|yesno:'check,times' }}"></i>
-                    {{ job.materials_provided|yesno:"Provided by Client,Bring Your Own" }}
-                  </span>
-                </span>
-              </div>
-              <div class="spec-item">
-                <span class="spec-label">Team Size:</span>
-                <span class="spec-value">{{ job.number_of_workers }} Professional{{ job.number_of_workers|pluralize }}</span>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Section 3: Compensation & Terms -->
-    <section class="document-section">
-      <div class="section-header">
-        <div class="section-number">03</div>
-        <div class="section-info">
-          <h2 class="section-title">Compensation & Terms</h2>
-          <p class="section-subtitle">Payment structure and financial arrangements</p>
-        </div>
-      </div>
-      
-      <div class="section-content">
-        <div class="compensation-grid">
-          <div class="compensation-main">
-            <div class="budget-display">
-              <div class="budget-label">Total Project Budget</div>
-              <div class="budget-amount">₱{{ job.budget|floatformat:0 }}</div>
-              <div class="budget-note">Inclusive of all services and deliverables</div>
-            </div>
-          </div>
-          
-          <div class="compensation-details">
-            <div class="payment-terms">
-              <h4 class="terms-title">
-                <i class="fa fa-credit-card"></i>
-                Payment Terms
-              </h4>
-              <div class="terms-list">
-                <div class="term-item">
-                  <span class="term-label">Payment Method:</span>
-                  <span class="term-value">{{ job.payment_method }}</span>
-                </div>
-                {% if job.payment_schedule %}
-                <div class="term-item">
-                  <span class="term-label">Payment Schedule:</span>
-                  <span class="term-value">{{ job.payment_schedule }}</span>
-                </div>
-                {% endif %}
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Section 4: Visual Documentation -->
-    {% if job.jobimage_set.exists %}
-    <section class="document-section">
-      <div class="section-header">
-        <div class="section-number">04</div>
-        <div class="section-info">
-          <h2 class="section-title">Visual Documentation</h2>
-          <p class="section-subtitle">Reference images and project visualization</p>
-        </div>
-      </div>
-      
-      <div class="section-content">
-        <div class="image-gallery-formal">
-          {% for job_image in job.jobimage_set.all %}
-            <div class="formal-image-item" onclick="openImageModal({{ forloop.counter0 }})">
-              <img src="{{ job_image.image.url }}" class="formal-image" alt="{{ job.title }} - Reference Image {{ forloop.counter }}">
-              <div class="image-caption">
-                <span class="image-number">Figure {{ forloop.counter }}</span>
-                <span class="image-description">Project Reference Image</span>
-              </div>
-            </div>
-          {% endfor %}
-        </div>
-      </div>
-    </section>
-    {% endif %}
-
-    <!-- Section 5: Location & Logistics -->
-    <section class="document-section">
-      <div class="section-header">
-
-
-
-        <div class="section-number">05</div>
-        <div class="section-info">
-          <h2 class="section-title">Location & Logistics</h2>
-          <p class="section-subtitle">Service location and accessibility information</p>
-        </div>
-      </div>
-      
-      <div class="section-content">
-        <div class="location-info-formal">
-          <div class="location-details">
-            <h4 class="location-title">
-              <i class="fa fa-map-marker-alt"></i>
-              Service Location
-            </h4>
-            <div class="location-address">
-              <div class="address-line">{{ job.municipality }}, {{ job.barangay }}</div>
-              <div class="coordinates">
-                <span>Coordinates: {{ job.latitude|floatformat:6 }}, {{ job.longitude|floatformat:6 }}</span>
-              </div>
-            </div>
-          </div>
-          
-          <div class="map-container-formal">
-            <div id="map"></div>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Application Section -->
-    <section class="document-section application-section">
-      <div class="section-header">
-        <div class="section-number">06</div>
-        <div class="section-info">
-          <h2 class="section-title">Application Process</h2>
-          <p class="section-subtitle">How to submit your proposal for this project</p>
-        </div>
-      </div>
-      
-      <div class="section-content">
-        <div class="application-info">
-          <div class="application-stats">
-            <div class="stat-item">
-              <div class="stat-number">{{ job.applications.count }}</div>
-              <div class="stat-label">Application{{ job.applications.count|pluralize }} Received</div>
-            </div>
-            <div class="stat-item">
-              <div class="stat-number">{{ job.created_at|timesince }}</div>
-              <div class="stat-label">Since Posted</div>
-            </div>
-          </div>
-          
-          <div class="application-actions">
-            {% if user.is_authenticated %}
-              {% if user == job.owner %}
-                <!-- Job Owner Actions -->
-                <div class="owner-actions">
-                  <a href="{% url 'jobs:job_edit' job.pk %}" class="btn-formal btn-edit">
-                    <i class="fa fa-edit"></i>
-                    <span>Edit Posting</span>
-                  </a>
-                  <a href="{% url 'jobs:job_delete' job.pk %}" class="btn-formal btn-delete">
-                    <i class="fa fa-trash"></i>
-                    <span>Remove Posting</span>
-                  </a>
-                </div>
-              {% else %}
-                <!-- Job Seeker Actions -->
-                <div class="applicant-actions">
-                  {% if has_applied %}
-                    <button class="btn-formal btn-applied" disabled>
-                      <i class="fa fa-check-circle"></i>
-                      <span>Application Submitted</span>
-                    </button>
-                  {% else %}
-                    <a href="{% url 'jobs:job_apply' job.pk %}" class="btn-formal btn-apply">
-                      <i class="fa fa-paper-plane"></i>
-                      <span>Submit Application</span>
-                    </a>
-                  {% endif %}
-                  
-                  <a href="{% url 'messaging:start_conversation_with_user' username=job.owner.username %}" class="btn-formal btn-contact">
-                    <i class="fa fa-envelope"></i>
-                    <span>Contact Client</span>
-                  </a>
-                </div>
-              {% endif %}
-            {% else %}
-              <div class="login-required">
-                <div class="login-message">
-                  <i class="fa fa-lock"></i>
-                  <span>Please <a href="{% url 'login' %}">sign in</a> to submit an application for this project.</span>
-                </div>
-              </div>
-            {% endif %}
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Section 7: Applicant Management (Only for Job Owner) -->
-    {% if user == job.owner %}
-    <section class="document-section">
-      <div class="section-header">
-        <div class="section-number">07</div>
-        <div class="section-info">
-          <h2 class="section-title">Applicant Management</h2>
-          <p class="section-subtitle">Review and manage submitted applications</p>
-        </div>
-      </div>
-      
-      <div class="section-content">
-        <!-- Applicant Statistics -->
-        <div class="applicant-overview">
-          <div class="overview-stats">
-            <div class="stat-card">
-              <div class="stat-icon">
-                <i class="fa fa-users"></i>
-              </div>
-              <div class="stat-info">
-                <div class="stat-number">{{ job.applications.count }}</div>
-                <div class="stat-label">Total Applications</div>
-              </div>
-            </div>
-            
-            <div class="stat-card">
-              <div class="stat-icon pending">
-                <i class="fa fa-clock"></i>
-              </div>
-              <div class="stat-info">
-                <div class="stat-number">{{ job.applications.pending.count }}</div>
-                <div class="stat-label">Pending Review</div>
-              </div>
-            </div>
-            
-            <div class="stat-card">
-              <div class="stat-icon accepted">
-                <i class="fa fa-check"></i>
-              </div>
-              <div class="stat-info">
-                <div class="stat-number">{{ job.applications.accepted.count }}</div>
-                <div class="stat-label">Accepted</div>
-              </div>
-            </div>
-            
-            <div class="stat-card">
-              <div class="stat-icon rejected">
-                <i class="fa fa-times"></i>
-              </div>
-              <div class="stat-info">
-                <div class="stat-number">{{ job.applications.rejected.count }}</div>
-                <div class="stat-label">Rejected</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Application Filters -->
-        <div class="applicant-filters">
-          <div class="filter-group">
-            <label for="statusFilter" class="filter-label">Filter by Status:</label>
-            <select id="statusFilter" class="filter-select" onchange="filterApplications()">
-              <option value="all">All Applications</option>
-              <option value="pending">Pending Review</option>
-              <option value="accepted">Accepted</option>
-              <option value="rejected">Rejected</option>
-            </select>
-          </div>
-          
-          <div class="filter-group">
-            <label for="sortBy" class="filter-label">Sort by:</label>
-            <select id="sortBy" class="filter-select" onchange="sortApplications()">
-              <option value="newest">Newest First</option>
-              <option value="oldest">Oldest First</option>
-              <option value="rate-high">Highest Rate</option>
-              <option value="rate-low">Lowest Rate</option>
-            </select>
-          </div>
-          
-          <div class="filter-group">
-            <button class="bulk-action-btn" onclick="toggleBulkActions()">
-              <i class="fa fa-tasks"></i>
-              Bulk Actions
-            </button>
-          </div>
-        </div>
-
-        <!-- Bulk Actions Panel -->
-        <div id="bulkActionsPanel" class="bulk-actions-panel" style="display: none;">
-          <div class="bulk-actions-content">
-            <div class="bulk-actions-info">
-              <span id="selectedCount">0</span> application(s) selected
-            </div>
-            <div class="bulk-actions-buttons">
-              <button class="bulk-btn accept" onclick="bulkAccept()">
-                <i class="fa fa-check"></i>
-                Accept Selected
-              </button>
-              <button class="bulk-btn reject" onclick="bulkReject()">
-                <i class="fa fa-times"></i>
-                Reject Selected
-              </button>
-              <button class="bulk-btn message" onclick="bulkMessage()">
-                <i class="fa fa-envelope"></i>
-                Message Selected
-              </button>
-            </div>
-          </div>
-        </div>
-
-        {% if job.applications.exists %}
-        <!-- Applications Table -->
-        <div class="applications-container">
-          <div class="applications-table-header">
-            <div class="table-header-left">
-              <h4 class="applications-title">
-                <i class="fa fa-file-alt"></i>
-                Submitted Applications
-              </h4>
-            </div>
-            <div class="table-header-right">
-              <button class="export-btn" onclick="exportApplications()">
-                <i class="fa fa-download"></i>
-                Export List
-              </button>
-            </div>
-          </div>
-          
-          <div class="applications-table-wrapper">
-            <table class="applications-table">
-              <thead>
-                <tr>
-                  <th class="checkbox-column">
-                    <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
-                  </th>
-                  <th class="applicant-column">Applicant</th>
-                  <th class="rate-column">Proposed Rate</th>
-                  <th class="date-column">Start Date</th>
-                  <th class="duration-column">Duration</th>
-                  <th class="status-column">Status</th>
-                  <th class="applied-column">Applied</th>
-                  <th class="actions-column">Actions</th>
-                </tr>
-              </thead>
-              <tbody id="applicationsTableBody">
-                {% for application in job.applications.all %}
-                <tr class="application-row" data-status="{{ application.status|lower }}" data-rate="{{ application.proposed_rate|default:0 }}" data-date="{{ application.applied_at|date:'Y-m-d H:i:s' }}">
-                  <td class="checkbox-column">
-                    <input type="checkbox" class="application-checkbox" value="{{ application.pk }}">
-                  </td>
-                  
-                  <td class="applicant-column">
-                    <div class="applicant-info">
-                      <div class="applicant-avatar">
-                        {% if application.worker.profile.profile_picture %}
-                          <img src="{{ application.worker.profile.profile_picture.url }}" alt="{{ application.worker.get_full_name|default:application.worker.username }}">
-                        {% else %}
-                          <div class="avatar-placeholder">
-                            {{ application.worker.first_name|first|default:application.worker.username|first|upper }}
-                          </div>
-                        {% endif %}
-                      </div>
-                      <div class="applicant-details">
-                        <div class="applicant-name">
-                          <a href="{% url 'profile' application.worker.pk %}" class="profile-link">
-                            {{ application.worker.get_full_name|default:application.worker.username }}
-                          </a>
-                        </div>
-                        <div class="applicant-meta">
-                          {% if application.worker.profile.rating %}
-                            <div class="rating">
-                              {% for i in "12345" %}
-                                <i class="fa fa-star{% if forloop.counter > application.worker.profile.rating %}-o{% endif %}"></i>
-                              {% endfor %}
-                              <span class="rating-count">({{ application.worker.profile.rating }})</span>
-                            </div>
-                          {% endif %}
-                          <div class="experience-level">
-                            {% if application.worker.profile.experience_years %}
-                              {{ application.worker.profile.experience_years }} years experience
-                            {% else %}
-                              New freelancer
-                            {% endif %}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                  
-                  <td class="rate-column">
-                    <div class="rate-info">
-                      {% if application.proposed_rate %}
-                        <div class="rate-amount">{{ application.proposed_rate }}</div>
-                        <div class="rate-comparison">
-                          {% if application.proposed_rate|cut:"₱"|cut:","|floatformat:0|add:0 <= job.budget %}
-                            <span class="rate-status within-budget">
-                              <i class="fa fa-check-circle"></i>
-                              Within budget
-                            </span>
-                          {% else %}
-                            <span class="rate-status over-budget">
-                              <i class="fa fa-exclamation-triangle"></i>
-                              Over budget
-                            </span>
-                          {% endif %}
-                        </div>
-                      {% else %}
-                        <span class="rate-not-specified">Rate not specified</span>
-                      {% endif %}
-                    </div>
-                  </td>
-                  
-                  <td class="date-column">
-                    {% if application.available_start_date %}
-                      <div class="start-date">{{ application.available_start_date|date:"M j, Y" }}</div>
-                      <div class="date-relative">
-                        {% if application.available_start_date <= today %}
-                          <span class="availability immediate">
-                            <i class="fa fa-bolt"></i>
-                            Available now
-                          </span>
-                        {% else %}
-                          <span class="availability future">
-                            <i class="fa fa-calendar"></i>
-                            In {{ application.available_start_date|timeuntil }}
-                          </span>
-                        {% endif %}
-                      </div>
-                    {% else %}
-                      <span class="date-not-specified">Not specified</span>
-                    {% endif %}
-                  </td>
-                  
-                  <td class="duration-column">
-                    {% if application.expected_duration %}
-                      <div class="duration-estimate">{{ application.expected_duration }}</div>
-                    {% else %}
-                      <span class="duration-not-specified">Not specified</span>
-                    {% endif %}
-                  </td>
-                  
-                  <td class="status-column">
-                    <div class="status-badge-container">
-                      <span class="application-status-badge {{ application.status|lower }}">
-                        {% if application.status == 'pending' %}
-                          <i class="fa fa-clock"></i>
-                        {% elif application.status == 'accepted' %}
-                          <i class="fa fa-check"></i>
-                        {% elif application.status == 'rejected' %}
-                          <i class="fa fa-times"></i>
-                        {% elif application.status == 'under_review' %}
-                          <i class="fa fa-eye"></i>
-                        {% endif %}
-                        {{ application.status|title }}
-                      </span>
-                    </div>
-                  </td>
-                  
-                  <td class="applied-column">
-                    <div class="applied-time">
-                      <div class="applied-date">{{ application.applied_at|date:"M j" }}</div>
-                      <div class="applied-relative">{{ application.applied_at|timesince }} ago</div>
-                    </div>
-                  </td>
-                  
-                  <td class="actions-column">
-                    <div class="action-buttons-group">
-                      <button class="action-btn view" onclick="viewApplication({{ application.pk }})" title="View Application" style="background-color: #059669;">
-                        <i class="fa fa-eye"></i>
-                      </button>
-                      
-                      <div class="action-dropdown">
-                        <button class="action-btn dropdown-toggle" onclick="toggleActionMenu({{ application.pk }})" title="More Actions">
-                          <i class="fa fa-ellipsis-v"></i>
-                        </button>
-                        <div class="action-menu" id="actionMenu{{ application.pk }}">
-                          {% if application.status == 'pending' %}
-                            <form method="post" action="{% url 'jobs:update_application_status' application.pk %}" style="display: inline;">
-                              {% csrf_token %}
-                              <input type="hidden" name="status" value="accepted">
-                              <button type="submit" class="menu-item accept">
-                                <i class="fa fa-check"></i>
-                                Accept Application
-                              </button>
-                            </form>
-                            <form method="post" action="{% url 'jobs:update_application_status' application.pk %}" style="display: inline;">
-                              {% csrf_token %}
-                              <input type="hidden" name="status" value="rejected">
-                              <button type="submit" class="menu-item reject">
-                                <i class="fa fa-times"></i>
-                                Reject Application
-                              </button>
-                            </form>
-                          {% endif %}
-                          
-                          <a href="{% url 'messaging:start_conversation_with_user' username=application.worker.username %}" class="menu-item message">
-                            <i class="fa fa-envelope"></i>
-                            Send Message
-                          </a>
-                          
-                          <a href="{% url 'profile' application.worker.pk %}" class="menu-item profile">
-                            <i class="fa fa-user"></i>
-                            View Profile
-                          </a>
-                          
-                          {% if application.Other_link %}
-                            <a href="{{ application.Other_link }}" target="_blank" class="menu-item portfolio">
-                              <i class="fa fa-external-link-alt"></i>
-                              View Portfolio
-                            </a>
-                          {% endif %}
-                        </div>
-                      </div>
-                    </div>
-                  </td>
-                </tr>
-                {% endfor %}
-              </tbody>
-            </table>
-          </div>
-        </div>
-        
-        {% else %}
-        <!-- No Applications State -->
-        <div class="no-applications">
-          <div class="no-applications-icon">
-            <i class="fa fa-inbox"></i>
-          </div>
-          <div class="no-applications-content">
-            <h4>No Applications Yet</h4>
-            <p>Your job posting hasn't received any applications yet. Here are some tips to attract more applicants:</p>
-            <ul class="improvement-tips">
-              <li><i class="fa fa-lightbulb"></i> Add more detailed project descriptions</li>
-              <li><i class="fa fa-images"></i> Include reference images or examples</li>
-              <li><i class="fa fa-dollar-sign"></i> Review your budget to ensure it's competitive</li>
-              <li><i class="fa fa-share"></i> Share your job posting on social media</li>
-            </ul>
-            <div class="promotion-actions">
-              <a href="{% url 'jobs:job_edit' job.pk %}" class="btn-formal btn-edit">
-                <i class="fa fa-edit"></i>
-                <span>Improve Posting</span>
-              </a>
-              <button class="btn-formal btn-share" onclick="shareJobPosting()">
-                <i class="fa fa-share"></i>
-                <span>Share Job</span>
-              </button>
-            </div>
-          </div>
-        </div>
-        {% endif %}
-      </div>
-    </section>
-    {% endif %}
-  </div>
-</div>
-
-<!-- Image Modal/Lightbox -->
-<div id="imageModal" class="image-modal">
-  <div class="modal-content">
-    <button class="modal-close" onclick="closeImageModal()">&times;</button>
-    <div class="modal-zoom-controls">
-      <button class="zoom-btn" onclick="zoomIn()">
-        <i class="fa fa-plus"></i>
-      </button>
-      <button class="zoom-btn" onclick="zoomOut()">
-        <i class="fa fa-minus"></i>
-      </button>
-      <button class="zoom-btn" onclick="resetZoom()">
-        <i class="fa fa-expand-arrows-alt"></i>
-      </button>
-    </div>
-    <button class="modal-nav prev" onclick="previousImage()">
-      <i class="fa fa-chevron-left"></i>
-    </button>
-    <img id="modalImage" class="modal-image" src="/placeholder.svg" alt="">
-    <button class="modal-nav next" onclick="nextImage()">
-      <i class="fa fa-chevron-right"></i>
-    </button>
-    <div class="modal-info">
-      <span id="imageInfo"></span>
-    </div>
-  </div>
-</div>
-
-<!-- Include Leaflet.js -->
-
-<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
-
-<script>
-  // Image Modal/Lightbox functionality
-  let currentImageIndex = 0;
-  let currentZoom = 1;
-  const images = [
-    {% for job_image in job.jobimage_set.all %}
-      {
-        src: "{{ job_image.image.url }}",
-        alt: "{{ job.title }} - Job Image {{ forloop.counter }}"
-      }{% if not forloop.last %},{% endif %}
-    {% endfor %}
-  ];
-
-  function openImageModal(index) {
-    currentImageIndex = index;
-    currentZoom = 1;
-    const modal = document.getElementById('imageModal');
-    const modalImage = document.getElementById('modalImage');
-    const imageInfo = document.getElementById('imageInfo');
-    
-    if (images.length > 0) {
-      modalImage.src = images[currentImageIndex].src;
-      modalImage.alt = images[currentImageIndex].alt;
-      imageInfo.textContent = `Image ${currentImageIndex + 1} of ${images.length}`;
-      
-      modal.classList.add('active');
-      document.body.style.overflow = 'hidden';
-      
-      updateNavigationButtons();
-      resetZoom();
-    }
-  }
-
-  function closeImageModal() {
-    const modal = document.getElementById('imageModal');
-    modal.classList.remove('active');
-    document.body.style.overflow = 'auto';
-    currentZoom = 1;
-  }
-
-  function previousImage() {
-    if (currentImageIndex > 0) {
-      currentImageIndex--;
-      updateModalImage();
-    }
-  }
-
-  function nextImage() {
-    if (currentImageIndex < images.length - 1) {
-      currentImageIndex++;
-      updateModalImage();
-    }
-  }
-
-  function updateModalImage() {
-    const modalImage = document.getElementById('modalImage');
-    const imageInfo = document.getElementById('imageInfo');
-    
-    modalImage.src = images[currentImageIndex].src;
-    modalImage.alt = images[currentImageIndex].alt;
-    imageInfo.textContent = `Image ${currentImageIndex + 1} of ${images.length}`;
-    
-    updateNavigationButtons();
-    resetZoom();
-  }
-
-  function updateNavigationButtons() {
-    const prevBtn = document.querySelector('.modal-nav.prev');
-    const nextBtn = document.querySelector('.modal-nav.next');
-    
-    prevBtn.disabled = currentImageIndex === 0;
-    nextBtn.disabled = currentImageIndex === images.length - 1;
-    
-    if (images.length <= 1) {
-      prevBtn.style.display = 'none';
-      nextBtn.style.display = 'none';
-    } else {
-      prevBtn.style.display = 'flex';
-      nextBtn.style.display = 'flex';
-    }
-  }
-
-  function zoomIn() {
-    currentZoom = Math.min(currentZoom * 1.2, 3);
-    applyZoom();
-  }
-
-  function zoomOut() {
-    currentZoom = Math.max(currentZoom / 1.2, 0.5);
-    applyZoom();
-  }
-
-  function resetZoom() {
-    currentZoom = 1;
-    applyZoom();
-  }
-
-  function applyZoom() {
-    const modalImage = document.getElementById('modalImage');
-    modalImage.style.transform = `scale(${currentZoom})`;
-    modalImage.style.cursor = currentZoom > 1 ? 'grab' : 'default';
-  }
-
-  // Keyboard navigation
-  document.addEventListener('keydown', function(e) {
-    const modal = document.getElementById('imageModal');
-    if (modal.classList.contains('active')) {
-      switch(e.key) {
-        case 'Escape':
-          closeImageModal();
-          break;
-        case 'ArrowLeft':
-          previousImage();
-          break;
-        case 'ArrowRight':
-          nextImage();
-          break;
-        case '+':
-        case '=':
-          zoomIn();
-          break;
-        case '-':
-          zoomOut();
-          break;
-        case '0':
-          resetZoom();
-          break;
-      }
-    }
-  });
-
-  // Close modal when clicking outside the image
-  document.getElementById('imageModal').addEventListener('click', function(e) {
-    if (e.target === this) {
-      closeImageModal();
-    }
-  });
-
-  // Drag functionality for zoomed images
-  let isDragging = false;
-  let startX, startY, scrollLeft, scrollTop;
-
-  document.getElementById('modalImage').addEventListener('mousedown', function(e) {
-    if (currentZoom > 1) {
-      isDragging = true;
-      this.style.cursor = 'grabbing';
-      startX = e.pageX - this.offsetLeft;
-      startY = e.pageY - this.offsetTop;
-      scrollLeft = this.scrollLeft;
-      scrollTop = this.scrollTop;
-    }
-  });
-
-  document.addEventListener('mouseup', function() {
-    isDragging = false;
-    const modalImage = document.getElementById('modalImage');
-    if (currentZoom > 1) {
-      modalImage.style.cursor = 'grab';
-    } else {
-      modalImage.style.cursor = 'default';
-    }
-  });
-
-  document.addEventListener('mousemove', function(e) {
-    if (!isDragging) return;
-    e.preventDefault();
-    const modalImage = document.getElementById('modalImage');
-    const x = e.pageX - modalImage.offsetLeft;
-    const y = e.pageY - modalImage.offsetTop;
-    const walkX = (x - startX) * 2;
-    const walkY = (y - startY) * 2;
-    modalImage.scrollLeft = scrollLeft - walkX;
-    modalImage.scrollTop = scrollTop - walkY;
-  });
-
-  // Map functionality
-  document.addEventListener("DOMContentLoaded", function () {
-    var lat = parseFloat("{{ job.latitude|default:14.4311278 }}");
-    var lng = parseFloat("{{ job.longitude|default:120.9682000 }}");
-
-    var map = L.map('map').setView([lat, lng], 15);
-
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors',
-      maxZoom: 19
-    }).addTo(map);
-
-    // Custom marker icon
-    var customIcon = L.divIcon({
-      className: 'custom-marker',
-      html: '<div class="marker-pin"><i class="fa fa-map-marker-alt"></i></div>',
-      iconSize: [30, 30],
-      iconAnchor: [15, 30]
-    });
-
-    var marker = L.marker([lat, lng], { icon: customIcon })
-      .addTo(map)
-      .bindPopup(`
-        <div class="custom-popup">
-          <h4><strong>{{ job.title }}</strong></h4>
-          <p><i class="fa fa-map-marker-alt"></i> {{ job.municipality }}, {{ job.barangay }}</p>
-          <p><i class="fa fa-peso-sign"></i> ₱{{ job.budget|floatformat:0 }}</p>
-        </div>
-      `)
-      .openPopup();
-
-    function pulseMarker() {
-      const markerElement = marker.getElement();
-      if (markerElement) {
-        markerElement.classList.add('pulse-marker');
-        setTimeout(() => {
-          markerElement.classList.remove('pulse-marker');
-        }, 1000);
-      }
-    }
-
-    pulseMarker();
-    setInterval(pulseMarker, 5000);
-    setTimeout(() => map.invalidateSize(), 100);
-
-    // Enhanced marker and popup styles
-    const style = document.createElement('style');
-    style.textContent = `
-      .custom-marker {
-        background: none;
+    .btn-action {
+        padding: 0.875rem 1.75rem;
+        border-radius: 8px;
+        font-weight: 600;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
         border: none;
-      }
-      
-      .marker-pin {
-        width: 30px;
-        height: 30px;
-        border-radius: 50% 50% 50% 0;
-        background: linear-gradient(135deg, var(--primary-blue) 0%, var(--secondary-blue) 100%);
+        cursor: pointer;
+        font-size: 0.9375rem;
+    }
+
+    .btn-action:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-primary {
+        background: #2563eb;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #1d4ed8;
+        color: white;
+    }
+
+    .btn-warning {
+        background: #f59e0b;
+        color: white;
+    }
+
+    .btn-warning:hover {
+        background: #d97706;
+        color: white;
+    }
+
+    .btn-danger {
+        background: #ef4444;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #dc2626;
+        color: white;
+    }
+
+    .btn-secondary {
+        background: #6b7280;
+        color: white;
+    }
+
+    .btn-secondary:hover {
+        background: #4b5563;
+        color: white;
+    }
+
+    /* Applicants Section */
+    .applicants-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-top: 2rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .applicant-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 1rem;
+        border-bottom: 1px solid #f3f4f6;
+        transition: background 0.2s;
+    }
+
+    .applicant-row:hover {
+        background: #f9fafb;
+    }
+
+    .applicant-row:last-child {
+        border-bottom: none;
+    }
+
+    .applicant-info {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    .applicant-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        object-fit: cover;
+    }
+
+    .applicant-details h4 {
+        margin: 0 0 0.25rem 0;
+        font-size: 1rem;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .applicant-details p {
+        margin: 0;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    .applicant-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .btn-sm {
+        padding: 0.5rem 1rem;
+        font-size: 0.8125rem;
+    }
+
+    /* Status Badge */
+    .status-badge {
+        display: inline-block;
+        padding: 0.375rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+
+    .status-active {
+        background: #d1fae5;
+        color: #065f46;
+    }
+
+    .status-inactive {
+        background: #fee2e2;
+        color: #991b1b;
+    }
+
+    /* Image Modal */
+    .image-modal {
+        display: none;
+        position: fixed;
+        z-index: 9999;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.9);
+        align-items: center;
+        justify-content: center;
+    }
+
+    .image-modal.active {
+        display: flex;
+    }
+
+    .modal-content {
+        position: relative;
+        max-width: 90%;
+        max-height: 90%;
+    }
+
+    .modal-image {
+        max-width: 100%;
+        max-height: 90vh;
+        border-radius: 8px;
+    }
+
+    .modal-close {
         position: absolute;
-        transform: rotate(-45deg);
-        left: 50%;
-        top: 50%;
-        margin: -15px 0 0 -15px;
+        top: -40px;
+        right: 0;
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: none;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1.5rem;
         display: flex;
         align-items: center;
         justify-content: center;
-        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-      }
-      
-      .marker-pin i {
-        color: white;
-        transform: rotate(45deg);
-        font-size: 14px;
-      }
-      
-      .pulse-marker .marker-pin {
-        animation: pulse 1s ease-out;
-      }
-      
-      @keyframes pulse {
-        0% { 
-          transform: rotate(-45deg) scale(1); 
-          opacity: 1; 
-        }
-        50% { 
-          transform: rotate(-45deg) scale(1.3); 
-          opacity: 0.8; 
-        }
-        100% { 
-          transform: rotate(-45deg) scale(1); 
-          opacity: 1; 
-        }
-      }
-      
-      .leaflet-popup-content-wrapper {
-        border-radius: 12px;
-        box-shadow: 0 8px 32px rgba(0,0,0,0.15);
-        border: 1px solid var(--border-color);
-      }
-      
-      .leaflet-popup-content {
-        margin: 16px 20px;
-        line-height: 1.5;
-        font-family: 'Inter', sans-serif;
-      }
-      
-      .custom-popup h4 {
-        margin: 0 0 8px 0;
-        color: var(--text-dark);
-        font-size: 16px;
-      }
-      
-      .custom-popup p {
-        margin: 4px 0;
-        color: var(--text-medium);
-        font-size: 14px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-      }
-      
-      .custom-popup i {
-        color: var(--primary-blue);
-        width: 14px;
-      }
-      
-      .leaflet-popup-tip {
-        background: white;
-        border: 1px solid var(--border-color);
-      }
-    `;
-    document.head.appendChild(style);
+    }
 
-    // Add map controls enhancement
-    map.on('zoomend', function() {
-      const zoom = map.getZoom();
-      const markerElement = marker.getElement();
-      if (markerElement) {
-        const scale = Math.min(1.5, Math.max(0.8, zoom / 15));
-        markerElement.style.transform = `scale(${scale})`;
-      }
+    .modal-close:hover {
+        background: rgba(255, 255, 255, 0.3);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+        .job-title {
+            font-size: 1.5rem;
+        }
+
+        .quick-stats {
+            grid-template-columns: 1fr 1fr;
+        }
+
+        .stat-item {
+            border-right: none;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .stat-item:nth-child(odd) {
+            border-right: 1px solid #e5e7eb;
+        }
+
+        .content-section {
+            padding: 1.5rem;
+        }
+
+        .details-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .action-section {
+            flex-direction: column;
+        }
+
+        .btn-action {
+            width: 100%;
+            justify-content: center;
+        }
+
+        .applicant-row {
+            flex-direction: column;
+            align-items: flex-start;
+            gap: 1rem;
+        }
+
+        .applicant-actions {
+            width: 100%;
+        }
+
+        .applicant-actions .btn-action {
+            flex: 1;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="job-detail-container">
+    <!-- Header Card -->
+    <div class="job-header-card">
+        <div class="job-title-section">
+            <div class="job-category-badge">
+                <i class="bi bi-tag-fill"></i> {{ job.category.name }}
+            </div>
+            <h1 class="job-title">{{ job.title }}</h1>
+            <div class="job-meta">
+                <div class="job-meta-item">
+                    <i class="bi bi-person-circle"></i>
+                    <span>{{ job.owner.get_full_name|default:job.owner.username }}</span>
+                </div>
+                <div class="job-meta-item">
+                    <i class="bi bi-geo-alt-fill"></i>
+                    <span>{{ job.municipality }}, {{ job.barangay }}</span>
+                </div>
+                <div class="job-meta-item">
+                    <i class="bi bi-calendar3"></i>
+                    <span>Posted {{ job.created_at|date:"M d, Y" }}</span>
+                </div>
+                <div class="job-meta-item">
+                    {% if job.is_active %}
+                    <span class="status-badge status-active">
+                        <i class="bi bi-check-circle-fill"></i> Active
+                    </span>
+                    {% else %}
+                    <span class="status-badge status-inactive">
+                        <i class="bi bi-x-circle-fill"></i> Closed
+                    </span>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Card -->
+    <div class="job-content-card">
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+            <div class="stat-item">
+                <div class="stat-value">₱{{ job.budget }}</div>
+                <div class="stat-label">Budget</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ job.applications.count }}</div>
+                <div class="stat-label">Applicants</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ job.urgency }}</div>
+                <div class="stat-label">Urgency</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-value">{{ job.duration|default:"Flexible" }}</div>
+                <div class="stat-label">Duration</div>
+            </div>
+        </div>
+
+        <!-- Description -->
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="bi bi-file-text"></i>
+                Job Description
+            </h2>
+            <div class="description-text">{{ job.description }}</div>
+        </div>
+
+        <!-- Job Details -->
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="bi bi-info-circle"></i>
+                Job Details
+            </h2>
+            <div class="details-grid">
+                {% if job.duration %}
+                <div class="detail-box">
+                    <div class="detail-label">Duration</div>
+                    <div class="detail-value">{{ job.duration }}</div>
+                </div>
+                {% endif %}
+                {% if job.schedule %}
+                <div class="detail-box">
+                    <div class="detail-label">Schedule</div>
+                    <div class="detail-value">{{ job.schedule }}</div>
+                </div>
+                {% endif %}
+                {% if job.experience_required %}
+                <div class="detail-box">
+                    <div class="detail-label">Experience Required</div>
+                    <div class="detail-value">{{ job.experience_required }}</div>
+                </div>
+                {% endif %}
+                {% if job.skills_required %}
+                <div class="detail-box">
+                    <div class="detail-label">Skills Required</div>
+                    <div class="detail-value">{{ job.skills_required }}</div>
+                </div>
+                {% endif %}
+                <div class="detail-box">
+                    <div class="detail-label">Urgency Level</div>
+                    <div class="detail-value">{{ job.urgency }}</div>
+                </div>
+                <div class="detail-box">
+                    <div class="detail-label">Location</div>
+                    <div class="detail-value">{{ job.municipality }}, {{ job.barangay }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Images -->
+        {% if job.images.exists %}
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="bi bi-images"></i>
+                Job Images
+            </h2>
+            <div class="image-gallery">
+                {% for image in job.images.all %}
+                <div class="gallery-item" onclick="openImageModal('{{ image.image.url }}')">
+                    <img src="{{ image.image.url }}" alt="Job image">
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Map -->
+        {% if job.latitude and job.longitude %}
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="bi bi-map"></i>
+                Location
+            </h2>
+            <div class="map-wrapper">
+                <div id="map"></div>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Application Section -->
+        {% if user.is_authenticated and user != job.owner %}
+        <div class="content-section">
+            <h2 class="section-title">
+                <i class="bi bi-send-fill"></i>
+                Apply for this Job
+            </h2>
+            
+            {% if not user_has_applied %}
+            <form method="post" action="{% url 'jobs:job_apply' job.pk %}" id="applicationForm" onsubmit="return confirmApplication();">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="message" class="form-label">Message to Employer (Optional)</label>
+                    <textarea class="form-control" id="message" name="message" rows="4" 
+                              placeholder="Introduce yourself and explain why you're a good fit for this job..."></textarea>
+                    <small class="text-muted">This message will be sent along with your application.</small>
+                </div>
+                <button type="submit" class="btn-action btn-primary">
+                    <i class="bi bi-send-fill"></i> Send Application
+                </button>
+            </form>
+            {% else %}
+            <div class="alert alert-success">
+                <i class="bi bi-check-circle-fill"></i> You have already applied for this job.
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Action Buttons -->
+        <div class="action-section">
+            {% if user.is_authenticated %}
+                {% if user == job.owner %}
+                    <a href="{% url 'jobs:job_edit' job.pk %}" class="btn-action btn-warning">
+                        <i class="bi bi-pencil-square"></i> Edit Job
+                    </a>
+                    <form method="post" action="{% url 'jobs:job_delete' job.pk %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this job?');">
+                        {% csrf_token %}
+                        <button type="submit" class="btn-action btn-danger">
+                            <i class="bi bi-trash"></i> Delete Job
+                        </button>
+                    </form>
+                {% endif %}
+                <a href="javascript:history.back()" class="btn-action btn-secondary">
+                    <i class="bi bi-arrow-left"></i> Back
+                </a>
+            {% else %}
+                <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn-action btn-primary">
+                    <i class="bi bi-box-arrow-in-right"></i> Login to Apply
+                </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Applicants Section (Only for Job Owner) -->
+    {% if user == job.owner and applications %}
+    <div class="applicants-card">
+        <h2 class="section-title">
+            <i class="bi bi-people-fill"></i>
+            Applicants ({{ applications.count }})
+        </h2>
+        {% for application in applications %}
+        <div class="applicant-row">
+            <div class="applicant-info">
+                <img src="{{ application.worker.get_profile_picture_url }}" 
+                     alt="{{ application.worker.username }}" 
+                     class="applicant-avatar"
+                     onerror="this.src='{% static 'images/default_profile.png' %}'">
+                <div class="applicant-details">
+                    <h4>{{ application.worker.get_full_name|default:application.worker.username }}</h4>
+                    <p>Applied {{ application.applied_at|date:"M d, Y" }} • Status: {{ application.status }}</p>
+                </div>
+            </div>
+            <div class="applicant-actions">
+                <a href="{% url 'jobs:job_application_detail' application.pk %}" class="btn-action btn-primary btn-sm">
+                    <i class="bi bi-eye"></i> View
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- Image Modal -->
+<div class="image-modal" id="imageModal" onclick="closeImageModal()">
+    <div class="modal-content" onclick="event.stopPropagation()">
+        <button class="modal-close" onclick="closeImageModal()">
+            <i class="bi bi-x"></i>
+        </button>
+        <img id="modalImage" class="modal-image" src="" alt="Full size image">
+    </div>
+</div>
+
+<script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+<script>
+    // Application Confirmation
+    function confirmApplication() {
+        return confirm('Are you sure you want to send this application?');
+    }
+
+    // Image Modal Functions
+    function openImageModal(imageSrc) {
+        document.getElementById('modalImage').src = imageSrc;
+        document.getElementById('imageModal').classList.add('active');
+    }
+
+    function closeImageModal() {
+        document.getElementById('imageModal').classList.remove('active');
+    }
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeImageModal();
+        }
     });
-  });
 
-  // Enhanced form interactions
-  document.addEventListener('DOMContentLoaded', function() {
-    // Add loading state to search form
-    const searchForm = document.querySelector('.search-form');
-    if (searchForm) {
-      searchForm.addEventListener('submit', function() {
-        const submitBtn = this.querySelector('button[type="submit"]');
-        const originalContent = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Searching...';
-        submitBtn.disabled = true;
+    // Initialize Map
+    {% if job.latitude and job.longitude %}
+    document.addEventListener('DOMContentLoaded', function() {
+        var map = L.map('map').setView([{{ job.latitude }}, {{ job.longitude }}], 15);
         
-        // Re-enable after a delay (in case of errors)
-        setTimeout(() => {
-          submitBtn.innerHTML = originalContent;
-          submitBtn.disabled = false;
-        }, 5000);
-      });
-    }
-
-    // Add confirmation dialogs for destructive actions
-    document.querySelectorAll('.btn-danger').forEach(btn => {
-      if (btn.textContent.includes('Delete')) {
-        btn.addEventListener('click', function(e) {
-          if (!confirm('Are you sure you want to delete this job? This action cannot be undone.')) {
-            e.preventDefault();
-          }
-        });
-      }
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+        }).addTo(map);
+        
+        L.marker([{{ job.latitude }}, {{ job.longitude }}]).addTo(map)
+            .bindPopup('<b>{{ job.title }}</b><br>{{ job.municipality }}, {{ job.barangay }}')
+            .openPopup();
     });
-
-    // Add smooth scrolling to applicants section
-    const applicantsSection = document.querySelector('.applicants-section');
-    if (applicantsSection) {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
-          if (entry.isIntersecting) {
-            entry.target.style.opacity = '1';
-            entry.target.style.transform = 'translateY(0)';
-          }
-        });
-      }, { threshold: 0.1 });
-
-      applicantsSection.style.opacity = '0';
-      applicantsSection.style.transform = 'translateY(20px)';
-      applicantsSection.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-      observer.observe(applicantsSection);
-    }
-  });
-
-// Applicant Management Functions
-let selectedApplications = new Set();
-
-function filterApplications() {
-  const status = document.getElementById('statusFilter').value;
-  const rows = document.querySelectorAll('.application-row');
-  
-  rows.forEach(row => {
-    const rowStatus = row.dataset.status;
-    if (status === 'all' || rowStatus === status) {
-      row.style.display = '';
-    } else {
-      row.style.display = 'none';
-    }
-  });
-  
-  updateVisibleCount();
-}
-
-function sortApplications() {
-  const sortBy = document.getElementById('sortBy').value;
-  const tbody = document.getElementById('applicationsTableBody');
-  const rows = Array.from(tbody.querySelectorAll('.application-row'));
-  
-  rows.sort((a, b) => {
-    switch(sortBy) {
-      case 'newest':
-        return new Date(b.dataset.date) - new Date(a.dataset.date);
-      case 'oldest':
-        return new Date(a.dataset.date) - new Date(b.dataset.date);
-      case 'rate-high':
-        return parseFloat(b.dataset.rate) - parseFloat(a.dataset.rate);
-      case 'rate-low':
-        return parseFloat(a.dataset.rate) - parseFloat(b.dataset.rate);
-      default:
-        return 0;
-    }
-  });
-  
-  rows.forEach(row => tbody.appendChild(row));
-}
-
-function toggleBulkActions() {
-  const panel = document.getElementById('bulkActionsPanel');
-  panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
-}
-
-function toggleSelectAll() {
-  const selectAll = document.getElementById('selectAll');
-  const checkboxes = document.querySelectorAll('.application-checkbox');
-  
-  checkboxes.forEach(checkbox => {
-    checkbox.checked = selectAll.checked;
-    if (selectAll.checked) {
-      selectedApplications.add(checkbox.value);
-    } else {
-      selectedApplications.delete(checkbox.value);
-    }
-  });
-  
-  updateSelectedCount();
-}
-
-function updateSelectedCount() {
-  const count = selectedApplications.size;
-  document.getElementById('selectedCount').textContent = count;
-  
-  const bulkButtons = document.querySelectorAll('.bulk-btn');
-  bulkButtons.forEach(btn => {
-    btn.disabled = count === 0;
-  });
-}
-
-function viewApplication(applicationId) {
-    // Generate a URL template using a dummy value (e.g., 0).
-    const urlTemplate = "{% url 'jobs:job_application_detail' 0 %}";
-    // Replace the dummy value with the actual applicationId.
-    window.location.href = urlTemplate.replace('0', applicationId);
-}
-
-function toggleActionMenu(applicationId) {
-  const menu = document.getElementById(`actionMenu${applicationId}`);
-  
-  // Close all other menus
-  document.querySelectorAll('.action-menu').forEach(m => {
-    if (m !== menu) m.classList.remove('show');
-  });
-  
-  menu.classList.toggle('show');
-}
-
-function bulkAccept() {
-  if (selectedApplications.size === 0) return;
-  
-  if (confirm(`Accept ${selectedApplications.size} application(s)?`)) {
-    // Implementation would send AJAX request to bulk update
-    console.log('Bulk accept:', Array.from(selectedApplications));
-  }
-}
-
-function bulkReject() {
-  if (selectedApplications.size === 0) return;
-  
-  if (confirm(`Reject ${selectedApplications.size} application(s)?`)) {
-    // Implementation would send AJAX request to bulk update
-    console.log('Bulk reject:', Array.from(selectedApplications));
-  }
-}
-
-function bulkMessage() {
-  if (selectedApplications.size === 0) return;
-  
-  // Implementation would open messaging interface
-  console.log('Bulk message:', Array.from(selectedApplications));
-}
-
-function exportApplications() {
-  // Implementation would generate and download CSV/Excel
-  console.log('Export applications');
-}
-
-function shareJobPosting() {
-  if (navigator.share) {
-    navigator.share({
-      title: document.title,
-      url: window.location.href
-    });
-  } else {
-    // Fallback: copy to clipboard
-    navigator.clipboard.writeText(window.location.href).then(() => {
-      alert('Job link copied to clipboard!');
-    });
-  }
-}
-
-// Event listeners
-document.addEventListener('DOMContentLoaded', function() {
-  // Handle application checkbox changes
-  document.querySelectorAll('.application-checkbox').forEach(checkbox => {
-    checkbox.addEventListener('change', function() {
-      if (this.checked) {
-        selectedApplications.add(this.value);
-      } else {
-        selectedApplications.delete(this.value);
-      }
-      updateSelectedCount();
-      
-      // Update select all checkbox
-      const selectAll = document.getElementById('selectAll');
-      const totalCheckboxes = document.querySelectorAll('.application-checkbox').length;
-      selectAll.checked = selectedApplications.size === totalCheckboxes;
-    });
-  });
-  
-  // Close action menus when clicking outside
-  document.addEventListener('click', function(e) {
-    if (!e.target.closest('.action-dropdown')) {
-      document.querySelectorAll('.action-menu').forEach(menu => {
-        menu.classList.remove('show');
-      });
-    }
-  });
-  
-  updateSelectedCount();
-});
-
-function updateVisibleCount() {
-  const visibleRows = document.querySelectorAll('.application-row:not([style*="display: none"])').length;
-  console.log(`Showing ${visibleRows} applications`);
-}
+    {% endif %}
 </script>
-
 {% endblock %}

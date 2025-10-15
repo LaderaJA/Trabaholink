@@ -1,0 +1,276 @@
+{% extends 'mainpages/base.html' %}
+{% load static %}
+
+{% block title %}My Applications - TrabahoLink{% endblock %}
+
+{% block css %}
+<style>
+    body {
+        background: #f3f4f6 !important;
+    }
+
+    .applications-container {
+        max-width: 1400px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .page-header {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        margin-bottom: 2rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+    }
+
+    .page-title {
+        font-size: 2rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 0.5rem 0;
+    }
+
+    .applications-grid {
+        display: grid;
+        gap: 1.5rem;
+    }
+
+    .application-card {
+        background: white;
+        border-radius: 12px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .application-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .application-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 1rem;
+        padding-bottom: 1rem;
+        border-bottom: 1px solid #f3f4f6;
+    }
+
+    .job-info h3 {
+        margin: 0 0 0.5rem 0;
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .employer-name {
+        color: #2563eb;
+        font-size: 0.9375rem;
+        font-weight: 500;
+    }
+
+    .application-body {
+        margin-bottom: 1rem;
+    }
+
+    .my-message {
+        background: #f9fafb;
+        padding: 1rem;
+        border-radius: 8px;
+        border-left: 3px solid #2563eb;
+        margin: 1rem 0;
+    }
+
+    .message-label {
+        font-size: 0.75rem;
+        font-weight: 600;
+        color: #6b7280;
+        text-transform: uppercase;
+        margin-bottom: 0.5rem;
+    }
+
+    .message-text {
+        color: #374151;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .application-meta {
+        display: flex;
+        gap: 1.5rem;
+        flex-wrap: wrap;
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    .meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .application-actions {
+        display: flex;
+        gap: 0.75rem;
+        flex-wrap: wrap;
+    }
+
+    .btn {
+        padding: 0.625rem 1.25rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.875rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+    }
+
+    .btn:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+
+    .btn-primary {
+        background: #2563eb;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #1d4ed8;
+        color: white;
+    }
+
+    .btn-danger {
+        background: #ef4444;
+        color: white;
+    }
+
+    .btn-danger:hover {
+        background: #dc2626;
+        color: white;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 4rem 2rem;
+        background: white;
+        border-radius: 12px;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #d1d5db;
+        margin-bottom: 1rem;
+    }
+
+    @media (max-width: 768px) {
+        .application-header {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .application-actions {
+            width: 100%;
+        }
+
+        .btn {
+            flex: 1;
+            justify-content: center;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="applications-container">
+    <!-- Page Header -->
+    <div class="page-header">
+        <h1 class="page-title">
+            <i class="bi bi-file-earmark-text"></i> My Applications
+        </h1>
+        <p class="page-subtitle">Track all your job applications</p>
+    </div>
+
+    <!-- Applications Grid -->
+    {% if applications %}
+    <div class="applications-grid">
+        {% for application in applications %}
+        <div class="application-card">
+            <div class="application-header">
+                <div class="job-info">
+                    <h3>{{ application.job.title }}</h3>
+                    <div class="employer-name">
+                        <i class="bi bi-building"></i> {{ application.job.owner.get_full_name|default:application.job.owner.username }}
+                    </div>
+                </div>
+                <div>
+                    {% include 'jobs/components/status_badge.html' with status=application.status %}
+                </div>
+            </div>
+
+            <div class="application-body">
+                {% if application.message %}
+                <div class="my-message">
+                    <div class="message-label">Your Message</div>
+                    <p class="message-text">{{ application.message|truncatewords:30 }}</p>
+                </div>
+                {% endif %}
+
+                <div class="application-meta">
+                    <div class="meta-item">
+                        <i class="bi bi-calendar"></i>
+                        <span>Applied {{ application.applied_at|date:"M d, Y" }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="bi bi-geo-alt"></i>
+                        <span>{{ application.job.municipality }}</span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="bi bi-currency-dollar"></i>
+                        <span>₱{{ application.job.budget }}</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="application-actions">
+                <a href="{% url 'jobs:job_detail' application.job.pk %}" class="btn btn-primary">
+                    <i class="bi bi-eye"></i> View Job
+                </a>
+
+                {% if application.status == 'Negotiation' or application.status == 'Accepted' %}
+                <a href="{% url 'jobs:contract_negotiation' application.job.contract.pk %}" class="btn btn-primary">
+                    <i class="bi bi-file-text"></i> View Contract
+                </a>
+                {% endif %}
+
+                {% if application.status == 'Pending' %}
+                <form method="post" action="{% url 'jobs:job_application_delete' application.pk %}" 
+                      style="display: inline;" 
+                      onsubmit="return confirm('Are you sure you want to withdraw this application?');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-danger">
+                        <i class="bi bi-x-circle"></i> Withdraw
+                    </button>
+                </form>
+                {% endif %}
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <i class="bi bi-inbox"></i>
+        <h3>No Applications Yet</h3>
+        <p>Start applying to jobs to see your applications here.</p>
+        <a href="{% url 'jobs:job_list' %}" class="btn btn-primary" style="margin-top: 1rem;">
+            <i class="bi bi-search"></i> Browse Jobs
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

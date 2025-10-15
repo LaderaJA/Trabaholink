@@ -1,0 +1,525 @@
+{% extends 'mainpages/base.html' %}
+{% load static %}
+
+{% block title %}Track Job Progress - {{ contract.job.title }} - TrabahoLink{% endblock %}
+
+{% block css %}
+<style>
+    body {
+        background: #f3f4f6 !important;
+    }
+
+    .progress-container {
+        max-width: 1200px;
+        margin: 2rem auto;
+        padding: 0 1rem;
+    }
+
+    .progress-header {
+        background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
+        color: white;
+        padding: 2rem;
+        border-radius: 16px;
+        margin-bottom: 2rem;
+        box-shadow: 0 4px 6px rgba(37, 99, 235, 0.1);
+    }
+
+    .progress-header h1 {
+        font-size: 1.75rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .progress-header p {
+        opacity: 0.9;
+        margin: 0;
+        font-size: 0.95rem;
+    }
+
+    .progress-grid {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 2rem;
+        margin-bottom: 2rem;
+    }
+
+    .progress-main {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .progress-sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 2rem;
+    }
+
+    .card {
+        background: white;
+        border-radius: 12px;
+        padding: 2rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
+    }
+
+    .card-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #111827;
+        margin-bottom: 1.5rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .progress-bar-container {
+        background: #f3f4f6;
+        border-radius: 9999px;
+        height: 24px;
+        overflow: hidden;
+        margin-bottom: 1rem;
+        position: relative;
+    }
+
+    .progress-bar-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+        border-radius: 9999px;
+        transition: width 0.3s ease;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-weight: 700;
+        font-size: 0.75rem;
+    }
+
+    .timeline {
+        position: relative;
+        padding-left: 2rem;
+    }
+
+    .timeline::before {
+        content: '';
+        position: absolute;
+        left: 0.5rem;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        background: #e5e7eb;
+    }
+
+    .timeline-item {
+        position: relative;
+        margin-bottom: 2rem;
+        padding-left: 1.5rem;
+    }
+
+    .timeline-item:last-child {
+        margin-bottom: 0;
+    }
+
+    .timeline-dot {
+        position: absolute;
+        left: -1.5rem;
+        top: 0.25rem;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: #10b981;
+        border: 3px solid white;
+        box-shadow: 0 0 0 2px #10b981;
+    }
+
+    .timeline-content {
+        background: #f9fafb;
+        padding: 1.5rem;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+    }
+
+    .timeline-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 0.75rem;
+    }
+
+    .timeline-status {
+        font-weight: 700;
+        color: #111827;
+        font-size: 1rem;
+    }
+
+    .timeline-date {
+        font-size: 0.8125rem;
+        color: #6b7280;
+    }
+
+    .timeline-message {
+        color: #374151;
+        line-height: 1.6;
+        margin: 0;
+    }
+
+    .stat-box {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1rem;
+        background: #f9fafb;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 1rem;
+    }
+
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.5rem;
+    }
+
+    .stat-icon.blue { background: #dbeafe; color: #2563eb; }
+    .stat-icon.green { background: #d1fae5; color: #059669; }
+    .stat-icon.yellow { background: #fef3c7; color: #f59e0b; }
+    .stat-icon.red { background: #fee2e2; color: #dc2626; }
+
+    .stat-content {
+        flex: 1;
+    }
+
+    .stat-label {
+        font-size: 0.8125rem;
+        color: #6b7280;
+        margin-bottom: 0.25rem;
+    }
+
+    .stat-value {
+        font-size: 1.25rem;
+        font-weight: 700;
+        color: #111827;
+    }
+
+    .contract-info {
+        padding: 1rem;
+        background: #f9fafb;
+        border-radius: 8px;
+        border: 1px solid #e5e7eb;
+        margin-bottom: 1rem;
+    }
+
+    .contract-info-item {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .contract-info-item:last-child {
+        border-bottom: none;
+    }
+
+    .contract-info-label {
+        font-size: 0.875rem;
+        color: #6b7280;
+    }
+
+    .contract-info-value {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: #111827;
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .btn-action {
+        flex: 1;
+        padding: 0.75rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.9375rem;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        border: none;
+        cursor: pointer;
+        min-width: 150px;
+    }
+
+    .btn-primary {
+        background: #2563eb;
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: #1d4ed8;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .btn-success {
+        background: #10b981;
+        color: white;
+    }
+
+    .btn-success:hover {
+        background: #059669;
+        color: white;
+        transform: translateY(-1px);
+    }
+
+    .btn-secondary {
+        background: #f3f4f6;
+        color: #374151;
+        border: 1px solid #d1d5db;
+    }
+
+    .btn-secondary:hover {
+        background: #e5e7eb;
+        color: #111827;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 3rem 1rem;
+        color: #6b7280;
+    }
+
+    .empty-state i {
+        font-size: 4rem;
+        color: #d1d5db;
+        margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+        font-size: 1.25rem;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+        font-size: 0.9375rem;
+        margin-bottom: 1.5rem;
+    }
+
+    @media (max-width: 768px) {
+        .progress-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .progress-header h1 {
+            font-size: 1.5rem;
+        }
+
+        .card {
+            padding: 1.5rem;
+        }
+
+        .action-buttons {
+            flex-direction: column;
+        }
+
+        .btn-action {
+            width: 100%;
+        }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="progress-container">
+    <!-- Breadcrumb -->
+    <nav aria-label="breadcrumb" style="margin-bottom: 1.5rem;">
+        <ol class="breadcrumb" style="background: white; padding: 1rem 1.5rem; border-radius: 8px; box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);">
+            <li class="breadcrumb-item"><a href="{% url 'jobs:home' %}" style="color: #2563eb; text-decoration: none;"><i class="bi bi-house-door"></i> Home</a></li>
+            <li class="breadcrumb-item"><a href="{% if user == contract.worker %}{% url 'jobs:worker_dashboard' %}{% else %}{% url 'jobs:employer_dashboard' %}{% endif %}" style="color: #2563eb; text-decoration: none;"><i class="bi bi-speedometer2"></i> Dashboard</a></li>
+            <li class="breadcrumb-item"><a href="{% url 'jobs:contract_detail' contract.pk %}" style="color: #2563eb; text-decoration: none;"><i class="bi bi-file-earmark-check"></i> Contract</a></li>
+            <li class="breadcrumb-item active" aria-current="page"><i class="bi bi-graph-up"></i> Track Progress</li>
+        </ol>
+    </nav>
+
+    <!-- Header -->
+    <div class="progress-header">
+        <h1><i class="bi bi-graph-up"></i> Track Job Progress</h1>
+        <p>{{ contract.job.title }}</p>
+    </div>
+
+    <!-- Progress Grid -->
+    <div class="progress-grid">
+        <!-- Main Content -->
+        <div class="progress-main">
+            <!-- Progress Overview -->
+            <div class="card">
+                <h2 class="card-title">
+                    <i class="bi bi-bar-chart-line"></i> Progress Overview
+                </h2>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" style="width: {{ progress_percentage }}%;">
+                        {{ progress_percentage }}%
+                    </div>
+                </div>
+                <p style="text-align: center; color: #6b7280; font-size: 0.875rem; margin: 0;">
+                    {% if contract.status == 'In Progress' %}
+                        Work is currently in progress
+                    {% elif contract.status == 'Submitted for Review' %}
+                        Work has been submitted for review
+                    {% elif contract.status == 'Completed' %}
+                        Work has been completed
+                    {% else %}
+                        {{ contract.status }}
+                    {% endif %}
+                </p>
+            </div>
+
+            <!-- Progress Timeline -->
+            <div class="card">
+                <h2 class="card-title">
+                    <i class="bi bi-clock-history"></i> Progress Updates
+                </h2>
+                
+                {% if progress_logs %}
+                <div class="timeline">
+                    {% for log in progress_logs %}
+                    <div class="timeline-item">
+                        <div class="timeline-dot"></div>
+                        <div class="timeline-content">
+                            <div class="timeline-header">
+                                <div class="timeline-status">{{ log.status }}</div>
+                                <div class="timeline-date">
+                                    <i class="bi bi-calendar"></i> {{ log.timestamp|date:"M d, Y - g:i A" }}
+                                </div>
+                            </div>
+                            <p class="timeline-message">{{ log.message }}</p>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% else %}
+                <div class="empty-state">
+                    <i class="bi bi-clipboard-x"></i>
+                    <h3>No Progress Updates Yet</h3>
+                    <p>Progress updates from the worker will appear here</p>
+                    {% if user == contract.worker %}
+                    <a href="{% url 'jobs:progresslog_add' contract.pk %}" class="btn-action btn-success" style="display: inline-flex; width: auto;">
+                        <i class="bi bi-plus-circle"></i> Add First Update
+                    </a>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="progress-sidebar">
+            <!-- Contract Stats -->
+            <div class="card">
+                <h2 class="card-title">
+                    <i class="bi bi-info-circle"></i> Contract Stats
+                </h2>
+                
+                <div class="stat-box">
+                    <div class="stat-icon blue">
+                        <i class="bi bi-calendar-check"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">Start Date</div>
+                        <div class="stat-value">{{ contract.start_date|date:"M d, Y"|default:"Not set" }}</div>
+                    </div>
+                </div>
+
+                <div class="stat-box">
+                    <div class="stat-icon red">
+                        <i class="bi bi-calendar-x"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">Deadline</div>
+                        <div class="stat-value">{{ contract.end_date|date:"M d, Y"|default:"Not set" }}</div>
+                    </div>
+                </div>
+
+                <div class="stat-box">
+                    <div class="stat-icon yellow">
+                        <i class="bi bi-clock"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">Updates</div>
+                        <div class="stat-value">{{ progress_logs.count }}</div>
+                    </div>
+                </div>
+
+                <div class="stat-box">
+                    <div class="stat-icon green">
+                        <i class="bi bi-flag"></i>
+                    </div>
+                    <div class="stat-content">
+                        <div class="stat-label">Status</div>
+                        <div class="stat-value" style="font-size: 1rem;">{{ contract.status }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Contract Details -->
+            <div class="card">
+                <h2 class="card-title">
+                    <i class="bi bi-file-earmark-text"></i> Contract Details
+                </h2>
+                
+                <div class="contract-info">
+                    <div class="contract-info-item">
+                        <span class="contract-info-label">Client</span>
+                        <span class="contract-info-value">{{ contract.client.get_full_name|default:contract.client.username }}</span>
+                    </div>
+                    <div class="contract-info-item">
+                        <span class="contract-info-label">Worker</span>
+                        <span class="contract-info-value">{{ contract.worker.get_full_name|default:contract.worker.username }}</span>
+                    </div>
+                    <div class="contract-info-item">
+                        <span class="contract-info-label">Payment Status</span>
+                        <span class="contract-info-value">{{ contract.payment_status }}</span>
+                    </div>
+                    {% if contract.started_at %}
+                    <div class="contract-info-item">
+                        <span class="contract-info-label">Started</span>
+                        <span class="contract-info-value">{{ contract.started_at|date:"M d, Y" }}</span>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <div class="action-buttons" style="margin-top: 1.5rem;">
+                    <a href="{% url 'jobs:contract_detail' contract.pk %}" class="btn-action btn-secondary">
+                        <i class="bi bi-eye"></i> View Contract
+                    </a>
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            {% if user == contract.worker and contract.status == 'In Progress' %}
+            <div class="card">
+                <h2 class="card-title">
+                    <i class="bi bi-lightning"></i> Quick Actions
+                </h2>
+                
+                <div class="action-buttons">
+                    <a href="{% url 'jobs:progresslog_add' contract.pk %}" class="btn-action btn-success">
+                        <i class="bi bi-plus-circle"></i> Add Update
+                    </a>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
