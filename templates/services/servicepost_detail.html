@@ -1,52 +1,75 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load review_filters %}
 
 {% block content %}
 <style>
-/* Enhanced CSS Variables */
+/* Bacoor-Inspired Design Variables */
 :root {
-  --primary-blue: #3b82f6;
-  --primary-blue-dark: #2563eb;
-  --primary-blue-light: #dbeafe;
-  --success-green: #10b981;
-  --success-green-light: #d1fae5;
-  --warning-yellow: #f59e0b;
-  --warning-yellow-light: #fef3c7;
-  --danger-red: #ef4444;
-  --danger-red-light: #fee2e2;
-  --text-dark: #111827;
-  --text-medium: #374151;
-  --text-light: #6b7280;
-  --text-white: #ffffff;
-  --background-white: #ffffff;
-  --background-gray: #f9fafb;
-  --background-gray-light: #f3f4f6;
-  --border-color: #e5e7eb;
-  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
-  --transition: all 0.2s ease-in-out;
+  /* Bacoor City Official Colors */
+  --bacoor-blue: #1e40af;
+  --bacoor-blue-light: #3b82f6;
+  --bacoor-gold: #f59e0b;
+  --bacoor-gold-light: #fbbf24;
+  --bacoor-red: #dc2626;
+  --bacoor-green: #059669;
+  
+  /* Primary Colors */
+  --primary-color: #1e40af;
+  --primary-dark: #1e3a8a;
+  --primary-light: #dbeafe;
+  --secondary-color: #64748b;
+  --success-color: #059669;
+  --dark-color: #0f172a;
+  --light-color: #f8fafc;
+  --text-color: #1e293b;
+  --text-light: #64748b;
+  
+  /* Gradients - Bacoor Themed */
+  --gradient-primary: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  --gradient-bacoor: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #f59e0b 100%);
+  --gradient-gold: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+  --gradient-secondary: linear-gradient(135deg, #64748b 0%, #475569 100%);
+  
+  /* Effects */
+  --box-shadow: 0 10px 30px rgba(30, 64, 175, 0.15);
+  --box-shadow-lg: 0 20px 50px rgba(30, 64, 175, 0.2);
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 /* Global Styles */
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background-color: var(--background-gray);
+  font-family: 'Poppins', sans-serif;
+  background: linear-gradient(to bottom, #f8fafc 0%, #e0e7ff 100%);
+  color: var(--text-color);
   line-height: 1.6;
-  color: var(--text-dark);
 }
 
-/* Page Header */
+/* Hide Debug Elements */
+#djDebug,
+.djdt-hidden,
+[id*="debug"],
+[class*="debug-toolbar"] {
+  display: none !important;
+}
+
+/* Page Header - Bacoor Inspired */
 .service-header {
-  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
-  color: var(--text-white);
-  padding: 3rem 0;
-  margin-bottom: 2rem;
-  border-radius: 0 0 2rem 2rem;
-  box-shadow: var(--shadow-lg);
-  transition: var(--transition);
+  background: var(--gradient-bacoor);
+  color: white;
+  padding: 2rem 0 3rem;
+  margin: 0 -15px 0;
   position: relative;
   overflow: hidden;
+  clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%);
+  animation: gradientAnimation 15s ease infinite;
+  background-size: 200% 200%;
+  box-shadow: var(--box-shadow-lg);
+}
+
+@keyframes gradientAnimation {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 .service-header::before {
@@ -54,49 +77,34 @@ body {
   position: absolute;
   top: 0;
   left: 0;
-  width: 100%;
-  height: 100%;
-  background: linear-gradient(45deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0));
-}
-
-.service-header:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  right: 0;
+  bottom: 0;
+  background: url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11 18c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm48 25c3.866 0 7-3.134 7-7s-3.134-7-7-7-7 3.134-7 7 3.134 7 7 7zm-43-7c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3zm63 31c1.657 0 3-1.343 3-3s-1.343-3-3-3-3 1.343-3 3 1.343 3 3 3z' fill='%23ffffff' fill-opacity='0.1' fill-rule='evenodd'/%3E%3C/svg%3E");
+  opacity: 0.6;
+  z-index: 0;
 }
 
 .service-title {
-  font-size: 2.5rem;
+  font-size: 2.25rem;
   font-weight: 700;
-  margin: 0 0 1rem 0;
-  background: linear-gradient(135deg, var(--text-white), rgba(255, 255, 255, 0.7));
-  background-clip: text;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
+  margin: 0 0 0.5rem 0;
+  color: white;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
   position: relative;
-  display: inline-block;
+  z-index: 1;
 }
 
-.service-title::after {
-  content: '';
-  position: absolute;
-  bottom: -5px;
-  left: 0;
-  width: 100%;
-  height: 3px;
-  background: linear-gradient(90deg, var(--primary-blue), var(--primary-blue-dark));
-  border-radius: 2px;
-}
-
-/* Service Card */
+/* Service Card - Minimized Spacing */
 .service-card {
-  background: var(--background-white);
-  border-radius: 1.25rem;
-  padding: 2rem;
-  margin: 1.5rem 0;
-  box-shadow: var(--shadow-md);
+  background: white;
+  border-radius: 1rem;
+  padding: 1.5rem;
+  margin: 1rem 0;
+  box-shadow: var(--box-shadow);
   transition: var(--transition);
   position: relative;
   overflow: hidden;
+  border: 1px solid rgba(30, 64, 175, 0.1);
 }
 
 .service-card:hover {
@@ -285,6 +293,35 @@ body {
   background: var(--danger-red);
 }
 
+/* Badge Styles */
+.badge {
+  display: inline-block;
+  padding: 0.4rem 0.85rem;
+  border-radius: 0.5rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.badge-success {
+  background: linear-gradient(135deg, #059669, #047857);
+  color: white;
+  box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
+}
+
+.badge-warning {
+  background: var(--gradient-gold);
+  color: white;
+  box-shadow: 0 2px 8px rgba(245, 158, 11, 0.3);
+}
+
+.badge-danger {
+  background: linear-gradient(135deg, #dc2626, #b91c1c);
+  color: white;
+  box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+}
+
 /* Responsive Design */
 @media (max-width: 768px) {
   .service-header {
@@ -310,76 +347,76 @@ body {
   }
 }
 
-
-.service-meta {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  font-size: 1rem;
-  opacity: 0.9;
-}
-
-.service-meta i {
-  font-size: 1.125rem;
-}
-
 /* Main Content Layout */
 .service-content {
   display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 2rem;
-  max-width: 1200px;
+  grid-template-columns: 1fr 380px;
+  gap: 1.5rem;
+  padding: 1.5rem 0;
+  max-width: 1400px;
   margin: 0 auto;
 }
 
 .main-content {
-  background: var(--background-white);
+  background: white;
   border-radius: 1rem;
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--box-shadow-lg);
   overflow: hidden;
+  border: 1px solid rgba(30, 64, 175, 0.1);
 }
 
 .sidebar {
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.75rem;
 }
 
 /* Image Gallery */
 .image-gallery {
   position: relative;
-  margin-bottom: 2rem;
+  margin-bottom: 0;
+  border-radius: 1rem 1rem 0 0;
+  overflow: hidden;
 }
 
 .main-image {
   width: 100%;
-  height: 400px;
+  height: 380px;
   object-fit: cover;
-  border-radius: 1rem 1rem 0 0;
+  cursor: pointer;
+  transition: var(--transition);
+  display: block;
 }
 
-.image-thumbnails {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+.main-image:hover {
+  transform: scale(1.02);
+}
+
+.thumbnail-container {
+  display: flex;
   gap: 0.5rem;
-  padding: 1rem;
-  background: var(--background-gray-light);
+  padding: 0.75rem;
+  overflow-x: auto;
+  background: var(--primary-light);
+  border-top: 1px solid rgba(30, 64, 175, 0.1);
 }
 
 .thumbnail {
-  width: 100%;
-  height: 80px;
+  width: 70px;
+  height: 70px;
   object-fit: cover;
   border-radius: 0.5rem;
   cursor: pointer;
-  transition: all 0.3s ease;
+  transition: var(--transition);
   border: 2px solid transparent;
+  flex-shrink: 0;
 }
 
 .thumbnail:hover,
 .thumbnail.active {
-  border-color: var(--primary-blue);
+  border-color: var(--bacoor-blue);
   transform: scale(1.05);
+  box-shadow: var(--box-shadow);
 }
 
 .no-images {
@@ -395,22 +432,24 @@ body {
 
 /* Content Sections */
 .content-section {
-  padding: 2rem;
+  padding: 1.5rem;
 }
 
-.section-title {
-  font-size: 1.25rem;
+.card-title {
+  font-size: 1.35rem;
   font-weight: 600;
-  color: var(--text-dark);
+  color: var(--dark-color);
   margin: 0 0 1rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 2px solid var(--primary-light);
   display: flex;
   align-items: center;
   gap: 0.5rem;
 }
 
-.section-title i {
-  color: var(--primary-blue);
-  font-size: 1.125rem;
+.card-title i {
+  color: var(--bacoor-blue);
+  font-size: 1.5rem;
 }
 
 .description-text {
@@ -419,18 +458,19 @@ body {
   font-size: 1rem;
 }
 
-/* Info Cards */
+/* Info Cards - Minimized Spacing */
 .info-card {
-  background: var(--background-white);
-  border-radius: 1rem;
-  padding: 1.5rem;
-  box-shadow: var(--shadow-md);
-  border: 1px solid var(--border-color);
-  transition: all 0.3s ease;
+  background: white;
+  border-radius: 0.75rem;
+  padding: 1.25rem;
+  margin: 0.75rem 0;
+  box-shadow: var(--box-shadow);
+  border: 1px solid rgba(30, 64, 175, 0.1);
+  transition: var(--transition);
 }
 
 .info-card:hover {
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--box-shadow-lg);
   transform: translateY(-2px);
 }
 
@@ -468,16 +508,16 @@ body {
 }
 
 .info-icon {
-  width: 2rem;
-  height: 2rem;
-  background: var(--primary-blue);
-  color: var(--text-white);
-  border-radius: 0.375rem;
+  width: 38px;
+  height: 38px;
+  background: var(--primary-light);
+  color: var(--bacoor-blue);
+  border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 0.875rem;
   flex-shrink: 0;
+  font-size: 1.1rem;
 }
 
 .info-content {
@@ -541,55 +581,61 @@ body {
 }
 
 .btn {
-  padding: 0.75rem 1.5rem;
-  border-radius: 0.5rem;
-  font-weight: 500;
+  padding: 0.75rem 1.25rem;
+  border-radius: 0.75rem;
+  font-weight: 600;
   text-decoration: none;
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  transition: all 0.2s ease;
-  border: 1px solid transparent;
+  transition: var(--transition);
+  border: 2px solid transparent;
   cursor: pointer;
   font-size: 0.875rem;
   margin-bottom: 0.5rem;
   width: 100%;
   justify-content: center;
+  box-shadow: var(--box-shadow);
 }
 
 .btn:hover {
-  transform: translateY(-1px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
+  box-shadow: var(--box-shadow-lg);
   text-decoration: none;
 }
 
 .btn-primary {
-  background: linear-gradient(135deg, var(--primary-blue) 0%, var(--primary-blue-dark) 100%);
-  color: var(--text-white);
+  background: var(--gradient-bacoor);
+  color: white;
+  border-color: transparent;
 }
 
 .btn-primary:hover {
-  color: var(--text-white);
+  color: white;
+  background: var(--gradient-primary);
 }
 
 .btn-secondary {
-  background: var(--background-white);
-  color: var(--text-medium);
-  border-color: var(--border-color);
+  background: white;
+  color: var(--bacoor-blue);
+  border-color: var(--bacoor-blue);
 }
 
 .btn-secondary:hover {
-  background: var(--background-gray-light);
-  color: var(--text-dark);
+  background: var(--primary-light);
+  color: var(--primary-dark);
+  border-color: var(--primary-dark);
 }
 
 .btn-warning {
-  background: linear-gradient(135deg, var(--warning-yellow) 0%, #d97706 100%);
-  color: var(--text-white);
+  background: var(--gradient-gold);
+  color: white;
+  border-color: transparent;
 }
 
 .btn-warning:hover {
-  color: var(--text-white);
+  color: white;
+  opacity: 0.9;
 }
 
 /* Posted Date */
@@ -628,11 +674,42 @@ body {
   margin: 0.25rem 0 0 0;
 }
 
+/* Service Meta */
+.service-meta {
+  display: flex;
+  gap: 1.5rem;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.95);
+  position: relative;
+  z-index: 1;
+}
+
+.service-meta a {
+  color: rgba(255, 255, 255, 0.95);
+  text-decoration: underline;
+  transition: var(--transition);
+}
+
+.service-meta a:hover {
+  color: white;
+  text-decoration: none;
+}
+
+.service-meta span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.service-meta i {
+  font-size: 1.1rem;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .service-content {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
+    gap: 1.25rem;
   }
   
   .sidebar {
@@ -642,7 +719,7 @@ body {
 
 @media (max-width: 768px) {
   .service-title {
-    font-size: 2rem;
+    font-size: 1.75rem;
   }
   
   .service-meta {
@@ -652,7 +729,7 @@ body {
   }
   
   .content-section {
-    padding: 1.5rem;
+    padding: 1.25rem;
   }
   
   .info-card {
@@ -664,7 +741,7 @@ body {
   }
   
   .btn {
-    margin-bottom: 0.75rem;
+    margin-bottom: 0.5rem;
   }
 }
 
@@ -683,6 +760,8 @@ body {
 .info-card,
 .main-content {
   animation: fadeInUp 0.5s ease-out;
+  min-width: 0;
+  padding: 0;
 }
 
 /* Image Modal */
@@ -716,6 +795,404 @@ body {
   font-size: 2rem;
   cursor: pointer;
   z-index: 1001;
+}
+
+/* ========== REVIEW SECTION STYLES ========== */
+.reviews-section {
+  margin-top: 1.5rem;
+}
+
+.avg-rating-badge {
+  background: var(--gradient-gold);
+  color: white;
+  padding: 0.5rem 1.25rem;
+  border-radius: 2rem;
+  font-weight: 600;
+  font-size: 1rem;
+  box-shadow: var(--box-shadow);
+}
+
+.rating-summary {
+  display: grid;
+  grid-template-columns: 140px 1fr;
+  gap: 1.5rem;
+  padding: 1rem;
+  background: rgba(59, 130, 246, 0.03);
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(30, 64, 175, 0.1);
+}
+
+.rating-overview {
+  text-align: center;
+  padding: 0.75rem;
+  background: white;
+  border-radius: 0.5rem;
+  border: 1px solid rgba(30, 64, 175, 0.08);
+}
+
+.rating-number {
+  font-size: 2.5rem;
+  font-weight: 700;
+  color: var(--bacoor-blue);
+  line-height: 1;
+}
+
+.rating-stars {
+  margin: 0.35rem 0;
+  font-size: 1.1rem;
+}
+
+.rating-count {
+  color: var(--text-light);
+  font-size: 0.8rem;
+  margin-top: 0.25rem;
+}
+
+.rating-distribution {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.rating-bar-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.rating-label {
+  min-width: 40px;
+  font-size: 0.8rem;
+  color: var(--text-medium);
+}
+
+.rating-bar-bg {
+  flex: 1;
+  height: 6px;
+  background: #e5e7eb;
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.rating-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #f59e0b, #fbbf24);
+  border-radius: 3px;
+  transition: width 0.3s ease;
+}
+
+.rating-number {
+  min-width: 25px;
+  font-size: 0.8rem;
+  color: var(--text-medium);
+  text-align: right;
+}
+
+/* Star Rating Input - Google Play Store Style */
+.star-rating-input {
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  padding: 1rem 0;
+  align-items: center;
+}
+
+.star-rating-input input[type="radio"] {
+  display: none;
+}
+
+.star-rating-input .star-label {
+  cursor: pointer;
+  font-size: 3rem;
+  color: #e5e7eb;
+  transition: all 0.2s ease;
+  display: inline-block;
+  line-height: 1;
+  position: relative;
+  user-select: none;
+}
+
+.star-rating-input .star-label i {
+  display: block;
+  width: 1em;
+  height: 1em;
+}
+
+.star-rating-input .star-label:hover {
+  transform: scale(1.15);
+}
+
+.star-rating-input .star-label.filled {
+  color: #fbbf24;
+}
+
+.star-rating-input .star-label.selected {
+  color: #f59e0b;
+}
+
+/* Make stars more visible on light background */
+.star-rating-input .star-label:not(.filled):not(.selected) {
+  color: #d1d5db;
+  text-shadow: 0 0 1px rgba(0,0,0,0.1);
+}
+
+/* Write Review Section */
+.write-review-section {
+  background: var(--primary-light);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  margin-top: 1.5rem;
+  border: 1px solid rgba(30, 64, 175, 0.2);
+}
+
+.review-form textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  font-family: inherit;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.review-form textarea:focus {
+  outline: none;
+  border-color: var(--bacoor-blue);
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+/* Reviews List */
+.reviews-list {
+  margin-top: 2rem;
+}
+
+.review-item {
+  padding: 1.25rem;
+  background: white;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  border: 1px solid rgba(30, 64, 175, 0.1);
+  transition: var(--transition);
+}
+
+.review-item:hover {
+  box-shadow: var(--box-shadow-lg);
+  transform: translateY(-2px);
+}
+
+.review-item.review-flagged {
+  border-left: 4px solid #f59e0b;
+  background: linear-gradient(to right, #fef3c7 0%, white 100%);
+}
+
+.review-item.review-hidden {
+  opacity: 0.6;
+  border-left: 4px solid var(--bacoor-red);
+  background: rgba(220, 38, 38, 0.05);
+}
+
+.review-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.reviewer-info {
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+.reviewer-avatar {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  overflow: hidden;
+  background: linear-gradient(135deg, #3b82f6, #1e40af);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  border: 2px solid rgba(30, 64, 175, 0.1);
+}
+
+.reviewer-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.reviewer-avatar .fa,
+.reviewer-avatar i {
+  color: white;
+  font-size: 1.5rem;
+}
+
+.reviewer-name {
+  font-weight: 600;
+  color: var(--text-dark);
+  font-size: 0.95rem;
+  margin-bottom: 0.25rem;
+}
+
+.review-stars {
+  font-size: 1rem;
+  color: #f59e0b;
+  letter-spacing: 1px;
+}
+
+.review-date {
+  color: var(--text-light);
+  font-size: 0.8rem;
+  white-space: nowrap;
+}
+
+.review-content {
+  margin-top: 0.75rem;
+  color: var(--text-color);
+  line-height: 1.6;
+  font-size: 0.95rem;
+}
+
+.review-flag-notice,
+.review-hidden-notice {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  margin-top: 0.5rem;
+}
+
+.review-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border-color);
+}
+
+.review-action-btn {
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  font-size: 0.875rem;
+  text-decoration: none;
+  transition: var(--transition);
+  border: 1px solid rgba(30, 64, 175, 0.2);
+  background: white;
+  color: var(--secondary-color);
+  font-weight: 500;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  cursor: pointer;
+}
+
+.review-action-btn:hover {
+  background: var(--primary-light);
+  border-color: var(--bacoor-blue);
+  color: var(--bacoor-blue);
+}
+
+.review-action-danger {
+  color: #dc2626;
+}
+
+.review-action-danger:hover {
+  background: #fee2e2;
+  border-color: #dc2626;
+}
+
+.review-action-report {
+  color: #f59e0b;
+}
+
+.review-action-report:hover {
+  background: #fef3c7;
+  border-color: #f59e0b;
+}
+
+.review-action-admin {
+  color: #8b5cf6;
+}
+
+.review-action-admin:hover {
+  background: #f3e8ff;
+  border-color: #8b5cf6;
+}
+
+@media (max-width: 768px) {
+  .rating-summary {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .review-actions {
+    flex-wrap: wrap;
+  }
+
+  .review-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+}
+
+/* Container Styling */
+.container {
+  padding-left: 15px;
+  padding-right: 15px;
+}
+
+/* Page Wrapper */
+body {
+  margin: 0;
+  padding: 0;
+}
+
+/* Smooth Transitions */
+* {
+  box-sizing: border-box;
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--light-color);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--bacoor-blue);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--primary-dark);
+}
+
+/* Print Styles */
+@media print {
+  .service-header,
+  .action-buttons,
+  .sidebar,
+  .reviews-section {
+    display: none;
+  }
+  
+  .service-content {
+    grid-template-columns: 1fr;
+  }
+  
+  .main-content {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
 }
 </style>
 
@@ -776,6 +1253,191 @@ body {
         <div class="description-text">
           {{ post.description|linebreaks }}
         </div>
+      </div>
+
+      <!-- REVIEWS AND RATINGS SECTION - MOVED TO LEFT COLUMN -->
+      <div class="content-section" style="border-top: 2px solid var(--primary-light); margin-top: 1.5rem; padding-top: 1.5rem;">
+        <h3 class="section-title" style="display: flex; align-items: center; justify-content: space-between;">
+          <span>
+            <span style="color: #f59e0b; margin-right: 0.5rem;">★</span>
+            Reviews & Ratings
+          </span>
+          {% if avg_rating %}
+            <span class="avg-rating-badge">{{ avg_rating|floatformat:1 }} <span style="color: white; font-size: 0.9rem;">★</span></span>
+          {% endif %}
+        </h3>
+
+        <!-- Rating Summary -->
+        {% if review_count > 0 %}
+          <div class="rating-summary">
+            <div class="rating-overview">
+              <div class="rating-number">{{ avg_rating|floatformat:1 }}</div>
+              <div class="rating-stars">
+                {% for i in "12345" %}
+                  {% if forloop.counter <= avg_rating|floatformat:0|add:0 %}
+                    <span style="color: #f59e0b;">★</span>
+                  {% else %}
+                    <span style="color: #d1d5db;">★</span>
+                  {% endif %}
+                {% endfor %}
+              </div>
+              <div class="rating-count">Based on {{ review_count }} review{{ review_count|pluralize }}</div>
+            </div>
+
+            <div class="rating-distribution">
+              {% for rating in "54321" %}
+                <div class="rating-bar-item">
+                  <span class="rating-label">{{ rating }} <span style="color: #f59e0b; font-size: 0.75rem;">★</span></span>
+                  <div class="rating-bar-bg">
+                    {% with count=rating_counts|get_item:rating|default:0 %}
+                      <div class="rating-bar-fill" style="width: {% if review_count > 0 %}{{ count|mul:100|div:review_count }}{% else %}0{% endif %}%;"></div>
+                    {% endwith %}
+                  </div>
+                  <span class="rating-number">{{ rating_counts|get_item:rating|default:0 }}</span>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        {% else %}
+          <p style="text-align: center; color: #6b7280; padding: 1.5rem; background: var(--primary-light); border-radius: 0.5rem;">No reviews yet. Be the first to review this service!</p>
+        {% endif %}
+
+        <!-- Write Review Form -->
+        {% if user.is_authenticated and not user_review and user != post.worker %}
+          <div class="write-review-section">
+            <h5 style="margin-bottom: 1rem; color: #111827;">
+              <i class="fa fa-pencil-alt"></i> Write a Review
+            </h5>
+            <form method="POST" action="{% url 'services:review_create' slug=post.slug %}" class="review-form">
+              {% csrf_token %}
+              
+              <!-- Rating Selection -->
+              <div class="rating-input-group" style="margin-bottom: 1.5rem;">
+                <label style="display: block; margin-bottom: 0.5rem; font-weight: 600; color: var(--dark-color);">Your Rating *</label>
+                <div class="star-rating-input" id="starRatingContainer">
+                  {% for i in "12345" %}
+                    <input type="radio" name="rating" id="star_{{ i }}" value="{{ i }}" required>
+                    <span class="star-label" data-value="{{ i }}">
+                      ★
+                    </span>
+                  {% endfor %}
+                </div>
+                <div id="ratingFeedback" style="color: var(--bacoor-gold); font-weight: 500; margin-top: 0.5rem; min-height: 1.5rem;"></div>
+              </div>
+
+              <!-- Comment Textarea -->
+              <div class="form-group" style="margin-top: 1rem;">
+                <label for="id_comment" style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Your Review *</label>
+                {{ review_form.comment }}
+              </div>
+
+              <button type="submit" class="btn btn-primary" style="margin-top: 1rem;">
+                <i class="fa fa-paper-plane"></i> Submit Review
+              </button>
+            </form>
+          </div>
+        {% elif user.is_authenticated and user_review %}
+          <div class="user-review-notice" style="background: #dbeafe; padding: 1rem; border-radius: 0.5rem; margin-top: 1rem;">
+            <p style="margin: 0; color: #1e40af;">
+              <i class="fa fa-check-circle"></i> You have already reviewed this service. 
+              <a href="{% url 'services:review_update' review_id=user_review.id %}" style="color: #1e40af; text-decoration: underline;">Edit your review</a>
+            </p>
+          </div>
+        {% elif not user.is_authenticated %}
+          <div class="login-prompt" style="background: #fef3c7; padding: 1rem; border-radius: 0.5rem; margin-top: 1rem; text-align: center;">
+            <p style="margin: 0; color: #92400e;">
+              <i class="fa fa-sign-in-alt"></i> Please <a href="{% url 'account_login' %}?next={{ request.path }}" style="color: #92400e; text-decoration: underline;">log in</a> to write a review.
+            </p>
+          </div>
+        {% endif %}
+
+        <!-- Reviews List -->
+        {% if reviews %}
+          <div class="reviews-list" style="margin-top: 2rem;">
+            <h5 style="margin-bottom: 1rem; color: #111827; font-size: 1.1rem; font-weight: 600;">
+              <i class="fa fa-comments"></i> Customer Reviews ({{ review_count }})
+            </h5>
+
+            {% for review in reviews %}
+              <div class="review-item {% if review.is_flagged %}review-flagged{% endif %} {% if review.is_hidden %}review-hidden{% endif %}">
+                <!-- Review Header -->
+                <div class="review-header">
+                  <div class="reviewer-info">
+                    <div class="reviewer-avatar">
+                      {% if review.reviewer.profile_picture %}
+                        <img src="{{ review.reviewer.profile_picture.url }}" alt="{{ review.reviewer.get_full_name }}">
+                      {% else %}
+                        <span style="font-size: 1.8rem; color: white;">👤</span>
+                      {% endif %}
+                    </div>
+                    <div>
+                      <div class="reviewer-name">{{ review.reviewer.get_full_name }}</div>
+                      <div class="review-stars">
+                        {% for i in "12345" %}
+                          {% if forloop.counter <= review.rating %}
+                            <span style="color: #f59e0b;">★</span>
+                          {% else %}
+                            <span style="color: #d1d5db;">★</span>
+                          {% endif %}
+                        {% endfor %}
+                      </div>
+                    </div>
+                  </div>
+                  <div class="review-date">{{ review.created_at|date:"M d, Y" }}</div>
+                </div>
+
+                <!-- Review Content -->
+                <div class="review-content">
+                  {% if review.is_flagged and review.flagged_words %}
+                    {{ review.comment|censor_flagged_words:review.flagged_words|linebreaks }}
+                  {% else %}
+                    {{ review.comment|linebreaks }}
+                  {% endif %}
+                </div>
+
+                <!-- Review Flags/Warnings -->
+                {% if review.is_flagged %}
+                  <div class="review-flag-notice" style="background: #fef3c7; color: #92400e; padding: 0.75rem; border-radius: 0.5rem; font-size: 0.85rem; margin-top: 0.75rem; border-left: 3px solid #f59e0b;">
+                    <span style="margin-right: 0.5rem;">⚠️</span> This review contains inappropriate language and has been automatically censored.
+                    {% if user.is_staff %}
+                      <br><small style="font-size: 0.75rem; opacity: 0.8;">(Admin: Flagged words: {{ review.flagged_words }})</small>
+                    {% endif %}
+                  </div>
+                {% endif %}
+
+                {% if review.is_hidden %}
+                  <div class="review-hidden-notice">
+                    <i class="fa fa-eye-slash"></i> This review is hidden (Reports: {{ review.report_count }})
+                  </div>
+                {% endif %}
+
+                <!-- Review Actions -->
+                <div class="review-actions">
+                  {% if user == review.reviewer %}
+                    <a href="{% url 'services:review_update' review_id=review.id %}" class="review-action-btn" style="text-decoration: none;">
+                      ✏️ Edit
+                    </a>
+                    <form method="GET" action="{% url 'services:review_delete' review_id=review.id %}" style="display: inline-block; margin: 0;">
+                      <button type="submit" class="review-action-btn review-action-danger" style="border: none; background: transparent; cursor: pointer; font: inherit;" onclick="return confirm('Are you sure you want to delete this review? This action cannot be undone.')">
+                        🗑️ Delete
+                      </button>
+                    </form>
+                  {% elif user.is_authenticated and user != review.reviewer %}
+                    <a href="{% url 'services:review_report' review_id=review.id %}" class="review-action-btn review-action-report" style="text-decoration: none;">
+                      🚩 Report
+                    </a>
+                  {% endif %}
+
+                  {% if user.is_staff %}
+                    <a href="{% url 'services:review_moderate' review_id=review.id %}" class="review-action-btn review-action-admin" style="text-decoration: none;">
+                      ⚖️ Moderate
+                    </a>
+                  {% endif %}
+                </div>
+              </div>
+            {% endfor %}
+          </div>
+        {% endif %}
       </div>
     </div>
 
@@ -916,7 +1578,7 @@ body {
 
       <!-- Action Buttons -->
       <div class="action-buttons">
-        <a href="{% url 'services:servicepost_list' %}" class="btn btn-secondary">
+        <a href="{% url 'jobs:job_list' %}?tab=services" class="btn btn-secondary">
           <i class="fa fa-arrow-left"></i>
           Back to Services
         </a>
@@ -1014,4 +1676,115 @@ body {
     });
   </script>
 {% endif %}
+
+<!-- Star Rating JavaScript - Google Play Store Style -->
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+    const starContainer = document.getElementById('starRatingContainer');
+    if (!starContainer) return;
+
+    const starLabels = starContainer.querySelectorAll('.star-label');
+    const radioInputs = starContainer.querySelectorAll('input[type="radio"]');
+    const feedbackDiv = document.getElementById('ratingFeedback');
+    
+    let selectedRating = 0;
+    
+    const ratingTexts = {
+      1: '⭐ Poor',
+      2: '⭐⭐ Fair', 
+      3: '⭐⭐⭐ Good',
+      4: '⭐⭐⭐⭐ Very Good',
+      5: '⭐⭐⭐⭐⭐ Excellent'
+    };
+
+    // Update visual state of stars
+    function updateStars(rating, isHover = false) {
+      starLabels.forEach((star, index) => {
+        const starValue = parseInt(star.getAttribute('data-value'));
+        star.classList.remove('filled', 'selected');
+        
+        if (starValue <= rating) {
+          if (isHover) {
+            star.classList.add('filled');
+          } else {
+            star.classList.add('selected');
+          }
+        }
+      });
+    }
+
+    // Handle star clicks
+    starLabels.forEach((star, index) => {
+      // Click event
+      star.addEventListener('click', function() {
+        const value = parseInt(this.getAttribute('data-value'));
+        selectedRating = value;
+        
+        // Check the corresponding radio button
+        radioInputs[index].checked = true;
+        
+        // Update visual state
+        updateStars(value, false);
+        
+        // Update feedback text
+        if (feedbackDiv) {
+          feedbackDiv.textContent = ratingTexts[value] || '';
+        }
+        
+        console.log('Rating selected:', value); // Debug log
+      });
+
+      // Hover effect
+      star.addEventListener('mouseenter', function() {
+        if (selectedRating === 0) {
+          const value = parseInt(this.getAttribute('data-value'));
+          updateStars(value, true);
+        }
+      });
+    });
+
+    // Reset to selected rating on mouse leave
+    if (starContainer) {
+      starContainer.addEventListener('mouseleave', function() {
+        if (selectedRating > 0) {
+          updateStars(selectedRating, false);
+        } else {
+          starLabels.forEach(star => {
+            star.classList.remove('filled', 'selected');
+          });
+        }
+      });
+    }
+
+    // Form submission validation
+    const reviewForm = document.querySelector('.review-form');
+    if (reviewForm) {
+      reviewForm.addEventListener('submit', function(e) {
+        const ratingChecked = document.querySelector('input[name="rating"]:checked');
+        
+        if (!ratingChecked) {
+          e.preventDefault();
+          alert('⭐ Please select a rating before submitting your review!');
+          
+          // Highlight the rating section
+          if (starContainer) {
+            starContainer.style.border = '2px solid #ef4444';
+            starContainer.style.borderRadius = '0.5rem';
+            starContainer.style.padding = '0.5rem';
+            
+            setTimeout(() => {
+              starContainer.style.border = 'none';
+              starContainer.style.padding = '0';
+            }, 2000);
+          }
+          
+          return false;
+        }
+        
+        console.log('Form submitting with rating:', ratingChecked.value); // Debug log
+      });
+    }
+  });
+</script>
+
 {% endblock %}

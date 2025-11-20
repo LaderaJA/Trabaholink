@@ -1,0 +1,14 @@
+apiVersion: v2
+name: trabaholink
+description: A Helm chart for Trabaholink Django application
+type: application
+version: 1.0.0
+appVersion: "1.0.0"
+keywords:
+  - django
+  - trabaholink
+  - job-platform
+home: https://github.com/your-org/trabaholink
+maintainers:
+  - name: Trabaholink Team
+    email: devops@trabaholink.com

@@ -47,7 +47,14 @@
       left: 0;
       right: 0;
       height: 4px;
-      background: linear-gradient(90deg, #2563eb 0%, #3b82f6 50%, #2563eb 100%);
+      background: linear-gradient(90deg, #1e40af 0%, #3b82f6 30%, #f59e0b 70%, #1e40af 100%);
+      animation: gradientShift 8s ease infinite;
+      background-size: 200% 100%;
+    }
+    
+    @keyframes gradientShift {
+      0%, 100% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
     }
     
     .tl-navbar .container {
@@ -82,11 +89,21 @@
     .tl-brand-text {
       color: #1e40af !important;
       font-weight: 800;
+      transition: all 0.3s ease;
     }
     
     .tl-brand-highlight {
       color: #f59e0b !important;
       font-weight: 800;
+      transition: all 0.3s ease;
+    }
+    
+    .tl-navbar-brand:hover .tl-brand-text {
+      color: #3b82f6 !important;
+    }
+    
+    .tl-navbar-brand:hover .tl-brand-highlight {
+      color: #fbbf24 !important;
     }
     
     /* Hamburger button - Modern */
@@ -151,8 +168,25 @@
     
     .tl-nav-link.active {
       color: #FFFFFF !important;
-      background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%);
-      box-shadow: 0 2px 8px rgba(37, 99, 235, 0.3);
+      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+      box-shadow: 0 2px 8px rgba(30, 64, 175, 0.3);
+      position: relative;
+    }
+    
+    .tl-nav-link.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 2px;
+      background: #f59e0b;
+      animation: expandWidth 0.3s ease forwards;
+    }
+    
+    @keyframes expandWidth {
+      to { width: 80%; }
     }
     
     /* Hide icons on desktop, show only text */
@@ -355,7 +389,7 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      background: linear-gradient(135deg, #1a94d4 0%, #0d6efd 100%);
+      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
       color: white;
     }
     
@@ -808,6 +842,294 @@
         box-shadow: 0 5px 20px rgba(15, 23, 42, 0.1);
       }
     }
+    
+    /* ===== GLOBAL BACOOR-THEMED BUTTON STYLES ===== */
+    .btn-primary {
+      background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%) !important;
+      border: none !important;
+      color: white !important;
+      font-weight: 700 !important;
+      padding: 0.75rem 2rem !important;
+      border-radius: 12px !important;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3) !important;
+      position: relative !important;
+      overflow: hidden !important;
+    }
+    
+    .btn-primary::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -100%;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+      transition: left 0.5s ease;
+    }
+    
+    .btn-primary:hover::before {
+      left: 100%;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-3px) !important;
+      box-shadow: 0 8px 24px rgba(30, 64, 175, 0.4) !important;
+    }
+    
+    .btn-primary:active {
+      transform: translateY(-1px) !important;
+    }
+    
+    .btn-secondary {
+      background: linear-gradient(135deg, #64748b 0%, #475569 100%) !important;
+      border: none !important;
+      color: white !important;
+      font-weight: 700 !important;
+      padding: 0.75rem 2rem !important;
+      border-radius: 12px !important;
+      transition: all 0.3s ease !important;
+      box-shadow: 0 4px 12px rgba(100, 116, 139, 0.3) !important;
+    }
+    
+    .btn-secondary:hover {
+      transform: translateY(-3px) !important;
+      box-shadow: 0 8px 24px rgba(100, 116, 139, 0.4) !important;
+    }
+    
+    .btn-success {
+      background: linear-gradient(135deg, #059669 0%, #10b981 100%) !important;
+      border: none !important;
+      color: white !important;
+      font-weight: 700 !important;
+      transition: all 0.3s ease !important;
+      box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3) !important;
+    }
+    
+    .btn-success:hover {
+      transform: translateY(-3px) !important;
+      box-shadow: 0 8px 24px rgba(5, 150, 105, 0.4) !important;
+    }
+    
+    .btn-warning {
+      background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%) !important;
+      border: none !important;
+      color: white !important;
+      font-weight: 700 !important;
+      transition: all 0.3s ease !important;
+      box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3) !important;
+    }
+    
+    .btn-warning:hover {
+      transform: translateY(-3px) !important;
+      box-shadow: 0 8px 24px rgba(245, 158, 11, 0.4) !important;
+    }
+    
+    .btn-danger {
+      background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%) !important;
+      border: none !important;
+      color: white !important;
+      font-weight: 700 !important;
+      transition: all 0.3s ease !important;
+      box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3) !important;
+    }
+    
+    .btn-danger:hover {
+      transform: translateY(-3px) !important;
+      box-shadow: 0 8px 24px rgba(220, 38, 38, 0.4) !important;
+    }
+    
+    /* Card Animations */
+    .card {
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+      border: 1px solid #e2e8f0 !important;
+      border-radius: 16px !important;
+    }
+    
+    .card:hover {
+      transform: translateY(-4px) !important;
+      box-shadow: 0 12px 32px rgba(30, 64, 175, 0.15) !important;
+    }
+    
+    /* Smooth Scroll */
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    /* Loading Animation */
+    @keyframes shimmer {
+      0% { background-position: -1000px 0; }
+      100% { background-position: 1000px 0; }
+    }
+    
+    .loading-shimmer {
+      animation: shimmer 2s infinite;
+      background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+      background-size: 1000px 100%;
+    }
+    
+    /* ===== TOAST NOTIFICATIONS (FIXED POSITION) ===== */
+    .toast-notifications-container {
+      position: fixed;
+      top: 90px; /* Below navbar */
+      right: 20px;
+      z-index: 9999;
+      max-width: 420px;
+      width: calc(100% - 40px);
+      pointer-events: none;
+    }
+    
+    .toast-notification {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px 20px;
+      margin-bottom: 12px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
+      backdrop-filter: blur(10px);
+      animation: slideInRight 0.3s ease-out;
+      pointer-events: auto;
+      border-left: 4px solid;
+      background: white;
+      font-size: 0.95rem;
+      line-height: 1.5;
+    }
+    
+    @keyframes slideInRight {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    .toast-notification.show {
+      animation: slideInRight 0.3s ease-out;
+    }
+    
+    /* Toast Icon */
+    .toast-icon {
+      flex-shrink: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: bold;
+      font-size: 14px;
+      margin-top: 2px;
+    }
+    
+    /* Toast Content */
+    .toast-content {
+      flex: 1;
+      color: #374151;
+      font-weight: 500;
+      word-wrap: break-word;
+    }
+    
+    /* Toast Close Button */
+    .toast-close {
+      flex-shrink: 0;
+      background: transparent;
+      border: none;
+      font-size: 20px;
+      line-height: 1;
+      color: #6b7280;
+      cursor: pointer;
+      padding: 0;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    
+    .toast-close:hover {
+      background: rgba(0, 0, 0, 0.05);
+      color: #374151;
+    }
+    
+    /* Success Toast */
+    .toast-notification.alert-success {
+      border-left-color: #059669;
+      background: linear-gradient(to right, #ecfdf5, white);
+    }
+    
+    .toast-notification.alert-success .toast-icon {
+      background: #059669;
+      color: white;
+    }
+    
+    /* Error/Danger Toast */
+    .toast-notification.alert-error,
+    .toast-notification.alert-danger {
+      border-left-color: #dc2626;
+      background: linear-gradient(to right, #fee2e2, white);
+    }
+    
+    .toast-notification.alert-error .toast-icon,
+    .toast-notification.alert-danger .toast-icon {
+      background: #dc2626;
+      color: white;
+    }
+    
+    /* Warning Toast */
+    .toast-notification.alert-warning {
+      border-left-color: #f59e0b;
+      background: linear-gradient(to right, #fef3c7, white);
+    }
+    
+    .toast-notification.alert-warning .toast-icon {
+      background: #f59e0b;
+      color: white;
+    }
+    
+    /* Info Toast */
+    .toast-notification.alert-info {
+      border-left-color: #3b82f6;
+      background: linear-gradient(to right, #dbeafe, white);
+    }
+    
+    .toast-notification.alert-info .toast-icon {
+      background: #3b82f6;
+      color: white;
+    }
+    
+    /* Mobile Responsive */
+    @media (max-width: 768px) {
+      .toast-notifications-container {
+        top: 80px;
+        right: 10px;
+        left: 10px;
+        max-width: none;
+        width: auto;
+      }
+      
+      .toast-notification {
+        padding: 14px 16px;
+        font-size: 0.9rem;
+      }
+    }
+    
+    /* Auto-dismiss animation */
+    @keyframes fadeOutRight {
+      from {
+        opacity: 1;
+        transform: translateX(0);
+      }
+      to {
+        opacity: 0;
+        transform: translateX(100%);
+      }
+    }
   </style>
   {% block css %}{% endblock %}
 </head>
@@ -890,16 +1212,22 @@
                   <i class="bi bi-person"></i>
                   <span>View Profile</span>
                 </a>
-                {% if user.role == 'worker' %}
+                {% if has_job_applications %}
                 <a href="{% url 'jobs:worker_dashboard' %}" class="dropdown-item" role="menuitem">
                   <i class="bi bi-speedometer2"></i>
                   <span>Worker Dashboard</span>
                 </a>
                 {% endif %}
-                {% if user.role == 'client' or user.role == 'admin' or user.is_staff %}
+                {% if has_job_postings %}
                 <a href="{% url 'jobs:employer_dashboard' %}" class="dropdown-item" role="menuitem">
                   <i class="bi bi-briefcase"></i>
                   <span>Employer Dashboard</span>
+                </a>
+                {% endif %}
+                {% if user.is_staff %}
+                <a href="{% url 'admin_dashboard:dashboard_main' %}" class="dropdown-item" role="menuitem">
+                  <i class="bi bi-shield-check"></i>
+                  <span>Admin Dashboard</span>
                 </a>
                 {% endif %}
                 <form method="post" action="{% url 'logout' %}" id="logoutForm" style="margin: 0;">
@@ -962,27 +1290,35 @@
   </div>
   {% endif %}
 
+  <!-- Toast Notifications Container (Fixed Position) -->
+  {% if messages %}
+  <div class="toast-notifications-container">
+    {% for message in messages %}
+    <div class="toast-notification alert-{{ message.tags }} show" role="alert">
+      <div class="toast-icon">
+        {% if message.tags == 'success' %}
+          ✓
+        {% elif message.tags == 'error' or message.tags == 'danger' %}
+          ✕
+        {% elif message.tags == 'warning' %}
+          ⚠
+        {% else %}
+          ℹ
+        {% endif %}
+      </div>
+      <div class="toast-content">
+        {{ message }}
+      </div>
+      <button type="button" class="toast-close" onclick="this.parentElement.remove()">
+        ✕
+      </button>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   <!-- Main Content -->
   <main class="flex-grow-1">
-    {% if messages %}
-    <div class="container mt-3">
-      {% for message in messages %}
-      <div
-        class="alert alert-{{ message.tags }} alert-dismissible fade show"
-        role="alert"
-      >
-        {{ message }}
-        <button
-          type="button"
-          class="btn-close"
-          data-bs-dismiss="alert"
-          aria-label="Close"
-        ></button>
-      </div>
-      {% endfor %}
-    </div>
-    {% endif %}
-
     {% block content %}{% endblock %}
   </main>
 
@@ -1015,9 +1351,13 @@
           <h6 class="text-uppercase mb-3" style="font-weight: 600;">Quick Links</h6>
           <ul class="list-unstyled">
             <li class="mb-2"><a href="{% url 'jobs:job_list' %}" style="color: #cbd5e1; text-decoration: none;"><i class="bi bi-chevron-right"></i> Browse Jobs</a></li>
-            <li class="mb-2"><a href="{% url 'services:servicepost_list' %}" style="color: #cbd5e1; text-decoration: none;"><i class="bi bi-chevron-right"></i> Find Services</a></li>
+            <li class="mb-2"><a href="{% url 'jobs:job_list' %}?tab=services" style="color: #cbd5e1; text-decoration: none;"><i class="bi bi-chevron-right"></i> Find Services</a></li>
+            {% if user.is_authenticated and user.role == 'client' %}
             <li class="mb-2"><a href="{% url 'jobs:job_create' %}" style="color: #cbd5e1; text-decoration: none;"><i class="bi bi-chevron-right"></i> Post a Job</a></li>
+            {% endif %}
+            {% if user.is_authenticated and user.role == 'worker' %}
             <li class="mb-2"><a href="{% url 'services:servicepost_create' %}" style="color: #cbd5e1; text-decoration: none;"><i class="bi bi-chevron-right"></i> Offer Service</a></li>
+            {% endif %}
           </ul>
         </div>
 
@@ -1025,10 +1365,9 @@
         <div class="col-lg-3 col-md-6 mb-4">
           <h6 class="text-uppercase mb-3" style="font-weight: 600;">Support</h6>
           <ul class="list-unstyled">
-            <li class="mb-2"><a href="#" style="color: #cbd5e1; text-decoration: none;"><i class="bi bi-question-circle"></i> Help Center</a></li>
-            <li class="mb-2"><a href="#" style="color: #cbd5e1; text-decoration: none;"><i class="bi bi-shield-check"></i> Safety Tips</a></li>
-            <li class="mb-2"><a href="#" style="color: #cbd5e1; text-decoration: none;"><i class="bi bi-file-text"></i> Terms of Service</a></li>
-            <li class="mb-2"><a href="#" style="color: #cbd5e1; text-decoration: none;"><i class="bi bi-lock"></i> Privacy Policy</a></li>
+            <li class="mb-2"><a href="{% url 'jobs:faq' %}" style="color: #cbd5e1; text-decoration: none;"><i class="bi bi-question-circle"></i> FAQ</a></li>
+            <li class="mb-2"><a href="{% url 'jobs:terms_of_service' %}" style="color: #cbd5e1; text-decoration: none;"><i class="bi bi-file-text"></i> Terms of Service</a></li>
+            <li class="mb-2"><a href="{% url 'jobs:privacy_policy' %}" style="color: #cbd5e1; text-decoration: none;"><i class="bi bi-lock"></i> Privacy Policy</a></li>
           </ul>
         </div>
 
@@ -1036,15 +1375,10 @@
         <div class="col-lg-3 col-md-6 mb-4">
           <h6 class="text-uppercase mb-3" style="font-weight: 600;">Contact Us</h6>
           <ul class="list-unstyled" style="color: #cbd5e1;">
-            <li class="mb-2"><i class="bi bi-envelope"></i> support@trabaholink.ph</li>
+            <li class="mb-2"><i class="bi bi-envelope"></i> trabaholinka@gmail.com</li>
             <li class="mb-2"><i class="bi bi-telephone"></i> +63 (2) 1234-5678</li>
             <li class="mb-2"><i class="bi bi-geo-alt"></i> Bacoor, Philippines</li>
           </ul>
-          <div class="mt-3">
-            <a href="#" class="text-white me-3" style="font-size: 1.5rem;"><i class="bi bi-facebook"></i></a>
-            <a href="#" class="text-white me-3" style="font-size: 1.5rem;"><i class="bi bi-twitter"></i></a>
-            <a href="#" class="text-white" style="font-size: 1.5rem;"><i class="bi bi-instagram"></i></a>
-          </div>
         </div>
       </div>
 
@@ -1061,11 +1395,12 @@
     </div>
   </footer>
 
-  <!-- Report Modal -->
+  <!-- Enhanced Report Modal with Search -->
   <div class="modal fade" id="reportModal" tabindex="-1" aria-labelledby="reportModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered modal-lg">
-      <div class="modal-content" style="border: none; border-radius: 1rem; overflow: hidden;">
-        <div class="modal-header" style="background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%); color: white; padding: 1.5rem; border: none;">
+      <div class="modal-content" style="border: none; border-radius: 1rem; overflow: hidden; box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);">
+        <!-- Header with Blue/Yellow Theme -->
+        <div class="modal-header" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 1.5rem; border: none;">
           <div>
             <h5 class="modal-title" id="reportModalLabel" style="font-size: 1.5rem; font-weight: 600; margin: 0;">
               <i class="bi bi-flag-fill"></i> Report an Issue
@@ -1074,61 +1409,103 @@
           </div>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
-        <div class="modal-body" style="padding: 2rem;">
-          <form id="reportForm" method="POST" action="{% url 'admin_dashboard:submit_report' %}" enctype="multipart/form-data" onsubmit="return submitReportForm(event)">
+        
+        <div class="modal-body" style="padding: 2rem; background: #f8fafc;">
+          <form id="reportForm" method="POST" action="{% url 'admin_dashboard:submit_report' %}" onsubmit="return submitReportForm(event)">
             {% csrf_token %}
             
-            <!-- Report Type -->
+            <!-- Report Type Selection -->
             <div class="mb-4">
-              <label for="reportType" class="form-label" style="font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">
-                <i class="bi bi-card-list"></i> What are you reporting?
+              <label for="reportType" class="form-label" style="font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="bi bi-card-list" style="color: #3b82f6;"></i> What are you reporting?
               </label>
-              <select id="reportType" class="form-select" name="report_type" required style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 0.5rem; font-size: 1rem;">
+              <select id="reportType" class="form-select" name="report_type" required style="padding: 0.75rem; border: 2px solid #cbd5e1; border-radius: 0.5rem; font-size: 1rem; transition: all 0.2s;" onchange="handleReportTypeChange()">
                 <option value="">Select report type...</option>
                 <option value="user">👤 Suspicious User</option>
-                <option value="job_posting">💼 Fraudulent Job Posting</option>
-                <option value="service_posting">🔧 Fraudulent Service Posting</option>
-                <option value="chat_message">💬 Inappropriate Chat Message</option>
-                <option value="scam">⚠️ Scam or Fraud</option>
-                <option value="other">📝 Other Issue</option>
+                <option value="job">💼 Fraudulent Job Posting</option>
               </select>
             </div>
 
-            <!-- Entity Field -->
-            <div class="mb-4" id="entityField">
-              <label for="username" class="form-label" style="font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">
-                <i class="bi bi-person"></i> Username or ID (if applicable)
+            <!-- User Search Field -->
+            <div class="mb-4" id="userSearchField" style="display: none;">
+              <label class="form-label" style="font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="bi bi-person-search" style="color: #3b82f6;"></i> Search for User <span style="color: #ef4444;">*</span>
               </label>
-              <input type="text" id="username" name="username" class="form-control" placeholder="Enter username, job ID, or service ID" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 0.5rem; font-size: 1rem;" />
-              <small class="text-muted">Optional - helps us investigate faster</small>
+              <div style="position: relative;">
+                <input type="text" id="userSearchInput" class="form-control" placeholder="Type username or name to search..." style="padding: 0.75rem 2.5rem 0.75rem 0.75rem; border: 2px solid #cbd5e1; border-radius: 0.5rem; font-size: 1rem;" oninput="searchUsers(this.value)" autocomplete="off" />
+                <i class="bi bi-search" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                <input type="hidden" id="userId" name="user_id" />
+                <div id="userSearchResults" class="search-results" style="display: none;"></div>
+              </div>
+              <div id="selectedUser" style="display: none; margin-top: 0.75rem; padding: 0.75rem; background: white; border: 2px solid #3b82f6; border-radius: 0.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <strong style="color: #1e293b;">Selected:</strong>
+                    <span id="selectedUserName" style="color: #3b82f6; font-weight: 500;"></span>
+                  </div>
+                  <button type="button" onclick="clearUserSelection()" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.25rem;">
+                    <i class="bi bi-x-circle-fill"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- Job Search Field -->
+            <div class="mb-4" id="jobSearchField" style="display: none;">
+              <label class="form-label" style="font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="bi bi-briefcase" style="color: #3b82f6;"></i> Search for Job Posting <span style="color: #ef4444;">*</span>
+              </label>
+              <div style="position: relative;">
+                <input type="text" id="jobSearchInput" class="form-control" placeholder="Type job title or ID to search..." style="padding: 0.75rem 2.5rem 0.75rem 0.75rem; border: 2px solid #cbd5e1; border-radius: 0.5rem; font-size: 1rem;" oninput="searchJobs(this.value)" autocomplete="off" />
+                <i class="bi bi-search" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
+                <input type="hidden" id="jobId" name="job_id" />
+                <div id="jobSearchResults" class="search-results" style="display: none;"></div>
+              </div>
+              <div id="selectedJob" style="display: none; margin-top: 0.75rem; padding: 0.75rem; background: white; border: 2px solid #3b82f6; border-radius: 0.5rem;">
+                <div style="display: flex; justify-content: space-between; align-items: center;">
+                  <div>
+                    <strong style="color: #1e293b;">Selected:</strong>
+                    <span id="selectedJobTitle" style="color: #3b82f6; font-weight: 500;"></span>
+                  </div>
+                  <button type="button" onclick="clearJobSelection()" style="background: none; border: none; color: #ef4444; cursor: pointer; font-size: 1.25rem;">
+                    <i class="bi bi-x-circle-fill"></i>
+                  </button>
+                </div>
+              </div>
             </div>
 
             <!-- Description -->
             <div class="mb-4">
-              <label for="reportContent" class="form-label" style="font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">
-                <i class="bi bi-chat-left-text"></i> Describe the issue <span style="color: #dc2626;">*</span>
+              <label for="reportContent" class="form-label" style="font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="bi bi-chat-left-text" style="color: #3b82f6;"></i> Describe the issue <span style="color: #ef4444;">*</span>
               </label>
-              <textarea id="reportContent" name="content" class="form-control" rows="5" placeholder="Please provide detailed information about the issue you're reporting. Include dates, times, and any relevant context..." required style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 0.5rem; font-size: 1rem; resize: vertical;"></textarea>
-              <small class="text-muted">Be as specific as possible to help us investigate</small>
+              <textarea id="reportContent" name="content" class="form-control" rows="5" placeholder="Please provide detailed information about the issue you're reporting..." required style="padding: 0.75rem; border: 2px solid #cbd5e1; border-radius: 0.5rem; font-size: 1rem; resize: vertical; background: white;"></textarea>
+              <small style="color: #64748b;">Be as specific as possible to help us investigate</small>
             </div>
 
             <!-- Screenshot Upload -->
             <div class="mb-4">
-              <label for="screenshot" class="form-label" style="font-weight: 600; color: #1e293b; margin-bottom: 0.5rem;">
-                <i class="bi bi-image"></i> Upload Evidence (optional)
+              <label for="reportScreenshot" class="form-label" style="font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="bi bi-image" style="color: #3b82f6;"></i> Upload Evidence (Optional)
               </label>
-              <input type="file" id="screenshot" name="screenshot" class="form-control" accept="image/*" style="padding: 0.75rem; border: 2px solid #e2e8f0; border-radius: 0.5rem; font-size: 1rem;" />
-              <small class="text-muted">Screenshots or photos that support your report</small>
+              <input type="file" id="reportScreenshot" name="screenshot" class="form-control" accept="image/*" style="padding: 0.75rem; border: 2px solid #cbd5e1; border-radius: 0.5rem; font-size: 1rem; background: white;" onchange="previewScreenshot(this)" />
+              <small style="color: #64748b;">Screenshots of chat messages, posts, or other evidence (Max 5MB)</small>
+              <div id="screenshotPreview" style="display: none; margin-top: 0.75rem; position: relative;">
+                <img id="screenshotPreviewImg" style="max-width: 100%; max-height: 200px; border-radius: 0.5rem; border: 2px solid #cbd5e1;" />
+                <button type="button" onclick="clearScreenshot()" style="position: absolute; top: 0.5rem; right: 0.5rem; background: #ef4444; color: white; border: none; border-radius: 50%; width: 2rem; height: 2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                  <i class="bi bi-x-lg"></i>
+                </button>
+              </div>
             </div>
 
             <!-- Privacy Notice -->
-            <div class="alert" style="background: #f1f5f9; border: 1px solid #cbd5e1; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1.5rem;">
-              <div style="display: flex; gap: 0.75rem;">
-                <i class="bi bi-shield-check" style="color: #3b82f6; font-size: 1.5rem;"></i>
+            <div class="alert" style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 2px solid #fbbf24; border-radius: 0.5rem; padding: 1rem; margin-bottom: 1.5rem;">
+              <div style="display: flex; gap: 0.75rem; align-items: start;">
+                <i class="bi bi-shield-check" style="color: #d97706; font-size: 1.5rem;"></i>
                 <div>
-                  <strong style="color: #1e293b;">Your report is confidential</strong>
-                  <p style="margin: 0.25rem 0 0 0; color: #64748b; font-size: 0.875rem;">
-                    We take all reports seriously and will investigate promptly. Your identity will be protected throughout the process.
+                  <strong style="color: #78350f;">Your report is confidential</strong>
+                  <p style="margin: 0.25rem 0 0 0; color: #92400e; font-size: 0.875rem;">
+                    We take all reports seriously and will investigate promptly. Your identity will be protected.
                   </p>
                 </div>
               </div>
@@ -1136,10 +1513,10 @@
 
             <!-- Action Buttons -->
             <div class="d-flex gap-2 justify-content-end">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 500;">
+              <button type="button" class="btn" data-bs-dismiss="modal" style="background: #e2e8f0; color: #475569; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 500; border: none;">
                 <i class="bi bi-x-circle"></i> Cancel
               </button>
-              <button type="submit" class="btn" style="background: #dc2626; color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 500; border: none;">
+              <button type="submit" class="btn" style="background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); color: white; padding: 0.75rem 1.5rem; border-radius: 0.5rem; font-weight: 500; border: none; box-shadow: 0 4px 6px -1px rgba(59, 130, 246, 0.3);">
                 <i class="bi bi-send-fill"></i> Submit Report
               </button>
             </div>
@@ -1148,6 +1525,41 @@
       </div>
     </div>
   </div>
+
+  <!-- Search Results Styles -->
+  <style>
+    .search-results {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 2px solid #cbd5e1;
+      border-top: none;
+      border-radius: 0 0 0.5rem 0.5rem;
+      max-height: 300px;
+      overflow-y: auto;
+      z-index: 1000;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
+    .search-result-item {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      border-bottom: 1px solid #e2e8f0;
+      transition: all 0.2s;
+    }
+    .search-result-item:hover {
+      background: #eff6ff;
+    }
+    .search-result-item:last-child {
+      border-bottom: none;
+    }
+    #reportType:focus, #userSearchInput:focus, #jobSearchInput:focus, #reportContent:focus {
+      border-color: #3b82f6;
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+    }
+  </style>
 
   <!-- Your custom script -->
   <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
@@ -1183,6 +1595,17 @@
           }
         });
       }
+    });
+    
+    // ===== TOAST NOTIFICATIONS AUTO-DISMISS =====
+    // Auto-dismiss toast notifications after 5 seconds
+    document.querySelectorAll('.toast-notification').forEach(function(toast) {
+      setTimeout(function() {
+        toast.style.animation = 'fadeOutRight 0.3s ease-out forwards';
+        setTimeout(function() {
+          toast.remove();
+        }, 300);
+      }, 5000); // 5 seconds
     });
   </script>
   
@@ -1421,12 +1844,209 @@
     });
   </script>
   
-  <!-- Report Form Handling -->
+  <!-- Enhanced Report Form Handling with Search -->
   <script>
+    let userSearchTimeout;
+    let jobSearchTimeout;
+
+    // Handle report type change
+    function handleReportTypeChange() {
+      const reportType = document.getElementById('reportType').value;
+      const userField = document.getElementById('userSearchField');
+      const jobField = document.getElementById('jobSearchField');
+      
+      // Hide both fields first
+      userField.style.display = 'none';
+      jobField.style.display = 'none';
+      
+      // Clear selections
+      clearUserSelection();
+      clearJobSelection();
+      
+      // Show appropriate field
+      if (reportType === 'user') {
+        userField.style.display = 'block';
+      } else if (reportType === 'job') {
+        jobField.style.display = 'block';
+      }
+    }
+
+    // Search users with debounce
+    function searchUsers(query) {
+      clearTimeout(userSearchTimeout);
+      const resultsDiv = document.getElementById('userSearchResults');
+      
+      if (query.length < 2) {
+        resultsDiv.style.display = 'none';
+        return;
+      }
+      
+      userSearchTimeout = setTimeout(() => {
+        fetch(`/reports/search/users/?q=${encodeURIComponent(query)}`)
+          .then(response => response.json())
+          .then(data => {
+            displayUserResults(data.results);
+          })
+          .catch(error => console.error('Error searching users:', error));
+      }, 300);
+    }
+
+    // Display user search results
+    function displayUserResults(results) {
+      const resultsDiv = document.getElementById('userSearchResults');
+      
+      if (results.length === 0) {
+        resultsDiv.innerHTML = '<div style="padding: 1rem; text-align: center; color: #64748b;">No users found</div>';
+        resultsDiv.style.display = 'block';
+        return;
+      }
+      
+      resultsDiv.innerHTML = results.map(user => `
+        <div class="search-result-item" onclick="selectUser(${user.id}, '${user.username}', '${user.full_name}')">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong style="color: #1e293b;">${user.username}</strong>
+              <div style="font-size: 0.875rem; color: #64748b;">${user.full_name} • ${user.role}</div>
+            </div>
+            <span style="padding: 0.25rem 0.5rem; background: ${user.is_active ? '#dcfce7' : '#fee2e2'}; color: ${user.is_active ? '#166534' : '#991b1b'}; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 500;">
+              ${user.is_active ? 'Active' : 'Inactive'}
+            </span>
+          </div>
+        </div>
+      `).join('');
+      
+      resultsDiv.style.display = 'block';
+    }
+
+    // Select a user
+    function selectUser(id, username, fullName) {
+      document.getElementById('userId').value = id;
+      document.getElementById('selectedUserName').textContent = `${username} (${fullName})`;
+      document.getElementById('selectedUser').style.display = 'block';
+      document.getElementById('userSearchInput').value = '';
+      document.getElementById('userSearchResults').style.display = 'none';
+    }
+
+    // Clear user selection
+    function clearUserSelection() {
+      document.getElementById('userId').value = '';
+      document.getElementById('selectedUser').style.display = 'none';
+      document.getElementById('userSearchInput').value = '';
+      document.getElementById('userSearchResults').style.display = 'none';
+    }
+
+    // Search jobs with debounce
+    function searchJobs(query) {
+      clearTimeout(jobSearchTimeout);
+      const resultsDiv = document.getElementById('jobSearchResults');
+      
+      if (query.length < 2) {
+        resultsDiv.style.display = 'none';
+        return;
+      }
+      
+      jobSearchTimeout = setTimeout(() => {
+        fetch(`/reports/search/jobs/?q=${encodeURIComponent(query)}`)
+          .then(response => response.json())
+          .then(data => {
+            displayJobResults(data.results);
+          })
+          .catch(error => console.error('Error searching jobs:', error));
+      }, 300);
+    }
+
+    // Display job search results
+    function displayJobResults(results) {
+      const resultsDiv = document.getElementById('jobSearchResults');
+      
+      if (results.length === 0) {
+        resultsDiv.innerHTML = '<div style="padding: 1rem; text-align: center; color: #64748b;">No job postings found</div>';
+        resultsDiv.style.display = 'block';
+        return;
+      }
+      
+      resultsDiv.innerHTML = results.map(job => `
+        <div class="search-result-item" onclick="selectJob(${job.id}, '${job.title.replace(/'/g, "\\'")}', '${job.owner}')">
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div>
+              <strong style="color: #1e293b;">${job.title}</strong>
+              <div style="font-size: 0.875rem; color: #64748b;">ID: ${job.id} • By: ${job.owner} • ₱${job.budget}</div>
+            </div>
+            <span style="padding: 0.25rem 0.5rem; background: ${job.is_active ? '#dcfce7' : '#fee2e2'}; color: ${job.is_active ? '#166534' : '#991b1b'}; border-radius: 0.25rem; font-size: 0.75rem; font-weight: 500;">
+              ${job.is_active ? 'Active' : 'Closed'}
+            </span>
+          </div>
+        </div>
+      `).join('');
+      
+      resultsDiv.style.display = 'block';
+    }
+
+    // Select a job
+    function selectJob(id, title, owner) {
+      document.getElementById('jobId').value = id;
+      document.getElementById('selectedJobTitle').textContent = `${title} (by ${owner})`;
+      document.getElementById('selectedJob').style.display = 'block';
+      document.getElementById('jobSearchInput').value = '';
+      document.getElementById('jobSearchResults').style.display = 'none';
+    }
+
+    // Clear job selection
+    function clearJobSelection() {
+      document.getElementById('jobId').value = '';
+      document.getElementById('selectedJob').style.display = 'none';
+      document.getElementById('jobSearchInput').value = '';
+      document.getElementById('jobSearchResults').style.display = 'none';
+    }
+
+    // Preview screenshot
+    function previewScreenshot(input) {
+      const preview = document.getElementById('screenshotPreview');
+      const previewImg = document.getElementById('screenshotPreviewImg');
+      
+      if (input.files && input.files[0]) {
+        // Check file size (5MB max)
+        if (input.files[0].size > 5 * 1024 * 1024) {
+          alert('File size must be less than 5MB');
+          input.value = '';
+          return;
+        }
+        
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          previewImg.src = e.target.result;
+          preview.style.display = 'block';
+        };
+        reader.readAsDataURL(input.files[0]);
+      }
+    }
+
+    // Clear screenshot
+    function clearScreenshot() {
+      document.getElementById('reportScreenshot').value = '';
+      document.getElementById('screenshotPreview').style.display = 'none';
+      document.getElementById('screenshotPreviewImg').src = '';
+    }
+
+    // Submit report form
     function submitReportForm(event) {
       event.preventDefault();
       
       const form = event.target;
+      const reportType = document.getElementById('reportType').value;
+      const userId = document.getElementById('userId').value;
+      const jobId = document.getElementById('jobId').value;
+      
+      // Validate selection
+      if (reportType === 'user' && !userId) {
+        alert('Please search and select a user to report.');
+        return false;
+      }
+      if (reportType === 'job' && !jobId) {
+        alert('Please search and select a job posting to report.');
+        return false;
+      }
+      
       const formData = new FormData(form);
       const submitBtn = form.querySelector('button[type="submit"]');
       const originalBtnText = submitBtn.innerHTML;
@@ -1448,8 +2068,22 @@
       .then(response => response.json())
       .then(data => {
         if (data.success) {
-          // Show success message
-          alert('Report submitted successfully!');
+          // Show success message with custom styling
+          const alertDiv = document.createElement('div');
+          alertDiv.className = 'alert alert-success';
+          alertDiv.style.cssText = 'position: fixed; top: 20px; right: 20px; z-index: 9999; min-width: 300px; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);';
+          alertDiv.innerHTML = `
+            <div style="display: flex; align-items: center; gap: 0.75rem;">
+              <i class="bi bi-check-circle-fill" style="font-size: 1.5rem; color: #22c55e;"></i>
+              <div>
+                <strong>Report Submitted!</strong>
+                <p style="margin: 0; font-size: 0.875rem;">${data.message}</p>
+              </div>
+            </div>
+          `;
+          document.body.appendChild(alertDiv);
+          setTimeout(() => alertDiv.remove(), 5000);
+          
           // Close the modal
           const modal = bootstrap.Modal.getInstance(document.getElementById('reportModal'));
           if (modal) {
@@ -1457,8 +2091,8 @@
           }
           // Reset the form
           form.reset();
+          handleReportTypeChange();
         } else {
-          // Show error message
           alert(data.message || 'An error occurred. Please try again.');
         }
       })
@@ -1480,7 +2114,19 @@
       const form = document.getElementById('reportForm');
       if (form) {
         form.reset();
+        handleReportTypeChange();
       }
+    });
+    
+    // Auto-dismiss alerts after 5 seconds
+    document.addEventListener('DOMContentLoaded', function() {
+      const alerts = document.querySelectorAll('.auto-dismiss-alert');
+      alerts.forEach(function(alert) {
+        setTimeout(function() {
+          const bsAlert = new bootstrap.Alert(alert);
+          bsAlert.close();
+        }, 5000); // 5 seconds
+      });
     });
   </script>
 </body>

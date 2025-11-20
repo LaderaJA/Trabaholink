@@ -1,0 +1,231 @@
+{% extends 'admin_dashboard/dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Admin Details - {{ admin_user.username }} - Trabaholink Admin{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="d-flex align-items-center mb-4">
+        <a href="{% url 'admin_dashboard:admin_list' %}" class="btn btn-outline-secondary me-3">
+            <i class="bi bi-arrow-left"></i> Back
+        </a>
+        <div>
+            <h1 class="h3 mb-0">Admin Details</h1>
+            <p class="text-muted mb-0">View administrator information</p>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- Profile Card -->
+        <div class="col-lg-4">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-body text-center p-4">
+                    {% if admin_user.profile_picture %}
+                    <img src="{{ admin_user.profile_picture.url }}" 
+                         alt="{{ admin_user.username }}" 
+                         class="rounded-circle mb-3"
+                         style="width: 120px; height: 120px; object-fit: cover;">
+                    {% else %}
+                    <div class="rounded-circle bg-primary text-white d-inline-flex align-items-center justify-content-center mb-3"
+                         style="width: 120px; height: 120px; font-size: 3rem; font-weight: bold;">
+                        {{ admin_user.username.0|upper }}
+                    </div>
+                    {% endif %}
+                    
+                    <h4 class="mb-1">{{ admin_user.get_full_name|default:admin_user.username }}</h4>
+                    <p class="text-muted mb-3">@{{ admin_user.username }}</p>
+                    
+                    {% if admin_user.is_superuser %}
+                    <span class="badge bg-danger mb-3">
+                        <i class="bi bi-shield-check"></i> Superuser
+                    </span>
+                    {% else %}
+                    <span class="badge bg-success mb-3">
+                        <i class="bi bi-person-badge"></i> Staff
+                    </span>
+                    {% endif %}
+                    
+                    {% if admin_user.is_active %}
+                    <span class="badge bg-success">Active</span>
+                    {% else %}
+                    <span class="badge bg-secondary">Inactive</span>
+                    {% endif %}
+                </div>
+            </div>
+
+            <!-- Quick Actions -->
+            {% if user.is_superuser and admin_user != user %}
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-white">
+                    <h6 class="mb-0">Quick Actions</h6>
+                </div>
+                <div class="list-group list-group-flush">
+                    <button class="list-group-item list-group-item-action" 
+                            onclick="toggleAdminStatus({{ admin_user.pk }}, '{{ admin_user.username }}')">
+                        <i class="bi bi-{{ admin_user.is_active|yesno:'pause,play' }}-circle text-warning"></i>
+                        {{ admin_user.is_active|yesno:'Deactivate Account,Activate Account' }}
+                    </button>
+                    {% if not admin_user.is_superuser %}
+                    <button class="list-group-item list-group-item-action text-danger" 
+                            onclick="revokeAdminAccess({{ admin_user.pk }}, '{{ admin_user.username }}')">
+                        <i class="bi bi-x-circle"></i>
+                        Revoke Admin Access
+                    </button>
+                    {% endif %}
+                </div>
+            </div>
+            {% endif %}
+        </div>
+
+        <!-- Details -->
+        <div class="col-lg-8">
+            <!-- Account Information -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-person-circle text-primary"></i> Account Information</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small">Full Name</label>
+                            <p class="mb-0 fw-bold">{{ admin_user.get_full_name|default:"N/A" }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Username</label>
+                            <p class="mb-0 fw-bold">@{{ admin_user.username }}</p>
+                        </div>
+                    </div>
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label class="text-muted small">Email</label>
+                            <p class="mb-0">{{ admin_user.email }}</p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Date Joined</label>
+                            <p class="mb-0">{{ admin_user.date_joined|date:"F d, Y g:i A" }}</p>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label class="text-muted small">Last Login</label>
+                            <p class="mb-0">
+                                {% if admin_user.last_login %}
+                                {{ admin_user.last_login|date:"F d, Y g:i A" }}
+                                {% else %}
+                                Never
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="text-muted small">Account Status</label>
+                            <p class="mb-0">
+                                {% if admin_user.is_active %}
+                                <span class="badge bg-success">Active</span>
+                                {% else %}
+                                <span class="badge bg-secondary">Inactive</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Permissions -->
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0"><i class="bi bi-shield-check text-primary"></i> Permissions</h5>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                {% if admin_user.is_staff %}
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <span>Staff Access</span>
+                                {% else %}
+                                <i class="bi bi-x-circle-fill text-danger me-2"></i>
+                                <span class="text-muted">No Staff Access</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <div class="d-flex align-items-center">
+                                {% if admin_user.is_superuser %}
+                                <i class="bi bi-check-circle-fill text-success me-2"></i>
+                                <span>Superuser</span>
+                                {% else %}
+                                <i class="bi bi-x-circle-fill text-danger me-2"></i>
+                                <span class="text-muted">Not a Superuser</span>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+
+                    {% if admin_user.is_superuser %}
+                    <div class="alert alert-info mb-0 mt-3">
+                        <i class="bi bi-info-circle"></i>
+                        <strong>Superuser Permissions:</strong> This user has full access to all admin features, 
+                        including user management, system settings, and can manage other administrators.
+                    </div>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+function toggleAdminStatus(adminId, username) {
+    if (!confirm(`Are you sure you want to toggle the status of admin "${username}"?`)) {
+        return;
+    }
+    
+    fetch(`/admin-dashboard/admins/${adminId}/toggle/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('An error occurred: ' + error);
+    });
+}
+
+function revokeAdminAccess(adminId, username) {
+    if (!confirm(`Are you sure you want to REVOKE admin access from "${username}"? This action cannot be undone without superuser intervention.`)) {
+        return;
+    }
+    
+    fetch(`/admin-dashboard/admins/${adminId}/revoke/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            window.location.href = '{% url "admin_dashboard:admin_list" %}';
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('An error occurred: ' + error);
+    });
+}
+</script>
+{% endblock %}

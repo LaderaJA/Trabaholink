@@ -1,0 +1,213 @@
+{% extends 'mainpages/base.html' %}
+{% load static %}
+
+{% block title %}Select Your Role - TrabahoLink{% endblock %}
+
+{% block css %}
+<style>
+    .role-selection-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .role-selection-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 700px;
+        width: 100%;
+        padding: 3rem 2rem;
+    }
+
+    .header-section {
+        text-align: center;
+        margin-bottom: 3rem;
+    }
+
+    .header-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+    }
+
+    .header-icon i {
+        font-size: 2.5rem;
+        color: white;
+    }
+
+    .header-section h2 {
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+        font-size: 2rem;
+    }
+
+    .header-section p {
+        color: #64748b;
+        font-size: 1.1rem;
+    }
+
+    .role-card {
+        border: 3px solid #e5e7eb;
+        border-radius: 15px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: white;
+    }
+
+    .role-card:hover {
+        border-color: #667eea;
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(102, 126, 234, 0.2);
+    }
+
+    .role-card input[type="radio"] {
+        display: none;
+    }
+
+    .role-card input[type="radio"]:checked + .role-content {
+        border-left: 5px solid #667eea;
+    }
+
+    .role-card input[type="radio"]:checked ~ .check-icon {
+        opacity: 1;
+    }
+
+    .role-content {
+        display: flex;
+        align-items: center;
+        gap: 1.5rem;
+        border-left: 5px solid transparent;
+        padding-left: 1rem;
+        transition: all 0.3s;
+    }
+
+    .role-icon {
+        font-size: 3rem;
+        color: #667eea;
+    }
+
+    .role-info {
+        flex: 1;
+    }
+
+    .role-title {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+
+    .role-description {
+        color: #64748b;
+        font-size: 1rem;
+        margin: 0;
+    }
+
+    .check-icon {
+        font-size: 2rem;
+        color: #10b981;
+        opacity: 0;
+        transition: all 0.3s;
+    }
+
+    .submit-btn {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 12px;
+        font-size: 1.2rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-top: 2rem;
+    }
+
+    .submit-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+    }
+
+    .submit-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+        transform: none;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="role-selection-container">
+    <div class="role-selection-card">
+        <div class="header-section">
+            <div class="header-icon">
+                <i class="bi bi-people-fill"></i>
+            </div>
+            <h2>Welcome to TrabahoLink!</h2>
+            <p>Choose how you want to join our platform</p>
+        </div>
+
+        <form method="POST" id="roleForm">
+            {% csrf_token %}
+            
+            <label for="client" class="role-card">
+                <input type="radio" name="role" value="client" id="client" required>
+                <div class="role-content">
+                    <div class="role-icon">
+                        <i class="bi bi-briefcase-fill"></i>
+                    </div>
+                    <div class="role-info">
+                        <div class="role-title">Client</div>
+                        <p class="role-description">Post jobs, hire skilled workers, and manage projects</p>
+                    </div>
+                    <div class="check-icon">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                </div>
+            </label>
+
+            <label for="worker" class="role-card">
+                <input type="radio" name="role" value="worker" id="worker" required>
+                <div class="role-content">
+                    <div class="role-icon">
+                        <i class="bi bi-tools"></i>
+                    </div>
+                    <div class="role-info">
+                        <div class="role-title">Worker</div>
+                        <p class="role-description">Find job opportunities, offer your skills, and grow your career</p>
+                    </div>
+                    <div class="check-icon">
+                        <i class="bi bi-check-circle-fill"></i>
+                    </div>
+                </div>
+            </label>
+
+            <button type="submit" class="submit-btn">
+                <i class="bi bi-check-circle me-2"></i>Continue
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    // Auto-submit after selection (optional)
+    document.querySelectorAll('input[name="role"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            // Enable submit button when a role is selected
+            document.querySelector('.submit-btn').disabled = false;
+        });
+    });
+</script>
+{% endblock %}

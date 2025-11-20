@@ -4,19 +4,35 @@
 {% block css %}
 <style>
   :root {
-    --primary-color: #1a94d4;
-    --primary-dark: #0d6efd;
-    --primary-light: #e6f4ff;
-    --secondary-color: #6c757d;
-    --success-color: #198754;
-    --dark-color: #2d3748;
-    --light-color: #f8f9fa;
-    --text-color: #2d3748;
-    --text-light: #718096;
-    --gradient-primary: linear-gradient(135deg, #1a94d4 0%, #0d6efd 100%);
-    --gradient-secondary: linear-gradient(135deg, #6c757d 0%, #495057 100%);
-    --box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    --transition: all 0.3s ease;
+    /* Bacoor City Official Colors */
+    --bacoor-blue: #1e40af;
+    --bacoor-blue-light: #3b82f6;
+    --bacoor-gold: #f59e0b;
+    --bacoor-gold-light: #fbbf24;
+    --bacoor-red: #dc2626;
+    --bacoor-green: #059669;
+    
+    /* Primary Colors */
+    --primary-color: #1e40af;
+    --primary-dark: #1e3a8a;
+    --primary-light: #dbeafe;
+    --secondary-color: #64748b;
+    --success-color: #059669;
+    --dark-color: #0f172a;
+    --light-color: #f8fafc;
+    --text-color: #1e293b;
+    --text-light: #64748b;
+    
+    /* Gradients - Bacoor Themed */
+    --gradient-primary: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    --gradient-bacoor: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #f59e0b 100%);
+    --gradient-gold: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+    --gradient-secondary: linear-gradient(135deg, #64748b 0%, #475569 100%);
+    
+    /* Effects */
+    --box-shadow: 0 10px 30px rgba(30, 64, 175, 0.15);
+    --box-shadow-lg: 0 20px 50px rgba(30, 64, 175, 0.2);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   
   /* Global Styles */
@@ -27,15 +43,22 @@
     overflow-x: hidden;
   }
   
-  /* Hero Section */
+  /* Hero Section - Bacoor Inspired */
   .hero-section {
-    background: var(--gradient-primary);
+    background: var(--gradient-bacoor);
     color: white;
     padding: 6rem 0 8rem;
     position: relative;
     overflow: hidden;
     margin-top: 0;
     clip-path: polygon(0 0, 100% 0, 100% 85%, 0% 100%);
+    animation: gradientAnimation 15s ease infinite;
+    background-size: 200% 200%;
+  }
+  
+  @keyframes gradientAnimation {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
   }
   
   .hero-section::before {
@@ -218,30 +241,71 @@
     }
   }
   
-  /* Animated Statistics Counter */
+  /* Animated Statistics Counter - Bacoor Theme */
   .stats-section {
-    background: linear-gradient(135deg, #1a94d4 0%, #0d6efd 100%);
+    background: var(--gradient-bacoor);
     color: white;
     padding: 4rem 0;
     position: relative;
     overflow: hidden;
+    animation: gradientAnimation 15s ease infinite;
+    background-size: 200% 200%;
+  }
+  
+  .stats-section::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 35px,
+      rgba(255,255,255,0.03) 35px,
+      rgba(255,255,255,0.03) 70px
+    );
   }
   
   .stat-card {
     text-align: center;
     padding: 2rem 1rem;
+    position: relative;
+    z-index: 1;
+    transition: transform 0.3s ease;
+  }
+  
+  .stat-card:hover {
+    transform: translateY(-10px);
   }
   
   .stat-number {
-    font-size: 3rem;
-    font-weight: 800;
+    font-size: 3.5rem;
+    font-weight: 900;
     margin-bottom: 0.5rem;
     display: block;
+    text-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    animation: countUp 1s ease-out;
+  }
+  
+  @keyframes countUp {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
   }
   
   .stat-label {
-    font-size: 1.1rem;
-    opacity: 0.9;
+    font-size: 1.125rem;
+    opacity: 0.95;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 1px;
   }
   
   /* Category Cards with Hover Animation */
@@ -261,7 +325,7 @@
     left: -100%;
     width: 100%;
     height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(26, 148, 212, 0.1), transparent);
+    background: linear-gradient(90deg, transparent, rgba(30, 64, 175, 0.1), transparent);
     transition: left 0.5s ease;
   }
   
@@ -270,8 +334,24 @@
   }
   
   .category-card:hover {
-    transform: translateY(-10px) scale(1.02);
-    box-shadow: 0 15px 35px rgba(26, 148, 212, 0.3) !important;
+    transform: translateY(-12px) scale(1.03);
+    box-shadow: 0 20px 40px rgba(30, 64, 175, 0.25) !important;
+  }
+  
+  .category-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: var(--gradient-bacoor);
+    transform: scaleX(0);
+    transition: transform 0.3s ease;
+  }
+  
+  .category-card:hover::after {
+    transform: scaleX(1);
   }
   
   .category-icon {
@@ -579,7 +659,7 @@
               <i class="bi bi-briefcase me-2"></i>
               Find Jobs
             </a>
-            <a href="{% url 'account_signup' %}" class="btn btn-outline-light btn-lg px-4">
+            <a href="{% url 'register' %}" class="btn btn-outline-light btn-lg px-4">
               <i class="bi bi-person-plus me-2"></i>
               Join Now
             </a>

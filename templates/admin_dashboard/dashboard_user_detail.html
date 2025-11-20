@@ -367,7 +367,7 @@
     function toggleUserStatus(userId, isActive) {
         const action = isActive ? 'suspend' : 'reactivate';
         if (confirm(`Are you sure you want to ${action} this user?`)) {
-            fetch(`/admin_dashboard/users/${userId}/toggle-status/`, {
+            fetch(`/admin_dashboard/users/${userId}/toggle/`, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': '{{ csrf_token }}',
@@ -408,7 +408,7 @@
             return;
         }
         
-        fetch(`/admin_dashboard/users/{{ selected_user.pk }}/send-warning/`, {
+        fetch(`/admin_dashboard/users/{{ selected_user.pk }}/warn/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': '{{ csrf_token }}',

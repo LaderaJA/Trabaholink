@@ -19,7 +19,7 @@
       <p><strong>Description:</strong> {{ skill.description }}</p>
       {% if skill.proof %}
         <p><strong>Proof:</strong></p>
-        <a href="{{ skill.proof.url }}" target="_blank">View Document</a>
+        <a href="{% url 'skill_document_viewer' skill.pk %}">View Document</a>
       {% endif %}
       <p><small>Submitted on: {{ skill.submitted_at|date:"M d, Y" }}</small></p>
     </div>

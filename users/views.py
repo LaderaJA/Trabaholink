@@ -3,7 +3,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.contrib import messages
 from django.contrib.auth import login, update_session_auth_hash, get_backends
-from django.contrib.auth.views import LoginView, LogoutView
+from django.contrib.auth.views import LoginView, LogoutView, PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
 from django.contrib.auth.forms import PasswordChangeForm
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
@@ -15,6 +15,7 @@ from django.utils.decorators import method_decorator
 from django.core.exceptions import PermissionDenied, SuspiciousFileOperation
 from django.contrib.gis.geos import GEOSGeometry
 from django.http import JsonResponse
+from django.db import models
 from django.db.models import Q
 from django.core.files.storage import default_storage
 from django.core.files.base import File
@@ -22,10 +23,20 @@ import uuid
 import os
 import logging
 
-from .models import CustomUser, Skill, Education, Experience, CompletedJobGallery, AccountVerification
+from .models import (
+    CustomUser,
+    Skill,
+    Education,
+    Experience,
+    CompletedJobGallery,
+    AccountVerification,
+    VALID_ID_CHOICES,
+)
+from users.services.verification import VerificationPipeline
 from .forms import (CustomUserRegistrationForm, IdentityVerificationForm, UserProfileForm, 
                    SkillVerificationForm, CompletedJobGalleryForm, UserLocationForm,
-                   VerificationStep1Form, VerificationStep2Form, VerificationStep3Form)
+                   VerificationStep1Form, VerificationStep2Form, VerificationStep3Form,
+                   CustomPasswordResetForm)
 from jobs.models import JobApplication, Contract, Feedback
 from notifications.models import Notification
 
@@ -98,25 +109,149 @@ ExperienceFormSet = inlineformset_factory(
     }
 )
 
-# Register View
+# Register View - Now with Email OTP Verification
 class RegisterView(CreateView):
     template_name = "users/register.html"
     form_class = CustomUserRegistrationForm
 
     def form_valid(self, form):
-        user = form.save()
-        backend = get_backends()[0]
-        user.backend = f"{backend.__module__}.{backend.__class__.__name__}"
-        login(self.request, user)
-        return redirect('identity_verification', pk=user.pk)
+        from django.contrib.auth.hashers import make_password
+        from .otp_utils import create_otp_record, send_otp_email
+        
+        # Don't save the user yet - store data in OTP record
+        email = form.cleaned_data['email']
+        username = form.cleaned_data['username']
+        password = form.cleaned_data['password1']
+        role = form.cleaned_data.get('role', 'client')
+        
+        # Check if email or username already exists
+        if CustomUser.objects.filter(email=email).exists():
+            messages.error(self.request, 'An account with this email already exists.')
+            return self.form_invalid(form)
+        
+        if CustomUser.objects.filter(username=username).exists():
+            messages.error(self.request, 'This username is already taken.')
+            return self.form_invalid(form)
+        
+        # Hash the password
+        password_hash = make_password(password)
+        
+        # Create OTP record (returns record with _plain_otp attribute)
+        otp_record = create_otp_record(email, username, password_hash, role)
+        
+        # Send OTP email using plain text OTP (not the hashed version)
+        if send_otp_email(email, otp_record._plain_otp, username):
+            messages.success(
+                self.request, 
+                f'A verification code has been sent to {email}. Please check your inbox.'
+            )
+            # Redirect to OTP verification page
+            return redirect('verify_otp', email=email)
+        else:
+            messages.error(
+                self.request, 
+                'Failed to send verification email. Please try again.'
+            )
+            return self.form_invalid(form)
 
 # Login View
 class UserLoginView(LoginView):
     template_name = "users/login.html"
+    
+    def get_success_url(self):
+        """Redirect admins to dashboard, regular users to home"""
+        user = self.request.user
+        
+        # Check if user is admin (staff or superuser)
+        if user.is_staff or user.is_superuser:
+            return reverse_lazy('admin_dashboard:dashboard_main')
+        
+        # Regular users go to jobs home
+        return reverse_lazy('jobs:home')
 
 # Logout View
 class UserLogoutView(LogoutView):
     template_name = "users/logout.html"
+
+class CustomPasswordResetView(PasswordResetView):
+    template_name = "registration/password_reset_form.html"
+    email_template_name = "registration/password_reset_email.html"
+    subject_template_name = "registration/password_reset_subject.txt"
+    success_url = reverse_lazy('password_reset_done')
+    form_class = CustomPasswordResetForm
+
+    def form_valid(self, form):
+        try:
+            email = form.cleaned_data.get('email', '')
+            logger.info("Password reset requested for email: %s", email)
+            print(f"[PWD RESET] request email={email}")
+            return super().form_valid(form)
+        except Exception as e:
+            logger.error("Password reset email sending failed for %s: %s", email, str(e))
+            print(f"[PWD RESET] error sending email for {email}: {e}")
+            messages.error(self.request, 'We could not send the reset email. Please try again later.')
+            return super().form_invalid(form)
+
+    def form_invalid(self, form):
+        logger.warning("Password reset form invalid: %s", form.errors)
+        print(f"[PWD RESET] invalid form errors={form.errors}")
+        messages.error(self.request, 'Please check the email and try again.')
+        return super().form_invalid(form)
+
+
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    template_name = "registration/password_reset_done.html"
+
+    def get(self, request, *args, **kwargs):
+        logger.info("Password reset email dispatched.")
+        print("[PWD RESET] done view")
+        return super().get(request, *args, **kwargs)
+
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    template_name = "registration/password_reset_confirm.html"
+    success_url = reverse_lazy('password_reset_complete')
+
+    def dispatch(self, request, *args, **kwargs):
+        uidb64 = kwargs.get('uidb64', '')
+        token = kwargs.get('token', '')
+        logger.info("Password reset confirm attempt uid prefix=%s token prefix=%s", uidb64[:6], token[:8])
+        print(f"[PWD RESET] confirm attempt uid={uidb64[:6]} token={token[:8]}")
+        try:
+            response = super().dispatch(request, *args, **kwargs)
+            return response
+        except Exception as e:
+            logger.error("Error during password reset confirm for uid=%s: %s", uidb64[:6], str(e))
+            print(f"[PWD RESET] confirm error uid={uidb64[:6]} err={e}")
+            messages.error(request, 'There was a problem validating the reset link.')
+            return redirect('password_reset')
+
+    def form_valid(self, form):
+        try:
+            resp = super().form_valid(form)
+            logger.info("Password successfully reset.")
+            print("[PWD RESET] password changed successfully")
+            return resp
+        except Exception as e:
+            logger.error("Error saving new password: %s", str(e))
+            print(f"[PWD RESET] error saving new password: {e}")
+            messages.error(self.request, 'We could not set your new password. Please try again.')
+            return super().form_invalid(form)
+
+    def form_invalid(self, form):
+        logger.warning("Password reset confirm form invalid: %s", form.errors)
+        print(f"[PWD RESET] confirm invalid errors={form.errors}")
+        messages.error(self.request, 'Please fix the errors and try again.')
+        return super().form_invalid(form)
+
+
+class CustomPasswordResetCompleteView(PasswordResetCompleteView):
+    template_name = "registration/password_reset_complete.html"
+
+    def get(self, request, *args, **kwargs):
+        logger.info("Password reset completed.")
+        print("[PWD RESET] complete view")
+        return super().get(request, *args, **kwargs)
 
 # Change Password View
 @method_decorator(login_required, name='dispatch')
@@ -167,28 +302,62 @@ class UserProfileDetailView(DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.get_object()
-        context["recent_applications"] = JobApplication.objects.filter(worker=user).select_related("job").order_by("-applied_at")[:5]
-        context["posted_jobs"] = user.posted_jobs.order_by("-created_at")
-        completed_contracts_qs = Contract.objects.filter(
-            worker=user,
-            status="Completed"
-        ).select_related("job", "client").prefetch_related("feedbacks").order_by("-updated_at")
-
-        feedback_map = {
-            feedback.contract_id: feedback
-            for feedback in Feedback.objects.filter(receiver=user).select_related("contract", "giver")
-        }
-
-        completed_contracts = list(completed_contracts_qs)
-        for contract in completed_contracts:
-            contract.worker_feedback = feedback_map.get(contract.id)
-
-        context["completed_contracts"] = completed_contracts
         
-        # Add user's services
-        from services.models import ServicePost
-        context["user_services"] = ServicePost.objects.filter(worker=user).order_by("-created_at")
+        # Determine user type
+        context["is_worker"] = user.role == 'worker'
+        context["is_client"] = user.role == 'client'
+        
+        # Get recent activity logs (last 20)
+        from .activity_logger import ActivityLog
+        context["recent_activities"] = ActivityLog.objects.filter(
+            user=user
+        ).select_related('content_type').order_by('-timestamp')[:20]
+        
+        # Worker-specific data
+        if user.role == 'worker':
+            context["recent_applications"] = JobApplication.objects.filter(worker=user).select_related("job").order_by("-applied_at")[:5]
+            completed_contracts_qs = Contract.objects.filter(
+                worker=user,
+                status="Completed"
+            ).select_related("job", "client").prefetch_related("feedbacks").order_by("-updated_at")
 
+            feedback_map = {
+                feedback.contract_id: feedback
+                for feedback in Feedback.objects.filter(receiver=user).select_related("contract", "giver")
+            }
+
+            completed_contracts = list(completed_contracts_qs)
+            for contract in completed_contracts:
+                contract.worker_feedback = feedback_map.get(contract.id)
+
+            context["completed_contracts"] = completed_contracts
+            
+            # Add user's services
+            from services.models import ServicePost
+            context["user_services"] = ServicePost.objects.filter(worker=user).order_by("-created_at")
+        
+        # Client-specific data
+        if user.role == 'client':
+            context["posted_jobs"] = user.posted_jobs.order_by("-created_at")
+            
+            # Get completed contracts where user is the client, with worker feedback
+            from django.db.models import Q
+            completed_contracts_client = Contract.objects.filter(
+                Q(client=user) | Q(job__owner=user),
+                status="Completed"
+            ).select_related("job", "worker", "client").prefetch_related("feedbacks").order_by("-updated_at")
+            
+            # Convert to list and attach worker feedback to each contract
+            completed_contracts_list = list(completed_contracts_client)
+            for contract in completed_contracts_list:
+                # Get feedback from worker to client
+                contract.worker_feedback = Feedback.objects.filter(
+                    contract=contract,
+                    giver=contract.worker,
+                    receiver=user
+                ).first()
+            
+            context["completed_contracts_client"] = completed_contracts_list
         
         return context
 
@@ -223,7 +392,13 @@ class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
             education_formset.save()
             experience_formset.instance = self.object
             experience_formset.save()
-            messages.success(self.request, 'Your profile has been updated successfully!')
+            
+            # Check if CV was uploaded
+            if form.cleaned_data.get('cv_file'):
+                messages.success(self.request, 'Your profile and CV have been updated successfully!')
+            else:
+                messages.success(self.request, 'Your profile has been updated successfully!')
+            
             return super().form_valid(form)
         else:
             return self.render_to_response(self.get_context_data(form=form))
@@ -330,6 +505,37 @@ class UserProfileDeleteView(DeleteView):
 
     def get_object(self):
         return self.request.user
+    
+    def form_valid(self, form):
+        """
+        Override form_valid to handle historical records BEFORE deleting the user.
+        This prevents foreign key constraint violations with django-simple-history.
+        Especially important for social auth accounts.
+        """
+        user = self.get_object()
+        
+        # Import all models with historical records that reference users
+        from jobs.models import Job, JobApplication, JobOffer
+        from django.contrib.auth import logout
+        from django.contrib import messages
+        
+        # Update all historical records that reference this user
+        # Set history_user_id to None to prevent FK constraint violations
+        models_with_history = [Job, JobApplication, JobOffer]
+        
+        for model in models_with_history:
+            if hasattr(model, 'history'):
+                # Update historical records to remove user reference
+                model.history.filter(history_user=user).update(history_user=None)
+        
+        # Log the deletion for admin tracking
+        messages.success(self.request, f"Account for {user.username} has been successfully deleted.")
+        
+        # Logout the user before deletion
+        logout(self.request)
+        
+        # Now proceed with the normal deletion
+        return super().form_valid(form)
 
 # Submit Skill Verification
 @login_required
@@ -350,6 +556,30 @@ class SkillDetailView(LoginRequiredMixin, DetailView):
     model = Skill
     template_name = 'skills/skill_detail.html'
     context_object_name = 'skill'
+
+# Skill Document Viewer
+class SkillDocumentViewer(LoginRequiredMixin, View):
+    def get(self, request, pk):
+        skill = get_object_or_404(Skill, pk=pk)
+        
+        # Determine file type
+        file_url = skill.proof.url
+        file_extension = file_url.split('.')[-1].lower()
+        
+        if file_extension in ['jpg', 'jpeg', 'png', 'gif', 'bmp', 'webp']:
+            file_type = 'image'
+        elif file_extension == 'pdf':
+            file_type = 'pdf'
+        else:
+            file_type = 'other'
+        
+        context = {
+            'file_url': file_url,
+            'file_type': file_type,
+            'skill': skill
+        }
+        
+        return render(request, 'skills/document_viewer.html', context)
 
 # Skill Update View
 class SkillUpdateView(LoginRequiredMixin, UpdateView):
@@ -654,6 +884,21 @@ class VerificationStep2View(LoginRequiredMixin, FormView):
         step2_data = {
             'id_type': form.cleaned_data['id_type']
         }
+        
+        # Handle PhilSys consent
+        philsys_consent = request.POST.get('philsys_consent') == 'on'
+        id_type = form.cleaned_data['id_type'].lower()
+        is_philsys = id_type in ['philsys', 'philsys_id', 'national_id']
+        
+        if is_philsys:
+            step2_data['philsys_consent'] = philsys_consent
+            if philsys_consent:
+                messages.info(
+                    request,
+                    'PhilSys automated verification will be performed after you complete all steps.'
+                )
+        else:
+            step2_data['philsys_consent'] = False
 
         # Save files to temporary storage and keep path references in session
         id_front = form.cleaned_data['id_image_front']
@@ -734,88 +979,173 @@ class VerificationStep4View(LoginRequiredMixin, View):
     def get(self, request):
         from datetime import datetime
         
-        step1_data = request.session.get('verification_step1', {})
-        step2_data = request.session.get('verification_step2', {})
-        
-        # Convert date string back to date object for display
-        if 'date_of_birth' in step1_data and isinstance(step1_data['date_of_birth'], str):
-            step1_data['date_of_birth'] = datetime.fromisoformat(step1_data['date_of_birth']).date()
-        
-        id_type_key = step2_data.get('id_type')
-        id_type_display = dict(AccountVerification.ID_TYPE_CHOICES).get(id_type_key, id_type_key)
+        try:
+            step1_data = request.session.get('verification_step1', {})
+            step2_data = request.session.get('verification_step2', {})
+            
+            # Validate that we have required data
+            if not step1_data or not step2_data:
+                messages.error(request, 'Session data is missing. Please start the verification process again.')
+                return redirect('ekyc_step1')
+            
+            # Convert date string back to date object for display
+            if 'date_of_birth' in step1_data and isinstance(step1_data['date_of_birth'], str):
+                try:
+                    step1_data['date_of_birth'] = datetime.fromisoformat(step1_data['date_of_birth']).date()
+                except (ValueError, TypeError) as e:
+                    logger.warning(f"Error parsing date_of_birth: {e}")
+                    step1_data['date_of_birth'] = None
+            
+            # Get ID type display name with error handling
+            id_type_key = step2_data.get('id_type', '')
+            try:
+                id_type_display = dict(VALID_ID_CHOICES).get(id_type_key, id_type_key or 'Unknown')
+            except Exception as e:
+                logger.error(f"Error getting ID type display: {e}")
+                id_type_display = id_type_key or 'Unknown'
 
-        context = {
-            'current_step': 4,
-            'step1_data': step1_data,
-            'step2_data': step2_data,
-            'id_type_display': id_type_display,
-            'id_front_uploaded': request.session.get('id_image_front', False),
-            'id_back_uploaded': request.session.get('id_image_back', False),
-            'selfie_uploaded': 'temp_selfie_path' in request.session,
-        }
-        return render(request, self.template_name, context)
+            context = {
+                'current_step': 4,
+                'step1_data': step1_data,
+                'step2_data': step2_data,
+                'id_type_display': id_type_display,
+                'id_front_uploaded': request.session.get('id_image_front', False),
+                'id_back_uploaded': request.session.get('id_image_back', False),
+                'selfie_uploaded': 'temp_selfie_path' in request.session,
+            }
+            return render(request, self.template_name, context)
+            
+        except Exception as e:
+            logger.error(f"Error in VerificationStep4View.get: {e}", exc_info=True)
+            messages.error(request, 'An error occurred while loading the review page. Please try again.')
+            return redirect('ekyc_step1')
     
     def post(self, request):
         from datetime import datetime
         
-        # Retrieve all session data
-        step1_data = request.session.get('verification_step1', {})
-        step2_data = request.session.get('verification_step2', {})
-        
-        # Convert date string back to date object
-        if isinstance(step1_data.get('date_of_birth'), str):
-            step1_data['date_of_birth'] = datetime.fromisoformat(step1_data['date_of_birth']).date()
-        
-        # Load temporary files from storage
-        id_front_path = request.session.get('temp_id_front_path')
-        id_back_path = request.session.get('temp_id_back_path')
-        selfie_path = request.session.get('temp_selfie_path')
+        try:
+            # Retrieve all session data
+            step1_data = request.session.get('verification_step1', {})
+            step2_data = request.session.get('verification_step2', {})
+            
+            # Validate required data
+            if not step1_data or not step2_data:
+                messages.error(request, 'Session data is missing. Please start the verification process again.')
+                return redirect('ekyc_step1')
+            
+            # Convert date string back to date object
+            if isinstance(step1_data.get('date_of_birth'), str):
+                try:
+                    step1_data['date_of_birth'] = datetime.fromisoformat(step1_data['date_of_birth']).date()
+                except (ValueError, TypeError) as e:
+                    logger.error(f"Error parsing date_of_birth: {e}")
+                    messages.error(request, 'Invalid date format. Please start again.')
+                    return redirect('ekyc_step1')
+            
+            # Load temporary files from storage
+            id_front_path = request.session.get('temp_id_front_path')
+            id_back_path = request.session.get('temp_id_back_path')
+            selfie_path = request.session.get('temp_selfie_path')
 
-        id_front_file = open_temp_file(id_front_path) if id_front_path else None
-        id_back_file = open_temp_file(id_back_path) if id_back_path else None
-        selfie_file = open_temp_file(selfie_path) if selfie_path else None
+            id_front_file = open_temp_file(id_front_path) if id_front_path else None
+            id_back_file = open_temp_file(id_back_path) if id_back_path else None
+            selfie_file = open_temp_file(selfie_path) if selfie_path else None
 
-        if not id_front_file or not selfie_file:
-            messages.error(request, 'We could not process your uploaded files. Please upload them again.')
-            cleanup_temp_files(request.session, ['temp_id_front_path', 'temp_id_back_path', 'temp_selfie_path'])
-            return redirect('ekyc_step2')
+            if not id_front_file or not selfie_file:
+                messages.error(request, 'We could not process your uploaded files. Please upload them again.')
+                cleanup_temp_files(request.session, ['temp_id_front_path', 'temp_id_back_path', 'temp_selfie_path'])
+                return redirect('ekyc_step2')
 
-        # Create verification submission
-        verification = AccountVerification.objects.create(
-            user=request.user,
-            full_name=step1_data['full_name'],
-            date_of_birth=step1_data['date_of_birth'],
-            address=step1_data['address'],
-            contact_number=step1_data['contact_number'],
-            gender=step1_data['gender'],
-            id_type=step2_data['id_type'],
-            id_image_front=id_front_file,
-            id_image_back=id_back_file,
-            selfie_image=selfie_file,
-            status='pending'
-        )
-        
-        # Update user verification status
-        request.user.verification_status = 'pending'
-        request.user.save(update_fields=['verification_status'])
-        
-        # Send notification to admins
-        admin_users = CustomUser.objects.filter(role='admin')
-        for admin in admin_users:
-            Notification.objects.create(
-                user=admin,
-                message=f"New verification submission from {request.user.username}",
-                notif_type="verification",
-                object_id=verification.id
+            # Create verification submission
+            verification = AccountVerification.objects.create(
+                user=request.user,
+                full_name=step1_data['full_name'],
+                date_of_birth=step1_data['date_of_birth'],
+                address=step1_data['address'],
+                contact_number=step1_data['contact_number'],
+                gender=step1_data['gender'],
+                id_type=step2_data['id_type'],
+                id_image_front=id_front_file,
+                id_image_back=id_back_file,
+                selfie_image=selfie_file,
+                status='pending'
             )
-        
-        # Clear session data
-        cleanup_temp_files(request.session, ['temp_id_front_path', 'temp_id_back_path', 'temp_selfie_path'])
-        for key in ['verification_step1', 'verification_step2', 'id_image_front', 'id_image_back']:
-            request.session.pop(key, None)
 
-        messages.success(request, 'Verification submitted successfully! We will review your submission.')
-        return redirect('ekyc_pending')
+            # Persist ID/selfie images to user profile for pipeline processing
+            user = request.user
+            user.id_type = step2_data['id_type']
+            user.id_image = verification.id_image_front
+            user.selfie_image = verification.selfie_image
+            user.verification_status = 'pending'
+            user.save(update_fields=['id_type', 'id_image', 'selfie_image', 'verification_status'])
+
+            # Queue verification pipeline to run in background (async)
+            from users.tasks import run_verification_pipeline
+            from users.tasks_philsys_auto import auto_verify_philsys
+            
+            try:
+                # If PhilSys ID, chain tasks: face recognition -> PhilSys verification
+                # This ensures face recognition completes BEFORE PhilSys verification runs
+                if user.id_type == 'philsys' and verification.id_image_back:
+                    from celery import chain
+                    verification_chain = chain(
+                        run_verification_pipeline.si(user_id=user.id, verification_id=verification.id),
+                        auto_verify_philsys.si(verification_id=verification.id)
+                    )
+                    task = verification_chain.apply_async()
+                    logger.info(
+                        f"Chained verification (face recognition -> PhilSys) queued for user {user.id}"
+                    )
+                    messages.success(
+                        request,
+                        'Your PhilSys ID verification has been submitted! We are verifying your ID with the government portal. '
+                        'You will receive a notification once verification is complete (usually within a few minutes).'
+                    )
+                else:
+                    # For non-PhilSys IDs, just run the standard verification pipeline
+                    task = run_verification_pipeline.delay(
+                        user_id=user.id,
+                        verification_id=verification.id
+                    )
+                    logger.info(
+                        f"Verification pipeline queued for user {user.id} (task: {task.id})"
+                    )
+                    messages.success(
+                        request,
+                        'Your verification has been submitted! We are processing your documents in the background. '
+                        'You will receive a notification once the verification is complete (usually within a few minutes).'
+                    )
+                
+            except Exception as e:
+                # If Celery is not available, log error and set for manual review
+                logger.exception(f"Failed to queue verification task for user {user.id}: {e}")
+                messages.warning(
+                    request,
+                    "Your verification has been submitted and will be reviewed by our team manually."
+                )
+            
+            # Send notification to admins
+            admin_users = CustomUser.objects.filter(role='admin')
+            for admin in admin_users:
+                Notification.objects.create(
+                    user=admin,
+                    message=f"New verification submission from {request.user.username}",
+                    notif_type="verification",
+                    object_id=verification.id
+                )
+            
+            # Clear session data
+            cleanup_temp_files(request.session, ['temp_id_front_path', 'temp_id_back_path', 'temp_selfie_path'])
+            for key in ['verification_step1', 'verification_step2', 'id_image_front', 'id_image_back']:
+                request.session.pop(key, None)
+
+            # Redirect immediately to pending page
+            return redirect('ekyc_pending')
+            
+        except Exception as e:
+            logger.error(f"Error in VerificationStep4View.post: {e}", exc_info=True)
+            messages.error(request, 'An error occurred while submitting your verification. Please try again.')
+            return redirect('ekyc_step4')
 
 
 class VerificationPendingView(LoginRequiredMixin, View):
@@ -851,3 +1181,136 @@ class VerificationFailedView(LoginRequiredMixin, View):
             'verification': latest_verification
         }
         return render(request, self.template_name, context)
+
+
+# OTP Verification Views
+class VerifyOTPView(View):
+    """View to verify OTP code during registration"""
+    template_name = 'users/verify_otp.html'
+    
+    def get(self, request, email):
+        # Normalize email from URL
+        from urllib.parse import unquote
+        email = unquote(email).lower().strip()
+        
+        context = {
+            'email': email
+        }
+        return render(request, self.template_name, context)
+    
+    def post(self, request, email):
+        from .otp_utils import verify_otp
+        from django.contrib.auth import login, get_backends
+        from urllib.parse import unquote
+        
+        # Normalize email from URL
+        email = unquote(email).lower().strip()
+        
+        otp_code = request.POST.get('otp_code', '').strip()
+        
+        if not otp_code:
+            messages.error(request, 'Please enter the verification code.')
+            return redirect('verify_otp', email=email)
+        
+        # Verify OTP
+        success, message, otp_record = verify_otp(email, otp_code)
+        
+        if success and otp_record:
+            # Check if user already exists
+            existing_user = CustomUser.objects.filter(
+                models.Q(username=otp_record.username) | models.Q(email=otp_record.email)
+            ).first()
+            
+            if existing_user:
+                # Log them in instead
+                backend = get_backends()[0]
+                existing_user.backend = f"{backend.__module__}.{backend.__class__.__name__}"
+                login(request, existing_user)
+                messages.success(request, 'Welcome back! You have been logged in.')
+                return redirect('jobs:home')
+            
+            # Create the user account
+            try:
+                user = CustomUser.objects.create(
+                    username=otp_record.username,
+                    email=otp_record.email,
+                    password=otp_record.password_hash,  # Already hashed
+                    role=otp_record.role,
+                    role_selected=True,  # Regular users explicitly select role during registration
+                    is_active=True,
+                    # Set default values for verification fields
+                    identity_verification_status='pending',
+                    verification_status='pending',
+                    face_detected=False,
+                    ocr_confidence_score=0,
+                    is_verified=False,
+                    is_verified_philsys=False
+                )
+                
+                # Log the user in
+                backend = get_backends()[0]
+                user.backend = f"{backend.__module__}.{backend.__class__.__name__}"
+                login(request, user)
+                
+                messages.success(request, 'Email verified successfully! Welcome to TrabahoLink.')
+                
+                # Redirect to home page instead of forcing identity verification
+                # User can verify identity later from their profile
+                return redirect('jobs:home')
+                
+            except Exception as e:
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.error(f"Error creating account for {otp_record.email}: {str(e)}")
+                messages.error(request, f'Error creating account: {str(e)}')
+                return redirect('register')
+        else:
+            messages.error(request, message)
+            return redirect('verify_otp', email=email)
+
+
+class ResendOTPView(View):
+    """View to resend OTP code"""
+    
+    def post(self, request, email):
+        from .otp_utils import resend_otp
+        
+        success, message = resend_otp(email)
+        
+        if success:
+            messages.success(request, message)
+        else:
+            messages.error(request, message)
+        
+        return redirect('verify_otp', email=email)
+
+
+# ============================================
+# SOCIAL ACCOUNT ROLE SELECTION
+# ============================================
+
+@login_required
+def select_role_view(request):
+    """
+    View for new social account users to select their role.
+    This is shown after Google OAuth signup.
+    """
+    # Clear the session flag
+    needs_selection = request.session.pop('needs_role_selection', False)
+    
+    if request.method == 'POST':
+        role = request.POST.get('role')
+        
+        if role in ['client', 'worker']:
+            request.user.role = role
+            request.user.role_selected = True  # Mark that role has been selected
+            request.user.save()
+            
+            messages.success(request, f'Welcome! You have joined as a {role.title()}.')
+            return redirect('profile', pk=request.user.pk)
+        else:
+            messages.error(request, 'Please select a valid role.')
+    
+    return render(request, 'users/select_role.html', {
+        'needs_selection': needs_selection
+    })

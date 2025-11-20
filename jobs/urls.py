@@ -8,7 +8,7 @@ from .views import (
     finalize_contract, cancel_contract, accept_contract, EmployerDashboardView, WorkerDashboardView,
     # JobOfferDetailView, accept_job_offer, reject_job_offer, create_job_offer,  # DEPRECATED
     ContractSignView,
-    HomePageView, reconsider_application,
+    HomePageView, reconsider_application, FAQView, TermsOfServiceView, PrivacyPolicyView,
     # New redesigned workflow views
     accept_application_new, ContractNegotiationView, accept_contract_terms,
     JobTrackingView, post_progress_update, mark_job_completed, end_job, oppose_job_completion, feedback_form,
@@ -22,6 +22,9 @@ app_name = "jobs"
 urlpatterns = [
     path('', HomePageView.as_view(), name="home"),  
     path('jobs/', JobListView.as_view(), name="job_list"),
+    path('faq/', FAQView.as_view(), name="faq"),
+    path('terms-of-service/', TermsOfServiceView.as_view(), name="terms_of_service"),
+    path('privacy-policy/', PrivacyPolicyView.as_view(), name="privacy_policy"),
     path('set-location/', set_user_location, name='set_user_location'),
     
     # Dashboard URLs
@@ -78,5 +81,13 @@ urlpatterns = [
     path('employer/contracts/', employer_contracts_view, name="employer_contracts"),
     path('worker/applications/', worker_applications_view, name="worker_applications"),
     path('worker/contracts/', worker_contracts_view, name="worker_contracts"),
+    
+    # Calendar and Schedule APIs
+    path('api/schedule/events/', views.get_schedule_events, name="api_schedule_events"),
+    path('api/schedule/check-conflict/', views.check_contract_conflict, name="api_check_conflict"),
+    path('api/schedule/deadlines/', views.get_upcoming_deadlines_api, name="api_deadlines"),
+    
+    # Job Status Toggle
+    path('<int:job_id>/toggle-status/', views.toggle_job_status, name="toggle_job_status"),
 ]
 

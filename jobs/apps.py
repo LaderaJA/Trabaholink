@@ -6,4 +6,5 @@ class JobsConfig(AppConfig):
     name = 'jobs'
 
     def ready(self):
-        import jobs.signals 
+        import jobs.signals
+        import jobs.activity_signals  # Import activity logging signals

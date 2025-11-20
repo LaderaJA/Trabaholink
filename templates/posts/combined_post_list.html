@@ -34,9 +34,13 @@
     <div class="col-md-6 col-lg-4 mb-4">
       <div class="card h-100 shadow-sm">
         {% if post.post_type == "Job" and post.job_picture %}
-          <img src="{{ post.job_picture.url }}" class="card-img-top" alt="{{ post.title }}">
+          <a href="{{ post.get_absolute_url }}" class="post-image-link">
+            <img src="{{ post.job_picture.url }}" class="card-img-top" alt="{{ post.title }}">
+          </a>
         {% elif post.post_type == "Service" and post.image %}
-          <img src="{{ post.image.url }}" class="card-img-top" alt="{{ post.headline }}">
+          <a href="{{ post.get_absolute_url }}" class="post-image-link">
+            <img src="{{ post.image.url }}" class="card-img-top" alt="{{ post.headline }}">
+          </a>
         {% endif %}
         <div class="card-body">
           <h5 class="card-title">
@@ -91,6 +95,53 @@
         font-size: 1.125rem;
         margin: 0;
         color: rgba(255, 255, 255, 0.9);
+    }
+
+    /* Clickable Post Images */
+    .post-image-link {
+        display: block;
+        position: relative;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    .post-image-link::after {
+        content: '👁️ View Details';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(26, 148, 213, 0.9);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        font-weight: 600;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    }
+
+    .post-image-link:hover::after {
+        opacity: 1;
+    }
+
+    .post-image-link img {
+        transition: transform 0.3s ease;
+    }
+
+    .post-image-link:hover img {
+        transform: scale(1.1);
+    }
+
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
     }
 
     @media (max-width: 768px) {

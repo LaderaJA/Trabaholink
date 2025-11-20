@@ -3,33 +3,8 @@ from django.contrib.auth import get_user_model
 
 User = get_user_model()
 
-# Report Model
-class Report(models.Model):
-    STATUS_CHOICES = [
-        ('pending', 'Pending'),
-        ('reviewed', 'Reviewed'),
-        ('resolved', 'Resolved'),
-    ]
-    
-    REPORT_TYPE_CHOICES = [
-        ('user', 'User'),
-        ('job_posting', 'Job Posting'),
-        ('chat_message', 'Chat Message'),
-        ('other', 'Other'),
-    ]
-
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reports')
-    reported_user = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reported_by')
-    job_posting = models.ForeignKey('jobs.Job', on_delete=models.SET_NULL, null=True, blank=True, related_name='reports')
-    reported_content = models.TextField()
-    report_type = models.CharField(max_length=20, choices=REPORT_TYPE_CHOICES)
-    screenshot = models.ImageField(upload_to='report_screenshots/', null=True, blank=True)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pending')
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
-
-    def __str__(self):
-        return f"{self.get_report_type_display()} - {self.status}"
+# Note: Report model has been moved to reports app
+# Import it with: from reports.models import Report
 
 # Flagged Chat Model
 class FlaggedChat(models.Model):

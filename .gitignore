@@ -77,5 +77,38 @@ Thumbs.db
 *.orig
 *.rej
 
+# Docker
+.env.docker
+.env.production
+!.env.docker.example
+!.env.production.example
+docker-compose.override.yml
+
+# SSL Certificates
+nginx/ssl/*.pem
+nginx/ssl/*.key
+nginx/ssl/*.crt
+certbot/
+
+# Backups
+backups/
+
+# Monitoring & Logging data
+monitoring/grafana/data/
+monitoring/prometheus/data/
+logging/loki/data/
+
+# Performance test results
+performance-results.tsv
+trivy-results.json
+
+# Kubernetes secrets
+kubernetes/*/secrets.yaml
+!kubernetes/*/secrets.example.yaml
+
+# Helm
+helm/*/charts/
+helm/*/.helmignore
+
 # Documentation
 /documentation/

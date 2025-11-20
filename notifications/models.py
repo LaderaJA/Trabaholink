@@ -1,9 +1,13 @@
 from django.db import models
 from django.contrib.auth import get_user_model
+from django.core.exceptions import ObjectDoesNotExist
 from channels.layers import get_channel_layer
 from asgiref.sync import async_to_sync
 from django.urls import reverse
 from django.conf import settings
+import logging
+
+logger = logging.getLogger(__name__)
 
 CustomUser = get_user_model()
 
@@ -39,7 +43,7 @@ class Notification(models.Model):
             settings = self.user.notification_settings
             if not settings.should_notify(self.notif_type):
                 return  # Don't save notification if user has disabled this type
-        except:
+        except (AttributeError, ObjectDoesNotExist):
             pass  # If no settings exist, create notification anyway
         
         super().save(*args, **kwargs)
@@ -64,11 +68,22 @@ class Notification(models.Model):
                 'announcement': ('announcements:announcement_detail', 'announcements.models', 'Announcement'),
                 'job_post': ('jobs:job_detail', Job),
                 'message': ('messaging:conversation_detail', 'messaging.models', 'Conversation'),
+                # Dashboard-directed notifications
+                'new_application_received': 'jobs:employer_dashboard',  # Employer gets notified -> employer dashboard
+                'application_submitted': 'jobs:worker_dashboard',  # Worker confirmation -> worker dashboard
+                # Schedule notifications
+                'schedule_new': 'jobs:worker_dashboard',
+                'schedule_conflict': 'jobs:worker_dashboard',
+                'schedule_reminder': 'jobs:worker_dashboard',
+                'schedule_deadline': 'jobs:worker_dashboard',
+                # Application-related
                 'application': ('jobs:job_application_detail', JobApplication),
                 'application_update': ('jobs:job_application_detail', JobApplication),
+                'job_application': ('jobs:job_application_detail', JobApplication),  # Added base job_application type
                 'job_application_update': ('jobs:job_application_detail', JobApplication),
                 'job_application_hire': ('jobs:job_application_detail', JobApplication),
                 'job_application_deny': ('jobs:job_application_detail', JobApplication),
+                # Contract-related
                 'contract': ('jobs:contract_detail', Contract),
                 'contract_update': ('jobs:contract_detail', Contract),
                 'contract_updated': ('jobs:contract_negotiation', Contract),
@@ -81,43 +96,66 @@ class Notification(models.Model):
                 'contract_finalized': ('jobs:contract_detail', Contract),
                 'contract_cancel': ('jobs:contract_detail', Contract),
                 'contract_cancelled': ('jobs:contract_detail', Contract),
-                'contract_completed': ('jobs:contract_detail', Contract),
+                'contract_completed': ('jobs:job_tracking', Contract),  # Direct to job tracking for review
                 'contract_signature': ('jobs:contract_detail', Contract),
                 'contract_start': ('jobs:job_tracking', Contract),
                 'job_started': ('jobs:job_tracking', Contract),
                 'progress_update': ('jobs:job_tracking', Contract),
                 'progress_log': ('jobs:job_tracking', Contract),
-                'job_completed': ('jobs:contract_detail', Contract),
+                'job_completed': ('jobs:job_tracking', Contract),  # Direct to job tracking
+                # Other
                 'feedback': ('jobs:contract_feedback_detail', Feedback),
+                'verification': 'users:ekyc_start',
+                'verification_approved': 'users:profile_detail',
+                'verification_rejected': 'users:ekyc_start',
             }
 
             target = type_map.get(self.notif_type)
             if not target:
+                logger.warning(f"No URL mapping found for notification type: {self.notif_type}")
                 return reverse('notifications:notification_list')
 
+            # Handle simple string URLs (no object_id needed)
+            if isinstance(target, str):
+                try:
+                    return reverse(target)
+                except Exception as e:
+                    logger.error(f"Error reversing URL '{target}': {e}")
+                    return reverse('notifications:notification_list')
+            
             url_name, model_info = target
             if isinstance(model_info, tuple):
                 module_path, model_name = model_info
-                module = __import__(module_path, fromlist=[model_name])
-                model_cls = getattr(module, model_name)
+                try:
+                    module = __import__(module_path, fromlist=[model_name])
+                    model_cls = getattr(module, model_name)
+                except (ImportError, AttributeError) as e:
+                    logger.error(f"Error importing {module_path}.{model_name}: {e}")
+                    return reverse('notifications:notification_list')
             else:
                 model_cls = model_info
 
-            if model_cls.objects.filter(pk=self.object_id).exists():
-                return reverse(url_name, args=[self.object_id])
+            # Check if object exists before creating URL
+            try:
+                if model_cls.objects.filter(pk=self.object_id).exists():
+                    return reverse(url_name, args=[self.object_id])
+                else:
+                    logger.warning(f"Object {self.object_id} not found for notification {self.id} (type: {self.notif_type})")
+                    # Return None to indicate broken link
+                    return None
+            except Exception as e:
+                logger.error(f"Error checking object existence for notification {self.id}: {e}")
+                return None
 
         except Exception as e:
-            print(f"Error getting notification target URL: {e}")
+            logger.error(f"Error getting notification target URL for notification {self.id}: {e}")
 
-        return reverse('notifications:notification_list')
+        return None
 
     @property
     def target_url_with_read(self):
-        """Returns the target URL with an additional read parameter"""
-        base_url = self.target_url
-        if base_url != "#":
-            return f"{base_url}?notification_id={self.id}"
-        return base_url
+        """Returns the notification list URL to mark as read before redirecting"""
+        return reverse('notifications:notification_list') + f"?notification_id={self.id}"
 
     def mark_as_read(self):
         self.is_read = True
@@ -168,7 +206,8 @@ class Notification(models.Model):
             elif self.notif_type == "progress_log":
                 from jobs.models import ProgressLog
                 return not ProgressLog.objects.filter(id=self.object_id).exists()
-        except:
+        except (ImportError, AttributeError, ValueError) as e:
+            logger.warning(f"Error checking if notification object is deleted: {e}")
             return True
         
         return False
@@ -178,18 +217,28 @@ class Notification(models.Model):
         type_map = {
             'job_post': 'New Job',
             'announcement': 'Announcement',
-            'message': 'Message',
+            'message': 'New Message',
+            'new_application_received': 'New Application',
+            'application_submitted': 'Application Submitted',
+            'schedule_new': 'Schedule Update',
+            'schedule_conflict': 'Schedule Conflict',
+            'schedule_reminder': 'Schedule Reminder',
+            'schedule_deadline': 'Deadline Alert',
             'application': 'Application',
-            'contract': 'Contract',
-            'progress_log': 'Progress Update',
-            'contract_update': 'Contract Update',
+            'application_update': 'Application Update',
             'job_application_update': 'Application Update',
             'job_application_hire': 'Hired',
             'job_application_deny': 'Application Denied',
-            'contract_draft_update': 'Contract Draft',
-            'contract_cancel': 'Contract Cancelled',
-            'contract_accept': 'Contract Accepted',
+            'contract': 'Contract',
+            'contract_update': 'Contract Update',
             'contract_finalize': 'Contract Finalized',
+            'contract_finalized': 'Contract Finalized',
+            'contract_completed': 'Job Completed - Review Required',
+            'job_completed': 'Job Completed',
+            'progress_log': 'Progress Update',
+            'verification': 'Verification',
+            'verification_approved': 'Verification Approved',
+            'verification_rejected': 'Verification Rejected',
         }
         return type_map.get(self.notif_type, 'Notification')
 

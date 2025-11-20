@@ -28,9 +28,16 @@
         {% for announcement in announcements %}
             <div class="announcement-card">
                 {% if announcement.image %}
-                    <div class="announcement-image">
-                        <img src="{{ announcement.image.url }}" alt="{{ announcement.title }}">
-                    </div>
+                    <a href="{% url 'announcements:announcement_detail' announcement.pk %}" class="announcement-image-link">
+                        <div class="announcement-image">
+                            <img src="{{ announcement.image.url }}" alt="{{ announcement.title }}">
+                            <div class="image-overlay">
+                                <span class="overlay-text">
+                                    <i class="bi bi-eye-fill"></i> View Details
+                                </span>
+                            </div>
+                        </div>
+                    </a>
                 {% endif %}
                 <div class="announcement-content">
                     <div class="announcement-badge">
@@ -76,13 +83,38 @@
         --trabaholink-gray: #64748b;
     }
 
-    /* Hero Section */
+    /* Hero Section - Bacoor Theme */
     .announcements-hero {
-        background: #1A94D5;
+        background: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #f59e0b 100%);
         color: white;
         padding: 4rem 0 3rem;
         margin-bottom: 3rem;
-        border-bottom: 1px solid #1A94D5;
+        border-bottom: 1px solid #1e40af;
+        position: relative;
+        overflow: hidden;
+        animation: gradientAnimation 15s ease infinite;
+        background-size: 200% 200%;
+    }
+    
+    @keyframes gradientAnimation {
+        0%, 100% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+    }
+    
+    .announcements-hero::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 35px,
+            rgba(255,255,255,0.03) 35px,
+            rgba(255,255,255,0.03) 70px
+        );
     }
 
     .hero-content {
@@ -114,17 +146,22 @@
         align-items: center;
         gap: 0.5rem;
         background: white;
-        color: #1A94D5;
+        color: #1e40af;
         padding: 0.875rem 1.5rem;
-        border-radius: 0.5rem;
+        border-radius: 12px;
         text-decoration: none;
-        font-weight: 600;
+        font-weight: 700;
         transition: all 0.3s ease;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        border: 2px solid rgba(245, 158, 11, 0.3);
+        position: relative;
+        z-index: 1;
     }
 
     .btn-create-announcement:hover {
-        transform: translateY(-2px);
+        transform: translateY(-3px);
+        color: #f59e0b;
+        border-color: #f59e0b;
         box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         background: rgba(255, 255, 255, 0.95);
         color: #1A94D5;
@@ -161,6 +198,12 @@
     }
 
     /* Announcement Image */
+    .announcement-image-link {
+        display: block;
+        text-decoration: none;
+        position: relative;
+    }
+
     .announcement-image {
         height: 220px;
         overflow: hidden;
@@ -175,6 +218,7 @@
         right: 0;
         height: 50%;
         background: linear-gradient(to top, rgba(0,0,0,0.3), transparent);
+        z-index: 1;
     }
 
     .announcement-image img {
@@ -186,6 +230,43 @@
 
     .announcement-card:hover .announcement-image img {
         transform: scale(1.1);
+    }
+
+    /* Image Overlay for Clickable Effect */
+    .image-overlay {
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 2;
+    }
+
+    .announcement-image-link:hover .image-overlay {
+        opacity: 1;
+    }
+
+    .overlay-text {
+        color: white;
+        font-size: 0.875rem;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        padding: 0.5rem 1rem;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 1.5rem;
+        backdrop-filter: blur(8px);
+    }
+
+    .overlay-text i {
+        font-size: 1rem;
     }
 
     /* Announcement Content */

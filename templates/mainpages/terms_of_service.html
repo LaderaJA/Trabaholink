@@ -1,0 +1,389 @@
+{% extends "mainpages/base.html" %}
+{% load static %}
+
+{% block title %}Terms of Service - TrabahoLink{% endblock %}
+
+{% block css %}
+<style>
+  :root {
+    --primary-color: #1e40af;
+    --primary-dark: #1e3a8a;
+    --primary-light: #dbeafe;
+    --text-color: #1e293b;
+    --text-light: #64748b;
+    --border-color: #e2e8f0;
+    --bg-light: #f8fafc;
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    color: var(--text-color);
+    background-color: #ffffff;
+  }
+
+  .legal-header {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    color: white;
+    padding: 4rem 0 3rem;
+    margin-bottom: 3rem;
+  }
+
+  .legal-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .legal-header .last-updated {
+    font-size: 0.95rem;
+    opacity: 0.9;
+    margin-top: 0.5rem;
+  }
+
+  .legal-content {
+    max-width: 900px;
+    margin: 0 auto;
+    padding: 0 1rem;
+  }
+
+  .legal-section {
+    background: white;
+    border-radius: 12px;
+    padding: 2.5rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    border-left: 4px solid var(--primary-color);
+  }
+
+  .legal-section h2 {
+    color: var(--primary-color);
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 1.25rem;
+    padding-bottom: 0.75rem;
+    border-bottom: 2px solid var(--primary-light);
+  }
+
+  .legal-section h3 {
+    color: var(--text-color);
+    font-size: 1.35rem;
+    font-weight: 600;
+    margin-top: 2rem;
+    margin-bottom: 1rem;
+  }
+
+  .legal-section p {
+    color: var(--text-color);
+    line-height: 1.8;
+    margin-bottom: 1.25rem;
+    text-align: justify;
+  }
+
+  .legal-section ul, .legal-section ol {
+    color: var(--text-color);
+    line-height: 1.8;
+    margin-bottom: 1.25rem;
+    padding-left: 2rem;
+  }
+
+  .legal-section li {
+    margin-bottom: 0.75rem;
+  }
+
+  .legal-section strong {
+    color: var(--primary-dark);
+    font-weight: 600;
+  }
+
+  .important-notice {
+    background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+    border-left: 4px solid #f59e0b;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin: 2rem 0;
+  }
+
+  .important-notice p {
+    margin-bottom: 0;
+    color: #92400e;
+    font-weight: 500;
+  }
+
+  .contact-section {
+    background: var(--bg-light);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    margin-top: 3rem;
+    border: 2px solid var(--border-color);
+  }
+
+  .contact-section h3 {
+    color: var(--primary-dark);
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .contact-section p {
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+  }
+
+  .section-number {
+    display: inline-block;
+    background: var(--primary-color);
+    color: white;
+    width: 32px;
+    height: 32px;
+    line-height: 32px;
+    text-align: center;
+    border-radius: 50%;
+    margin-right: 0.75rem;
+    font-weight: 600;
+  }
+
+  @media (max-width: 768px) {
+    .legal-header h1 {
+      font-size: 2rem;
+    }
+
+    .legal-section {
+      padding: 1.5rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="legal-header">
+  <div class="container text-center">
+    <h1><i class="bi bi-file-text-fill me-3"></i>Terms of Service</h1>
+    <p class="last-updated">Last Updated: November 11, 2025</p>
+  </div>
+</div>
+
+<div class="legal-content mb-5">
+  <div class="legal-section">
+    <h2><span class="section-number">1</span>Acceptance of Terms</h2>
+    
+    <p>Welcome to TrabahoLink ("Platform," "Service," "we," "us," or "our"). By accessing or using TrabahoLink, you agree to be bound by these Terms of Service ("Terms"). If you do not agree to these Terms, you may not access or use our Platform.</p>
+    
+    <p>These Terms constitute a legally binding agreement between you and TrabahoLink. We reserve the right to modify these Terms at any time. Your continued use of the Platform after any such changes constitutes your acceptance of the new Terms.</p>
+    
+    <div class="important-notice">
+      <p><strong><i class="bi bi-exclamation-triangle-fill me-2"></i>IMPORTANT:</strong> Please read these Terms carefully before using TrabahoLink. By creating an account or using our services, you acknowledge that you have read, understood, and agree to be bound by these Terms.</p>
+    </div>
+  </div>
+
+  <div class="legal-section">
+    <h2><span class="section-number">2</span>Eligibility and Account Registration</h2>
+    
+    <h3>2.1 Age Requirement</h3>
+    <p>You must be at least 18 years of age to use TrabahoLink. By using our Platform, you represent and warrant that you meet this age requirement and have the legal capacity to enter into these Terms.</p>
+    
+    <h3>2.2 Account Registration</h3>
+    <p>To access certain features of the Platform, you must create an account. You agree to:</p>
+    <ul>
+      <li>Provide accurate, current, and complete information during registration</li>
+      <li>Maintain and promptly update your account information</li>
+      <li>Maintain the security of your password and account</li>
+      <li>Accept responsibility for all activities that occur under your account</li>
+      <li>Notify us immediately of any unauthorized use of your account</li>
+    </ul>
+    
+    <h3>2.3 Account Types</h3>
+    <p>TrabahoLink offers two types of user accounts:</p>
+    <ul>
+      <li><strong>Worker Accounts:</strong> For individuals seeking employment or offering services</li>
+      <li><strong>Client/Employer Accounts:</strong> For individuals or businesses seeking to hire workers or contract services</li>
+    </ul>
+    <p>You may only maintain one account per email address and must not create duplicate accounts.</p>
+  </div>
+
+  <div class="legal-section">
+    <h2><span class="section-number">3</span>Platform Services</h2>
+    
+    <h3>3.1 Service Description</h3>
+    <p>TrabahoLink provides an online platform that connects workers with potential employers and clients. Our Platform facilitates:</p>
+    <ul>
+      <li>Job posting and job seeking</li>
+      <li>Service offering and service discovery</li>
+      <li>Application submission and review</li>
+      <li>Contract creation and management</li>
+      <li>Messaging and communication between users</li>
+      <li>Identity verification services</li>
+    </ul>
+    
+    <h3>3.2 Platform Role</h3>
+    <p><strong>TrabahoLink acts solely as a platform</strong> connecting workers and employers. We are not a party to any employment relationship, contract, or transaction between users. We do not employ workers, hire employers, or guarantee the quality, safety, or legality of any jobs, services, or transactions facilitated through our Platform.</p>
+  </div>
+
+  <div class="legal-section">
+    <h2><span class="section-number">4</span>User Responsibilities and Conduct</h2>
+    
+    <h3>4.1 Prohibited Activities</h3>
+    <p>You agree not to:</p>
+    <ul>
+      <li>Post false, misleading, or fraudulent information</li>
+      <li>Impersonate any person or entity</li>
+      <li>Harass, abuse, or harm other users</li>
+      <li>Post discriminatory, defamatory, or offensive content</li>
+      <li>Violate any applicable laws or regulations</li>
+      <li>Infringe on intellectual property rights</li>
+      <li>Use automated systems (bots, scrapers) without authorization</li>
+      <li>Attempt to circumvent Platform security measures</li>
+      <li>Solicit users to conduct transactions outside the Platform</li>
+      <li>Post spam, advertisements, or unsolicited promotional materials</li>
+    </ul>
+    
+    <h3>4.2 Content Standards</h3>
+    <p>All content posted on TrabahoLink must:</p>
+    <ul>
+      <li>Be accurate and truthful</li>
+      <li>Comply with all applicable laws</li>
+      <li>Not contain prohibited or offensive material</li>
+      <li>Respect the intellectual property rights of others</li>
+      <li>Be relevant to the purpose of the Platform</li>
+    </ul>
+    
+    <h3>4.3 Employment and Labor Compliance</h3>
+    <p>Employers and clients must:</p>
+    <ul>
+      <li>Comply with all applicable labor laws and regulations</li>
+      <li>Provide accurate job descriptions and compensation information</li>
+      <li>Not discriminate based on protected characteristics</li>
+      <li>Honor all contractual obligations with workers</li>
+      <li>Maintain appropriate licenses and permits for their business activities</li>
+    </ul>
+  </div>
+
+  <div class="legal-section">
+    <h2><span class="section-number">5</span>Verification and Identity</h2>
+    
+    <p>TrabahoLink offers identity verification services to enhance trust and safety on our Platform. While we strive to verify user identities accurately, we cannot guarantee the accuracy or completeness of verification information.</p>
+    
+    <p>Verified users have undergone additional identity verification processes, but verification does not constitute an endorsement, guarantee, or warranty of the user's qualifications, reliability, or trustworthiness.</p>
+    
+    <p>You agree to provide genuine, government-issued identification documents for verification purposes. Submission of fraudulent documents may result in immediate account termination and legal action.</p>
+  </div>
+
+  <div class="legal-section">
+    <h2><span class="section-number">6</span>Contracts and Transactions</h2>
+    
+    <h3>6.1 Contract Formation</h3>
+    <p>Contracts created through TrabahoLink are legally binding agreements between the employer/client and the worker. TrabahoLink is not a party to these contracts and bears no responsibility for their performance, breach, or enforcement.</p>
+    
+    <h3>6.2 Payment and Compensation</h3>
+    <p>All payment arrangements are between the employer/client and the worker. TrabahoLink does not process, hold, or guarantee payments. Users are responsible for:</p>
+    <ul>
+      <li>Negotiating payment terms</li>
+      <li>Ensuring timely payment</li>
+      <li>Resolving payment disputes</li>
+      <li>Complying with tax obligations</li>
+    </ul>
+    
+    <h3>6.3 Dispute Resolution</h3>
+    <p>Users are encouraged to resolve disputes directly through communication and good faith negotiations. While TrabahoLink provides a reporting mechanism for disputes, we are not obligated to mediate, arbitrate, or resolve user disputes.</p>
+  </div>
+
+  <div class="legal-section">
+    <h2><span class="section-number">7</span>Intellectual Property</h2>
+    
+    <h3>7.1 Platform Ownership</h3>
+    <p>The TrabahoLink Platform, including all software, designs, text, graphics, logos, and other content, is owned by TrabahoLink and protected by intellectual property laws. You may not copy, modify, distribute, or create derivative works without our express written permission.</p>
+    
+    <h3>7.2 User Content License</h3>
+    <p>By posting content on TrabahoLink, you grant us a non-exclusive, worldwide, royalty-free license to use, display, reproduce, and distribute your content solely for the purpose of operating and promoting the Platform.</p>
+    
+    <h3>7.3 Copyright Infringement</h3>
+    <p>If you believe content on our Platform infringes your copyright, please contact us at trabaholinka@gmail.com with detailed information about the alleged infringement.</p>
+  </div>
+
+  <div class="legal-section">
+    <h2><span class="section-number">8</span>Disclaimers and Limitations of Liability</h2>
+    
+    <h3>8.1 No Warranties</h3>
+    <p>THE PLATFORM IS PROVIDED "AS IS" AND "AS AVAILABLE" WITHOUT WARRANTIES OF ANY KIND, EITHER EXPRESS OR IMPLIED. TRABAHOLINK DISCLAIMS ALL WARRANTIES, INCLUDING BUT NOT LIMITED TO:</p>
+    <ul>
+      <li>Merchantability and fitness for a particular purpose</li>
+      <li>Accuracy, reliability, or completeness of content</li>
+      <li>Uninterrupted or error-free operation</li>
+      <li>Security or absence of viruses</li>
+    </ul>
+    
+    <h3>8.2 Limitation of Liability</h3>
+    <p>TO THE MAXIMUM EXTENT PERMITTED BY LAW, TRABAHOLINK SHALL NOT BE LIABLE FOR:</p>
+    <ul>
+      <li>Indirect, incidental, special, consequential, or punitive damages</li>
+      <li>Loss of profits, data, or business opportunities</li>
+      <li>Damages arising from your use or inability to use the Platform</li>
+      <li>Damages resulting from user conduct or content</li>
+      <li>Damages arising from employment relationships or transactions between users</li>
+    </ul>
+    
+    <h3>8.3 Indemnification</h3>
+    <p>You agree to indemnify, defend, and hold harmless TrabahoLink and its officers, directors, employees, and agents from any claims, damages, losses, liabilities, and expenses (including legal fees) arising from:</p>
+    <ul>
+      <li>Your use of the Platform</li>
+      <li>Your violation of these Terms</li>
+      <li>Your violation of any rights of another party</li>
+      <li>Your content posted on the Platform</li>
+    </ul>
+  </div>
+
+  <div class="legal-section">
+    <h2><span class="section-number">9</span>Account Termination</h2>
+    
+    <p>We reserve the right to suspend or terminate your account at any time, with or without notice, for any reason, including:</p>
+    <ul>
+      <li>Violation of these Terms</li>
+      <li>Fraudulent or illegal activity</li>
+      <li>Abuse of other users</li>
+      <li>Prolonged inactivity</li>
+      <li>At your request</li>
+    </ul>
+    
+    <p>Upon termination, your right to use the Platform will immediately cease. We may retain certain information as required by law or for legitimate business purposes.</p>
+  </div>
+
+  <div class="legal-section">
+    <h2><span class="section-number">10</span>Governing Law and Jurisdiction</h2>
+    
+    <p>These Terms shall be governed by and construed in accordance with the laws of the Republic of the Philippines, without regard to its conflict of law provisions.</p>
+    
+    <p>Any disputes arising from these Terms or your use of the Platform shall be subject to the exclusive jurisdiction of the courts located in Bacoor, Cavite, Philippines.</p>
+  </div>
+
+  <div class="legal-section">
+    <h2><span class="section-number">11</span>General Provisions</h2>
+    
+    <h3>11.1 Entire Agreement</h3>
+    <p>These Terms, together with our Privacy Policy, constitute the entire agreement between you and TrabahoLink regarding your use of the Platform.</p>
+    
+    <h3>11.2 Severability</h3>
+    <p>If any provision of these Terms is found to be invalid or unenforceable, the remaining provisions shall continue in full force and effect.</p>
+    
+    <h3>11.3 Waiver</h3>
+    <p>Our failure to enforce any right or provision of these Terms shall not constitute a waiver of such right or provision.</p>
+    
+    <h3>11.4 Assignment</h3>
+    <p>You may not assign or transfer these Terms or your account without our prior written consent. We may assign our rights and obligations under these Terms without restriction.</p>
+    
+    <h3>11.5 Contact Information</h3>
+    <p>For questions about these Terms, please contact us at:</p>
+    <ul>
+      <li><strong>Email:</strong> trabaholinka@gmail.com</li>
+      <li><strong>Address:</strong> Bacoor, Cavite, Philippines</li>
+    </ul>
+  </div>
+
+  <div class="contact-section">
+    <h3><i class="bi bi-envelope-fill me-2"></i>Questions About These Terms?</h3>
+    <p>If you have any questions or concerns about our Terms of Service,</p>
+    <p>please contact us at <strong>trabaholinka@gmail.com</strong></p>
+    <p class="mt-3 mb-0" style="font-size: 0.9rem; color: var(--text-light);">
+      By using TrabahoLink, you acknowledge that you have read and understood these Terms of Service.
+    </p>
+  </div>
+</div>
+{% endblock %}

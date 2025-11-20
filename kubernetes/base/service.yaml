@@ -1,0 +1,53 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: trabaholink-web
+  labels:
+    app: trabaholink
+    component: web
+spec:
+  type: ClusterIP
+  ports:
+  - port: 8000
+    targetPort: 8000
+    protocol: TCP
+    name: http
+  selector:
+    app: trabaholink
+    component: web
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres
+  labels:
+    app: trabaholink
+    component: database
+spec:
+  type: ClusterIP
+  ports:
+  - port: 5432
+    targetPort: 5432
+    protocol: TCP
+    name: postgres
+  selector:
+    app: trabaholink
+    component: database
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis
+  labels:
+    app: trabaholink
+    component: cache
+spec:
+  type: ClusterIP
+  ports:
+  - port: 6379
+    targetPort: 6379
+    protocol: TCP
+    name: redis
+  selector:
+    app: trabaholink
+    component: cache

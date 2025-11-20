@@ -1,0 +1,96 @@
+{% extends "admin/base_site.html" %}
+{% load static %}
+
+{% block title %}Reports for {{ job.title }}{% endblock %}
+
+{% block content %}
+<div style="padding: 20px;">
+    <h1>Reports for Job: {{ job.title }}</h1>
+    
+    <div style="background-color: #f8f9fa; padding: 15px; border-radius: 5px; margin-bottom: 20px;">
+        <h3>Job Information</h3>
+        <p><strong>Title:</strong> {{ job.title }}</p>
+        <p><strong>Owner:</strong> 
+            <a href="{% url 'admin:users_customuser_change' job.owner.id %}">
+                {{ job.owner.username }}
+            </a>
+        </p>
+        <p><strong>Status:</strong> 
+            {% if job.is_active %}
+                <span style="color: green;">🟢 Active</span>
+            {% else %}
+                <span style="color: red;">🔴 Deactivated</span>
+            {% endif %}
+        </p>
+        <p><strong>Total Reports:</strong> {{ job.report_count }}</p>
+        <p><strong>Category:</strong> {{ job.category }}</p>
+        <p><strong>Budget:</strong> ₱{{ job.budget }}</p>
+        <p><strong>Created:</strong> {{ job.created_at|date:"Y-m-d H:i" }}</p>
+    </div>
+    
+    {% if reports %}
+        <h2>Report History ({{ reports.count }} total)</h2>
+        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+            <thead style="background-color: #417690; color: white;">
+                <tr>
+                    <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">ID</th>
+                    <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Reporter</th>
+                    <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Reason</th>
+                    <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Status</th>
+                    <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Date</th>
+                    <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Reviewed By</th>
+                    <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for report in reports %}
+                <tr style="{% cycle 'background-color: #f9f9f9;' 'background-color: white;' %}">
+                    <td style="padding: 10px; border: 1px solid #ddd;">{{ report.id }}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">
+                        <a href="{% url 'admin:users_customuser_change' report.reporter.id %}">
+                            {{ report.reporter.username }}
+                        </a>
+                    </td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">{{ report.reason|truncatewords:20 }}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">
+                        {% if report.status == 'pending' %}
+                            <span style="background-color: #ffc107; color: black; padding: 3px 8px; border-radius: 3px;">{{ report.get_status_display }}</span>
+                        {% elif report.status == 'reviewed' %}
+                            <span style="background-color: #17a2b8; color: white; padding: 3px 8px; border-radius: 3px;">{{ report.get_status_display }}</span>
+                        {% elif report.status == 'resolved' %}
+                            <span style="background-color: #28a745; color: white; padding: 3px 8px; border-radius: 3px;">{{ report.get_status_display }}</span>
+                        {% else %}
+                            <span style="background-color: #6c757d; color: white; padding: 3px 8px; border-radius: 3px;">{{ report.get_status_display }}</span>
+                        {% endif %}
+                    </td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">{{ report.created_at|date:"Y-m-d H:i" }}</td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">
+                        {% if report.reviewed_by %}
+                            {{ report.reviewed_by.username }}
+                        {% else %}
+                            -
+                        {% endif %}
+                    </td>
+                    <td style="padding: 10px; border: 1px solid #ddd;">
+                        <a href="{% url 'admin:reports_report_change' report.id %}" class="button" style="padding: 5px 10px; background-color: #417690; color: white; text-decoration: none; border-radius: 3px;">View</a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    {% else %}
+        <p style="padding: 20px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; color: #155724;">
+            No reports found for this job posting.
+        </p>
+    {% endif %}
+    
+    <div style="margin-top: 20px;">
+        <a href="{% url 'admin:jobs_job_change' job.id %}" class="button" style="padding: 10px 15px; background-color: #417690; color: white; text-decoration: none; border-radius: 3px;">
+            ← Back to Job
+        </a>
+        <a href="{% url 'admin:jobs_job_changelist' %}" class="button" style="padding: 10px 15px; background-color: #6c757d; color: white; text-decoration: none; border-radius: 3px; margin-left: 10px;">
+            Back to Job List
+        </a>
+    </div>
+</div>
+{% endblock %}

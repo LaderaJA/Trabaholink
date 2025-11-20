@@ -1,9 +1,13 @@
+import uuid
+import os
+
 from django.contrib.auth.models import AbstractUser, Group, Permission
 from django.db import models
 from django.conf import settings
 from django.utils.timezone import now
 from django.contrib.gis.db import models as gis_models
 from django.contrib.gis.geos import GEOSGeometry
+from .validators import validate_cv_file
 
 
 GENDER_CHOICES = [
@@ -11,6 +15,46 @@ GENDER_CHOICES = [
     ('female', 'Female'),
     ('other', 'Other'),
 ]
+
+VALID_ID_CHOICES = [
+    ('philsys', 'PhilSys National ID'),
+    ('drivers_license', "Driver's License"),
+    ('passport', 'Passport'),
+    ('umid', 'UMID'),
+    ('sss', 'SSS ID'),
+    ('voters', "Voter's ID"),
+    ('prc', 'PRC ID'),
+    ('postal', 'Postal ID'),
+]
+
+def _build_uuid_path(prefix: str, filename: str) -> str:
+    extension = filename.rsplit('.', 1)[-1].lower() if '.' in filename else ''
+    new_filename = f"{uuid.uuid4()}.{extension}" if extension else f"{uuid.uuid4()}"
+    return f"verification/{prefix}/{new_filename}"
+
+
+def id_image_upload_path(instance, filename):
+    return _build_uuid_path("ids", filename)
+
+
+def selfie_image_upload_path(instance, filename):
+    return _build_uuid_path("selfies", filename)
+
+
+def cv_file_upload_path(instance, filename):
+    """
+    Generate secure upload path for CV files.
+    Sanitizes filename and uses UUID for security.
+    """
+    # Get file extension
+    ext = os.path.splitext(filename)[1].lower()
+    # Sanitize original filename (remove special characters, keep only alphanumeric and spaces)
+    base_name = os.path.splitext(filename)[0]
+    safe_name = ''.join(c for c in base_name if c.isalnum() or c in (' ', '-', '_'))
+    safe_name = safe_name[:50]  # Limit length
+    # Create unique filename with UUID
+    unique_filename = f"{uuid.uuid4()}_{safe_name}{ext}"
+    return f"user_cvs/{unique_filename}"
 
 
 class CustomUser(AbstractUser):
@@ -21,6 +65,7 @@ class CustomUser(AbstractUser):
     ]
 
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='client')
+    role_selected = models.BooleanField(default=False, help_text="Has user explicitly selected their role?")
     contact_number = models.CharField(max_length=15, blank=True)
     bio = models.TextField(blank=True)
     address = models.CharField(max_length=255, blank=True)  # new field
@@ -31,6 +76,8 @@ class CustomUser(AbstractUser):
     job_title = models.CharField(max_length=100, blank=True, null=True)  # Professional job title
     job_coverage = models.CharField(max_length=255, blank=True, null=True) 
     is_verified_philsys = models.BooleanField(default=False)
+    philsys_verified_at = models.DateTimeField(null=True, blank=True)
+    philsys_pcn_masked = models.CharField(max_length=20, blank=True)  # Masked PCN for display
     location = gis_models.PointField(null=True, blank=True, geography=True) 
     is_worker = models.BooleanField(default=True)  
     notification_location = gis_models.PointField(null=True, blank=True)  # New field for notification location
@@ -43,18 +90,43 @@ class CustomUser(AbstractUser):
     
     # eKYC Verification Fields
     is_verified = models.BooleanField(default=False)
+    VERIFICATION_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('verified', 'Verified'),
+        ('failed', 'Failed'),
+        ('manual_review', 'Manual Review'),
+    ]
+
     verification_status = models.CharField(
         max_length=20,
-        choices=[
-            ('unverified', 'Unverified'),
-            ('pending', 'Pending Review'),
-            ('verified', 'Verified'),
-            ('rejected', 'Rejected')
-        ],
-        default='unverified'
+        choices=VERIFICATION_STATUS_CHOICES,
+        default='pending'
     )
     verification_date = models.DateTimeField(null=True, blank=True)
     date_of_birth = models.DateField(null=True, blank=True)
+    id_type = models.CharField(max_length=32, choices=VALID_ID_CHOICES, blank=True)
+    id_image = models.ImageField(upload_to=id_image_upload_path, null=True, blank=True)
+    selfie_image = models.ImageField(upload_to=selfie_image_upload_path, null=True, blank=True)
+    verification_score = models.FloatField(null=True, blank=True)
+    verification_log = models.TextField(blank=True)
+    
+    # Additional verification fields (from eKYC process)
+    face_detected = models.BooleanField(default=False)
+    ocr_confidence_score = models.IntegerField(default=0)
+    ocr_raw_text = models.TextField(blank=True, null=True)
+    verification_notes = models.TextField(blank=True, null=True)
+    verified_at = models.DateTimeField(null=True, blank=True)
+    verified_by = models.ForeignKey('self', on_delete=models.SET_NULL, null=True, blank=True, related_name='verified_users')
+    
+    # CV/Resume Upload
+    cv_file = models.FileField(
+        upload_to=cv_file_upload_path,
+        null=True,
+        blank=True,
+        validators=[validate_cv_file],
+        help_text='Upload your CV/Resume (PDF, DOC, or DOCX format, max 5MB)'
+    )
+    cv_uploaded_at = models.DateTimeField(null=True, blank=True, help_text='Timestamp of last CV upload')
 
     groups = models.ManyToManyField(Group, related_name="customuser_groups", blank=True)
     user_permissions = models.ManyToManyField(Permission, related_name="customuser_permissions", blank=True)
@@ -63,9 +135,14 @@ class CustomUser(AbstractUser):
     applications = models.ManyToManyField('jobs.JobApplication', related_name='customuser_applications', blank=True)
     connections = models.ManyToManyField('self', symmetrical=False, related_name='connected_users', blank=True)
     
+    # Reporting system field
+    report_count = models.PositiveIntegerField(
+        default=0,
+        help_text="Number of unique reports received by this user"
+    )
 
     def __str__(self):
-        return self.username
+        return str(self.username) if self.username else f"User {self.pk}"
         
     def get_location_display(self):
         """Return a human-readable location from the coordinates"""
@@ -188,17 +265,6 @@ class CompletedJobGallery(models.Model):
 class AccountVerification(models.Model):
     """Model to track eKYC verification submissions"""
     
-    ID_TYPE_CHOICES = [
-        ('philsys', 'PhilSys ID'),
-        ('drivers_license', "Driver's License"),
-        ('passport', 'Passport'),
-        ('umid', 'UMID'),
-        ('sss', 'SSS ID'),
-        ('voters', "Voter's ID"),
-        ('prc', 'PRC ID'),
-        ('postal', 'Postal ID'),
-    ]
-    
     STATUS_CHOICES = [
         ('pending', 'Pending Review'),
         ('approved', 'Approved'),
@@ -217,12 +283,12 @@ class AccountVerification(models.Model):
     address = models.TextField()
     contact_number = models.CharField(max_length=15)
     gender = models.CharField(max_length=10, choices=GENDER_CHOICES)
-    
+
     # ID Information
-    id_type = models.CharField(max_length=20, choices=ID_TYPE_CHOICES)
+    id_type = models.CharField(max_length=32, choices=VALID_ID_CHOICES)
     id_image_front = models.ImageField(upload_to='verification/ids/')
     id_image_back = models.ImageField(upload_to='verification/ids/', null=True, blank=True)
-    
+
     # Selfie Verification
     selfie_image = models.ImageField(upload_to='verification/selfies/')
     
@@ -238,9 +304,199 @@ class AccountVerification(models.Model):
         related_name='reviewed_verifications'
     )
     rejection_reason = models.TextField(blank=True)
+    notes = models.TextField(blank=True, help_text='Internal notes about verification')
+    
+    # Face matching fields
+    face_match_score = models.FloatField(
+        null=True, 
+        blank=True, 
+        help_text='Face similarity score (0-1)'
+    )
+    face_match_metadata = models.JSONField(
+        null=True, 
+        blank=True, 
+        help_text='Metadata from face matching process'
+    )
     
     class Meta:
         ordering = ['-submitted_at']
     
     def __str__(self):
         return f"Verification for {self.user.username} - {self.status}"
+
+
+class VerificationLog(models.Model):
+    """Audit log for automated/manual eKYC verification outcomes."""
+
+    PROCESS_TYPE_CHOICES = [
+        ('auto', 'Automatic'),
+        ('manual', 'Manual'),
+    ]
+
+    RESULT_CHOICES = CustomUser.VERIFICATION_STATUS_CHOICES
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='verification_logs'
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    extracted_data = models.JSONField(default=dict, blank=True)
+    similarity_score = models.FloatField(null=True, blank=True)
+    process_type = models.CharField(max_length=20, choices=PROCESS_TYPE_CHOICES, default='auto')
+    result = models.CharField(max_length=20, choices=RESULT_CHOICES, default='pending')
+    notes = models.TextField(blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Verification log for {self.user.username} at {self.created_at:%Y-%m-%d %H:%M:%S}"
+
+
+class PhilSysVerification(models.Model):
+    """
+    Model to track PhilSys QR code verification attempts and results.
+    Stores encrypted QR payload and verification metadata.
+    """
+    
+    VERIFICATION_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('processing', 'Processing'),
+        ('verified', 'Verified'),
+        ('failed', 'Failed'),
+        ('error', 'Error'),
+        ('timeout', 'Timeout'),
+    ]
+    
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='philsys_verifications'
+    )
+    
+    # Encrypted QR data (never store plaintext)
+    qr_payload_encrypted = models.TextField(blank=True)
+    qr_payload_hash = models.CharField(max_length=64, db_index=True)  # SHA-256 hash
+    
+    # PhilSys Card Number (masked for display)
+    pcn_masked = models.CharField(max_length=20, blank=True)  # e.g., "1234-****-****-5678"
+    pcn_hash = models.CharField(max_length=64, blank=True, db_index=True)  # SHA-256 hash
+    
+    # Verification status and results
+    status = models.CharField(
+        max_length=20, 
+        choices=VERIFICATION_STATUS_CHOICES, 
+        default='pending',
+        db_index=True
+    )
+    verified = models.BooleanField(default=False)
+    verification_message = models.TextField(blank=True)
+    
+    # Web verification metadata
+    verification_source = models.CharField(
+        max_length=50, 
+        default='philsys_web_automation'
+    )
+    verification_timestamp = models.DateTimeField(null=True, blank=True)
+    response_time = models.FloatField(null=True, blank=True)  # In seconds
+    
+    # Retry tracking
+    retry_count = models.IntegerField(default=0)
+    last_retry_at = models.DateTimeField(null=True, blank=True)
+    
+    # Error tracking
+    error_details = models.TextField(blank=True)
+    screenshot_path = models.CharField(max_length=255, blank=True)
+    
+    # Preprocessing metadata
+    preprocessing_applied = models.JSONField(default=list, blank=True)
+    extracted_fields = models.JSONField(default=dict, blank=True)
+    
+    # Audit fields
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    ip_address = models.GenericIPAddressField(null=True, blank=True)
+    user_agent = models.TextField(blank=True)
+    
+    # Consent tracking
+    user_consented = models.BooleanField(default=False)
+    consent_timestamp = models.DateTimeField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['user', 'status']),
+            models.Index(fields=['qr_payload_hash']),
+            models.Index(fields=['pcn_hash']),
+            models.Index(fields=['created_at']),
+            models.Index(fields=['verified']),
+        ]
+    
+    def __str__(self):
+        return f"PhilSys verification for {self.user.username} - {self.status}"
+    
+    def mark_as_verified(self):
+        """Mark verification as successful."""
+        from django.utils import timezone
+        self.status = 'verified'
+        self.verified = True
+        self.verification_timestamp = timezone.now()
+        self.save(update_fields=['status', 'verified', 'verification_timestamp', 'updated_at'])
+    
+    def mark_as_failed(self, message: str = ""):
+        """Mark verification as failed."""
+        self.status = 'failed'
+        self.verified = False
+        self.verification_message = message
+        self.save(update_fields=['status', 'verified', 'verification_message', 'updated_at'])
+    
+    def increment_retry(self):
+        """Increment retry counter."""
+        from django.utils import timezone
+        self.retry_count += 1
+        self.last_retry_at = timezone.now()
+        self.save(update_fields=['retry_count', 'last_retry_at', 'updated_at'])
+
+
+class EmailOTP(models.Model):
+    """
+    Model to store email OTP codes for account verification.
+    OTPs are hashed before storage for security.
+    """
+    email = models.EmailField()
+    otp_code = models.CharField(max_length=128)  # Increased to store hashed OTP
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_verified = models.BooleanField(default=False)
+    attempts = models.IntegerField(default=0)  # Track failed attempts
+    
+    # Store user data temporarily until email is verified
+    username = models.CharField(max_length=150)
+    password_hash = models.CharField(max_length=255)  # Hashed password
+    role = models.CharField(max_length=10, default='client')
+    
+    class Meta:
+        ordering = ['-created_at']
+        indexes = [
+            models.Index(fields=['email', 'is_verified']),
+            models.Index(fields=['created_at']),
+        ]
+    
+    def __str__(self):
+        return f"OTP for {self.email} - {'Verified' if self.is_verified else 'Pending'}"
+    
+    def is_expired(self):
+        """Check if OTP has expired (10 minutes)"""
+        from django.utils import timezone
+        from datetime import timedelta
+        expiry_time = self.created_at + timedelta(minutes=settings.OTP_EXPIRY_MINUTES)
+        return timezone.now() > expiry_time
+    
+    def increment_attempts(self):
+        """Increment failed verification attempts"""
+        self.attempts += 1
+        self.save()
+
+
+# Import ActivityLog model
+from .activity_logger import ActivityLog, log_activity

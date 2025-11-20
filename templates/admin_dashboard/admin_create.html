@@ -1,0 +1,323 @@
+{% extends 'admin_dashboard/dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Create Admin - Trabaholink Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .create-admin-container {
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    
+    .page-header {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e8ba3 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(30, 60, 114, 0.25);
+    }
+    
+    .back-button {
+        background: rgba(255, 255, 255, 0.2);
+        color: white;
+        border: 2px solid rgba(255, 255, 255, 0.3);
+        padding: 0.5rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        text-decoration: none;
+        display: inline-block;
+    }
+    
+    .back-button:hover {
+        background: rgba(255, 255, 255, 0.3);
+        color: white;
+        transform: translateX(-4px);
+    }
+    
+    .form-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+    
+    .form-section {
+        padding: 2rem;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    
+    .form-section:last-child {
+        border-bottom: none;
+    }
+    
+    .section-title {
+        font-size: 1.25rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: #2d3436;
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .section-title i {
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+    }
+    
+    .form-label {
+        font-weight: 600;
+        color: #2d3436;
+        margin-bottom: 0.5rem;
+    }
+    
+    .form-control, .form-select {
+        border: 2px solid #e9ecef;
+        border-radius: 10px;
+        padding: 0.75rem 1rem;
+        transition: all 0.3s ease;
+    }
+    
+    .form-control:focus, .form-select:focus {
+        border-color: #2a5298;
+        box-shadow: 0 0 0 0.2rem rgba(42, 82, 152, 0.15);
+    }
+    
+    .superuser-card {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        border: 2px solid #e9ecef;
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+    
+    .form-check-input:checked {
+        background-color: #2a5298;
+        border-color: #2a5298;
+    }
+    
+    .info-alert {
+        background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%);
+        border: 2px solid #90caf9;
+        border-radius: 12px;
+        padding: 1rem;
+        color: #1565c0;
+    }
+    
+    .warning-alert {
+        background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%);
+        border: 2px solid #ffb74d;
+        border-radius: 12px;
+        padding: 1.5rem;
+    }
+    
+    .btn-submit {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
+    }
+    
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(30, 60, 114, 0.4);
+        color: white;
+    }
+    
+    .btn-cancel {
+        background: #e9ecef;
+        color: #6c757d;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+    }
+    
+    .btn-cancel:hover {
+        background: #dee2e6;
+        color: #495057;
+    }
+    
+    .required-star {
+        color: #f5576c;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="create-admin-container">
+        <!-- Header -->
+        <div class="page-header">
+            <a href="{% url 'admin_dashboard:admin_list' %}" class="back-button mb-3 d-inline-block">
+                <i class="bi bi-arrow-left"></i> Back to Admin List
+            </a>
+            <h1 style="font-size: 2rem; font-weight: 700; margin-bottom: 0.5rem;">
+                <i class="bi bi-person-plus-fill"></i> Create New Admin
+            </h1>
+            <p class="mb-0" style="opacity: 0.9;">Add a new administrator to the system</p>
+        </div>
+
+            <!-- Form Card -->
+            <div class="form-card">
+                <form method="post">
+                    {% csrf_token %}
+                    
+                    <!-- Display form errors -->
+                    {% if form.errors %}
+                    <div class="form-section" style="background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%); border-bottom: 2px solid #f87171;">
+                        <div style="color: #991b1b;">
+                            <h6 style="font-weight: 700; margin-bottom: 1rem;">
+                                <i class="bi bi-exclamation-triangle-fill"></i> Please correct the following errors:
+                            </h6>
+                            <ul class="mb-0" style="padding-left: 1.5rem;">
+                                {% for field, errors in form.errors.items %}
+                                    {% for error in errors %}
+                                    <li><strong>{{ field|title }}:</strong> {{ error }}</li>
+                                    {% endfor %}
+                                {% endfor %}
+                            </ul>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    <!-- Account Information -->
+                    <div class="form-section">
+                        <h5 class="section-title">
+                            <i class="bi bi-person-circle"></i>
+                            <span>Account Information</span>
+                        </h5>
+                        
+                        <div class="row mb-3">
+                            <div class="col-md-6">
+                                <label for="{{ form.username.id_for_label }}" class="form-label">
+                                    Username <span class="required-star">*</span>
+                                </label>
+                                {{ form.username }}
+                                {% if form.username.help_text %}
+                                <small class="form-text text-muted mt-1 d-block">{{ form.username.help_text }}</small>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.email.id_for_label }}" class="form-label">
+                                    Email <span class="required-star">*</span>
+                                </label>
+                                {{ form.email }}
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="{{ form.first_name.id_for_label }}" class="form-label">
+                                    First Name <span class="required-star">*</span>
+                                </label>
+                                {{ form.first_name }}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.last_name.id_for_label }}" class="form-label">
+                                    Last Name <span class="required-star">*</span>
+                                </label>
+                                {{ form.last_name }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Password -->
+                    <div class="form-section">
+                        <h5 class="section-title">
+                            <i class="bi bi-lock"></i>
+                            <span>Password</span>
+                        </h5>
+
+                        <div class="row">
+                            <div class="col-md-6">
+                                <label for="{{ form.password1.id_for_label }}" class="form-label">
+                                    Password <span class="required-star">*</span>
+                                </label>
+                                {{ form.password1 }}
+                                {% if form.password1.help_text %}
+                                <small class="form-text text-muted mt-1 d-block">{{ form.password1.help_text }}</small>
+                                {% endif %}
+                            </div>
+                            <div class="col-md-6">
+                                <label for="{{ form.password2.id_for_label }}" class="form-label">
+                                    Confirm Password <span class="required-star">*</span>
+                                </label>
+                                {{ form.password2 }}
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Permissions -->
+                    <div class="form-section">
+                        <h5 class="section-title">
+                            <i class="bi bi-shield-check"></i>
+                            <span>Permissions</span>
+                        </h5>
+
+                        <div class="mb-3">
+                            <div class="superuser-card">
+                                <div class="form-check">
+                                    {{ form.is_superuser }}
+                                    <label class="form-check-label" for="{{ form.is_superuser.id_for_label }}" style="font-weight: 600; color: #2d3436; margin-left: 0.5rem;">
+                                        {{ form.is_superuser.label }}
+                                    </label>
+                                </div>
+                                {% if form.is_superuser.help_text %}
+                                <small class="text-muted d-block mt-2">
+                                    <i class="bi bi-info-circle"></i> {{ form.is_superuser.help_text }}
+                                </small>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="info-alert">
+                            <i class="bi bi-info-circle-fill"></i>
+                            <strong>Note:</strong> All admin users will have staff access by default. 
+                            Superusers have additional permissions to manage other admins and access all system settings.
+                        </div>
+                    </div>
+
+                    <!-- Submit Buttons -->
+                    <div class="form-section">
+                        <div class="d-flex justify-content-end gap-3">
+                            <a href="{% url 'admin_dashboard:admin_list' %}" class="btn-cancel">
+                                <i class="bi bi-x-circle"></i> Cancel
+                            </a>
+                            <button type="submit" class="btn-submit">
+                                <i class="bi bi-check-circle-fill"></i> Create Admin
+                            </button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- Security Notice -->
+            <div class="warning-alert mt-4">
+                <h6 style="font-weight: 700; margin-bottom: 1rem; color: #ea580c;">
+                    <i class="bi bi-shield-exclamation"></i> Security Notice
+                </h6>
+                <ul class="mb-0" style="padding-left: 1.5rem; color: #9a3412;">
+                    <li>Only create admin accounts for trusted personnel</li>
+                    <li>Use strong passwords with a mix of letters, numbers, and symbols</li>
+                    <li>Grant superuser access only when absolutely necessary</li>
+                    <li>All admin actions are logged for security auditing</li>
+                </ul>
+            </div>
+    </div>
+</div>
+{% endblock %}

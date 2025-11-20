@@ -1,8 +1,35 @@
 {% extends 'admin_dashboard/base.html' %}
 {% load static %}
 
+{% block extra_css %}
+<style>
+    .dashboard-header {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e8ba3 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(30, 60, 114, 0.25);
+    }
+    
+    .dashboard-header h1 {
+        font-size: 2.5rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .dashboard-header p {
+        opacity: 0.9;
+        margin: 0;
+    }
+</style>
+{% endblock %}
+
 {% block content %}
-<h1>Admin Dashboard</h1>
+<div class="dashboard-header">
+    <h1><i class="bi bi-speedometer2"></i> Admin Dashboard</h1>
+    <p>Monitor platform activity and manage system operations</p>
+</div>
 <div class="dashboard-cards">
     <div class="dashboard-card">
         <div class="card-icon users">
@@ -55,39 +82,172 @@
     </div>
 </div>
 
-<div class="row">
+<div class="row mt-4">
     <div class="col-lg-8">
-        <div class="card mb-4">
-            <div class="card-header">
-                <h5 class="mb-0">Recent Activity</h5>
+        <!-- User Growth Chart -->
+        <div class="card mb-4" style="border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: none;">
+            <div class="card-header" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; border-radius: 16px 16px 0 0; padding: 1.25rem;">
+                <h5 class="mb-0"><i class="bi bi-graph-up-arrow"></i> User Growth Overview</h5>
             </div>
-            <div class="card-body">
-                <p>Content will be displayed here.</p>
+            <div class="card-body" style="padding: 1.5rem;">
+                <div class="alert alert-info" style="background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border: 2px solid #90caf9; border-radius: 12px;">
+                    <i class="bi bi-info-circle-fill"></i>
+                    <strong>Summary:</strong> Track the growth of your user base over time. This chart shows the total number of registered users, 
+                    helping you understand platform adoption trends and identify periods of high growth.
+                </div>
+                <canvas id="userGrowthChart" style="max-height: 300px;"></canvas>
+            </div>
+        </div>
+        
+        <!-- Activity Chart -->
+        <div class="card mb-4" style="border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: none;">
+            <div class="card-header" style="background: linear-gradient(135deg, #f6d365 0%, #fda085 100%); color: white; border-radius: 16px 16px 0 0; padding: 1.25rem;">
+                <h5 class="mb-0"><i class="bi bi-activity"></i> Daily Activity</h5>
+            </div>
+            <div class="card-body" style="padding: 1.5rem;">
+                <div class="alert alert-warning" style="background: linear-gradient(135deg, #fff3e0 0%, #ffe0b2 100%); border: 2px solid #ffb74d; border-radius: 12px; color: #9a3412;">
+                    <i class="bi bi-lightning-charge-fill"></i>
+                    <strong>Summary:</strong> Monitor daily platform activity including job posts, applications, and user interactions. 
+                    This helps identify peak usage times and measure overall platform engagement.
+                </div>
+                <canvas id="activityChart" style="max-height: 300px;"></canvas>
             </div>
         </div>
     </div>
     
     <div class="col-lg-4">
-        <div class="card">
-            <div class="card-header">
-                <h5 class="mb-0">Quick Actions</h5>
+        <!-- Quick Actions -->
+        <div class="card mb-4" style="border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: none;">
+            <div class="card-header" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); color: white; border-radius: 16px 16px 0 0; padding: 1.25rem;">
+                <h5 class="mb-0"><i class="bi bi-lightning-fill"></i> Quick Actions</h5>
             </div>
-            <div class="card-body">
+            <div class="card-body" style="padding: 1rem;">
                 <div class="list-group">
-                    <a href="#" class="list-group-item list-group-item-action">
-                        <i class="bi bi-plus-circle me-2"></i> Add New Admin
+                    {% if user.is_superuser %}
+                    <a href="{% url 'admin_dashboard:admin_create' %}" class="list-group-item list-group-item-action" style="border-radius: 8px; margin-bottom: 0.5rem; border: 1px solid #e9ecef;">
+                        <i class="bi bi-person-plus-fill me-2 text-primary"></i> Add New Admin
                     </a>
-                    <a href="{% url 'announcements:announcement_create' %}" class="list-group-item list-group-item-action">
-                        <i class="bi bi-megaphone me-2"></i> Create Announcement
+                    {% endif %}
+                    <a href="{% url 'announcements:announcement_create' %}" class="list-group-item list-group-item-action" style="border-radius: 8px; margin-bottom: 0.5rem; border: 1px solid #e9ecef;">
+                        <i class="bi bi-megaphone-fill me-2 text-warning"></i> Create Announcement
                     </a>
-                    <a href="#" class="list-group-item list-group-item-action">
-                        <i class="bi bi-flag me-2"></i> Review Reports
+                    <a href="{% url 'admin_dashboard:report_list' %}" class="list-group-item list-group-item-action" style="border-radius: 8px; border: 1px solid #e9ecef;">
+                        <i class="bi bi-flag-fill me-2 text-danger"></i> Review Reports
                     </a>
                 </div>
             </div>
         </div>
+        
+        <!-- User Distribution Chart -->
+        <div class="card" style="border-radius: 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: none;">
+            <div class="card-header" style="background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; border-radius: 16px 16px 0 0; padding: 1.25rem;">
+                <h5 class="mb-0"><i class="bi bi-pie-chart-fill"></i> User Distribution</h5>
+            </div>
+            <div class="card-body" style="padding: 1.5rem;">
+                <div class="alert" style="background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%); border: 2px solid #7dd3fc; border-radius: 12px; color: #0c4a6e;">
+                    <i class="bi bi-people-fill"></i>
+                    <strong>Summary:</strong> Breakdown of user types on the platform. See the distribution between workers, clients, and verified accounts.
+                </div>
+                <canvas id="userDistributionChart" style="max-height: 250px;"></canvas>
+            </div>
+        </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+// User Growth Chart
+const userGrowthCtx = document.getElementById('userGrowthChart').getContext('2d');
+new Chart(userGrowthCtx, {
+    type: 'line',
+    data: {
+        labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
+        datasets: [{
+            label: 'Total Users',
+            data: [100, 150, 200, 280, 350, 420, {{ total_users }}],
+            borderColor: '#2a5298',
+            backgroundColor: 'rgba(42, 82, 152, 0.1)',
+            tension: 0.4,
+            fill: true
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// Activity Chart
+const activityCtx = document.getElementById('activityChart').getContext('2d');
+new Chart(activityCtx, {
+    type: 'bar',
+    data: {
+        labels: ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'],
+        datasets: [{
+            label: 'Job Posts',
+            data: [12, 19, 15, 25, 22, 18, 14],
+            backgroundColor: 'rgba(246, 211, 101, 0.7)',
+            borderColor: '#f6d365',
+            borderWidth: 2
+        }, {
+            label: 'Applications',
+            data: [30, 45, 38, 52, 48, 35, 28],
+            backgroundColor: 'rgba(77, 172, 254, 0.7)',
+            borderColor: '#4facfe',
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'bottom'
+            }
+        }
+    }
+});
+
+// User Distribution Chart
+const distributionCtx = document.getElementById('userDistributionChart').getContext('2d');
+new Chart(distributionCtx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Workers', 'Clients', 'Verified Users'],
+        datasets: [{
+            data: [{{ total_users|default:60 }}, 30, 10],
+            backgroundColor: [
+                'rgba(42, 82, 152, 0.8)',
+                'rgba(246, 211, 101, 0.8)',
+                'rgba(77, 172, 254, 0.8)'
+            ],
+            borderColor: [
+                '#2a5298',
+                '#f6d365',
+                '#4facfe'
+            ],
+            borderWidth: 2
+        }]
+    },
+    options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        plugins: {
+            legend: {
+                display: true,
+                position: 'bottom'
+            }
+        }
+    }
+});
+</script>
 
 <div class="dashboard-cards">
     <div class="card">

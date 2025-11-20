@@ -62,18 +62,28 @@ class HomePageView(TemplateView):
         
         context = super().get_context_data(**kwargs)
         User = get_user_model()
+        now = timezone.now()
         
         # Get real statistics from database
         context["categories"] = JobCategory.objects.all()
         context["total_jobs"] = Job.objects.count()
         context["total_users"] = User.objects.count()
-        context["active_jobs"] = Job.objects.filter(is_active=True).count()
+        # Count only active and non-expired jobs
+        context["active_jobs"] = Job.objects.filter(
+            is_active=True
+        ).filter(
+            Q(expires_at__isnull=True) | Q(expires_at__gt=now)
+        ).count()
         
         # Get recent announcements for carousel
         context["announcements"] = Announcement.objects.all().order_by('-id')[:3]
         
-        # Get recent jobs for display
-        context["recent_jobs"] = Job.objects.filter(is_active=True).order_by('-created_at')[:6]
+        # Get recent jobs for display (active and non-expired only)
+        context["recent_jobs"] = Job.objects.filter(
+            is_active=True
+        ).filter(
+            Q(expires_at__isnull=True) | Q(expires_at__gt=now)
+        ).order_by('-created_at')[:6]
         
         return context
 
@@ -109,7 +119,13 @@ class JobListView(ListView):
     paginate_by = 9
 
     def get_queryset(self):
-        queryset = Job.objects.all().select_related("category")
+        # Filter for active jobs and exclude expired ones
+        now = timezone.now()
+        queryset = Job.objects.filter(
+            is_active=True
+        ).filter(
+            Q(expires_at__isnull=True) | Q(expires_at__gt=now)
+        ).select_related("category")
         request = self.request
 
         # Filters
@@ -125,25 +141,128 @@ class JobListView(ListView):
 
         if category_id:
             queryset = queryset.filter(category_id=category_id)
+        
+        # Comprehensive keyword search across multiple fields
         if keyword:
             queryset = queryset.filter(
-                Q(title__icontains=keyword) | Q(description__icontains=keyword)
-            )
+                Q(title__icontains=keyword) |
+                Q(description__icontains=keyword) |
+                Q(municipality__icontains=keyword) |
+                Q(barangay__icontains=keyword) |
+                Q(street__icontains=keyword) |
+                Q(subdivision__icontains=keyword) |
+                Q(category__name__icontains=keyword) |
+                Q(required_skills__icontains=keyword) |
+                Q(owner__first_name__icontains=keyword) |
+                Q(owner__last_name__icontains=keyword)
+            ).distinct()
+        
         if min_budget:
             queryset = queryset.filter(budget__gte=min_budget)
         if max_budget:
             queryset = queryset.filter(budget__lte=max_budget)
-        if municipality:
-            queryset = queryset.filter(municipality__icontains=municipality)
-        if barangay:
-            queryset = queryset.filter(barangay__icontains=barangay)
+        # Don't filter by location fields from the location modal
+        # The modal sets municipality parameter only for distance calculation
+        # Search form uses 'q' parameter which is already handled above
+        # This prevents "No Jobs Found" when using location modal
 
         self.user_location = None
+        # Handle GPS coordinates
         if user_lat and user_lng:
             try:
                 self.user_location = Point(float(user_lng), float(user_lat), srid=4326)
                 queryset = queryset.annotate(distance=Distance("location", self.user_location))
             except (ValueError, TypeError):
+                self.user_location = None
+        
+        # Handle manual location entry - geocode municipality/barangay to GPS coordinates
+        elif municipality:
+            try:
+                # Comprehensive Philippines location coordinates database (6 decimal places)
+                philippines_coords = {
+                    # Metro Manila
+                    'manila': (14.599512, 120.984222),
+                    'quezon city': (14.676041, 121.043700),
+                    'makati': (14.554729, 121.024445),
+                    'pasig': (14.576417, 121.085098),
+                    'taguig': (14.517637, 121.050935),
+                    'pasay': (14.537840, 120.989639),
+                    'paranaque': (14.479322, 121.019817),
+                    'las pinas': (14.449910, 120.976158),
+                    'muntinlupa': (14.383240, 121.040863),
+                    'marikina': (14.650703, 121.102905),
+                    'valenzuela': (14.700024, 120.983299),
+                    'caloocan': (14.648813, 120.966835),
+                    'malabon': (14.658348, 120.956726),
+                    'navotas': (14.669125, 120.947189),
+                    'san juan': (14.601909, 121.035538),
+                    'mandaluyong': (14.579399, 121.035905),
+                    
+                    # Cavite
+                    'bacoor': (14.431095, 120.968096),
+                    'imus': (14.429741, 120.937028),
+                    'dasmarinas': (14.400415, 120.985887),
+                    'dasmariñas': (14.400415, 120.985887),
+                    'cavite city': (14.479142, 120.897897),
+                    'general trias': (14.386906, 120.881014),
+                    'trece martires': (14.281448, 120.867188),
+                    'tagaytay': (14.115912, 120.960219),
+                    'silang': (14.231042, 120.976951),
+                    
+                    # Rizal
+                    'antipolo': (14.593069, 121.180027),
+                    'cainta': (14.578293, 121.122215),
+                    'taytay': (14.557601, 121.132437),
+                    'binangonan': (14.464722, 121.192502),
+                    'rodriguez': (14.713628, 121.107524),
+                    'montalban': (14.713628, 121.107524),
+                    'san mateo': (14.696908, 121.121895),
+                    
+                    # Laguna
+                    'calamba': (14.211651, 121.165314),
+                    'biñan': (14.337783, 121.080849),
+                    'santa rosa': (14.312336, 121.111376),
+                    'cabuyao': (14.278415, 121.124573),
+                    'san pedro': (14.355304, 121.017847),
+                    'los baños': (14.169908, 121.220631),
+                    
+                    # Bulacan
+                    'malolos': (14.843252, 120.811399),
+                    'meycauayan': (14.735024, 120.953308),
+                    'san jose del monte': (14.813612, 121.045301),
+                    'santa maria': (14.816917, 120.956701),
+                }
+                
+                # Enhanced barangay-level coordinates for Bacoor (6 decimal places)
+                bacoor_barangays = {
+                    'molino': (14.423512, 120.982478),
+                    'queens row': (14.440013, 120.974982),
+                    'salawag': (14.417528, 120.954983),
+                    'springville': (14.429045, 120.991987),
+                    'panapaan': (14.452013, 120.968041),
+                    'tabing dagat': (14.462015, 120.959028),
+                    'mabolo': (14.414987, 120.969964),
+                    'niog': (14.420019, 120.960047),
+                }
+                
+                location_key = municipality.lower().strip()
+                
+                # Check if barangay is provided for more precise location
+                if barangay:
+                    barangay_key = barangay.lower().strip()
+                    # Try municipality-specific barangay lookup (currently only Bacoor)
+                    if location_key == 'bacoor' and barangay_key in bacoor_barangays:
+                        lat, lng = bacoor_barangays[barangay_key]
+                        self.user_location = Point(lng, lat, srid=4326)
+                        queryset = queryset.annotate(distance=Distance("location", self.user_location))
+                        return queryset
+                
+                # Fallback to municipality-level coordinates
+                if location_key in philippines_coords:
+                    lat, lng = philippines_coords[location_key]
+                    self.user_location = Point(lng, lat, srid=4326)
+                    queryset = queryset.annotate(distance=Distance("location", self.user_location))
+            except Exception:
                 self.user_location = None
 
         # Sorting
@@ -169,10 +288,10 @@ class JobListView(ListView):
         context = super().get_context_data(**kwargs)
         context["categories"] = JobCategory.objects.all()
         context["request"] = self.request
-        context["user_location"] = self.user_location
+        context["user_location"] = getattr(self, 'user_location', None)
 
         # Use the already filtered jobs count (total after filtering)
-        context["jobs_count"] = len(self._queryset)
+        context["jobs_count"] = len(getattr(self, '_queryset', []))
 
         # Service filters based on ServicePost model fields
         service_filters = {"is_active": True}
@@ -236,10 +355,14 @@ class JobDetailView(DetailView):
                 # Apply filters
                 search_query = self.request.GET.get("search", "")
                 if search_query:
-                    applicants = applicants.filter(worker__username__icontains=search_query)
+                    applicants = applicants.filter(
+                        Q(worker__username__icontains=search_query) |
+                        Q(worker__first_name__icontains=search_query) |
+                        Q(worker__last_name__icontains=search_query)
+                    )
 
                 # Paginate the applicants
-                paginator = Paginator(applicants, 5)  # Show 5 applicants per page
+                paginator = Paginator(applicants, 10)  # Show 10 applicants per page
                 page_number = self.request.GET.get("page")
                 page_obj = paginator.get_page(page_number)
 
@@ -248,15 +371,91 @@ class JobDetailView(DetailView):
 
             # Check if the user has already applied for the job
             context["has_applied"] = job.applications.filter(worker=user).exists()
+            
+            # Check if user has uploaded CV (for workers)
+            context["user_has_cv"] = bool(user.cv_file) if hasattr(user, 'cv_file') else False
 
         return context
 
 # 🔹 Job Create View (with geolocation support)
-class JobCreateView(LoginRequiredMixin, CreateView):
+class JobCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Job
     form_class = JobForm
     template_name = "jobs/job_form.html"
     success_url = reverse_lazy("jobs:job_list")
+    
+    def test_func(self):
+        """Only clients can post jobs"""
+        return self.request.user.role == 'client'
+    
+    def _get_precise_coordinates(self, municipality, barangay):
+        """Get precise coordinates for specific barangay within a municipality."""
+        if not municipality or not barangay:
+            return None
+            
+        # Bacoor barangay coordinates (6 decimal places for precision)
+        bacoor_barangays = {
+            'molino': {'lat': 14.423512, 'lng': 120.982478},
+            'molino 1': {'lat': 14.423512, 'lng': 120.982478},
+            'molino 2': {'lat': 14.423512, 'lng': 120.982478},
+            'molino 3': {'lat': 14.423512, 'lng': 120.982478},
+            'molino 4': {'lat': 14.423512, 'lng': 120.982478},
+            'molino 5': {'lat': 14.423512, 'lng': 120.982478},
+            'molino 6': {'lat': 14.423512, 'lng': 120.982478},
+            'molino 7': {'lat': 14.423512, 'lng': 120.982478},
+            'queens row': {'lat': 14.440013, 'lng': 120.974982},
+            'queens row central': {'lat': 14.440013, 'lng': 120.974982},
+            'queens row east': {'lat': 14.440013, 'lng': 120.974982},
+            'queens row west': {'lat': 14.440013, 'lng': 120.974982},
+            'salawag': {'lat': 14.417528, 'lng': 120.954983},
+            'springville': {'lat': 14.429045, 'lng': 120.991987},
+            'panapaan': {'lat': 14.452013, 'lng': 120.968041},
+            'panapaan 1': {'lat': 14.452013, 'lng': 120.968041},
+            'panapaan 2': {'lat': 14.452013, 'lng': 120.968041},
+            'panapaan 3': {'lat': 14.452013, 'lng': 120.968041},
+            'panapaan 4': {'lat': 14.452013, 'lng': 120.968041},
+            'panapaan 5': {'lat': 14.452013, 'lng': 120.968041},
+            'tabing dagat': {'lat': 14.462015, 'lng': 120.959028},
+            'mabolo': {'lat': 14.414987, 'lng': 120.969964},
+            'mabolo 1': {'lat': 14.414987, 'lng': 120.969964},
+            'mabolo 2': {'lat': 14.414987, 'lng': 120.969964},
+            'mabolo 3': {'lat': 14.414987, 'lng': 120.969964},
+            'niog': {'lat': 14.420019, 'lng': 120.960047},
+            'niog 1': {'lat': 14.420019, 'lng': 120.960047},
+            'niog 2': {'lat': 14.420019, 'lng': 120.960047},
+            'niog 3': {'lat': 14.420019, 'lng': 120.960047},
+            'zapote': {'lat': 14.434567, 'lng': 120.975432},
+            'zapote 1': {'lat': 14.434567, 'lng': 120.975432},
+            'zapote 2': {'lat': 14.434567, 'lng': 120.975432},
+            'zapote 3': {'lat': 14.434567, 'lng': 120.975432},
+        }
+        
+        if municipality == 'bacoor' and barangay in bacoor_barangays:
+            return bacoor_barangays[barangay]
+        
+        return None
+    
+    def _get_municipality_coordinates(self, municipality):
+        """Get coordinates for municipality (fallback)."""
+        municipalities = {
+            'manila': {'lat': 14.599512, 'lng': 120.984222},
+            'quezon city': {'lat': 14.676041, 'lng': 121.043700},
+            'makati': {'lat': 14.554729, 'lng': 121.024445},
+            'pasig': {'lat': 14.576417, 'lng': 121.085098},
+            'taguig': {'lat': 14.517637, 'lng': 121.050935},
+            'bacoor': {'lat': 14.431095, 'lng': 120.968096},
+            'imus': {'lat': 14.429741, 'lng': 120.937028},
+            'dasmarinas': {'lat': 14.400415, 'lng': 120.985887},
+            'dasmariñas': {'lat': 14.400415, 'lng': 120.985887},
+            'cavite city': {'lat': 14.479142, 'lng': 120.897897},
+            'antipolo': {'lat': 14.593069, 'lng': 121.180027},
+        }
+        return municipalities.get(municipality)
+    
+    def handle_no_permission(self):
+        """Redirect workers who try to post jobs"""
+        messages.error(self.request, "Only clients can post jobs. Workers can apply to jobs instead.")
+        return redirect('jobs:job_list')
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -293,11 +492,32 @@ class JobCreateView(LoginRequiredMixin, CreateView):
         job = form.save(commit=False)
         job.owner = self.request.user
 
-        # Handle location
+        # Enhanced location handling with barangay-level precision
         lat = self.request.POST.get("latitude")
         lng = self.request.POST.get("longitude")
-        if lat and lng:
+        municipality = form.cleaned_data.get('municipality', '').lower().strip()
+        barangay = form.cleaned_data.get('barangay', '').lower().strip()
+        
+        # Try to get precise coordinates from our database first
+        coords = self._get_precise_coordinates(municipality, barangay)
+        
+        if coords:
+            # Use our precise barangay-level coordinates
+            job.location = Point(coords['lng'], coords['lat'], srid=4326)
+            job.latitude = coords['lat']
+            job.longitude = coords['lng']
+        elif lat and lng:
+            # Fallback to user-provided coordinates
             job.location = Point(float(lng), float(lat), srid=4326)
+            job.latitude = float(lat)
+            job.longitude = float(lng)
+        else:
+            # Last resort: use municipality-level coordinates
+            muni_coords = self._get_municipality_coordinates(municipality)
+            if muni_coords:
+                job.location = Point(muni_coords['lng'], muni_coords['lat'], srid=4326)
+                job.latitude = muni_coords['lat']
+                job.longitude = muni_coords['lng']
 
         job.save()
 
@@ -319,6 +539,70 @@ class JobUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     
     def test_func(self):
         return self.request.user == self.get_object().owner
+    
+    def _get_precise_coordinates(self, municipality, barangay):
+        """Get precise coordinates for specific barangay within a municipality."""
+        if not municipality or not barangay:
+            return None
+            
+        # Bacoor barangay coordinates (6 decimal places for precision)
+        bacoor_barangays = {
+            'molino': {'lat': 14.423512, 'lng': 120.982478},
+            'molino 1': {'lat': 14.423512, 'lng': 120.982478},
+            'molino 2': {'lat': 14.423512, 'lng': 120.982478},
+            'molino 3': {'lat': 14.423512, 'lng': 120.982478},
+            'molino 4': {'lat': 14.423512, 'lng': 120.982478},
+            'molino 5': {'lat': 14.423512, 'lng': 120.982478},
+            'molino 6': {'lat': 14.423512, 'lng': 120.982478},
+            'molino 7': {'lat': 14.423512, 'lng': 120.982478},
+            'queens row': {'lat': 14.440013, 'lng': 120.974982},
+            'queens row central': {'lat': 14.440013, 'lng': 120.974982},
+            'queens row east': {'lat': 14.440013, 'lng': 120.974982},
+            'queens row west': {'lat': 14.440013, 'lng': 120.974982},
+            'salawag': {'lat': 14.417528, 'lng': 120.954983},
+            'springville': {'lat': 14.429045, 'lng': 120.991987},
+            'panapaan': {'lat': 14.452013, 'lng': 120.968041},
+            'panapaan 1': {'lat': 14.452013, 'lng': 120.968041},
+            'panapaan 2': {'lat': 14.452013, 'lng': 120.968041},
+            'panapaan 3': {'lat': 14.452013, 'lng': 120.968041},
+            'panapaan 4': {'lat': 14.452013, 'lng': 120.968041},
+            'panapaan 5': {'lat': 14.452013, 'lng': 120.968041},
+            'tabing dagat': {'lat': 14.462015, 'lng': 120.959028},
+            'mabolo': {'lat': 14.414987, 'lng': 120.969964},
+            'mabolo 1': {'lat': 14.414987, 'lng': 120.969964},
+            'mabolo 2': {'lat': 14.414987, 'lng': 120.969964},
+            'mabolo 3': {'lat': 14.414987, 'lng': 120.969964},
+            'niog': {'lat': 14.420019, 'lng': 120.960047},
+            'niog 1': {'lat': 14.420019, 'lng': 120.960047},
+            'niog 2': {'lat': 14.420019, 'lng': 120.960047},
+            'niog 3': {'lat': 14.420019, 'lng': 120.960047},
+            'zapote': {'lat': 14.434567, 'lng': 120.975432},
+            'zapote 1': {'lat': 14.434567, 'lng': 120.975432},
+            'zapote 2': {'lat': 14.434567, 'lng': 120.975432},
+            'zapote 3': {'lat': 14.434567, 'lng': 120.975432},
+        }
+        
+        if municipality == 'bacoor' and barangay in bacoor_barangays:
+            return bacoor_barangays[barangay]
+        
+        return None
+    
+    def _get_municipality_coordinates(self, municipality):
+        """Get coordinates for municipality (fallback)."""
+        municipalities = {
+            'manila': {'lat': 14.599512, 'lng': 120.984222},
+            'quezon city': {'lat': 14.676041, 'lng': 121.043700},
+            'makati': {'lat': 14.554729, 'lng': 121.024445},
+            'pasig': {'lat': 14.576417, 'lng': 121.085098},
+            'taguig': {'lat': 14.517637, 'lng': 121.050935},
+            'bacoor': {'lat': 14.431095, 'lng': 120.968096},
+            'imus': {'lat': 14.429741, 'lng': 120.937028},
+            'dasmarinas': {'lat': 14.400415, 'lng': 120.985887},
+            'dasmariñas': {'lat': 14.400415, 'lng': 120.985887},
+            'cavite city': {'lat': 14.479142, 'lng': 120.897897},
+            'antipolo': {'lat': 14.593069, 'lng': 121.180027},
+        }
+        return municipalities.get(municipality)
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -349,14 +633,46 @@ class JobUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
             )
             return self.form_invalid(form)
         
-        # Handle location
+        # Enhanced location handling with barangay-level precision
         lat = self.request.POST.get("latitude")
         lng = self.request.POST.get("longitude")
-        if lat and lng:
+        municipality = form.cleaned_data.get('municipality', '').lower().strip()
+        barangay = form.cleaned_data.get('barangay', '').lower().strip()
+        
+        # Try to get precise coordinates from our database first
+        coords = self._get_precise_coordinates(municipality, barangay)
+        
+        if coords:
+            # Use our precise barangay-level coordinates
+            form.instance.location = Point(coords['lng'], coords['lat'], srid=4326)
+            form.instance.latitude = coords['lat']
+            form.instance.longitude = coords['lng']
+        elif lat and lng:
+            # Fallback to user-provided coordinates
             form.instance.location = Point(float(lng), float(lat), srid=4326)
+            form.instance.latitude = float(lat)
+            form.instance.longitude = float(lng)
+        else:
+            # Last resort: use municipality-level coordinates
+            muni_coords = self._get_municipality_coordinates(municipality)
+            if muni_coords:
+                form.instance.location = Point(muni_coords['lng'], muni_coords['lat'], srid=4326)
+                form.instance.latitude = muni_coords['lat']
+                form.instance.longitude = muni_coords['lng']
         
         response = super().form_valid(form)
         
+        # Handle image deletions
+        delete_image_ids = self.request.POST.getlist('delete_image')
+        if delete_image_ids:
+            for image_id in delete_image_ids:
+                try:
+                    image = JobImage.objects.get(id=image_id, job=self.object)
+                    image.delete()
+                except JobImage.DoesNotExist:
+                    pass
+        
+        # Handle new image uploads
         files = self.request.FILES.getlist('images')
         if files:
             for img in files:
@@ -425,6 +741,10 @@ class JobApplicationCreateView(LoginRequiredMixin, CreateView):
         application.job = get_object_or_404(Job, pk=self.kwargs.get("pk"))
         application.worker = self.request.user
         
+        # Handle CV attachment checkbox
+        attach_cv = self.request.POST.get('attach_cv') == 'on'
+        application.attach_profile_cv = attach_cv
+        
         # Double-check for duplicate (race condition protection)
         existing = JobApplication.objects.filter(
             job=application.job,
@@ -436,6 +756,15 @@ class JobApplicationCreateView(LoginRequiredMixin, CreateView):
             return redirect(reverse("jobs:job_detail", kwargs={"pk": application.job.id}))
         
         application.save()
+        
+        # Create notification for job owner
+        Notification.objects.create(
+            user=application.job.owner,
+            message=f"{application.worker.get_full_name() or application.worker.username} applied for '{application.job.title}'",
+            notif_type="job_application",
+            object_id=application.pk,
+        )
+        
         messages.success(self.request, "Your application has been submitted successfully!")
         return redirect(reverse("jobs:job_detail", kwargs={"pk": application.job.id}))
 
@@ -844,6 +1173,14 @@ def cancel_contract(request, pk):
     contract.updated_at = timezone.now()
     contract.save()
     
+    # Notify the worker about the cancellation
+    Notification.objects.create(
+        user=contract.worker,
+        message=f"The contract for '{contract.job.title}' has been cancelled by the employer.",
+        notif_type="contract_cancelled",
+        object_id=contract.pk
+    )
+    
     messages.success(request, "Contract cancelled successfully.")
     return redirect("jobs:contract_detail", pk=contract.pk)
 
@@ -907,6 +1244,12 @@ class ContractSignView(LoginRequiredMixin, DetailView):
         if contract.client_accepted and contract.worker_accepted:
             contract.finalize_contract()
             messages.success(request, "Contract has been finalized! Both parties have signed.")
+            
+            # Decrement job vacancy
+            if contract.job.decrement_vacancy():
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.info(f"Job {contract.job.id} vacancy decremented. Remaining: {contract.job.vacancies}")
             
             # Create notifications
             Notification.objects.create(
@@ -1047,24 +1390,31 @@ class EmployerDashboardView(LoginRequiredMixin, TemplateView):
         ).count()
         context['active_contracts'] = Contract.objects.filter(
             client=user
-        ).exclude(status='Completed').count()
+        ).exclude(status__in=['Completed', 'Cancelled']).count()
         context['completed_contracts'] = Contract.objects.filter(
             client=user, 
             status='Completed'
+        ).count()
+        context['cancelled_contracts'] = Contract.objects.filter(
+            client=user,
+            status='Cancelled'
         ).count()
         
         # Recent jobs
         context['recent_jobs'] = Job.objects.filter(owner=user).order_by('-created_at')[:5]
         
         # Recent applications shown in Applications tab (exclude ones already under contracts)
+        # Note: Only exclude applications that THEMSELVES have active/completed contracts,
+        # not applications to jobs that have contracts with OTHER workers
         recent_applications_qs = JobApplication.objects.filter(
             job__owner=user
         ).exclude(
             status__iexact='rejected'
         ).exclude(
             status__iexact='archived'
-        ).exclude(
-            contract__status__in=['Negotiation', 'Finalized', 'In Progress', 'Awaiting Review', 'Completed']
+        ).filter(
+            Q(contract__isnull=True) | 
+            ~Q(contract__status__in=['Negotiation', 'Finalized', 'In Progress', 'Awaiting Review', 'Completed'])
         ).select_related('job', 'worker', 'offer', 'contract').order_by('-applied_at')[:50]
         context['recent_applications'] = recent_applications_qs
         context['applications_tab_count'] = recent_applications_qs.count()
@@ -1089,6 +1439,10 @@ class EmployerDashboardView(LoginRequiredMixin, TemplateView):
         context['completed_contracts_list'] = Contract.objects.filter(
             client=user,
             status='Completed'
+        ).select_related('job', 'worker').order_by('-updated_at')[:50]
+        context['cancelled_contracts_list'] = Contract.objects.filter(
+            client=user,
+            status='Cancelled'
         ).select_related('job', 'worker').order_by('-updated_at')[:50]
         
         return context
@@ -1118,10 +1472,14 @@ class WorkerDashboardView(LoginRequiredMixin, TemplateView):
             worker=user, 
             status='Pending'
         ).count()
-        context['active_contracts'] = Contract.objects.filter(worker=user).exclude(status='Completed').count()
+        context['active_contracts'] = Contract.objects.filter(worker=user).exclude(status__in=['Completed', 'Cancelled']).count()
         context['completed_contracts'] = Contract.objects.filter(
             worker=user, 
             status='Completed'
+        ).count()
+        context['cancelled_contracts'] = Contract.objects.filter(
+            worker=user,
+            status='Cancelled'
         ).count()
         
         # Recent applications
@@ -1150,15 +1508,38 @@ class WorkerDashboardView(LoginRequiredMixin, TemplateView):
             worker=user,
             status='Completed'
         ).select_related('job', 'client').order_by('-updated_at')[:50]
+        context['cancelled_contracts_list'] = Contract.objects.filter(
+            worker=user,
+            status='Cancelled'
+        ).select_related('job', 'client').order_by('-updated_at')[:50]
         
         # Available jobs (nearby) - exclude user's own jobs and jobs already applied to
+        now = timezone.now()
         context['available_jobs'] = Job.objects.filter(
             is_active=True
+        ).filter(
+            Q(expires_at__isnull=True) | Q(expires_at__gt=now)
         ).exclude(
             owner=user  # Exclude user's own jobs
         ).exclude(
             applications__worker=user  # Exclude jobs already applied to
         ).order_by('-created_at')[:10]
+        
+        # Calendar and schedule data
+        from .schedule_utils import get_upcoming_deadlines
+        from datetime import datetime, timedelta
+        
+        today = datetime.now().date()
+        context['upcoming_deadlines'] = get_upcoming_deadlines(user.id, days_ahead=7)
+        context['today'] = today.isoformat()
+        
+        # Get contracts with dates for initial calendar view
+        scheduled_contracts = Contract.objects.filter(
+            worker=user,
+            status__in=['Accepted', 'In Progress', 'Finalized', 'Awaiting Review'],
+            start_date__isnull=False
+        ).select_related('job', 'client').order_by('start_date')[:20]
+        context['scheduled_contracts'] = scheduled_contracts
         
         return context
 
@@ -1383,6 +1764,16 @@ class ContractNegotiationView(LoginRequiredMixin, UpdateView):
             messages.success(self.request, "Draft saved. Share with the other party when ready.")
         else:
             messages.success(self.request, "Contract terms updated successfully!")
+            
+            # Notify the other party about the update
+            other_user = contract.client if self.request.user == contract.worker else contract.worker
+            role = "Worker" if self.request.user == contract.worker else "Employer"
+            Notification.objects.create(
+                user=other_user,
+                message=f"{role} has updated the contract terms for '{contract.job.title}'. Please review the changes.",
+                notif_type="contract_updated",
+                object_id=contract.pk
+            )
 
         return redirect("jobs:contract_detail", pk=contract.pk)
 
@@ -1407,6 +1798,33 @@ def accept_contract_terms(request, pk):
     if request.POST.get("agree_terms") != "on":
         messages.error(request, "Please acknowledge the agreement before accepting the contract.")
         return redirect("jobs:contract_detail", pk=pk)
+
+    # Check for schedule conflicts if worker is accepting
+    if request.user == contract.worker and contract.start_date:
+        from .schedule_utils import check_schedule_conflicts
+        
+        has_conflict, conflicting_contracts, warning_message = check_schedule_conflicts(
+            worker_id=request.user.id,
+            start_date=contract.start_date,
+            end_date=contract.end_date,
+            exclude_contract_id=contract.id
+        )
+        
+        if has_conflict:
+            # Store conflict warning in session to display on contract page
+            request.session['schedule_conflict_warning'] = warning_message
+            request.session['conflicting_contract_ids'] = [c.id for c in conflicting_contracts]
+            
+            # Check if user confirmed they want to proceed despite conflict
+            if request.POST.get("confirm_despite_conflict") != "on":
+                messages.warning(
+                    request, 
+                    mark_safe(
+                        f"{warning_message.replace(chr(10), '<br>')}<br><br>"
+                        f"<strong>Please confirm you can manage these commitments before accepting.</strong>"
+                    )
+                )
+                return redirect("jobs:contract_negotiation", pk=pk)
 
     # Mark acceptance
     if request.user == contract.worker:
@@ -1580,6 +1998,12 @@ def end_job(request, pk):
     contract.status = "Completed"
     contract.save()
     
+    # Automatically archive the job posting when completed
+    job = contract.job
+    if job.is_active:
+        job.is_active = False
+        job.save()
+    
     # Notify worker
     Notification.objects.create(
         user=contract.worker,
@@ -1588,7 +2012,7 @@ def end_job(request, pk):
         object_id=contract.pk
     )
     
-    messages.success(request, "Job completed! You and the worker can now exchange feedback.")
+    messages.success(request, "Job completed! The job posting has been automatically archived. You and the worker can now exchange feedback.")
     return redirect("jobs:feedback_form", contract_pk=pk)
 
 
@@ -1832,3 +2256,204 @@ def start_contract_work(request, pk):
 
     messages.success(request, "Great! The contract is now marked as In Progress.")
     return redirect("jobs:job_tracking", pk=pk)
+
+
+# ============================================================================
+# Calendar and Schedule API Views
+# ============================================================================
+
+@login_required
+def get_schedule_events(request):
+    """
+    API endpoint to get calendar events for worker's schedule.
+    Returns contract data formatted for FullCalendar.
+    """
+    from .schedule_utils import get_worker_schedule
+    from datetime import datetime, timedelta
+    import logging
+    
+    logger = logging.getLogger(__name__)
+    
+    try:
+        # Get date range from query params
+        start_str = request.GET.get('start')
+        end_str = request.GET.get('end')
+        
+        if start_str and end_str:
+            # Handle timezone format - replace +08:00 format and remove timezone info
+            start_str_clean = start_str.split('T')[0]  # Just get the date part
+            end_str_clean = end_str.split('T')[0]  # Just get the date part
+            start_date = datetime.strptime(start_str_clean, '%Y-%m-%d').date()
+            end_date = datetime.strptime(end_str_clean, '%Y-%m-%d').date()
+        else:
+            # Default to current month
+            today = datetime.now().date()
+            start_date = today.replace(day=1)
+            # Get last day of month
+            if today.month == 12:
+                end_date = today.replace(year=today.year + 1, month=1, day=1) - timedelta(days=1)
+            else:
+                end_date = today.replace(month=today.month + 1, day=1) - timedelta(days=1)
+        
+        logger.info(f"Fetching schedule for user {request.user.id} from {start_date} to {end_date}")
+        events = get_worker_schedule(request.user.id, start_date, end_date)
+        logger.info(f"Returning {len(events)} events")
+        
+        return JsonResponse(events, safe=False)
+    except Exception as e:
+        logger.error(f"Error in get_schedule_events: {str(e)}")
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+@require_POST
+def check_contract_conflict(request):
+    """
+    API endpoint to check for schedule conflicts before accepting a contract.
+    """
+    from .schedule_utils import check_schedule_conflicts
+    import json
+    
+    try:
+        data = json.loads(request.body)
+        start_date_str = data.get('start_date')
+        end_date_str = data.get('end_date')
+        contract_id = data.get('contract_id')
+        
+        if not start_date_str:
+            return JsonResponse({'error': 'Start date is required'}, status=400)
+        
+        start_date = datetime.fromisoformat(start_date_str).date()
+        end_date = datetime.fromisoformat(end_date_str).date() if end_date_str else None
+        
+        has_conflict, conflicting_contracts, warning_message = check_schedule_conflicts(
+            worker_id=request.user.id,
+            start_date=start_date,
+            end_date=end_date,
+            exclude_contract_id=contract_id
+        )
+        
+        conflicts_data = []
+        for contract in conflicting_contracts:
+            conflicts_data.append({
+                'id': contract.id,
+                'title': contract.job.title,
+                'start_date': contract.start_date.isoformat(),
+                'end_date': contract.end_date.isoformat() if contract.end_date else None,
+                'client': contract.client.get_full_name() or contract.client.username,
+                'status': contract.status,
+            })
+        
+        return JsonResponse({
+            'has_conflict': has_conflict,
+            'conflicts': conflicts_data,
+            'warning_message': warning_message,
+            'conflict_count': len(conflicting_contracts)
+        })
+        
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=500)
+
+
+@login_required
+def get_upcoming_deadlines_api(request):
+    """
+    API endpoint to get upcoming contract deadlines.
+    """
+    from .schedule_utils import get_upcoming_deadlines
+    
+    days_ahead = int(request.GET.get('days', 7))
+    deadlines = get_upcoming_deadlines(request.user.id, days_ahead)
+    
+    # Convert dates to ISO format
+    for deadline in deadlines:
+        deadline['deadline'] = deadline['deadline'].isoformat()
+    
+    return JsonResponse({'deadlines': deadlines})
+
+
+@login_required
+@require_POST
+def toggle_job_status(request, job_id):
+    """
+    Toggle job post active/inactive status.
+    Only the job owner can toggle the status.
+    """
+    print(f"=== TOGGLE JOB STATUS CALLED ===")
+    print(f"Job ID: {job_id}")
+    print(f"User: {request.user}")
+    print(f"Method: {request.method}")
+    print(f"Headers: {dict(request.headers)}")
+    
+    job = get_object_or_404(Job, id=job_id)
+    print(f"Job found: {job.title}, Owner: {job.owner}")
+    
+    # Check if user is the owner
+    if job.owner != request.user:
+        return JsonResponse({
+            'success': False,
+            'message': 'You do not have permission to modify this job.'
+        }, status=403)
+    
+    try:
+        # Toggle the status
+        job.is_active = not job.is_active
+        job.save()
+        
+        # Log activity (wrapped in try-except in case ActivityLog table doesn't exist yet)
+        try:
+            from users.activity_logger import log_activity
+            if job.is_active:
+                log_activity(
+                    user=request.user,
+                    activity_type='job_updated',
+                    description=f"Activated job post: {job.title}",
+                    related_object=job,
+                    metadata={'job_id': job.id, 'action': 'activated'}
+                )
+            else:
+                log_activity(
+                    user=request.user,
+                    activity_type='job_updated',
+                    description=f"Deactivated job post: {job.title}",
+                    related_object=job,
+                    metadata={'job_id': job.id, 'action': 'deactivated'}
+                )
+        except Exception as e:
+            # Activity logging failed, but continue (don't break the toggle functionality)
+            print(f"Activity logging failed: {e}")
+        
+        # Set success message
+        if job.is_active:
+            message = f'Job "{job.title}" has been activated and is now visible to workers.'
+        else:
+            message = f'Job "{job.title}" has been deactivated and is no longer visible to workers.'
+        
+        messages.success(request, message)
+        
+        return JsonResponse({
+            'success': True,
+            'is_active': job.is_active,
+            'message': message
+        })
+    
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'An error occurred: {str(e)}'
+        }, status=500)
+
+
+class FAQView(TemplateView):
+    """View for the FAQ page"""
+    template_name = "mainpages/faq.html"
+
+
+class TermsOfServiceView(TemplateView):
+    """View for the Terms of Service page"""
+    template_name = "mainpages/terms_of_service.html"
+
+
+class PrivacyPolicyView(TemplateView):
+    """View for the Privacy Policy page"""
+    template_name = "mainpages/privacy_policy.html"

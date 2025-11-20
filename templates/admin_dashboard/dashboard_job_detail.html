@@ -106,14 +106,14 @@
                 <div class="flex items-center justify-between p-3 bg-gray-50 rounded-lg hover:bg-gray-100 transition">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 bg-trabaholink-blue rounded-full flex items-center justify-center text-white font-bold">
-                            {{ applicant.username.0|upper }}
+                            {{ applicant.worker.username.0|upper }}
                         </div>
                         <div>
-                            <p class="font-medium text-gray-800">{{ applicant.get_full_name|default:applicant.username }}</p>
-                            <p class="text-sm text-gray-500">Applied {{ applicant.applied_at|timesince }} ago</p>
+                            <p class="font-medium text-gray-800">{{ applicant.worker.get_full_name|default:applicant.worker.username }}</p>
+                            <p class="text-sm text-gray-500">Applied {{ applicant.created_at|timesince }} ago</p>
                         </div>
                     </div>
-                    <a href="{% url 'admin_dashboard:user_detail' applicant.pk %}" class="text-trabaholink-blue hover:text-trabaholink-dark-blue text-sm font-medium">
+                    <a href="{% url 'admin_dashboard:user_detail' applicant.worker.pk %}" class="text-trabaholink-blue hover:text-trabaholink-dark-blue text-sm font-medium">
                         View Profile →
                     </a>
                 </div>
@@ -147,8 +147,8 @@
                                     {{ report.get_status_display }}
                                 </span>
                             </div>
-                            <p class="text-sm text-gray-700">{{ report.reported_content|truncatewords:15 }}</p>
-                            <p class="text-xs text-gray-500 mt-1">Reported by {{ report.user.username }} • {{ report.created_at|timesince }} ago</p>
+                            <p class="text-sm text-gray-700">{{ report.reason|truncatewords:15 }}</p>
+                            <p class="text-xs text-gray-500 mt-1">Reported by {{ report.reporter.username|default:"Anonymous" }} • {{ report.created_at|timesince }} ago</p>
                         </div>
                         <a href="{% url 'admin_dashboard:report_detail' report.pk %}" class="px-3 py-1.5 bg-trabaholink-blue text-white text-sm rounded-lg hover:bg-trabaholink-dark-blue transition">
                             View
@@ -338,7 +338,7 @@
     function flagJob(jobId) {
         const reason = prompt('Enter reason for flagging:');
         if (reason) {
-            fetch(`/admin/jobs/${jobId}/flag/`, {
+            fetch(`/admin_dashboard/jobs/${jobId}/flag/`, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': '{{ csrf_token }}',
@@ -350,9 +350,14 @@
             .then(data => {
                 if (data.success) {
                     alert('Job flagged for review');
+                    location.reload();
                 } else {
-                    alert('Failed to flag job');
+                    alert('Failed to flag job: ' + (data.message || 'Unknown error'));
                 }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('An error occurred while flagging the job');
             });
         }
     }

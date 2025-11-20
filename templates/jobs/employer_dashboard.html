@@ -537,6 +537,70 @@
         </div>
     </div>
 
+    <!-- PROMINENT ACTIVE CONTRACTS TRACKING SECTION -->
+    {% if active_contracts_list %}
+    <div class="content-section" style="margin-bottom: 2rem; border: 2px solid #2563eb;">
+        <div class="section-header" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, #2563eb 0%, #3b82f6 100%); margin: -1.5rem -1.5rem 1.5rem; padding: 1.25rem 1.5rem; border-radius: 12px 12px 0 0;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; color: white; margin: 0; display: flex; align-items: center; gap: 0.75rem;">
+                <i class="bi bi-graph-up-arrow" style="font-size: 1.75rem;"></i> 
+                <span>Active Projects Tracking</span>
+                <span style="background: rgba(255,255,255,0.2); padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem;">{{ active_contracts }} Active</span>
+            </h2>
+            <p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: rgba(255,255,255,0.9);">Monitor your ongoing projects and worker progress</p>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem;">
+            {% for contract in active_contracts_list|slice:":6" %}
+            <div style="background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%); border: 2px solid #e5e7eb; border-radius: 12px; padding: 1.25rem; transition: all 0.3s;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+                    <h3 style="font-size: 1rem; font-weight: 700; color: #111827; margin: 0; flex: 1;">{{ contract.job.title }}</h3>
+                    <span style="font-size: 0.75rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-weight: 600; white-space: nowrap; margin-left: 0.5rem; {% if contract.status == 'In Progress' %}background: #d1fae5; color: #065f46;{% elif contract.status == 'Accepted' %}background: #dbeafe; color: #1e40af;{% else %}background: #fef3c7; color: #92400e;{% endif %}">
+                        {{ contract.status }}
+                    </span>
+                </div>
+                
+                <div style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.75rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                        <i class="bi bi-person-badge"></i>
+                        <span>Worker: <strong>{{ contract.worker.get_full_name|default:contract.worker.username }}</strong></span>
+                    </div>
+                    {% if contract.start_date %}
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                        <i class="bi bi-calendar-range"></i>
+                        <span>{{ contract.start_date|date:"M d" }} - {% if contract.end_date %}{{ contract.end_date|date:"M d, Y" }}{% else %}Ongoing{% endif %}</span>
+                    </div>
+                    {% endif %}
+                    {% if contract.agreed_rate %}
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="bi bi-cash-coin"></i>
+                        <span><strong>₱{{ contract.agreed_rate }}</strong></span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div style="display: flex; gap: 0.5rem;">
+                    <a href="{% url 'jobs:job_tracking' contract.pk %}" style="flex: 1; background: #2563eb; color: white; padding: 0.625rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.875rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s;">
+                        <i class="bi bi-graph-up"></i>
+                        Track Progress
+                    </a>
+                    <a href="{% url 'jobs:contract_detail' contract.pk %}" style="background: #f3f4f6; color: #374151; padding: 0.625rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.875rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if active_contracts > 6 %}
+        <div style="text-align: center; margin-top: 1rem;">
+            <button onclick="document.querySelector('.tabs-header button:nth-child(3)').click()" style="background: #f3f4f6; color: #2563eb; padding: 0.625rem 1.5rem; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                View All {{ active_contracts }} Contracts →
+            </button>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
     <!-- Tabbed Content -->
     <div class="tabs-container">
         <div class="tabs-header">
@@ -559,6 +623,11 @@
                 <i class="bi bi-check2-circle"></i>
                 <span>Completed</span>
                 <span class="tab-badge">{{ completed_contracts }}</span>
+            </button>
+            <button class="tab-button" onclick="switchTab(event, 'cancelled-contracts')">
+                <i class="bi bi-x-circle"></i>
+                <span>Cancelled</span>
+                <span class="tab-badge">{{ cancelled_contracts }}</span>
             </button>
             <button class="tab-button" onclick="switchTab(event, 'jobs')">
                 <i class="bi bi-briefcase"></i>
@@ -702,6 +771,51 @@
                     <i class="bi bi-check2-circle"></i>
                     <h3>No Completed Contracts Yet</h3>
                     <p>Completed contracts will appear here</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Cancelled Contracts Tab -->
+        <div id="cancelled-contracts-tab" class="tab-content">
+            <div class="filter-bar">
+                <input type="text" class="search-input" id="cancelled-contracts-search" placeholder="Search cancelled contracts..." onkeyup="filterCancelledContracts()">
+            </div>
+
+            <div id="cancelled-contracts-list">
+                {% for contract in cancelled_contracts_list %}
+                <div class="job-card" data-title="{{ contract.job.title|lower }}">
+                    <div class="job-header">
+                        <div class="job-info">
+                            <h3>{{ contract.job.title }}</h3>
+                            <div class="job-meta">
+                                Worker: {{ contract.worker.get_full_name|default:contract.worker.username }}
+                            </div>
+                        </div>
+                        <span class="status-badge" style="background: #fee2e2; color: #991b1b;">
+                            <i class="bi bi-x-circle"></i> Cancelled
+                        </span>
+                    </div>
+                    <div class="job-details">
+                        <span><i class="bi bi-calendar-x"></i> Cancelled {{ contract.updated_at|date:"M d, Y" }}</span>
+                        {% if contract.start_date %}
+                        <span><i class="bi bi-calendar"></i> Was scheduled: {{ contract.start_date|date:"M d, Y" }}</span>
+                        {% endif %}
+                        {% if contract.agreed_rate %}
+                        <span><i class="bi bi-cash"></i> ₱{{ contract.agreed_rate }}</span>
+                        {% endif %}
+                    </div>
+                    <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="{% url 'jobs:contract_detail' contract.pk %}" class="btn-action btn-secondary">
+                            <i class="bi bi-eye"></i> View Details
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state">
+                    <i class="bi bi-x-circle"></i>
+                    <h3>No Cancelled Contracts</h3>
+                    <p>Cancelled contracts will appear here</p>
                 </div>
                 {% endfor %}
             </div>
@@ -861,6 +975,7 @@
 
                     <div class="application-meta">
                         <span><i class="bi bi-calendar"></i> Posted: {{ job.created_at|date:"M d, Y" }}</span>
+                        <span><i class="bi bi-briefcase"></i> {{ job.vacancies }} Vacanc{{ job.vacancies|pluralize:"y,ies" }}</span>
                         <span><i class="bi bi-people"></i> {{ job.applications.count }} Application(s)</span>
                     </div>
 
@@ -929,6 +1044,18 @@ function filterRejected() {
         const matchesJob = !jobFilter || jobId === jobFilter;
         const matchesSearch = !searchTerm || applicant.includes(searchTerm);
         card.style.display = (matchesJob && matchesSearch) ? 'block' : 'none';
+    });
+}
+
+// Filter Cancelled Contracts
+function filterCancelledContracts() {
+    const searchTerm = document.getElementById('cancelled-contracts-search').value.toLowerCase();
+    const cards = document.querySelectorAll('#cancelled-contracts-list .job-card');
+    
+    cards.forEach(card => {
+        const title = card.getAttribute('data-title');
+        const matchesSearch = !searchTerm || title.includes(searchTerm);
+        card.style.display = matchesSearch ? 'block' : 'none';
     });
 }
 

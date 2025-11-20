@@ -10,7 +10,7 @@
 
 {% block content %}
 <!-- Stats Overview -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-6">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
     <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-trabaholink-blue">
         <div class="flex items-center justify-between">
             <div>
@@ -26,7 +26,7 @@
     <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-green-500">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-500 text-sm mb-1">Active Jobs</p>
+                <p class="text-gray-500 text-sm mb-1">Active/Hiring</p>
                 <h3 class="text-2xl font-bold text-green-600">{{ active_jobs_count }}</h3>
             </div>
             <div class="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
@@ -35,26 +35,14 @@
         </div>
     </div>
     
-    <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-yellow-500">
-        <div class="flex items-center justify-between">
-            <div>
-                <p class="text-gray-500 text-sm mb-1">Pending Review</p>
-                <h3 class="text-2xl font-bold text-yellow-600">{{ pending_jobs_count }}</h3>
-            </div>
-            <div class="w-12 h-12 bg-yellow-100 rounded-full flex items-center justify-center">
-                <i data-lucide="clock" class="w-6 h-6 text-yellow-600"></i>
-            </div>
-        </div>
-    </div>
-    
     <div class="bg-white rounded-xl shadow-md p-6 border-l-4 border-red-500">
         <div class="flex items-center justify-between">
             <div>
-                <p class="text-gray-500 text-sm mb-1">Expired</p>
+                <p class="text-gray-500 text-sm mb-1">Inactive/Closed</p>
                 <h3 class="text-2xl font-bold text-red-600">{{ expired_jobs_count }}</h3>
             </div>
             <div class="w-12 h-12 bg-red-100 rounded-full flex items-center justify-center">
-                <i data-lucide="calendar-x" class="w-6 h-6 text-red-600"></i>
+                <i data-lucide="x-circle" class="w-6 h-6 text-red-600"></i>
             </div>
         </div>
     </div>
@@ -83,9 +71,8 @@
         
         <select id="statusFilter" class="border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-trabaholink-blue">
             <option value="">All Status</option>
-            <option value="active">Active</option>
-            <option value="pending">Pending</option>
-            <option value="expired">Expired</option>
+            <option value="active">Active/Hiring</option>
+            <option value="inactive">Inactive/Closed</option>
         </select>
     </div>
 </div>
@@ -101,7 +88,7 @@
         <div class="p-6 hover:bg-gray-50 transition job-item" 
              data-title="{{ job.title|lower }}" 
              data-category="{{ job.category }}"
-             data-status="{% if job.is_active %}active{% else %}expired{% endif %}">
+             data-status="{% if job.is_active %}active{% else %}inactive{% endif %}">
             <div class="flex items-start gap-4">
                 <!-- Icon -->
                 <div class="w-12 h-12 bg-trabaholink-cyan/20 rounded-full flex items-center justify-center flex-shrink-0">
@@ -120,8 +107,8 @@
                         </div>
                         <span class="px-3 py-1 text-xs font-semibold rounded-full
                             {% if job.is_active %}bg-green-100 text-green-800
-                            {% else %}bg-red-100 text-red-800{% endif %}">
-                            {% if job.is_active %}Active{% else %}Expired{% endif %}
+                            {% else %}bg-gray-100 text-gray-800{% endif %}">
+                            {% if job.is_active %}Active/Hiring{% else %}Inactive/Closed{% endif %}
                         </span>
                     </div>
                     

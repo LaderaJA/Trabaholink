@@ -4,7 +4,8 @@ from users.views import (
     PrivacySettingsView, SkillVerificationView, search_users,
     VerificationStartView, VerificationStep1View, VerificationStep2View,
     VerificationStep3View, VerificationStep4View, VerificationPendingView,
-    VerificationSuccessView, VerificationFailedView
+    VerificationSuccessView, VerificationFailedView, VerifyOTPView, ResendOTPView,
+    CustomPasswordResetView, CustomPasswordResetDoneView, CustomPasswordResetConfirmView, CustomPasswordResetCompleteView
 )
 from . import views
 from django.urls import path
@@ -14,6 +15,8 @@ from .views import UserLocationUpdateView, IdentityVerificationView, SkipIdentit
 
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
+    path('verify-otp/<str:email>/', VerifyOTPView.as_view(), name='verify_otp'),
+    path('resend-otp/<str:email>/', ResendOTPView.as_view(), name='resend_otp'),
     path('login/', UserLoginView.as_view(), name='login'),
     path('logout/', UserLogoutView.as_view(), name='logout'),
     path('profile/<int:pk>/', UserProfileDetailView.as_view(), name='profile'),
@@ -23,13 +26,14 @@ urlpatterns = [
     path('privacy_settings/', PrivacySettingsView.as_view(), name='privacy_settings'),
 
     # Password Reset Views (Django built-in)
-    path('password_reset/', auth_views.PasswordResetView.as_view(), name='password_reset'),
-    path('password_reset/done/', auth_views.PasswordResetDoneView.as_view(), name='password_reset_done'),
-    path('reset/<uidb64>/<token>/', auth_views.PasswordResetConfirmView.as_view(), name='password_reset_confirm'),
-    path('reset/done/', auth_views.PasswordResetCompleteView.as_view(), name='password_reset_complete'),
+    path('password_reset/', CustomPasswordResetView.as_view(), name='password_reset'),
+    path('password_reset/done/', CustomPasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('reset/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('reset/done/', CustomPasswordResetCompleteView.as_view(), name='password_reset_complete'),
 
     path('submit/', SkillVerificationView.as_view(), name='submit_skill_verification'),
     path('skill/<int:pk>/', views.SkillDetailView.as_view(), name='skill_detail'),
+    path('skill/<int:pk>/document/', views.SkillDocumentViewer.as_view(), name='skill_document_viewer'),
     path('skill/<int:pk>/edit/', views.SkillUpdateView.as_view(), name='skill_edit'),
     path('skill/<int:pk>/delete/', views.SkillDeleteView.as_view(), name='skill_delete'),
 
@@ -55,4 +59,7 @@ urlpatterns = [
     path('verification/pending/', VerificationPendingView.as_view(), name='ekyc_pending'),
     path('verification/success/', VerificationSuccessView.as_view(), name='ekyc_success'),
     path('verification/failed/', VerificationFailedView.as_view(), name='ekyc_failed'),
+    
+    # Social Account Role Selection
+    path('select-role/', views.select_role_view, name='select_role'),
 ]

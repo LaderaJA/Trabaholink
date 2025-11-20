@@ -280,12 +280,41 @@
                         </div>
                     </div>
 
+                    <!-- Schedule Conflict Warning -->
+                    {% if request.session.schedule_conflict_warning and request.user == contract.worker %}
+                    <div class="mb-4 bg-yellow-50 border-l-4 border-yellow-400 p-4">
+                        <div class="flex">
+                            <div class="flex-shrink-0">
+                                <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                                    <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                                </svg>
+                            </div>
+                            <div class="ml-3">
+                                <h3 class="text-sm font-medium text-yellow-800">Schedule Conflict Detected</h3>
+                                <div class="mt-2 text-sm text-yellow-700">
+                                    <p style="white-space: pre-line;">{{ request.session.schedule_conflict_warning }}</p>
+                                </div>
+                                <div class="mt-3">
+                                    <div class="flex items-center">
+                                        <input id="id_confirm_despite_conflict" name="confirm_despite_conflict" type="checkbox" 
+                                               class="focus:ring-yellow-500 h-4 w-4 text-yellow-600 border-gray-300 rounded">
+                                        <label for="id_confirm_despite_conflict" class="ml-2 text-sm font-medium text-yellow-800">
+                                            I understand and can manage multiple commitments
+                                        </label>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
                     <!-- Acceptance Checkbox -->
                     {% if not contract.finalized_by_employer or not contract.finalized_by_worker %}
                     <div class="flex items-start pt-2">
                         <div class="flex items-center h-5">
                             <input id="id_accept_terms" name="accept_terms" type="checkbox" 
                                    class="focus:ring-indigo-500 h-4 w-4 text-indigo-600 border-gray-300 rounded"
+                                   required
                                    {% if contract.finalized_by_employer or contract.finalized_by_worker %}disabled{% endif %}>
                         </div>
                         <div class="ml-3 text-sm">
@@ -314,13 +343,6 @@
                             Cancel
                         </a>
                         {% endif %}
-                        <button type="submit" name="action" value="save_draft"
-                                class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-gray-600 hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500">
-                            <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
-                                <path d="M7.707 10.293a1 1 0 10-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 11.586V6h5a2 2 0 012 2v7a2 2 0 01-2 2H4a2 2 0 01-2-2V8a2 2 0 012-2h5v5.586l-1.293-1.293zM9 4a1 1 0 012 0v1H9V4z" />
-                            </svg>
-                            Save Draft
-                        </button>
                         <button type="submit" name="action" value="submit"
                                 class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
                             <svg class="-ml-1 mr-2 h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -341,10 +363,10 @@
 
 <!-- Confirmation Modal -->
 <div id="confirmation-modal" class="hidden fixed z-10 inset-0 overflow-y-auto" aria-labelledby="modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
         <div class="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" aria-hidden="true"></div>
         <span class="hidden sm:inline-block sm:align-middle sm:h-screen" aria-hidden="true">&#8203;</span>
-        <div class="inline-block align-bottom bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
+        <div class="inline-block align-middle bg-white rounded-lg px-4 pt-5 pb-4 text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full sm:p-6">
             <div>
                 <div class="mx-auto flex items-center justify-center h-12 w-12 rounded-full bg-green-100">
                     <svg class="h-6 w-6 text-green-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -422,6 +444,126 @@ document.addEventListener('DOMContentLoaded', function() {
         rateTypeSelect.addEventListener('change', function() {
             rateCurrency.textContent = this.value === 'hourly' ? '/hour' : '/project';
         });
+    }
+
+    // ============================================================================
+    // Auto-adjust Start Date, End Date, and Duration
+    // ============================================================================
+    const startDateInput = document.getElementById('id_start_date');
+    const endDateInput = document.getElementById('id_end_date');
+    const durationInput = document.getElementById('id_duration');
+
+    // Calculate days between two dates
+    function calculateDaysBetween(startDate, endDate) {
+        const start = new Date(startDate);
+        const end = new Date(endDate);
+        const diffTime = Math.abs(end - start);
+        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+        return diffDays;
+    }
+
+    // Parse duration string (e.g., "5 days", "2 weeks", "1 month")
+    function parseDuration(durationStr) {
+        if (!durationStr) return 0;
+        
+        const str = durationStr.toLowerCase().trim();
+        const match = str.match(/(\d+)\s*(day|week|month|year)/);
+        
+        if (!match) {
+            // Try to extract just a number
+            const numMatch = str.match(/(\d+)/);
+            return numMatch ? parseInt(numMatch[1]) : 0;
+        }
+        
+        const value = parseInt(match[1]);
+        const unit = match[2];
+        
+        switch(unit) {
+            case 'day': return value;
+            case 'week': return value * 7;
+            case 'month': return value * 30;
+            case 'year': return value * 365;
+            default: return value;
+        }
+    }
+
+    // Format duration as human-readable string
+    function formatDuration(days) {
+        if (days === 0) return '0 days';
+        if (days === 1) return '1 day';
+        if (days < 7) return days + ' days';
+        if (days === 7) return '1 week';
+        if (days < 30) {
+            const weeks = Math.floor(days / 7);
+            const remainingDays = days % 7;
+            if (remainingDays === 0) return weeks + (weeks === 1 ? ' week' : ' weeks');
+            return weeks + (weeks === 1 ? ' week' : ' weeks') + ' ' + remainingDays + (remainingDays === 1 ? ' day' : ' days');
+        }
+        if (days === 30) return '1 month';
+        if (days < 365) {
+            const months = Math.floor(days / 30);
+            const remainingDays = days % 30;
+            if (remainingDays === 0) return months + (months === 1 ? ' month' : ' months');
+            return months + (months === 1 ? ' month' : ' months') + ' ' + remainingDays + (remainingDays === 1 ? ' day' : ' days');
+        }
+        const years = Math.floor(days / 365);
+        const remainingDays = days % 365;
+        if (remainingDays === 0) return years + (years === 1 ? ' year' : ' years');
+        return years + (years === 1 ? ' year' : ' years') + ' ' + remainingDays + (remainingDays === 1 ? ' day' : ' days');
+    }
+
+    // Add days to a date
+    function addDaysToDate(dateStr, days) {
+        const date = new Date(dateStr);
+        date.setDate(date.getDate() + days);
+        return date.toISOString().split('T')[0];
+    }
+
+    // When start date changes, update end date based on duration
+    if (startDateInput && endDateInput && durationInput) {
+        startDateInput.addEventListener('change', function() {
+            const startDate = this.value;
+            const duration = durationInput.value;
+            
+            if (startDate && duration) {
+                const days = parseDuration(duration);
+                if (days > 0) {
+                    const newEndDate = addDaysToDate(startDate, days);
+                    endDateInput.value = newEndDate;
+                }
+            }
+        });
+
+        // When end date changes, update duration
+        endDateInput.addEventListener('change', function() {
+            const startDate = startDateInput.value;
+            const endDate = this.value;
+            
+            if (startDate && endDate) {
+                const days = calculateDaysBetween(startDate, endDate);
+                durationInput.value = formatDuration(days);
+            }
+        });
+
+        // When duration changes, update end date
+        durationInput.addEventListener('blur', function() {
+            const startDate = startDateInput.value;
+            const duration = this.value;
+            
+            if (startDate && duration) {
+                const days = parseDuration(duration);
+                if (days > 0) {
+                    const newEndDate = addDaysToDate(startDate, days);
+                    endDateInput.value = newEndDate;
+                }
+            }
+        });
+
+        // Initialize duration on page load if dates are set
+        if (startDateInput.value && endDateInput.value && !durationInput.value) {
+            const days = calculateDaysBetween(startDateInput.value, endDateInput.value);
+            durationInput.value = formatDuration(days);
+        }
     }
 
     // Toggle modal

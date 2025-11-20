@@ -59,11 +59,33 @@ class Job(models.Model):
         default="Flexible"
     )
     number_of_workers = models.PositiveIntegerField(default=1)
+    vacancies = models.PositiveIntegerField(
+        default=1,
+        help_text="Number of available positions (auto-decrements when contracts are finalized)"
+    )
     
     is_active = models.BooleanField(default=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     location = gis_models.PointField(null=True, blank=True, geography=True)
+    
+    # Posting duration fields
+    posting_duration_days = models.PositiveIntegerField(
+        default=7,
+        help_text="Number of days the job posting will be active (default: 7 days)"
+    )
+    expires_at = models.DateTimeField(
+        null=True,
+        blank=True,
+        help_text="Date and time when the job posting will automatically be archived"
+    )
+    
+    # Reporting system field
+    report_count = models.PositiveIntegerField(
+        default=0,
+        help_text="Number of unique reports received for this job posting"
+    )
+    
     history = HistoricalRecords()
 
     def __str__(self):
@@ -75,8 +97,53 @@ class Job(models.Model):
 
     def get_absolute_url(self):
         return reverse("jobs:job_detail", kwargs={"id": self.id})
+    
+    def is_expired(self):
+        """Check if the job has expired"""
+        if self.expires_at and timezone.now() > self.expires_at:
+            return True
+        return False
+    
+    def has_vacancies(self):
+        """Check if there are available positions"""
+        return self.vacancies > 0
+    
+    def decrement_vacancy(self):
+        """Decrease vacancy count by 1 when a contract is finalized"""
+        if self.vacancies > 0:
+            self.vacancies -= 1
+            self.save(update_fields=['vacancies', 'updated_at'])  # Include updated_at to trigger refresh
+            # Refresh from database to ensure we have the latest value
+            self.refresh_from_db()
+            return True
+        return False
+    
+    def get_applicant_count(self):
+        """Get real-time count of applicants for this job"""
+        return self.applications.exclude(status__iexact='Archived').count()
+    
+    def get_vacancies_remaining(self):
+        """Get remaining vacancies (total vacancies minus finalized contracts)"""
+        finalized_count = self.contracts.filter(
+            status__in=['Finalized', 'In Progress', 'Accepted', 'Completed']
+        ).count()
+        return max(0, self.vacancies - finalized_count)
+    
+    @classmethod
+    def deactivate_expired_jobs(cls):
+        """Deactivate all expired jobs"""
+        from django.utils import timezone
+        expired_jobs = cls.objects.filter(
+            is_active=True,
+            expires_at__lte=timezone.now()
+        )
+        count = expired_jobs.update(is_active=False)
+        return count
 
     def save(self, *args, **kwargs):
+        # Initialize vacancies to match number_of_workers if creating new job
+        if not self.pk and not self.vacancies:
+            self.vacancies = self.number_of_workers
         # Load banned words
         banned_words = load_banned_words()
 
@@ -87,6 +154,11 @@ class Job(models.Model):
         for phrase in banned_words:
             if ' ' in phrase:  
                 self.description = self.description.replace(phrase, '*' * len(phrase))
+        
+        # Set expires_at based on posting_duration_days if not already set
+        if not self.expires_at and self.posting_duration_days:
+            from datetime import timedelta
+            self.expires_at = timezone.now() + timedelta(days=self.posting_duration_days)
 
         super().save(*args, **kwargs)
 
@@ -109,6 +181,10 @@ class JobApplication(models.Model):
     Other_link = models.URLField(blank=True, null=True, help_text="Link to Facebook, LinkedIn, or other profiles")
     certifications = models.TextField(blank=True)
     additional_notes = models.TextField(blank=True)
+    attach_profile_cv = models.BooleanField(
+        default=False, 
+        help_text="Whether to attach CV from user profile"
+    )
 
     STATUS_CHOICES = [
         ("Pending", "Pending"),

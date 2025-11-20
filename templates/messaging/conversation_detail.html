@@ -1238,8 +1238,8 @@
     
     <!-- Messages Area -->
     <div class="messages-area" id="messagesContainer">
-      {% if messages %}
-        {% for message in messages %}
+      {% if chat_messages %}
+        {% for message in chat_messages %}
           <div class="message-wrapper {% if message.sender == request.user %}outgoing{% else %}incoming{% endif %}">
             {% if message.sender != request.user %}
               <div class="message-avatar">
@@ -1345,7 +1345,9 @@
     <div id="emojiPicker" class="emoji-picker" style="display: none;">
       <div class="emoji-picker-header">
         <span>Emojis</span>
-        <button type="button" onclick="closeEmojiPicker()" class="emoji-close">&times;</button>
+        <button type="button" onclick="closeEmojiPicker()" class="emoji-close">
+          <i class="bi bi-x-lg"></i>
+        </button>
       </div>
       <div class="emoji-categories">
         <button type="button" class="emoji-category active" data-category="smileys">😊</button>
@@ -1362,7 +1364,9 @@
     <div id="filePreview" class="file-preview" style="display: none;">
       <div class="file-preview-content">
         <span id="fileName"></span>
-        <button type="button" onclick="removeFile()" class="file-remove">&times;</button>
+        <button type="button" onclick="removeFile()" class="file-remove">
+          <i class="bi bi-x-circle-fill"></i>
+        </button>
       </div>
     </div>
   </div>
@@ -1679,7 +1683,9 @@ document.getElementById('imageLightbox')?.addEventListener('click', function(e) 
 <!-- Image Lightbox -->
 <div class="image-lightbox" id="imageLightbox" onclick="if(event.target === this) closeLightbox()">
   <div class="lightbox-content">
-    <button class="lightbox-close" onclick="closeLightbox()">&times;</button>
+    <button class="lightbox-close" onclick="closeLightbox()">
+      <i class="bi bi-x-lg"></i>
+    </button>
     <img id="lightboxImage" src="" alt="Full size image">
   </div>
 </div>

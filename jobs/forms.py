@@ -56,14 +56,29 @@ class JobForm(forms.ModelForm):
             'latitude', 'longitude', 'job_picture',
             'tasks', 'duration', 'schedule', 'start_datetime',
             'tools_provided', 'materials_provided', 'required_skills',
-            'payment_method', 'payment_schedule', 'urgency', 'number_of_workers'
+            'payment_method', 'payment_schedule', 'urgency', 'number_of_workers',
+            'posting_duration_days'
         ]
+        # Note: 'vacancies' is auto-managed and set to match 'number_of_workers' on creation
         widgets = {
             'title': forms.TextInput(attrs={'class': 'form-control'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 4}),
             'category': forms.Select(attrs={'class': 'form-control'}),
             'budget': forms.NumberInput(attrs={'class': 'form-control'}),
             'start_datetime': forms.DateTimeInput(attrs={'class': 'form-control', 'type': 'datetime-local'}),
+            'posting_duration_days': forms.NumberInput(attrs={
+                'class': 'form-control',
+                'min': '1',
+                'max': '90',
+                'value': '7',
+                'help_text': 'Number of days this job posting will be active (1-90 days, default: 7)'
+            }),
+        }
+        labels = {
+            'posting_duration_days': 'Posting Duration (Days)',
+        }
+        help_texts = {
+            'posting_duration_days': 'How many days should this job posting remain active? (Default: 7 days)',
         }
 
 # NOT a ModelForm — plain Form to support multiple files

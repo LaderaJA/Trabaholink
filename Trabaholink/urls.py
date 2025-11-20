@@ -4,6 +4,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import RedirectView
 from django.contrib.staticfiles.views import serve
+from .health_views import health_check, health_check_detailed
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -15,10 +16,14 @@ urlpatterns = [
     path("notifications/", include("notifications.urls")),
     path("services/", include("services.urls", namespace="services")),
     path('posts/', include('posts.urls', namespace='posts')),
+    path('reports/', include('reports.urls', namespace='reports')),
     # API URLs
     path('api/jobs/', include('jobs.api_urls', namespace='jobs_api')),
     # Allauth URLs
     path('accounts/', include('allauth.urls')),
+    # Health check endpoints for Docker
+    path('health/', health_check, name='health_check'),
+    path('health/detailed/', health_check_detailed, name='health_check_detailed'),
     # Favicon
     path('favicon.ico', RedirectView.as_view(url='/static/images/favicon.ico', permanent=True)),
 ]

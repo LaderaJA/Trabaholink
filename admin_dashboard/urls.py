@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from . import views_simple  # Simplified verification views
 from .views import (ModeratedWordListView, ModeratedWordCreateView, ModeratedWordUpdateView, ModeratedWordDeleteView,
                      AnnouncementSummaryView, AnnouncementCreateView, AnnouncementUpdateView, AnnouncementDeleteView)
 from users.views import UserLogoutView  
@@ -39,15 +40,18 @@ urlpatterns = [
     path('announcements/<int:pk>/toggle/', views.toggle_announcement_status, name='toggle_announcement_status'),
     path('announcements/<int:pk>/details/', views.get_announcement_details, name='get_announcement_details'),
 
-    # User Verification Management
+    # User Verification Management (Simplified)
     path('identity-verifications/', views.UserVerificationListView.as_view(), name='user_verification_list'),
-    path('identity-verifications/<int:pk>/approve/', views.approve_identity_verification, name='approve_identity_verification'),
-    path('identity-verifications/<int:pk>/reject/', views.reject_identity_verification, name='reject_identity_verification'),
+    path('identity-verifications/<int:pk>/', views_simple.UserVerificationDetailSimpleView.as_view(), name='user_verification_detail'),
+    path('identity-verifications/<int:pk>/approve/', views_simple.approve_verification_simple, name='approve_identity_verification'),
+    path('identity-verifications/<int:pk>/reject/', views_simple.reject_verification_simple, name='reject_identity_verification'),
+    path('identity-verifications/<int:pk>/reprocess/', views_simple.reprocess_ocr_simple, name='reprocess_verification'),
+    path('identity-verifications/<int:pk>/verify-philsys/', views_simple.verify_philsys_simple, name='verify_philsys'),
     path('skill/<int:pk>/update/', views.PendingSkillUpdateView.as_view(), name='pending_skill_update'),
     
     # New AJAX endpoints
-    path('users/<int:pk>/toggle-status/', views.toggle_user_status, name='toggle_user_status'),
-    path('users/<int:pk>/send-warning/', views.send_user_warning, name='send_user_warning'),
+    path('users/<int:pk>/toggle/', views.toggle_user_status, name='toggle_user_status'),
+    path('users/<int:pk>/warn/', views.send_user_warning, name='send_user_warning'),
     path('users/<int:pk>/suspend/', views.suspend_user, name='suspend_user'),
     path('users/<int:pk>/ban/', views.ban_user, name='ban_user'),
     path('moderation/words/<int:pk>/toggle/', views.toggle_word_status, name='toggle_word_status'),
@@ -67,10 +71,11 @@ urlpatterns = [
     path('services/<int:pk>/reject/', views.reject_service, name='reject_service'),
     path('services/<int:pk>/flag/', views.flag_service, name='flag_service'),
     path('services/<int:pk>/delete/', views.delete_service_admin, name='delete_service_admin'),
+    path('services/<int:pk>/notes/', views.save_service_notes, name='save_service_notes'),
     
     # Report Detail Actions
     path('reports/<int:pk>/delete-content/', views.delete_reported_content, name='delete_reported_content'),
-    path('reports/<int:pk>/save-notes/', views.save_report_notes, name='save_report_notes'),
+    path('reports/<int:pk>/notes/', views.save_report_notes, name='save_report_notes'),
     
     # Announcement Detail
     path('admin-announcements/<int:pk>/', views.AnnouncementDetailView.as_view(), name='admin_announcement_detail'),
@@ -85,4 +90,11 @@ urlpatterns = [
     
     # Settings
     path('settings/', views.SettingsView.as_view(), name='settings'),
+    
+    # Admin Management (Superuser only)
+    path('admins/', views.AdminListView.as_view(), name='admin_list'),
+    path('admins/create/', views.AdminCreateView.as_view(), name='admin_create'),
+    path('admins/<int:pk>/', views.AdminDetailView.as_view(), name='admin_detail'),
+    path('admins/<int:pk>/toggle/', views.toggle_admin_status, name='toggle_admin_status'),
+    path('admins/<int:pk>/revoke/', views.revoke_admin_access, name='revoke_admin_access'),
 ]

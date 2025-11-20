@@ -90,7 +90,7 @@ def conversation_detail(request, conversation_id):
 
     return render(request, "messaging/conversation_detail.html", {
         "conversation": conversation,
-        "messages": messages,
+        "chat_messages": messages,
         "receiver_id": receiver_id,
         "conversations": conversations,  
     })

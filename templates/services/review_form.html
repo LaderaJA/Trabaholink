@@ -1,0 +1,301 @@
+{% extends 'mainpages/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+:root {
+  --bacoor-blue: #1e40af;
+  --bacoor-gold: #f59e0b;
+  --primary-light: #dbeafe;
+}
+
+.review-form-container {
+  max-width: 700px;
+  margin: 3rem auto;
+  padding: 2rem;
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  border: 1px solid rgba(30, 64, 175, 0.1);
+}
+
+.form-header {
+  text-align: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 2px solid var(--primary-light);
+}
+
+.form-header h2 {
+  color: var(--bacoor-blue);
+  font-size: 1.75rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.form-header p {
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.5rem;
+  font-size: 0.95rem;
+}
+
+.form-group input[type="number"],
+.form-group textarea,
+.form-group select {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 0.5rem;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all 0.2s;
+}
+
+.form-group textarea {
+  min-height: 150px;
+  resize: vertical;
+}
+
+.form-group input:focus,
+.form-group textarea:focus,
+.form-group select:focus {
+  outline: none;
+  border-color: var(--bacoor-blue);
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+.star-rating-input {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem 0;
+}
+
+.star-rating-input input[type="radio"] {
+  display: none;
+}
+
+.star-rating-input label {
+  cursor: pointer;
+  font-size: 2.5rem;
+  color: #d1d5db;
+  transition: all 0.2s;
+}
+
+.star-rating-input label.selected {
+  color: var(--bacoor-gold);
+}
+
+.star-rating-input label.hover {
+  color: #fbbf24;
+}
+
+.star-rating-input label:hover {
+  transform: scale(1.1);
+}
+
+.form-actions {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e5e7eb;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.95rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  text-decoration: none;
+  display: inline-block;
+  text-align: center;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--bacoor-blue), #3b82f6);
+  color: white;
+  flex: 1;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+}
+
+.btn-secondary {
+  background: white;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+  flex: 1;
+}
+
+.btn-secondary:hover {
+  background: #f9fafb;
+  border-color: #9ca3af;
+}
+
+.service-info {
+  background: var(--primary-light);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  border-left: 3px solid var(--bacoor-blue);
+}
+
+.service-info h4 {
+  color: var(--bacoor-blue);
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.25rem;
+}
+
+.service-info p {
+  color: #6b7280;
+  font-size: 0.85rem;
+  margin: 0;
+}
+
+.error-message {
+  background: #fee2e2;
+  color: #991b1b;
+  padding: 0.75rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  border-left: 3px solid #dc2626;
+}
+</style>
+
+<div class="review-form-container">
+  <div class="form-header">
+    <h2>{% if is_edit %}✏️ Edit Your Review{% else %}✍️ Write a Review{% endif %}</h2>
+    <p>Share your experience with this service</p>
+  </div>
+
+  <div class="service-info">
+    <h4>{{ service_post.headline }}</h4>
+    <p>Posted by {{ service_post.worker.get_full_name|default:service_post.worker.username }}</p>
+  </div>
+
+  {% if messages %}
+    {% for message in messages %}
+      <div class="error-message">{{ message }}</div>
+    {% endfor %}
+  {% endif %}
+
+  <form method="POST">
+    {% csrf_token %}
+    
+    <div class="form-group">
+      <label for="id_rating">Your Rating *</label>
+      <div class="star-rating-input" id="starRatingEdit">
+        {% for i in "12345" %}
+          <input type="radio" name="rating" id="rating_{{ i }}" value="{{ i }}" 
+                 {% if form.rating.value == i|add:0 %}checked{% endif %} required>
+          <label for="rating_{{ i }}" data-value="{{ i }}">★</label>
+        {% endfor %}
+      </div>
+      {% if form.rating.errors %}
+        <small style="color: #dc2626;">{{ form.rating.errors.0 }}</small>
+      {% endif %}
+    </div>
+
+    <div class="form-group">
+      <label for="id_comment">Your Review *</label>
+      {{ form.comment }}
+      {% if form.comment.errors %}
+        <small style="color: #dc2626;">{{ form.comment.errors.0 }}</small>
+      {% endif %}
+      <small style="color: #6b7280; display: block; margin-top: 0.5rem;">
+        Please be respectful and constructive in your review.
+      </small>
+    </div>
+
+    <div class="form-actions">
+      <a href="{% url 'services:servicepost_detail' slug=service_post.slug %}" class="btn btn-secondary">
+        Cancel
+      </a>
+      <button type="submit" class="btn btn-primary">
+        {% if is_edit %}💾 Update Review{% else %}📤 Submit Review{% endif %}
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const starContainer = document.getElementById('starRatingEdit');
+  if (!starContainer) return;
+
+  const starLabels = starContainer.querySelectorAll('label');
+  const radioInputs = starContainer.querySelectorAll('input[type="radio"]');
+  
+  let currentRating = 0;
+
+  // Initialize with current value
+  radioInputs.forEach((radio) => {
+    if (radio.checked) {
+      currentRating = parseInt(radio.value);
+      updateStars(currentRating, false);
+    }
+  });
+
+  function updateStars(rating, isHover = false) {
+    starLabels.forEach((label) => {
+      const starValue = parseInt(label.getAttribute('data-value'));
+      // Remove all classes first
+      label.classList.remove('selected', 'hover');
+      
+      // Add appropriate class
+      if (starValue <= rating) {
+        if (isHover) {
+          label.classList.add('hover');
+        } else {
+          label.classList.add('selected');
+        }
+      }
+    });
+  }
+
+  starLabels.forEach((label, index) => {
+    // Click event
+    label.addEventListener('click', function() {
+      const value = parseInt(this.getAttribute('data-value'));
+      currentRating = value;
+      
+      // Check the corresponding radio button
+      radioInputs[index].checked = true;
+      
+      // Update visual state
+      updateStars(value, false);
+    });
+
+    // Hover preview
+    label.addEventListener('mouseenter', function() {
+      const value = parseInt(this.getAttribute('data-value'));
+      updateStars(value, true);
+    });
+  });
+
+  // Reset to selected rating on mouse leave
+  starContainer.addEventListener('mouseleave', function() {
+    updateStars(currentRating, false);
+  });
+});
+</script>
+
+{% endblock %}

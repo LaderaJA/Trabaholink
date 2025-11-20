@@ -16,7 +16,7 @@
     <div class="flex items-start justify-between">
         <div class="flex-1">
             <div class="flex items-center gap-3 mb-3">
-                <h1 class="text-2xl font-bold text-gray-900">{{ report.get_report_type_display }} Report</h1>
+                <h1 class="text-2xl font-bold text-gray-900">{{ report.report_type }} Report</h1>
                 <span id="statusBadge" class="px-3 py-1 text-sm font-semibold rounded-full
                     {% if report.status == 'pending' %}bg-yellow-100 text-yellow-800
                     {% elif report.status == 'reviewed' %}bg-blue-100 text-blue-800
@@ -28,7 +28,11 @@
             <div class="flex items-center gap-6 text-gray-600 text-sm">
                 <div class="flex items-center gap-2">
                     <i data-lucide="user" class="w-4 h-4"></i>
-                    <span>Reported by <a href="{% url 'admin_dashboard:user_detail' report.user.pk %}" class="text-trabaholink-blue hover:underline font-medium">{{ report.user.username }}</a></span>
+                    {% if report.reporter %}
+                        <span>Reported by <a href="{% url 'admin_dashboard:user_detail' report.reporter.pk %}" class="text-trabaholink-blue hover:underline font-medium">{{ report.reporter.username }}</a></span>
+                    {% else %}
+                        <span>Reported by <span class="font-medium">Anonymous</span></span>
+                    {% endif %}
                 </div>
                 <div class="flex items-center gap-2">
                     <i data-lucide="calendar" class="w-4 h-4"></i>
@@ -64,7 +68,7 @@
                 Report Content
             </h3>
             <div class="prose max-w-none">
-                <p class="text-gray-700 whitespace-pre-wrap">{{ report.reported_content }}</p>
+                <p class="text-gray-700 whitespace-pre-wrap">{{ report.reason }}</p>
             </div>
         </div>
         
@@ -109,16 +113,16 @@
         </div>
         {% endif %}
         
-        {% if report.job_posting %}
+        {% if report.reported_post %}
         <div class="bg-white rounded-xl shadow-md p-6">
             <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
                 <i data-lucide="briefcase" class="w-5 h-5 text-trabaholink-blue"></i>
                 Reported Job Post
             </h3>
             <div class="border border-gray-200 rounded-lg p-4">
-                <h4 class="font-semibold text-gray-800 mb-2">{{ report.job_posting.title }}</h4>
-                <p class="text-sm text-gray-600 mb-3">{{ report.job_posting.description|truncatewords:30 }}</p>
-                <a href="/admin/jobs/{{ report.job_posting.pk }}/" class="inline-flex items-center gap-2 text-trabaholink-blue hover:text-trabaholink-dark-blue text-sm">
+                <h4 class="font-semibold text-gray-800 mb-2">{{ report.reported_post.title }}</h4>
+                <p class="text-sm text-gray-600 mb-3">{{ report.reported_post.description|truncatewords:30 }}</p>
+                <a href="{% url 'admin_dashboard:job_detail' report.reported_post.pk %}" class="inline-flex items-center gap-2 text-trabaholink-blue hover:text-trabaholink-dark-blue text-sm">
                     View Job Details <i data-lucide="arrow-right" class="w-4 h-4"></i>
                 </a>
             </div>
@@ -166,7 +170,11 @@
                 </div>
                 <div>
                     <p class="text-sm text-gray-500">Last Updated</p>
-                    <p class="text-gray-800 font-medium">{{ report.updated_at|timesince }} ago</p>
+                    {% if report.reviewed_at %}
+                        <p class="text-gray-800 font-medium">{{ report.reviewed_at|date:"M d, Y g:i A" }}</p>
+                    {% else %}
+                        <p class="text-gray-800 font-medium">Pending Review</p>
+                    {% endif %}
                 </div>
             </div>
         </div>
@@ -236,18 +244,25 @@
         {% endif %}
         
         <!-- Content Actions (if job posting exists) -->
-        {% if report.job_posting %}
+        {% if report.reported_post %}
         <div class="bg-white rounded-xl shadow-md p-6">
             <h3 class="text-lg font-bold text-gray-800 mb-4 flex items-center gap-2">
-                <i data-lucide="trash-2" class="w-5 h-5 text-red-500"></i>
-                Content Actions
+                <i data-lucide="briefcase" class="w-5 h-5 text-orange-500"></i>
+                Job Actions
             </h3>
             <div class="space-y-2">
-                <!-- Delete Content -->
-                <button onclick="deleteReportedContent()" 
+                <!-- Deactivate Job -->
+                <button onclick="deactivateJob({{ report.reported_post.pk }})" 
+                        class="w-full px-4 py-2 bg-orange-500 text-white rounded-lg hover:bg-orange-600 transition flex items-center justify-center gap-2">
+                    <i data-lucide="x-octagon" class="w-4 h-4"></i>
+                    Deactivate Job
+                </button>
+                
+                <!-- Delete Job -->
+                <button onclick="deleteJob({{ report.reported_post.pk }})" 
                         class="w-full px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center justify-center gap-2">
                     <i data-lucide="trash-2" class="w-4 h-4"></i>
-                    Delete Reported Content
+                    Delete Job
                 </button>
             </div>
         </div>
@@ -260,292 +275,248 @@
     <div class="bg-white rounded-xl shadow-2xl max-w-md w-full">
         <div class="p-6 border-b border-gray-200">
             <div class="flex items-center justify-between">
-                <h3 class="text-lg font-bold text-gray-800">Send Warning</h3>
+                <h3 class="text-xl font-bold text-gray-900 flex items-center gap-2">
+                    <i data-lucide="alert-triangle" class="w-6 h-6 text-yellow-500"></i>
+                    Send Warning
+                </h3>
                 <button onclick="closeWarningModal()" class="text-gray-400 hover:text-gray-600">
-                    <i data-lucide="x" class="w-5 h-5"></i>
+                    <i data-lucide="x" class="w-6 h-6"></i>
                 </button>
             </div>
         </div>
         <div class="p-6">
-            <p class="text-sm text-gray-600 mb-4">Send a warning to <span class="font-semibold">{{ report.reported_user.username }}</span></p>
-            <textarea id="warningMessage" rows="4" placeholder="Enter warning message..." 
-                      class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-trabaholink-blue"></textarea>
+            <label class="block text-sm font-medium text-gray-700 mb-2">Warning Message</label>
+            <textarea id="warningMessage" rows="4" 
+                      class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-yellow-500" 
+                      placeholder="Enter warning message for the user..."></textarea>
         </div>
-        <div class="p-6 border-t border-gray-200 flex justify-end gap-3">
-            <button onclick="closeWarningModal()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
-            <button onclick="sendWarning()" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">Send Warning</button>
+        <div class="p-6 border-t border-gray-200 flex gap-3 justify-end">
+            <button onclick="closeWarningModal()" 
+                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                Cancel
+            </button>
+            <button onclick="sendWarning()" 
+                    class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition">
+                Send Warning
+            </button>
         </div>
     </div>
 </div>
 
-<!-- Image Modal -->
-<div id="imageModal" class="hidden fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4" onclick="closeImageModal()">
-    <div class="max-w-4xl w-full">
-        <img id="modalImage" src="" alt="Evidence" class="w-full h-auto rounded-lg">
-    </div>
-</div>
-
-<!-- Loading Overlay -->
-<div id="loadingOverlay" class="hidden fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
-    <div class="bg-white rounded-xl p-6 flex items-center gap-3">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-trabaholink-blue"></div>
-        <span class="text-gray-800 font-medium">Processing...</span>
-    </div>
-</div>
-
-{% endblock %}
-
-{% block extra_js %}
 <script>
-    const reportId = {{ report.pk }};
-    const csrfToken = '{{ csrf_token }}';
-    
-    // Show/hide loading overlay
-    function showLoading() {
-        document.getElementById('loadingOverlay').classList.remove('hidden');
+const reportId = {{ report.pk }};
+{% if report.reported_user %}
+const reportedUserId = {{ report.reported_user.pk }};
+const reportedUsername = '{{ report.reported_user.username }}';
+{% endif %}
+{% if report.reported_post %}
+const reportedJobId = {{ report.reported_post.pk }};
+const reportedJobTitle = '{{ report.reported_post.title|escapejs }}';
+{% endif %}
+
+// Warning Modal Functions
+function openWarningModal() {
+    document.getElementById('warningModal').classList.remove('hidden');
+}
+
+function closeWarningModal() {
+    document.getElementById('warningModal').classList.add('hidden');
+    document.getElementById('warningMessage').value = '';
+}
+
+function sendWarning() {
+    const message = document.getElementById('warningMessage').value.trim();
+    if (!message) {
+        alert('Please enter a warning message');
+        return;
     }
     
-    function hideLoading() {
-        document.getElementById('loadingOverlay').classList.add('hidden');
-    }
+    if (!confirm(`Send warning to ${reportedUsername}?`)) return;
     
-    // Update report status
-    function updateReportStatus(newStatus) {
-        showLoading();
-        
-        fetch('/admin_dashboard/update-report-status/', {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrfToken,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-                report_id: reportId,
-                status: newStatus
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            hideLoading();
-            if (data.success) {
-                // Update status badge
-                const badge = document.getElementById('statusBadge');
-                badge.textContent = newStatus.charAt(0).toUpperCase() + newStatus.slice(1);
-                badge.className = 'px-3 py-1 text-sm font-semibold rounded-full';
-                
-                if (newStatus === 'pending') {
-                    badge.classList.add('bg-yellow-100', 'text-yellow-800');
-                } else if (newStatus === 'reviewed') {
-                    badge.classList.add('bg-blue-100', 'text-blue-800');
-                } else {
-                    badge.classList.add('bg-green-100', 'text-green-800');
-                }
-                
-                // Update select
-                document.getElementById('quickStatusUpdate').value = newStatus;
-                
-                alert('Report status updated successfully');
-            } else {
-                alert('Failed to update report status: ' + (data.message || 'Unknown error'));
-            }
-        })
-        .catch(error => {
-            hideLoading();
-            console.error('Error:', error);
-            alert('An error occurred while updating the report status');
-        });
-    }
-    
-    // Quick status update from dropdown
-    function quickUpdateStatus() {
-        const select = document.getElementById('quickStatusUpdate');
-        const newStatus = select.value;
-        
-        if (newStatus) {
-            updateReportStatus(newStatus);
+    fetch(`/admin_dashboard/users/${reportedUserId}/warn/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ message: message })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Warning sent successfully');
+            closeWarningModal();
+        } else {
+            alert('Error: ' + (data.message || 'Failed to send warning'));
         }
-    }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred while sending the warning');
+    });
+}
+
+// User Action Functions
+function suspendUser(userId) {
+    if (!confirm(`Suspend user ${reportedUsername}? This will deactivate their account.`)) return;
     
-    // Dismiss report
-    function dismissReport() {
-        if (confirm('Are you sure you want to dismiss this report?')) {
-            updateReportStatus('resolved');
+    fetch(`/admin_dashboard/users/${userId}/toggle/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ action: 'suspend' })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('User suspended successfully');
+            location.reload();
+        } else {
+            alert('Error: ' + (data.message || 'Failed to suspend user'));
         }
-    }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred');
+    });
+}
+
+function banUser(userId) {
+    if (!confirm(`Ban user ${reportedUsername}? This is a permanent action.`)) return;
     
-    // Send warning
-    function openWarningModal() {
-        document.getElementById('warningModal').classList.remove('hidden');
-        lucide.createIcons();
-    }
-    
-    function closeWarningModal() {
-        document.getElementById('warningModal').classList.add('hidden');
-        document.getElementById('warningMessage').value = '';
-    }
-    
-    function sendWarning() {
-        const message = document.getElementById('warningMessage').value;
-        
-        if (!message.trim()) {
-            alert('Please enter a warning message');
-            return;
+    fetch(`/admin_dashboard/users/${userId}/delete/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
         }
-        
-        showLoading();
-        
-        fetch(`/admin/users/{{ report.reported_user.pk }}/send-warning/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrfToken,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ message: message })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('User banned successfully');
+            window.location.href = '{% url "admin_dashboard:report_list" %}';
+        } else {
+            alert('Error: ' + (data.message || 'Failed to ban user'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred');
+    });
+}
+
+// Job Action Functions
+function deactivateJob(jobId) {
+    if (!confirm(`Deactivate job "${reportedJobTitle}"?`)) return;
+    
+    fetch(`/admin_dashboard/jobs/${jobId}/toggle/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Job deactivated successfully');
+            location.reload();
+        } else {
+            alert('Error: ' + (data.message || 'Failed to deactivate job'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred');
+    });
+}
+
+function deleteJob(jobId) {
+    if (!confirm(`Delete job "${reportedJobTitle}"? This action cannot be undone.`)) return;
+    
+    fetch(`/admin_dashboard/jobs/${jobId}/delete/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Job deleted successfully');
+            window.location.href = '{% url "admin_dashboard:report_list" %}';
+        } else {
+            alert('Error: ' + (data.message || 'Failed to delete job'));
+        }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred');
+    });
+}
+
+// Report Status Functions
+function updateReportStatus(status) {
+    fetch('{% url "admin_dashboard:update_report_status" %}', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({
+            report_id: reportId,
+            status: status
         })
-        .then(response => response.json())
-        .then(data => {
-            hideLoading();
-            if (data.success) {
-                alert('Warning sent successfully');
-                closeWarningModal();
-                updateReportStatus('reviewed');
-            } else {
-                alert('Failed to send warning');
-            }
-        })
-        .catch(error => {
-            hideLoading();
-            console.error('Error:', error);
-            alert('An error occurred');
-        });
-    }
-    
-    // Suspend user
-    function suspendUser(userId) {
-        if (confirm('Are you sure you want to suspend this user?')) {
-            showLoading();
-            
-            fetch(`/admin_dashboard/users/${userId}/suspend/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrfToken
-                }
-            })
-            .then(data => {
-                hideLoading();
-                if (data.success) {
-                    alert('User suspended successfully');
-                    updateReportStatus('resolved');
-                } else {
-                    alert('Failed to suspend user');
-                }
-            })
-            .catch(error => {
-                hideLoading();
-                console.error('Error:', error);
-                alert('An error occurred');
-            });
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Report status updated successfully');
+            location.reload();
+        } else {
+            alert('Error: ' + (data.message || 'Failed to update status'));
         }
-    }
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred');
+    });
+}
+
+function dismissReport() {
+    if (!confirm('Dismiss this report?')) return;
+    updateReportStatus('dismissed');
+}
+
+function saveAdminNotes() {
+    const notes = document.getElementById('adminNotes').value;
     
-    // Ban user
-    function banUser(userId) {
-        if (confirm('Are you sure you want to permanently ban this user? This action cannot be undone.')) {
-            showLoading();
-            
-            fetch(`/admin_dashboard/users/${userId}/ban/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrfToken
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                hideLoading();
-                if (data.success) {
-                    alert('User banned successfully');
-                    updateReportStatus('resolved');
-                } else {
-                    alert('Failed to ban user');
-                }
-            })
-            .catch(error => {
-                hideLoading();
-                console.error('Error:', error);
-                alert('An error occurred');
-            });
+    fetch(`/admin_dashboard/reports/${reportId}/notes/`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': '{{ csrf_token }}'
+        },
+        body: JSON.stringify({ notes: notes })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Notes saved successfully');
+        } else {
+            alert('Error: ' + (data.message || 'Failed to save notes'));
         }
-    }
-    
-    // Delete reported content
-    function deleteReportedContent() {
-        if (confirm('Are you sure you want to delete the reported content? This action cannot be undone.')) {
-            showLoading();
-            
-            fetch(`/admin_dashboard/reports/{{ report.pk }}/delete-content/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': csrfToken
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                hideLoading();
-                if (data.success) {
-                    alert('Content deleted successfully');
-                    updateReportStatus('resolved');
-                } else {
-                    alert('Failed to delete content');
-                }
-            })
-            .catch(error => {
-                hideLoading();
-                console.error('Error:', error);
-                alert('An error occurred');
-            });
-        }
-    }
-    
-    // Save admin notes
-    function saveAdminNotes() {
-        const notes = document.getElementById('adminNotes').value;
-        showLoading();
-        
-        fetch(`/admin_dashboard/reports/{{ report.pk }}/save-notes/`, {
-            method: 'POST',
-            headers: {
-                'X-CSRFToken': csrfToken,
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ notes: notes })
-        })
-        .then(response => response.json())
-        .then(data => {
-            hideLoading();
-            if (data.success) {
-                alert('Notes saved successfully');
-            } else {
-                alert('Failed to save notes');
-            }
-        })
-        .catch(error => {
-            hideLoading();
-            console.error('Error:', error);
-            alert('An error occurred');
-        });
-    }
-    
-    // Image modal
-    function openImageModal(imageUrl) {
-        document.getElementById('modalImage').src = imageUrl;
-        document.getElementById('imageModal').classList.remove('hidden');
-    }
-    
-    function closeImageModal() {
-        document.getElementById('imageModal').classList.add('hidden');
-    }
-    
-    // Initialize Lucide icons
-    lucide.createIcons();
+    })
+    .catch(error => {
+        console.error('Error:', error);
+        alert('An error occurred');
+    });
+}
 </script>
+
 {% endblock %}
+          

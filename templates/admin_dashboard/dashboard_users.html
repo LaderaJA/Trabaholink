@@ -266,7 +266,7 @@
         const action = isActive ? 'deactivate' : 'activate';
         if (confirm(`Are you sure you want to ${action} this user?`)) {
             // AJAX call to toggle status
-            fetch(`/admin_dashboard/users/${userId}/toggle-status/`, {
+            fetch(`/admin_dashboard/users/${userId}/toggle/`, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': '{{ csrf_token }}',
@@ -311,7 +311,7 @@
         }
         
         // AJAX call to send warning
-        fetch(`/admin_dashboard/users/${currentUserId}/send-warning/`, {
+        fetch(`/admin_dashboard/users/${currentUserId}/warn/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': '{{ csrf_token }}',

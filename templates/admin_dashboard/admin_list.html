@@ -1,0 +1,475 @@
+{% extends 'admin_dashboard/dashboard_base.html' %}
+{% load static %}
+
+{% block title %}Admin Management - Trabaholink Admin{% endblock %}
+
+{% block extra_css %}
+<style>
+    .admin-header {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 50%, #7e8ba3 100%);
+        border-radius: 16px;
+        padding: 2rem;
+        color: white;
+        margin-bottom: 2rem;
+        box-shadow: 0 8px 32px rgba(30, 60, 114, 0.25);
+    }
+    
+    .admin-header h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+    
+    .stats-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        transition: all 0.3s ease;
+        border: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .stats-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
+    
+    .stats-icon {
+        width: 60px;
+        height: 60px;
+        border-radius: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.8rem;
+    }
+    
+    .stats-icon.total {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+    }
+    
+    .stats-icon.superuser {
+        background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        color: white;
+    }
+    
+    .stats-icon.staff {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+    }
+    
+    .stats-number {
+        font-size: 2.5rem;
+        font-weight: 700;
+        line-height: 1;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+    
+    .admin-table-card {
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        overflow: hidden;
+    }
+    
+    .admin-table-header {
+        background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        padding: 1.5rem;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .admin-avatar {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        object-fit: cover;
+        border: 3px solid #f0f0f0;
+    }
+    
+    .admin-avatar-placeholder {
+        width: 48px;
+        height: 48px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.2rem;
+        font-weight: 700;
+    }
+    
+    .admin-table {
+        margin: 0;
+    }
+    
+    .admin-table thead th {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        font-weight: 600;
+        text-transform: uppercase;
+        font-size: 0.75rem;
+        letter-spacing: 0.5px;
+        padding: 1rem;
+        border: none;
+    }
+    
+    .admin-table tbody tr {
+        border-bottom: 1px solid #f0f0f0;
+        transition: all 0.3s ease;
+    }
+    
+    .admin-table tbody tr:hover {
+        background: #f8f9ff;
+        transform: scale(1.01);
+    }
+    
+    .admin-table tbody td {
+        padding: 1rem;
+        vertical-align: middle;
+    }
+    
+    .badge-superuser {
+        background: linear-gradient(135deg, #f6d365 0%, #fda085 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .badge-staff {
+        background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .badge-active {
+        background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        color: white;
+        padding: 0.4rem 0.8rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.7rem;
+    }
+    
+    .badge-inactive {
+        background: linear-gradient(135deg, #bdc3c7 0%, #95a5a6 100%);
+        color: white;
+        padding: 0.4rem 0.8rem;
+        border-radius: 8px;
+        font-weight: 600;
+        font-size: 0.7rem;
+    }
+    
+    .action-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border: none;
+        transition: all 0.3s ease;
+        cursor: pointer;
+    }
+    
+    .action-btn.view {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+    }
+    
+    .action-btn.toggle {
+        background: linear-gradient(135deg, #ffeaa7 0%, #fdcb6e 100%);
+        color: #2d3436;
+    }
+    
+    .action-btn.revoke {
+        background: linear-gradient(135deg, #ff7675 0%, #d63031 100%);
+        color: white;
+    }
+    
+    .action-btn:hover {
+        transform: scale(1.1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+    }
+    
+    .btn-add-admin {
+        background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%);
+        color: white;
+        border: none;
+        padding: 0.75rem 2rem;
+        border-radius: 12px;
+        font-weight: 600;
+        transition: all 0.3s ease;
+        box-shadow: 0 4px 15px rgba(30, 60, 114, 0.3);
+    }
+    
+    .btn-add-admin:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 25px rgba(30, 60, 114, 0.4);
+        color: white;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-4">
+    <!-- Header -->
+    <div class="admin-header">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <h1><i class="bi bi-shield-check"></i> Admin Management</h1>
+                <p class="mb-0" style="opacity: 0.9;">Manage administrator accounts and permissions</p>
+            </div>
+            {% if user.is_superuser %}
+            <a href="{% url 'admin_dashboard:admin_create' %}" class="btn-add-admin">
+                <i class="bi bi-person-plus-fill"></i> Add New Admin
+            </a>
+            {% endif %}
+        </div>
+    </div>
+
+    <!-- Stats Cards -->
+    <div class="row mb-4">
+        <div class="col-md-4 mb-3">
+            <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-2 small text-uppercase" style="letter-spacing: 0.5px; font-weight: 600;">Total Admins</p>
+                        <h2 class="stats-number mb-0">{{ total_admins }}</h2>
+                    </div>
+                    <div class="stats-icon total">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-2 small text-uppercase" style="letter-spacing: 0.5px; font-weight: 600;">Superusers</p>
+                        <h2 class="stats-number mb-0">{{ superuser_count }}</h2>
+                    </div>
+                    <div class="stats-icon superuser">
+                        <i class="bi bi-shield-fill-check"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-4 mb-3">
+            <div class="stats-card">
+                <div class="d-flex justify-content-between align-items-center">
+                    <div>
+                        <p class="text-muted mb-2 small text-uppercase" style="letter-spacing: 0.5px; font-weight: 600;">Staff</p>
+                        <h2 class="stats-number mb-0">{{ staff_count }}</h2>
+                    </div>
+                    <div class="stats-icon staff">
+                        <i class="bi bi-person-badge-fill"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin List -->
+    <div class="admin-table-card">
+        <div class="table-responsive">
+            <table class="table table-hover admin-table">
+                    <thead>
+                        <tr>
+                            <th>Admin</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>Joined</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for admin in admins %}
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    {% if admin.profile_picture %}
+                                    <img src="{{ admin.profile_picture.url }}" 
+                                         alt="{{ admin.username }}" 
+                                         class="admin-avatar">
+                                    {% else %}
+                                    <div class="admin-avatar-placeholder">
+                                        {{ admin.username.0|upper }}
+                                    </div>
+                                    {% endif %}
+                                    <div>
+                                        <div class="fw-bold" style="color: #2d3436;">{{ admin.get_full_name|default:admin.username }}</div>
+                                        <small class="text-muted">@{{ admin.username }}</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <i class="bi bi-envelope text-muted me-2"></i>{{ admin.email }}
+                            </td>
+                            <td>
+                                {% if admin.is_superuser %}
+                                <span class="badge-superuser">
+                                    <i class="bi bi-shield-fill-check"></i> Superuser
+                                </span>
+                                {% else %}
+                                <span class="badge-staff">
+                                    <i class="bi bi-person-badge-fill"></i> Staff
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if admin.is_active %}
+                                <span class="badge-active">
+                                    <i class="bi bi-check-circle-fill"></i> Active
+                                </span>
+                                {% else %}
+                                <span class="badge-inactive">
+                                    <i class="bi bi-x-circle-fill"></i> Inactive
+                                </span>
+                                {% endif %}
+                            </td>
+                            <td>
+                                <i class="bi bi-calendar3 text-muted me-2"></i>{{ admin.date_joined|date:"M d, Y" }}
+                            </td>
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <a href="{% url 'admin_dashboard:admin_detail' admin.pk %}" 
+                                       class="action-btn view" 
+                                       title="View Details">
+                                        <i class="bi bi-eye-fill"></i>
+                                    </a>
+                                    {% if user.is_superuser and admin != user %}
+                                    <button class="action-btn toggle" 
+                                            onclick="toggleAdminStatus({{ admin.pk }}, '{{ admin.username }}')"
+                                            title="{{ admin.is_active|yesno:'Deactivate,Activate' }}">
+                                        <i class="bi bi-{{ admin.is_active|yesno:'pause-fill,play-fill' }}"></i>
+                                    </button>
+                                    {% if not admin.is_superuser %}
+                                    <button class="action-btn revoke" 
+                                            onclick="revokeAdminAccess({{ admin.pk }}, '{{ admin.username }}')"
+                                            title="Revoke Admin Access">
+                                        <i class="bi bi-trash-fill"></i>
+                                    </button>
+                                    {% endif %}
+                                    {% endif %}
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="text-center py-5">
+                                <div style="opacity: 0.5;">
+                                    <i class="bi bi-inbox" style="font-size: 3rem; display: block; margin-bottom: 1rem;"></i>
+                                    <p class="text-muted mb-0">No admin users found.</p>
+                                </div>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Pagination -->
+            {% if is_paginated %}
+            <div class="p-4 border-top">
+                <nav aria-label="Admin pagination">
+                    <ul class="pagination justify-content-center mb-0">
+                        {% if page_obj.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1" style="border-radius: 8px; margin: 0 4px;">First</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.previous_page_number }}" style="border-radius: 8px; margin: 0 4px;">Previous</a>
+                        </li>
+                        {% endif %}
+
+                        <li class="page-item active">
+                            <span class="page-link" style="background: linear-gradient(135deg, #1e3c72 0%, #2a5298 100%); border: none; border-radius: 8px; margin: 0 4px;">
+                                Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                            </span>
+                        </li>
+
+                        {% if page_obj.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}" style="border-radius: 8px; margin: 0 4px;">Next</a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" style="border-radius: 8px; margin: 0 4px;">Last</a>
+                        </li>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+            {% endif %}
+    </div>
+</div>
+
+<script>
+function toggleAdminStatus(adminId, username) {
+    if (!confirm(`Are you sure you want to toggle the status of admin "${username}"?`)) {
+        return;
+    }
+    
+    fetch(`/admin-dashboard/admins/${adminId}/toggle/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('An error occurred: ' + error);
+    });
+}
+
+function revokeAdminAccess(adminId, username) {
+    if (!confirm(`Are you sure you want to REVOKE admin access from "${username}"? This action cannot be undone without superuser intervention.`)) {
+        return;
+    }
+    
+    fetch(`/admin-dashboard/admins/${adminId}/revoke/`, {
+        method: 'POST',
+        headers: {
+            'X-CSRFToken': '{{ csrf_token }}',
+            'Content-Type': 'application/json'
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert(data.message);
+            location.reload();
+        } else {
+            alert('Error: ' + data.message);
+        }
+    })
+    .catch(error => {
+        alert('An error occurred: ' + error);
+    });
+}
+</script>
+{% endblock %}

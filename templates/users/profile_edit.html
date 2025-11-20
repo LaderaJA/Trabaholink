@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load user_filters %}
 
 {% block css %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
@@ -173,6 +174,100 @@ textarea.form-control-edit {
   color: var(--danger-color);
   font-size: 0.875rem;
   margin-top: 0.5rem;
+}
+
+/* CV Upload Styles */
+.current-cv-display {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+  border: 2px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.cv-file-info {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.cv-file-details {
+  flex: 1;
+}
+
+.cv-file-name {
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.25rem;
+  word-break: break-word;
+}
+
+.cv-file-date {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-cv-preview {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  border-radius: 8px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.btn-cv-preview:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+}
+
+.cv-replace-note {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: rgba(59, 130, 246, 0.05);
+  border-left: 3px solid #3b82f6;
+  border-radius: 6px;
+  margin: 0;
+}
+
+.cv-upload-wrapper {
+  margin-top: 1rem;
+}
+
+.cv-upload-wrapper input[type="file"] {
+  display: block;
+  width: 100%;
+  padding: 0.75rem;
+  border: 2px dashed var(--border-color);
+  border-radius: 8px;
+  background: var(--bg-light);
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.cv-upload-wrapper input[type="file"]:hover {
+  border-color: var(--primary-color);
+  background: rgba(59, 130, 246, 0.05);
+}
+
+.cv-upload-wrapper input[type="file"]:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
 }
 
 /* Form Row */
@@ -801,6 +896,60 @@ textarea.form-control-edit {
               </div>
               {% if form.bio.errors %}
                 <div class="text-danger">{{ form.bio.errors }}</div>
+              {% endif %}
+            </div>
+          </div>
+          
+          <!-- CV/Resume Upload Section -->
+          <div class="section-edit">
+            <h2 class="section-title-edit">
+              <i class="bi bi-file-earmark-text"></i>
+              CV/Resume
+            </h2>
+            
+            <div class="form-group-edit">
+              <label for="{{ form.cv_file.id_for_label }}" class="form-label-edit">
+                <i class="bi bi-upload"></i>
+                Upload CV/Resume
+              </label>
+              
+              <!-- Current CV Display -->
+              {% if form.instance.cv_file %}
+              <div class="current-cv-display">
+                <div class="cv-file-info">
+                  <i class="bi {{ form.instance.cv_file|file_icon }}" style="font-size: 2rem; color: {{ form.instance.cv_file|file_color }};"></i>
+                  <div class="cv-file-details">
+                    <p class="cv-file-name">{{ form.instance.cv_file|original_filename }}</p>
+                    {% if form.instance.cv_uploaded_at %}
+                    <p class="cv-file-date">
+                      <i class="bi bi-clock"></i>
+                      Uploaded: {{ form.instance.cv_uploaded_at|date:"M d, Y" }}
+                    </p>
+                    {% endif %}
+                  </div>
+                  <a href="{{ form.instance.cv_file.url }}" class="btn-cv-preview" download>
+                    <i class="bi bi-download"></i>
+                    Download
+                  </a>
+                </div>
+                <p class="cv-replace-note">
+                  <i class="bi bi-info-circle"></i>
+                  Upload a new file below to replace your current CV
+                </p>
+              </div>
+              {% endif %}
+              
+              <!-- File Upload Input -->
+              <div class="cv-upload-wrapper">
+                {{ form.cv_file }}
+                <div class="form-text-edit">
+                  <i class="bi bi-info-circle"></i>
+                  {{ form.cv_file.help_text }}
+                </div>
+              </div>
+              
+              {% if form.cv_file.errors %}
+                <div class="text-danger">{{ form.cv_file.errors }}</div>
               {% endif %}
             </div>
           </div>

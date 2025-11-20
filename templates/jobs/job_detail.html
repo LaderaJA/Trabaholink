@@ -5,49 +5,450 @@
 
 {% block css %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
     body {
-        background: #f3f4f6 !important;
+        background: #f8f9fa !important;
+        min-height: 100vh;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     }
 
     .job-detail-container {
-        max-width: 1200px;
-        margin: 2rem auto;
-        padding: 0 1rem;
+        max-width: 1300px;
+        margin: 0 auto;
+        padding: 0;
     }
 
-    /* Header Section */
-    .job-header-card {
-        background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    /* Hero Image Section */
+    .job-hero-section {
+        position: relative;
+        margin-bottom: 2rem;
+        border-radius: 0 0 24px 24px;
+        overflow: hidden;
+        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+    }
+
+    /* Bacoor City Decorative Elements */
+    .job-hero-section::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, 
+            #1e40af 0%, 
+            #3b82f6 25%,
+            #0ea5e9 50%,
+            #06b6d4 75%,
+            #14b8a6 100%);
+        z-index: 10;
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.4);
+    }
+
+    /* Bacoor Bay Wave Pattern */
+    .job-hero-section::after {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 180px;
+        background-image: 
+            url("data:image/svg+xml,%3Csvg width='100' height='100' viewBox='0 0 100 100' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M0 50 Q 25 40, 50 50 T 100 50 V 100 H 0 Z' fill='rgba(59,130,246,0.03)'/%3E%3Cpath d='M0 60 Q 25 50, 50 60 T 100 60 V 100 H 0 Z' fill='rgba(14,165,233,0.03)'/%3E%3C/svg%3E");
+        background-size: 200px 100px;
+        background-repeat: repeat-x;
+        background-position: bottom;
+        pointer-events: none;
+        z-index: 1;
+        animation: wave 20s linear infinite;
+    }
+
+    @keyframes wave {
+        0% { background-position-x: 0; }
+        100% { background-position-x: 200px; }
+    }
+
+    .hero-image-container {
+        position: relative;
+        height: 500px;
+        overflow: hidden;
+        cursor: pointer;
+    }
+
+    /* Bacoor Landmark-Inspired Decorations */
+    .hero-image-container::after {
+        content: '';
+        position: absolute;
+        top: 30px;
+        right: 30px;
+        width: 150px;
+        height: 150px;
+        background: 
+            radial-gradient(circle at 50% 50%, rgba(59, 130, 246, 0.12) 0%, transparent 60%);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 1;
+        animation: pulse 4s ease-in-out infinite;
+    }
+
+    .hero-image-container::before {
+        content: '';
+        position: absolute;
+        bottom: 120px;
+        left: 30px;
+        width: 100px;
+        height: 100px;
+        background: 
+            conic-gradient(from 45deg, rgba(14, 165, 233, 0.08), rgba(59, 130, 246, 0.08), rgba(6, 182, 212, 0.08), rgba(14, 165, 233, 0.08));
+        border-radius: 20px;
+        pointer-events: none;
+        z-index: 1;
+        transform: rotate(15deg);
+        animation: rotate 15s linear infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% { transform: scale(1); opacity: 0.6; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+    }
+
+    @keyframes rotate {
+        0% { transform: rotate(15deg); }
+        100% { transform: rotate(375deg); }
+    }
+
+    .hero-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform 0.5s ease;
+    }
+
+    .hero-image-container:hover .hero-image {
+        transform: scale(1.05);
+    }
+
+    .hero-image-container:hover .image-click-hint {
+        opacity: 1;
+    }
+
+    .image-click-hint {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background: rgba(0, 0, 0, 0.8);
         color: white;
-        border-radius: 16px 16px 0 0;
-        padding: 2rem;
+        padding: 0.5rem 1rem;
+        border-radius: 50px;
+        font-size: 0.8125rem;
+        font-weight: 600;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+        z-index: 5;
+        pointer-events: none;
+        display: flex;
+        align-items: center;
+        gap: 0.375rem;
+        backdrop-filter: blur(10px);
+    }
+
+    .image-click-hint i {
+        font-size: 0.9375rem;
+    }
+
+    .hero-overlay {
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        background: linear-gradient(to top, 
+            rgba(0, 0, 0, 0.85) 0%, 
+            rgba(0, 0, 0, 0.4) 50%, 
+            transparent 100%);
+        padding: 2rem 0 1.5rem;
+        pointer-events: none;
+        display: flex;
+        align-items: flex-end;
+        justify-content: flex-start;
+    }
+
+    .hero-overlay .container {
+        width: 100%;
+        max-width: 1300px;
+        padding: 0 2rem;
+    }
+
+    .hero-overlay::before {
+        content: '';
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 5px;
+        background: linear-gradient(90deg, 
+            rgba(59, 130, 246, 0.9) 0%, 
+            rgba(14, 165, 233, 0.9) 25%,
+            rgba(6, 182, 212, 0.9) 50%,
+            rgba(14, 165, 233, 0.9) 75%,
+            rgba(59, 130, 246, 0.9) 100%);
+        box-shadow: 0 -2px 15px rgba(59, 130, 246, 0.6);
+        animation: shimmer 3s ease-in-out infinite;
+    }
+
+    @keyframes shimmer {
+        0%, 100% { opacity: 1; }
+        50% { opacity: 0.7; }
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
+        text-align: left;
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        max-width: 600px;
+    }
+
+    .category-badge-hero {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.3rem;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.3), rgba(14, 165, 233, 0.3));
+        backdrop-filter: blur(15px);
+        color: white;
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        margin-bottom: 0.5rem;
+        border: 1.5px solid rgba(59, 130, 246, 0.6);
+        box-shadow: 0 2px 12px rgba(59, 130, 246, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.2);
         position: relative;
         overflow: hidden;
     }
 
-    .job-header-card::before {
+    .category-badge-hero::before {
         content: '';
         position: absolute;
-        top: 0;
-        right: 0;
-        width: 300px;
-        height: 300px;
-        background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
-        border-radius: 50%;
-        transform: translate(30%, -30%);
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: linear-gradient(45deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+        animation: shine 3s infinite;
     }
 
-    .job-title-section {
-        position: relative;
-        z-index: 1;
+    @keyframes shine {
+        0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+        100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
     }
 
-    .job-category-badge {
-        display: inline-block;
-        background: rgba(255, 255, 255, 0.2);
-        padding: 0.375rem 0.75rem;
+    .category-badge-hero i {
+        font-size: 0.75rem;
+        filter: drop-shadow(0 0 4px rgba(255, 255, 255, 0.5));
+    }
+
+    .hero-title {
+        font-size: 2.25rem;
+        font-weight: 700;
+        color: white;
+        margin: 0 0 0.5rem 0;
+        line-height: 1.25;
+        text-shadow: 0 2px 15px rgba(0, 0, 0, 0.6);
+        letter-spacing: -0.02em;
+    }
+
+    .hero-posted-by {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.4rem;
+        color: rgba(255, 255, 255, 0.95);
+        font-size: 0.8rem;
+        margin-bottom: 0.75rem;
+        padding: 0.35rem 0.75rem;
+        background: rgba(59, 130, 246, 0.2);
+        backdrop-filter: blur(15px);
         border-radius: 20px;
+        border: 1px solid rgba(59, 130, 246, 0.4);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .hero-posted-by i {
+        font-size: 0.9rem;
+        color: rgba(59, 130, 246, 1);
+        filter: drop-shadow(0 0 6px rgba(59, 130, 246, 0.5));
+    }
+
+    .hero-posted-by strong {
+        color: white;
+        font-weight: 600;
+    }
+
+    .hero-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .hero-meta-item {
+        display: flex;
+        align-items: center;
+        gap: 0.35rem;
+        color: white;
+        font-size: 0.8rem;
+        font-weight: 500;
+        background: rgba(0, 0, 0, 0.5);
+        backdrop-filter: blur(15px);
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+    }
+
+    .hero-meta-item i {
+        font-size: 0.85rem;
+    }
+
+    .status-badge-hero {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.35rem;
+        padding: 0.35rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.2);
+    }
+
+    .status-badge-hero i {
+        font-size: 0.75rem;
+    }
+
+    .status-badge-hero.status-active {
+        background: linear-gradient(135deg, #10b981, #34d399);
+        color: white;
+        box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4);
+        border: 1.5px solid rgba(52, 211, 153, 0.6);
+    }
+
+    .status-badge-hero.status-inactive {
+        background: linear-gradient(135deg, #ef4444, #f87171);
+        color: white;
+        box-shadow: 0 2px 10px rgba(239, 68, 68, 0.4);
+        border: 1.5px solid rgba(248, 113, 113, 0.6);
+    }
+
+    /* Hero Thumbnails */
+    .hero-thumbnails {
+        background: white;
+        padding: 1rem 0;
+        border-top: 1px solid #e5e7eb;
+    }
+
+    .thumbnail-scroll {
+        display: flex;
+        gap: 0.75rem;
+        overflow-x: auto;
+        padding: 0.5rem 0;
+        scrollbar-width: thin;
+    }
+
+    .thumbnail-scroll::-webkit-scrollbar {
+        height: 6px;
+    }
+
+    .thumbnail-scroll::-webkit-scrollbar-track {
+        background: #f3f4f6;
+        border-radius: 3px;
+    }
+
+    .thumbnail-scroll::-webkit-scrollbar-thumb {
+        background: #9ca3af;
+        border-radius: 3px;
+    }
+
+    .thumbnail-item {
+        flex-shrink: 0;
+        width: 120px;
+        height: 80px;
+        border-radius: 8px;
+        overflow: hidden;
+        cursor: pointer;
+        border: 3px solid transparent;
+        transition: all 0.3s ease;
+        position: relative;
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(14, 165, 233, 0.1));
+    }
+
+    .thumbnail-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+        border-color: rgba(59, 130, 246, 0.4);
+    }
+
+    .thumbnail-item.active {
+        border-color: #3b82f6;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3), 0 4px 15px rgba(59, 130, 246, 0.4);
+        background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(14, 165, 233, 0.2));
+    }
+
+    .thumbnail-item img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Content spacing adjustment */
+    .content-grid {
+        padding: 0 1rem;
+    }
+
+    /* Minimalist Header Card */
+    .job-header-card {
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+        animation: fadeIn 0.5s ease-out;
+    }
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .job-header-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        margin-bottom: 1.5rem;
+        gap: 1.5rem;
+    }
+
+    .job-header-left {
+        flex: 1;
+    }
+
+    .category-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        background: #f3f4f6;
+        color: #4b5563;
+        padding: 0.375rem 0.875rem;
+        border-radius: 6px;
         font-size: 0.75rem;
         font-weight: 600;
         text-transform: uppercase;
@@ -55,44 +456,67 @@
         margin-bottom: 0.75rem;
     }
 
-    .job-title {
-        font-size: 2rem;
-        font-weight: 700;
-        margin: 0 0 1rem 0;
-        line-height: 1.2;
-    }
-
-    .job-meta {
-        display: flex;
-        gap: 1.5rem;
-        flex-wrap: wrap;
+    .category-badge i {
         font-size: 0.875rem;
-        opacity: 0.95;
     }
 
-    .job-meta-item {
+    .job-title {
+        font-size: 1.875rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 1rem 0;
+        line-height: 1.3;
+        letter-spacing: -0.01em;
+    }
+
+    .job-meta-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 1rem;
+    }
+
+    .meta-item {
         display: flex;
         align-items: center;
         gap: 0.5rem;
+        color: #6b7280;
+        font-size: 0.875rem;
     }
 
-    .job-meta-item i {
+    .meta-item i {
+        color: #9ca3af;
         font-size: 1rem;
+    }
+
+    .meta-item strong {
+        color: #374151;
+        font-weight: 600;
+    }
+
+    /* Two Column Layout */
+    .content-grid {
+        display: grid;
+        grid-template-columns: 1fr 380px;
+        gap: 1.5rem;
+        margin-bottom: 1.5rem;
     }
 
     /* Main Content Card */
     .job-content-card {
         background: white;
-        border-radius: 0 0 16px 16px;
-        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
         overflow: hidden;
+        border: 1px solid #e5e7eb;
+        text-align: left;
     }
 
     /* Quick Stats */
     .quick-stats {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        grid-template-columns: repeat(4, 1fr);
         gap: 0;
+        background: #fafafa;
         border-bottom: 1px solid #e5e7eb;
     }
 
@@ -100,17 +524,22 @@
         padding: 1.5rem;
         text-align: center;
         border-right: 1px solid #e5e7eb;
+        transition: all 0.3s ease;
     }
 
     .stat-item:last-child {
         border-right: none;
     }
 
+    .stat-item:hover {
+        background: white;
+    }
+
     .stat-value {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
         font-weight: 700;
-        color: #2563eb;
-        margin-bottom: 0.25rem;
+        color: #111827;
+        margin-bottom: 0.375rem;
     }
 
     .stat-label {
@@ -124,7 +553,8 @@
     /* Content Sections */
     .content-section {
         padding: 2rem;
-        border-bottom: 1px solid #e5e7eb;
+        border-bottom: 1px solid #f3f4f6;
+        text-align: left;
     }
 
     .content-section:last-child {
@@ -132,38 +562,46 @@
     }
 
     .section-title {
-        font-size: 1.25rem;
+        font-size: 1.125rem;
         font-weight: 700;
         color: #111827;
-        margin: 0 0 1.5rem 0;
+        margin: 0 0 1rem 0;
         display: flex;
         align-items: center;
         gap: 0.5rem;
     }
 
     .section-title i {
-        color: #2563eb;
+        color: #6b7280;
         font-size: 1.125rem;
     }
 
     .description-text {
         color: #374151;
-        line-height: 1.7;
+        line-height: 1.8;
         white-space: pre-line;
+        font-size: 1.05rem;
+        text-align: left;
     }
 
     /* Details Grid */
     .details-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
         gap: 1rem;
     }
 
     .detail-box {
-        background: #f9fafb;
+        background: #fafafa;
         padding: 1rem;
         border-radius: 8px;
-        border-left: 3px solid #2563eb;
+        border: 1px solid #e5e7eb;
+        transition: all 0.2s ease;
+    }
+
+    .detail-box:hover {
+        background: white;
+        border-color: #d1d5db;
     }
 
     .detail-label {
@@ -171,102 +609,181 @@
         color: #6b7280;
         text-transform: uppercase;
         letter-spacing: 0.05em;
-        font-weight: 600;
+        font-weight: 700;
         margin-bottom: 0.5rem;
     }
 
     .detail-value {
-        font-size: 1rem;
+        font-size: 1.05rem;
         color: #111827;
-        font-weight: 600;
+        font-weight: 700;
     }
 
-    /* Image Gallery */
-    .image-gallery {
+    /* Sidebar */
+    .sidebar {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+
+    .sidebar-card {
+        background: white;
+        border-radius: 16px;
+        padding: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
+    }
+
+    .sidebar-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0 0 1rem 0;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .sidebar-title i {
+        color: #6b7280;
+        font-size: 1rem;
+    }
+
+    /* Image Gallery in Sidebar */
+    .sidebar-gallery {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-        gap: 1rem;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
     }
 
-    .gallery-item {
+    .sidebar-gallery-item {
         position: relative;
-        aspect-ratio: 4/3;
+        aspect-ratio: 1;
         border-radius: 8px;
         overflow: hidden;
         cursor: pointer;
-        transition: transform 0.2s;
+        transition: all 0.2s ease;
+        border: 1px solid #e5e7eb;
     }
 
-    .gallery-item:hover {
-        transform: scale(1.02);
+    .sidebar-gallery-item:hover {
+        border-color: #9ca3af;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     }
 
-    .gallery-item img {
+    .sidebar-gallery-item img {
         width: 100%;
         height: 100%;
         object-fit: cover;
     }
 
-    .no-images {
-        text-align: center;
-        padding: 3rem;
-        color: #9ca3af;
+    .gallery-overlay {
+        position: absolute;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.6);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.2s ease;
     }
 
-    .no-images i {
-        font-size: 3rem;
-        margin-bottom: 1rem;
+    .sidebar-gallery-item:hover .gallery-overlay {
+        opacity: 1;
+    }
+
+    .gallery-overlay i {
+        color: white;
+        font-size: 1.5rem;
+    }
+
+    .no-images-sidebar {
+        text-align: center;
+        padding: 2rem;
+        color: #9ca3af;
+        background: #fafafa;
+        border-radius: 8px;
+        border: 2px dashed #e5e7eb;
+    }
+
+    .no-images-sidebar i {
+        font-size: 2.5rem;
+        margin-bottom: 0.5rem;
         opacity: 0.5;
     }
 
-    /* Map Section */
+    /* Map in Sidebar */
     .map-wrapper {
-        border-radius: 12px;
+        border-radius: 8px;
         overflow: hidden;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e5e7eb;
     }
 
     #map {
-        height: 350px;
+        height: 300px;
         width: 100%;
+    }
+
+    .location-info {
+        margin-top: 1rem;
+        padding: 0.875rem 1rem;
+        background: #fafafa;
+        border-radius: 8px;
+        border-left: 3px solid #6b7280;
+    }
+
+    .location-info p {
+        margin: 0;
+        color: #374151;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+
+    .location-info i {
+        color: #6b7280;
     }
 
     /* Action Buttons */
     .action-section {
-        padding: 2rem;
-        background: #f9fafb;
+        padding: 2.5rem;
+        background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
         display: flex;
         gap: 1rem;
         flex-wrap: wrap;
         align-items: center;
+        border-top: 2px solid #e5e7eb;
     }
 
     .btn-action {
-        padding: 0.875rem 1.75rem;
+        padding: 0.75rem 1.5rem;
         border-radius: 8px;
         font-weight: 600;
         text-decoration: none;
         display: inline-flex;
         align-items: center;
         gap: 0.5rem;
-        transition: all 0.2s;
+        transition: all 0.2s ease;
         border: none;
         cursor: pointer;
-        font-size: 0.9375rem;
+        font-size: 0.875rem;
     }
 
     .btn-action:hover {
         transform: translateY(-1px);
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     }
 
     .btn-primary {
-        background: #2563eb;
+        background: #3b82f6;
         color: white;
     }
 
     .btn-primary:hover {
-        background: #1d4ed8;
+        background: #2563eb;
         color: white;
     }
 
@@ -291,13 +808,14 @@
     }
 
     .btn-secondary {
-        background: #6b7280;
-        color: white;
+        background: white;
+        color: #374151;
+        border: 1px solid #d1d5db;
     }
 
     .btn-secondary:hover {
-        background: #4b5563;
-        color: white;
+        background: #f9fafb;
+        border-color: #9ca3af;
     }
 
     /* Applicants Section */
@@ -305,8 +823,9 @@
         background: white;
         border-radius: 16px;
         padding: 2rem;
-        margin-top: 2rem;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        margin-top: 1.5rem;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+        border: 1px solid #e5e7eb;
     }
 
     .applicant-row {
@@ -315,11 +834,11 @@
         justify-content: space-between;
         padding: 1rem;
         border-bottom: 1px solid #f3f4f6;
-        transition: background 0.2s;
+        transition: all 0.2s ease;
     }
 
     .applicant-row:hover {
-        background: #f9fafb;
+        background: #fafafa;
     }
 
     .applicant-row:last-child {
@@ -329,7 +848,7 @@
     .applicant-info {
         display: flex;
         align-items: center;
-        gap: 1rem;
+        gap: 1.25rem;
     }
 
     .applicant-avatar {
@@ -337,6 +856,7 @@
         height: 48px;
         border-radius: 50%;
         object-fit: cover;
+        border: 2px solid #e5e7eb;
     }
 
     .applicant-details h4 {
@@ -348,28 +868,31 @@
 
     .applicant-details p {
         margin: 0;
-        font-size: 0.875rem;
+        font-size: 0.9rem;
         color: #6b7280;
     }
 
     .applicant-actions {
         display: flex;
-        gap: 0.5rem;
+        gap: 0.75rem;
     }
 
     .btn-sm {
-        padding: 0.5rem 1rem;
-        font-size: 0.8125rem;
+        padding: 0.625rem 1.25rem;
+        font-size: 0.85rem;
     }
 
     /* Status Badge */
     .status-badge {
-        display: inline-block;
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
         padding: 0.375rem 0.75rem;
-        border-radius: 20px;
+        border-radius: 6px;
         font-size: 0.75rem;
         font-weight: 600;
         text-transform: uppercase;
+        letter-spacing: 0.05em;
     }
 
     .status-active {
@@ -407,17 +930,20 @@
     }
 
     .modal-image {
-        max-width: 100%;
+        width: auto;
+        height: auto;
+        max-width: 95vw;
         max-height: 90vh;
         border-radius: 8px;
+        object-fit: contain;
     }
 
     .modal-close {
         position: absolute;
-        top: -40px;
-        right: 0;
-        background: rgba(255, 255, 255, 0.2);
-        color: white;
+        top: 10px;
+        right: 10px;
+        background: white;
+        color: #111827;
         border: none;
         width: 40px;
         height: 40px;
@@ -427,16 +953,142 @@
         display: flex;
         align-items: center;
         justify-content: center;
+        transition: all 0.2s ease;
+        z-index: 20;
     }
 
     .modal-close:hover {
-        background: rgba(255, 255, 255, 0.3);
+        background: #f3f4f6;
+        transform: scale(1.1);
     }
 
+    /* Modal Navigation Arrows */
+    .modal-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        background: rgba(255, 255, 255, 0.9);
+        color: #111827;
+        border: none;
+        width: 50px;
+        height: 50px;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1.5rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.3s ease;
+        z-index: 10;
+    }
+
+    .modal-nav:hover {
+        background: white;
+        transform: translateY(-50%) scale(1.1);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    }
+
+    .modal-prev {
+        left: 20px;
+    }
+
+    .modal-next {
+        right: 20px;
+    }
+
+    .modal-nav:disabled {
+        opacity: 0.3;
+        cursor: not-allowed;
+    }
+
+    .modal-nav:disabled:hover {
+        transform: translateY(-50%);
+        box-shadow: none;
+    }
+
+    /* Image Counter */
+    .image-counter {
+        position: absolute;
+        bottom: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: rgba(0, 0, 0, 0.7);
+        color: white;
+        padding: 0.5rem 1rem;
+        border-radius: 20px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        backdrop-filter: blur(10px);
+    }
+
+
     /* Responsive */
+    @media (max-width: 1024px) {
+        .content-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .sidebar-gallery {
+            grid-template-columns: repeat(4, 1fr);
+        }
+
+        .hero-image-container {
+            height: 400px;
+        }
+
+        .hero-title {
+            font-size: 2.25rem;
+        }
+    }
+
     @media (max-width: 768px) {
+        .job-detail-container {
+            margin: 0;
+        }
+
+        .job-hero-section {
+            border-radius: 0;
+        }
+
+        .hero-image-container {
+            height: 350px;
+        }
+
+        .hero-title {
+            font-size: 1.5rem;
+        }
+
+        .hero-meta {
+            gap: 0.75rem;
+        }
+
+        .hero-meta-item {
+            font-size: 0.75rem;
+            padding: 0.3rem 0.65rem;
+        }
+
+        .thumbnail-item {
+            width: 100px;
+            height: 70px;
+        }
+
+        .job-header-card {
+            padding: 1.5rem;
+            border-radius: 0;
+        }
+
+        .job-header-top {
+            flex-direction: column;
+            gap: 1rem;
+        }
+
         .job-title {
             font-size: 1.5rem;
+        }
+
+        .job-meta-grid {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
         }
 
         .quick-stats {
@@ -444,24 +1096,36 @@
         }
 
         .stat-item {
-            border-right: none;
-            border-bottom: 1px solid #e5e7eb;
+            padding: 1.25rem 1rem;
         }
 
-        .stat-item:nth-child(odd) {
-            border-right: 1px solid #e5e7eb;
+        .stat-value {
+            font-size: 1.25rem;
         }
 
         .content-section {
             padding: 1.5rem;
         }
 
+        .section-title {
+            font-size: 1rem;
+        }
+
         .details-grid {
             grid-template-columns: 1fr;
         }
 
+        .sidebar-card {
+            padding: 1.25rem;
+        }
+
+        .sidebar-gallery {
+            grid-template-columns: repeat(3, 1fr);
+        }
+
         .action-section {
             flex-direction: column;
+            padding: 1.5rem;
         }
 
         .btn-action {
@@ -473,6 +1137,7 @@
             flex-direction: column;
             align-items: flex-start;
             gap: 1rem;
+            padding: 1rem;
         }
 
         .applicant-actions {
@@ -483,229 +1148,602 @@
             flex: 1;
         }
     }
+
+    @media (max-width: 480px) {
+        .hero-image-container {
+            height: 280px;
+        }
+
+        .hero-title {
+            font-size: 1.25rem;
+        }
+
+        .hero-posted-by {
+            font-size: 0.75rem;
+            padding: 0.3rem 0.65rem;
+        }
+
+        .hero-meta-item {
+            font-size: 0.7rem;
+            padding: 0.3rem 0.6rem;
+        }
+
+        .category-badge-hero {
+            font-size: 0.65rem;
+            padding: 0.3rem 0.65rem;
+        }
+
+        .status-badge-hero {
+            font-size: 0.65rem;
+            padding: 0.3rem 0.65rem;
+        }
+
+        .thumbnail-item {
+            width: 80px;
+            height: 60px;
+        }
+
+        .job-header-card {
+            padding: 1.25rem;
+        }
+
+        .job-title {
+            font-size: 1.375rem;
+        }
+
+        .category-badge {
+            font-size: 0.7rem;
+            padding: 0.3rem 0.75rem;
+        }
+
+        .stat-value {
+            font-size: 1.125rem;
+        }
+
+        .stat-item {
+            padding: 1rem 0.75rem;
+        }
+
+        .section-title {
+            font-size: 0.95rem;
+        }
+
+        .content-section {
+            padding: 1.25rem;
+        }
+
+        .sidebar-gallery {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .applicants-card {
+            padding: 1.25rem;
+        }
+    }
 </style>
 {% endblock %}
 
 {% block content %}
 <div class="job-detail-container">
-    <!-- Header Card -->
-    <div class="job-header-card">
-        <div class="job-title-section">
-            <div class="job-category-badge">
-                <i class="bi bi-tag-fill"></i> {{ job.category.name }}
+    <!-- Hero Image Section -->
+    {% if job.jobimage_set.exists %}
+    <div class="job-hero-section">
+        <div class="hero-image-container" onclick="openImageModal('{{ job.jobimage_set.first.image.url }}')">
+            <img src="{{ job.jobimage_set.first.image.url }}" alt="{{ job.title }}" class="hero-image">
+            <div class="image-click-hint">
+                <i class="bi bi-zoom-in"></i>
+                <span>Click to view full size</span>
             </div>
-            <h1 class="job-title">{{ job.title }}</h1>
-            <div class="job-meta">
-                <div class="job-meta-item">
-                    <i class="bi bi-person-circle"></i>
-                    <span>{{ job.owner.get_full_name|default:job.owner.username }}</span>
+            <div class="hero-overlay">
+                <div class="container">
+                    <div class="hero-content">
+                        <div class="category-badge-hero">
+                            <i class="bi bi-tag-fill"></i> {{ job.category.name }}
+                        </div>
+                        <h1 class="hero-title">{{ job.title }}</h1>
+                        <div class="hero-posted-by">
+                            <i class="bi bi-person-circle"></i>
+                            <span>Posted by <strong>{{ job.owner.get_full_name|default:job.owner.username }}</strong></span>
+                        </div>
+                        <div class="hero-meta">
+                            <span class="hero-meta-item">
+                                <i class="bi bi-geo-alt-fill"></i> {{ job.municipality }}, {{ job.barangay }}
+                            </span>
+                            <span class="hero-meta-item">
+                                <i class="bi bi-people-fill"></i> <span id="hero-applicant-count">{{ job.get_applicant_count }}</span> Applicant<span id="hero-applicant-plural">{% if job.get_applicant_count != 1 %}s{% endif %}</span>
+                            </span>
+                            <span class="hero-meta-item">
+                                <i class="bi bi-calendar3"></i> {{ job.created_at|date:"M d, Y" }}
+                            </span>
+                        </div>
+                        {% if job.is_active %}
+                        <span class="status-badge-hero status-active">
+                            <i class="bi bi-check-circle-fill"></i> Active
+                        </span>
+                        {% else %}
+                        <span class="status-badge-hero status-inactive">
+                            <i class="bi bi-x-circle-fill"></i> Closed
+                        </span>
+                        {% endif %}
+                    </div>
                 </div>
-                <div class="job-meta-item">
-                    <i class="bi bi-geo-alt-fill"></i>
-                    <span>{{ job.municipality }}, {{ job.barangay }}</span>
+            </div>
+        </div>
+        
+        <!-- Image Gallery Thumbnails -->
+        {% if job.jobimage_set.count > 1 %}
+        <div class="hero-thumbnails">
+            <div class="container">
+                <div class="thumbnail-scroll">
+                    {% for image in job.jobimage_set.all %}
+                    <div class="thumbnail-item {% if forloop.first %}active{% endif %}" onclick="changeHeroImage('{{ image.image.url }}', this)">
+                        <img src="{{ image.image.url }}" alt="Image {{ forloop.counter }}">
+                    </div>
+                    {% endfor %}
                 </div>
-                <div class="job-meta-item">
-                    <i class="bi bi-calendar3"></i>
-                    <span>Posted {{ job.created_at|date:"M d, Y" }}</span>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+    {% else %}
+    <!-- Minimalist Header Card (No Image) -->
+    <div class="job-header-card">
+        <div class="job-header-top">
+            <div class="job-header-left">
+                <div class="category-badge">
+                    <i class="bi bi-tag-fill"></i> {{ job.category.name }}
                 </div>
-                <div class="job-meta-item">
-                    {% if job.is_active %}
-                    <span class="status-badge status-active">
-                        <i class="bi bi-check-circle-fill"></i> Active
-                    </span>
-                    {% else %}
-                    <span class="status-badge status-inactive">
-                        <i class="bi bi-x-circle-fill"></i> Closed
-                    </span>
+                <h1 class="job-title">{{ job.title }}</h1>
+                <div class="job-meta-grid">
+                    <div class="meta-item">
+                        <i class="bi bi-person-circle"></i>
+                        <span>Posted by <strong>{{ job.owner.get_full_name|default:job.owner.username }}</strong></span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="bi bi-geo-alt-fill"></i>
+                        <span><strong>{{ job.municipality }}, {{ job.barangay }}</strong></span>
+                    </div>
+                    <div class="meta-item">
+                        <i class="bi bi-calendar3"></i>
+                        <span>{{ job.created_at|date:"M d, Y" }} at {{ job.created_at|date:"g:i A" }}</span>
+                    </div>
+                    {% if job.expires_at and job.is_active %}
+                    <div class="meta-item">
+                        <i class="bi bi-clock-history"></i>
+                        <span>Expires {{ job.expires_at|date:"M d, Y" }}</span>
+                    </div>
                     {% endif %}
                 </div>
             </div>
+            <div>
+                {% if job.is_active %}
+                <span class="status-badge status-active">
+                    <i class="bi bi-check-circle-fill"></i> Active
+                </span>
+                {% else %}
+                <span class="status-badge status-inactive">
+                    <i class="bi bi-x-circle-fill"></i> Closed
+                </span>
+                {% endif %}
+            </div>
         </div>
     </div>
+    {% endif %}
 
-    <!-- Main Content Card -->
-    <div class="job-content-card">
-        <!-- Quick Stats -->
-        <div class="quick-stats">
-            <div class="stat-item">
-                <div class="stat-value">₱{{ job.budget }}</div>
-                <div class="stat-label">Budget</div>
+    <!-- Two Column Layout -->
+    <div class="content-grid">
+        <!-- Main Content -->
+        <div class="job-content-card">
+            <!-- Quick Stats -->
+            <div class="quick-stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="applicant-count">{{ job.get_applicant_count }}</div>
+                    <div class="stat-label">Applicants</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="vacancy-count">{{ job.get_vacancies_remaining }}</div>
+                    <div class="stat-label">Vacancies Remaining</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value">{{ job.urgency }}</div>
+                    <div class="stat-label">Urgency</div>
+                </div>
             </div>
-            <div class="stat-item">
-                <div class="stat-value">{{ job.applications.count }}</div>
-                <div class="stat-label">Applicants</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">{{ job.urgency }}</div>
-                <div class="stat-label">Urgency</div>
-            </div>
-            <div class="stat-item">
-                <div class="stat-value">{{ job.duration|default:"Flexible" }}</div>
-                <div class="stat-label">Duration</div>
-            </div>
-        </div>
 
-        <!-- Description -->
-        <div class="content-section">
-            <h2 class="section-title">
-                <i class="bi bi-file-text"></i>
-                Job Description
-            </h2>
-            <div class="description-text">{{ job.description }}</div>
-        </div>
+            <!-- Description -->
+            <div class="content-section">
+                <h2 class="section-title">
+                    <i class="bi bi-file-text"></i>
+                    Job Description
+                </h2>
+                <div class="description-text">{{ job.description }}</div>
+            </div>
 
-        <!-- Job Details -->
-        <div class="content-section">
-            <h2 class="section-title">
-                <i class="bi bi-info-circle"></i>
-                Job Details
-            </h2>
-            <div class="details-grid">
-                {% if job.duration %}
-                <div class="detail-box">
-                    <div class="detail-label">Duration</div>
-                    <div class="detail-value">{{ job.duration }}</div>
+            <!-- Job Details -->
+            <div class="content-section">
+                <h2 class="section-title">
+                    <i class="bi bi-info-circle"></i>
+                    Job Details
+                </h2>
+                <div class="details-grid">
+                    {% if job.schedule %}
+                    <div class="detail-box">
+                        <div class="detail-label">Schedule</div>
+                        <div class="detail-value">{{ job.schedule }}</div>
+                    </div>
+                    {% endif %}
+                    {% if job.experience_required %}
+                    <div class="detail-box">
+                        <div class="detail-label">Experience Required</div>
+                        <div class="detail-value">{{ job.experience_required }}</div>
+                    </div>
+                    {% endif %}
+                    {% if job.skills_required %}
+                    <div class="detail-box">
+                        <div class="detail-label">Skills Required</div>
+                        <div class="detail-value">{{ job.skills_required }}</div>
+                    </div>
+                    {% endif %}
+                    <div class="detail-box">
+                        <div class="detail-label">Urgency Level</div>
+                        <div class="detail-value">{{ job.urgency }}</div>
+                    </div>
+                    <div class="detail-box">
+                        <div class="detail-label">Location</div>
+                        <div class="detail-value">{{ job.municipality }}, {{ job.barangay }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Application Section -->
+            {% if user.is_authenticated and user != job.owner %}
+            <div class="content-section">
+                <h2 class="section-title">
+                    <i class="bi bi-send-fill"></i>
+                    Apply for this Job
+                </h2>
+                
+                {% if user.role == 'client' %}
+                <!-- Message for Client Users -->
+                <div class="alert alert-info" style="background: linear-gradient(135deg, #dbeafe 0%, #e0f2fe 100%); border-left: 4px solid #3b82f6; padding: 1.5rem; border-radius: 12px; display: flex; align-items: start; gap: 1rem;">
+                    <i class="bi bi-info-circle-fill" style="font-size: 1.5rem; color: #3b82f6; flex-shrink: 0;"></i>
+                    <div>
+                        <h4 style="color: #1e40af; margin: 0 0 0.5rem 0; font-weight: 600;">Worker Account Required</h4>
+                        <p style="margin: 0 0 1rem 0; color: #475569; line-height: 1.6;">
+                            You need a worker account to apply for jobs. Client accounts are designed for posting jobs and hiring workers.
+                        </p>
+                        <a href="{% url 'profile' pk=user.pk %}" class="btn-action btn-primary" style="display: inline-flex; align-items: center; gap: 0.5rem; text-decoration: none; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); padding: 0.75rem 1.5rem; border-radius: 8px; color: white; font-weight: 600; transition: all 0.3s;">
+                            <i class="bi bi-person-gear"></i> Switch to Worker Account
+                        </a>
+                    </div>
+                </div>
+                {% else %}
+                <!-- Application Form for Workers -->
+                {% if not has_applied %}
+                <form method="post" action="{% url 'jobs:job_apply' job.pk %}" id="applicationForm" onsubmit="return confirmApplication();">
+                    {% csrf_token %}
+                    <div class="mb-3">
+                        <label for="message" class="form-label">Message to Employer (Optional)</label>
+                        <textarea class="form-control" id="message" name="message" rows="4" 
+                                  placeholder="Introduce yourself and explain why you're a good fit for this job..."></textarea>
+                        <small class="text-muted">This message will be sent along with your application.</small>
+                    </div>
+                    
+                    <!-- CV Attachment Option -->
+                    <div class="mb-3">
+                        <div class="form-check" style="padding: 1rem; background: #f8f9fa; border-radius: 8px; border: 2px solid {% if user_has_cv %}#10b981{% else %}#e5e7eb{% endif %};">
+                            <input 
+                                class="form-check-input" 
+                                type="checkbox" 
+                                name="attach_cv" 
+                                id="attach_cv" 
+                                {% if not user_has_cv %}disabled{% endif %}
+                                {% if user_has_cv %}checked{% endif %}
+                                style="width: 1.25rem; height: 1.25rem; margin-top: 0.125rem;">
+                            <label class="form-check-label" for="attach_cv" style="margin-left: 0.5rem; {% if not user_has_cv %}color: #9ca3af;{% endif %}">
+                                <i class="bi bi-{% if user_has_cv %}file-earmark-check{% else %}file-earmark-x{% endif %}" style="font-size: 1.1rem;"></i>
+                                <strong>Attach my CV from profile</strong>
+                                {% if user_has_cv %}
+                                <span class="badge bg-success ms-2">CV Available</span>
+                                <br><small class="text-muted">Your CV will be included with this application</small>
+                                {% else %}
+                                <span class="badge bg-warning text-dark ms-2">No CV Uploaded</span>
+                                <br><small class="text-muted">Please <a href="{% url 'profile' user.pk %}" target="_blank">upload your CV</a> in your profile to attach it</small>
+                                {% endif %}
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <button type="submit" class="btn-action btn-primary" {% if not user_has_cv %}title="You can still apply without a CV"{% endif %}>
+                        <i class="bi bi-send-fill"></i> Send Application
+                    </button>
+                </form>
+                {% else %}
+                <div class="alert alert-success">
+                    <i class="bi bi-check-circle-fill"></i> You have already applied for this job.
                 </div>
                 {% endif %}
-                {% if job.schedule %}
-                <div class="detail-box">
-                    <div class="detail-label">Schedule</div>
-                    <div class="detail-value">{{ job.schedule }}</div>
-                </div>
                 {% endif %}
-                {% if job.experience_required %}
-                <div class="detail-box">
-                    <div class="detail-label">Experience Required</div>
-                    <div class="detail-value">{{ job.experience_required }}</div>
-                </div>
-                {% endif %}
-                {% if job.skills_required %}
-                <div class="detail-box">
-                    <div class="detail-label">Skills Required</div>
-                    <div class="detail-value">{{ job.skills_required }}</div>
-                </div>
-                {% endif %}
-                <div class="detail-box">
-                    <div class="detail-label">Urgency Level</div>
-                    <div class="detail-value">{{ job.urgency }}</div>
-                </div>
-                <div class="detail-box">
-                    <div class="detail-label">Location</div>
-                    <div class="detail-value">{{ job.municipality }}, {{ job.barangay }}</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Images -->
-        {% if job.images.exists %}
-        <div class="content-section">
-            <h2 class="section-title">
-                <i class="bi bi-images"></i>
-                Job Images
-            </h2>
-            <div class="image-gallery">
-                {% for image in job.images.all %}
-                <div class="gallery-item" onclick="openImageModal('{{ image.image.url }}')">
-                    <img src="{{ image.image.url }}" alt="Job image">
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Map -->
-        {% if job.latitude and job.longitude %}
-        <div class="content-section">
-            <h2 class="section-title">
-                <i class="bi bi-map"></i>
-                Location
-            </h2>
-            <div class="map-wrapper">
-                <div id="map"></div>
-            </div>
-        </div>
-        {% endif %}
-
-        <!-- Application Section -->
-        {% if user.is_authenticated and user != job.owner %}
-        <div class="content-section">
-            <h2 class="section-title">
-                <i class="bi bi-send-fill"></i>
-                Apply for this Job
-            </h2>
-            
-            {% if not user_has_applied %}
-            <form method="post" action="{% url 'jobs:job_apply' job.pk %}" id="applicationForm" onsubmit="return confirmApplication();">
-                {% csrf_token %}
-                <div class="mb-3">
-                    <label for="message" class="form-label">Message to Employer (Optional)</label>
-                    <textarea class="form-control" id="message" name="message" rows="4" 
-                              placeholder="Introduce yourself and explain why you're a good fit for this job..."></textarea>
-                    <small class="text-muted">This message will be sent along with your application.</small>
-                </div>
-                <button type="submit" class="btn-action btn-primary">
-                    <i class="bi bi-send-fill"></i> Send Application
-                </button>
-            </form>
-            {% else %}
-            <div class="alert alert-success">
-                <i class="bi bi-check-circle-fill"></i> You have already applied for this job.
             </div>
             {% endif %}
-        </div>
-        {% endif %}
 
-        <!-- Action Buttons -->
-        <div class="action-section">
-            {% if user.is_authenticated %}
-                {% if user == job.owner %}
-                    <a href="{% url 'jobs:job_edit' job.pk %}" class="btn-action btn-warning">
-                        <i class="bi bi-pencil-square"></i> Edit Job
+            <!-- Action Buttons -->
+            <div class="action-section">
+                {% if user.is_authenticated %}
+                    {% if user == job.owner %}
+                        <a href="{% url 'jobs:job_edit' job.pk %}" class="btn-action btn-warning">
+                            <i class="bi bi-pencil-square"></i> Edit Job
+                        </a>
+                        <form method="post" action="{% url 'jobs:job_delete' job.pk %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this job?');">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action btn-danger">
+                                <i class="bi bi-trash"></i> Delete Job
+                            </button>
+                        </form>
+                    {% endif %}
+                    <a href="javascript:history.back()" class="btn-action btn-secondary">
+                        <i class="bi bi-arrow-left"></i> Back
                     </a>
-                    <form method="post" action="{% url 'jobs:job_delete' job.pk %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this job?');">
-                        {% csrf_token %}
-                        <button type="submit" class="btn-action btn-danger">
-                            <i class="bi bi-trash"></i> Delete Job
-                        </button>
-                    </form>
+                {% else %}
+                    <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn-action btn-primary">
+                        <i class="bi bi-box-arrow-in-right"></i> Login to Apply
+                    </a>
                 {% endif %}
-                <a href="javascript:history.back()" class="btn-action btn-secondary">
-                    <i class="bi bi-arrow-left"></i> Back
-                </a>
-            {% else %}
-                <a href="{% url 'account_login' %}?next={{ request.path }}" class="btn-action btn-primary">
-                    <i class="bi bi-box-arrow-in-right"></i> Login to Apply
-                </a>
+            </div>
+        </div>
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Job Poster Profile Card -->
+            <div class="sidebar-card">
+                <h3 class="sidebar-title">
+                    <i class="bi bi-person-circle"></i>
+                    Job Poster
+                </h3>
+                <div style="text-align: center; padding: 1rem 0;">
+                    <div style="margin-bottom: 1rem;">
+                        {% if job.owner.profile_picture %}
+                        <img src="{{ job.owner.profile_picture.url }}" alt="{{ job.owner.get_full_name|default:job.owner.username }}" style="width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid #3b82f6; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">
+                        {% else %}
+                        <div style="width: 80px; height: 80px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; display: inline-flex; align-items: center; justify-content: center; font-size: 2rem; font-weight: bold; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);">
+                            {{ job.owner.username.0|upper }}
+                        </div>
+                        {% endif %}
+                    </div>
+                    <h4 style="font-size: 1.1rem; font-weight: 700; color: #111827; margin-bottom: 0.25rem;">
+                        {{ job.owner.get_full_name|default:job.owner.username }}
+                    </h4>
+                    {% if job.owner.job_title %}
+                    <p style="font-size: 0.875rem; color: #6b7280; margin-bottom: 1rem;">
+                        {{ job.owner.job_title }}
+                    </p>
+                    {% endif %}
+                    <a href="{% url 'profile' job.owner.pk %}" style="display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; text-decoration: none; border-radius: 10px; font-weight: 600; font-size: 0.9rem; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(59, 130, 246, 0.4)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(59, 130, 246, 0.3)';">
+                        <i class="bi bi-person-badge"></i>
+                        View Profile
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Additional Images Gallery -->
+            {% if job.jobimage_set.count > 1 %}
+            <div class="sidebar-card">
+                <h3 class="sidebar-title">
+                    <i class="bi bi-images"></i>
+                    All Images ({{ job.jobimage_set.count }})
+                </h3>
+                <div class="sidebar-gallery">
+                    {% for image in job.jobimage_set.all %}
+                    <div class="sidebar-gallery-item" onclick="openImageModal('{{ image.image.url }}')">
+                        <img src="{{ image.image.url }}" alt="Job image {{ forloop.counter }}">
+                        <div class="gallery-overlay">
+                            <i class="bi bi-zoom-in"></i>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Map -->
+            {% if job.latitude and job.longitude %}
+            <div class="sidebar-card">
+                <h3 class="sidebar-title">
+                    <i class="bi bi-map"></i>
+                    Location Map
+                </h3>
+                <div class="map-wrapper">
+                    <div id="map"></div>
+                </div>
+                <div class="location-info">
+                    <p>
+                        <i class="bi bi-geo-alt-fill"></i>
+                        {{ job.municipality }}, {{ job.barangay }}
+                    </p>
+                </div>
+            </div>
             {% endif %}
         </div>
     </div>
 
     <!-- Applicants Section (Only for Job Owner) -->
-    {% if user == job.owner and applications %}
+    {% if is_owner and applicants %}
     <div class="applicants-card">
-        <h2 class="section-title">
-            <i class="bi bi-people-fill"></i>
-            Applicants ({{ applications.count }})
-        </h2>
-        {% for application in applications %}
-        <div class="applicant-row">
-            <div class="applicant-info">
-                <img src="{{ application.worker.get_profile_picture_url }}" 
-                     alt="{{ application.worker.username }}" 
-                     class="applicant-avatar"
-                     onerror="this.src='{% static 'images/default_profile.png' %}'">
-                <div class="applicant-details">
-                    <h4>{{ application.worker.get_full_name|default:application.worker.username }}</h4>
-                    <p>Applied {{ application.applied_at|date:"M d, Y" }} • Status: {{ application.status }}</p>
-                </div>
-            </div>
-            <div class="applicant-actions">
-                <a href="{% url 'jobs:job_application_detail' application.pk %}" class="btn-action btn-primary btn-sm">
-                    <i class="bi bi-eye"></i> View
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem;">
+            <h2 class="section-title" style="margin: 0;">
+                <i class="bi bi-people-fill"></i>
+                Applicants ({{ applicants.paginator.count }})
+            </h2>
+            
+            <!-- Search Box -->
+            <form method="get" action="" style="display: flex; gap: 0.5rem;">
+                <input 
+                    type="text" 
+                    name="search" 
+                    class="form-control" 
+                    placeholder="Search applicants..." 
+                    value="{{ search_query }}"
+                    style="width: 250px;">
+                <button type="submit" class="btn btn-primary">
+                    <i class="bi bi-search"></i>
+                </button>
+                {% if search_query %}
+                <a href="{% url 'jobs:job_detail' job.pk %}" class="btn btn-secondary">
+                    <i class="bi bi-x-circle"></i> Clear
                 </a>
-            </div>
+                {% endif %}
+            </form>
         </div>
-        {% endfor %}
+
+        <!-- Applicants Table -->
+        <div class="table-responsive">
+            <table class="table table-hover" style="background: white; border-radius: 12px; overflow: hidden;">
+                <thead style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;">
+                    <tr>
+                        <th style="padding: 1rem;">Applicant</th>
+                        <th style="padding: 1rem;">Verification</th>
+                        <th style="padding: 1rem;">CV</th>
+                        <th style="padding: 1rem;">Applied Date</th>
+                        <th style="padding: 1rem;">Status</th>
+                        <th style="padding: 1rem;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for application in applicants %}
+                    <tr style="border-bottom: 1px solid #e5e7eb;">
+                        <td style="padding: 1rem;">
+                            <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                {% if application.worker.profile_picture %}
+                                <img src="{{ application.worker.profile_picture.url }}" 
+                                     alt="{{ application.worker.username }}" 
+                                     style="width: 45px; height: 45px; border-radius: 50%; object-fit: cover; border: 2px solid #e5e7eb;">
+                                {% else %}
+                                <div style="width: 45px; height: 45px; border-radius: 50%; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.1rem;">
+                                    {{ application.worker.username.0|upper }}
+                                </div>
+                                {% endif %}
+                                <div>
+                                    <div style="font-weight: 600; color: #111827;">
+                                        {{ application.worker.get_full_name|default:application.worker.username }}
+                                    </div>
+                                    <div style="font-size: 0.875rem; color: #6b7280;">
+                                        @{{ application.worker.username }}
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            {% if application.worker.is_verified %}
+                            <span class="badge" style="background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.875rem;">
+                                <i class="bi bi-patch-check-fill"></i> Verified
+                            </span>
+                            {% else %}
+                            <span class="badge" style="background: #f3f4f6; color: #6b7280; padding: 0.5rem 0.75rem; border-radius: 8px; font-size: 0.875rem;">
+                                <i class="bi bi-question-circle"></i> Not Verified
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 1rem;">
+                            {% if application.attach_profile_cv and application.worker.cv_file %}
+                            <button 
+                               onclick="openCVModal('{{ application.worker.cv_file.url }}', '{{ application.worker.get_full_name|default:application.worker.username }}')"
+                               class="btn btn-sm" 
+                               style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white; padding: 0.5rem 1rem; border-radius: 8px; border: none; cursor: pointer; display: inline-flex; align-items: center; gap: 0.5rem;">
+                                <i class="bi bi-file-earmark-pdf"></i> Preview CV
+                            </button>
+                            <a href="{{ application.worker.cv_file.url }}" 
+                               download 
+                               class="btn btn-sm btn-secondary" 
+                               style="padding: 0.5rem 1rem; border-radius: 8px; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; margin-left: 0.5rem;">
+                                <i class="bi bi-download"></i>
+                            </a>
+                            {% else %}
+                            <span style="color: #9ca3af; font-size: 0.875rem;">
+                                <i class="bi bi-dash-circle"></i> No CV
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 1rem;">
+                            <div style="color: #374151;">
+                                <i class="bi bi-calendar3"></i> {{ application.applied_at|date:"M d, Y" }}
+                            </div>
+                            <div style="font-size: 0.875rem; color: #6b7280;">
+                                {{ application.applied_at|date:"g:i A" }}
+                            </div>
+                        </td>
+                        <td style="padding: 1rem;">
+                            {% if application.status == "Pending" %}
+                            <span class="badge" style="background: #fef3c7; color: #92400e; padding: 0.5rem 0.75rem; border-radius: 8px;">
+                                <i class="bi bi-clock-history"></i> Pending
+                            </span>
+                            {% elif application.status == "Accepted" %}
+                            <span class="badge" style="background: #d1fae5; color: #065f46; padding: 0.5rem 0.75rem; border-radius: 8px;">
+                                <i class="bi bi-check-circle-fill"></i> Accepted
+                            </span>
+                            {% elif application.status == "Rejected" %}
+                            <span class="badge" style="background: #fee2e2; color: #991b1b; padding: 0.5rem 0.75rem; border-radius: 8px;">
+                                <i class="bi bi-x-circle-fill"></i> Rejected
+                            </span>
+                            {% else %}
+                            <span class="badge" style="background: #e0e7ff; color: #3730a3; padding: 0.5rem 0.75rem; border-radius: 8px;">
+                                {{ application.status }}
+                            </span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 1rem;">
+                            <a href="{% url 'jobs:job_application_detail' application.pk %}" 
+                               class="btn btn-sm btn-primary" 
+                               style="padding: 0.5rem 1rem; border-radius: 8px;">
+                                <i class="bi bi-eye"></i> View Details
+                            </a>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="6" style="padding: 2rem; text-align: center; color: #6b7280;">
+                            <i class="bi bi-inbox" style="font-size: 3rem; display: block; margin-bottom: 1rem; opacity: 0.5;"></i>
+                            {% if search_query %}
+                            No applicants found matching "{{ search_query }}"
+                            {% else %}
+                            No applicants yet
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        {% if applicants.has_other_pages %}
+        <nav aria-label="Applicants pagination" style="margin-top: 1.5rem;">
+            <ul class="pagination justify-content-center">
+                {% if applicants.has_previous %}
+                <li class="page-item">
+                    <a class="page-link" href="?page=1{% if search_query %}&search={{ search_query }}{% endif %}">First</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ applicants.previous_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Previous</a>
+                </li>
+                {% endif %}
+
+                <li class="page-item active">
+                    <span class="page-link">
+                        Page {{ applicants.number }} of {{ applicants.paginator.num_pages }}
+                    </span>
+                </li>
+
+                {% if applicants.has_next %}
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ applicants.next_page_number }}{% if search_query %}&search={{ search_query }}{% endif %}">Next</a>
+                </li>
+                <li class="page-item">
+                    <a class="page-link" href="?page={{ applicants.paginator.num_pages }}{% if search_query %}&search={{ search_query }}{% endif %}">Last</a>
+                </li>
+                {% endif %}
+            </ul>
+        </nav>
+        {% endif %}
     </div>
     {% endif %}
 </div>
@@ -716,33 +1754,245 @@
         <button class="modal-close" onclick="closeImageModal()">
             <i class="bi bi-x"></i>
         </button>
+        
+        <!-- Previous Button -->
+        <button class="modal-nav modal-prev" onclick="navigateImage(-1)" id="prevBtn">
+            <i class="bi bi-chevron-left"></i>
+        </button>
+        
+        <!-- Next Button -->
+        <button class="modal-nav modal-next" onclick="navigateImage(1)" id="nextBtn">
+            <i class="bi bi-chevron-right"></i>
+        </button>
+        
         <img id="modalImage" class="modal-image" src="" alt="Full size image">
+        
+        <!-- Image Counter -->
+        <div class="image-counter" id="imageCounter"></div>
+    </div>
+</div>
+
+<!-- CV Preview Modal -->
+<div class="modal fade" id="cvModal" tabindex="-1" aria-labelledby="cvModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-content" style="height: 90vh;">
+            <div class="modal-header" style="background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); color: white;">
+                <h5 class="modal-title" id="cvModalLabel">
+                    <i class="bi bi-file-earmark-pdf"></i> CV Preview - <span id="cvApplicantName"></span>
+                </h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" style="padding: 0; height: calc(90vh - 120px); position: relative;">
+                <div id="cvLoadingSpinner" style="position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 10;">
+                    <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                    <p class="mt-3 text-muted">Loading CV...</p>
+                </div>
+                <iframe id="cvPreviewFrame" style="width: 100%; height: 100%; border: none; display: none;"></iframe>
+                <div id="cvError" style="display: none; text-align: center; padding: 3rem;">
+                    <i class="bi bi-exclamation-triangle" style="font-size: 4rem; color: #ef4444;"></i>
+                    <h4 class="mt-3">Unable to Preview CV</h4>
+                    <p class="text-muted">This file type cannot be previewed in the browser.</p>
+                    <a id="cvDownloadLink" href="" download class="btn btn-primary mt-3">
+                        <i class="bi bi-download"></i> Download CV Instead
+                    </a>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <a id="cvDownloadButton" href="" download class="btn btn-success">
+                    <i class="bi bi-download"></i> Download CV
+                </a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+            </div>
+        </div>
     </div>
 </div>
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
+    // CV Preview Modal Function
+    function openCVModal(cvUrl, applicantName) {
+        // Set applicant name
+        document.getElementById('cvApplicantName').textContent = applicantName;
+        
+        // Set download links
+        document.getElementById('cvDownloadButton').href = cvUrl;
+        document.getElementById('cvDownloadLink').href = cvUrl;
+        
+        // Show loading spinner
+        document.getElementById('cvLoadingSpinner').style.display = 'block';
+        document.getElementById('cvPreviewFrame').style.display = 'none';
+        document.getElementById('cvError').style.display = 'none';
+        
+        // Check file extension
+        const fileExt = cvUrl.split('.').pop().toLowerCase();
+        const previewableTypes = ['pdf', 'jpg', 'jpeg', 'png', 'gif', 'webp'];
+        
+        if (previewableTypes.includes(fileExt)) {
+            // Get iframe element
+            const iframe = document.getElementById('cvPreviewFrame');
+            
+            // Set up load event listener
+            iframe.onload = function() {
+                document.getElementById('cvLoadingSpinner').style.display = 'none';
+                iframe.style.display = 'block';
+            };
+            
+            // Set up error event listener
+            iframe.onerror = function() {
+                document.getElementById('cvLoadingSpinner').style.display = 'none';
+                document.getElementById('cvError').style.display = 'block';
+            };
+            
+            // For PDFs, use Google Docs Viewer or embed directly
+            if (fileExt === 'pdf') {
+                // Try to embed PDF directly first
+                iframe.src = cvUrl + '#view=FitH';
+            } else {
+                // For images, create an img tag inside iframe
+                iframe.srcdoc = `
+                    <!DOCTYPE html>
+                    <html>
+                    <head>
+                        <style>
+                            body { margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f3f4f6; }
+                            img { max-width: 100%; height: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+                        </style>
+                    </head>
+                    <body>
+                        <img src="${cvUrl}" alt="CV" onload="parent.document.getElementById('cvLoadingSpinner').style.display='none'; this.parentElement.parentElement.style.display='block';">
+                    </body>
+                    </html>
+                `;
+            }
+        } else {
+            // File type not previewable, show error
+            document.getElementById('cvLoadingSpinner').style.display = 'none';
+            document.getElementById('cvError').style.display = 'block';
+        }
+        
+        // Show modal
+        const cvModal = new bootstrap.Modal(document.getElementById('cvModal'));
+        cvModal.show();
+    }
+
     // Application Confirmation
     function confirmApplication() {
         return confirm('Are you sure you want to send this application?');
     }
 
+    // Image Gallery Array
+    const jobImages = [
+        {% for image in job.jobimage_set.all %}
+        '{{ image.image.url }}'{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    let currentImageIndex = 0;
+
     // Image Modal Functions
     function openImageModal(imageSrc) {
-        document.getElementById('modalImage').src = imageSrc;
-        document.getElementById('imageModal').classList.add('active');
+        const modalImg = document.getElementById('modalImage');
+        const modal = document.getElementById('imageModal');
+        
+        // Find the index of the clicked image
+        currentImageIndex = jobImages.indexOf(imageSrc);
+        if (currentImageIndex === -1) currentImageIndex = 0;
+        
+        // Preload image to ensure quality
+        const img = new Image();
+        img.onload = function() {
+            modalImg.src = imageSrc;
+            modal.classList.add('active');
+            updateNavigationButtons();
+            updateImageCounter();
+        };
+        img.src = imageSrc;
     }
 
     function closeImageModal() {
         document.getElementById('imageModal').classList.remove('active');
     }
 
+    function navigateImage(direction) {
+        currentImageIndex += direction;
+        
+        // Loop around if at the end
+        if (currentImageIndex < 0) {
+            currentImageIndex = jobImages.length - 1;
+        } else if (currentImageIndex >= jobImages.length) {
+            currentImageIndex = 0;
+        }
+        
+        // Update the modal image
+        const modalImg = document.getElementById('modalImage');
+        const img = new Image();
+        img.onload = function() {
+            modalImg.src = jobImages[currentImageIndex];
+            updateNavigationButtons();
+            updateImageCounter();
+        };
+        img.src = jobImages[currentImageIndex];
+    }
+
+    function updateNavigationButtons() {
+        const prevBtn = document.getElementById('prevBtn');
+        const nextBtn = document.getElementById('nextBtn');
+        
+        // Show/hide buttons based on image count
+        if (jobImages.length <= 1) {
+            prevBtn.style.display = 'none';
+            nextBtn.style.display = 'none';
+        } else {
+            prevBtn.style.display = 'flex';
+            nextBtn.style.display = 'flex';
+        }
+    }
+
+    function updateImageCounter() {
+        const counter = document.getElementById('imageCounter');
+        if (jobImages.length > 1) {
+            counter.textContent = `${currentImageIndex + 1} / ${jobImages.length}`;
+            counter.style.display = 'block';
+        } else {
+            counter.style.display = 'none';
+        }
+    }
+
     // Close modal on Escape key
     document.addEventListener('keydown', function(event) {
         if (event.key === 'Escape') {
             closeImageModal();
+        } else if (event.key === 'ArrowLeft') {
+            if (document.getElementById('imageModal').classList.contains('active')) {
+                navigateImage(-1);
+            }
+        } else if (event.key === 'ArrowRight') {
+            if (document.getElementById('imageModal').classList.contains('active')) {
+                navigateImage(1);
+            }
         }
     });
+
+    // Change Hero Image Function
+    function changeHeroImage(imageUrl, thumbnailElement) {
+        const heroImage = document.querySelector('.hero-image');
+        if (heroImage) {
+            heroImage.style.transform = 'scale(1.1)';
+            setTimeout(() => {
+                heroImage.src = imageUrl;
+                heroImage.style.transform = 'scale(1)';
+            }, 250);
+        }
+        
+        // Update active thumbnail
+        document.querySelectorAll('.thumbnail-item').forEach(item => {
+            item.classList.remove('active');
+        });
+        if (thumbnailElement) {
+            thumbnailElement.classList.add('active');
+        }
+    }
 
     // Initialize Map
     {% if job.latitude and job.longitude %}

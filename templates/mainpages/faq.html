@@ -1,0 +1,380 @@
+{% extends "mainpages/base.html" %}
+{% load static %}
+
+{% block title %}FAQ - TrabahoLink{% endblock %}
+
+{% block css %}
+<style>
+  :root {
+    --primary-color: #1e40af;
+    --primary-dark: #1e3a8a;
+    --primary-light: #dbeafe;
+    --accent-color: #f59e0b;
+    --text-color: #1e293b;
+    --text-light: #64748b;
+    --border-color: #e2e8f0;
+    --bg-light: #f8fafc;
+  }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    color: var(--text-color);
+    background-color: #ffffff;
+  }
+
+  .faq-header {
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+    color: white;
+    padding: 4rem 0 3rem;
+    margin-bottom: 3rem;
+  }
+
+  .faq-header h1 {
+    font-size: 2.5rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  .faq-header p {
+    font-size: 1.1rem;
+    opacity: 0.95;
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  .faq-section {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  }
+
+  .faq-section h2 {
+    color: var(--primary-color);
+    font-size: 1.75rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    border-bottom: 3px solid var(--primary-color);
+    padding-bottom: 0.5rem;
+  }
+
+  .faq-item {
+    margin-bottom: 1.5rem;
+    border-left: 3px solid var(--primary-light);
+    padding-left: 1.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .faq-item:hover {
+    border-left-color: var(--primary-color);
+    background-color: var(--bg-light);
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-left: -1.5rem;
+    margin-right: -1rem;
+    padding-left: 1.5rem;
+  }
+
+  .faq-question {
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: var(--text-color);
+    margin-bottom: 0.5rem;
+    display: flex;
+    align-items: start;
+  }
+
+  .faq-question i {
+    color: var(--primary-color);
+    margin-right: 0.75rem;
+    margin-top: 0.2rem;
+    font-size: 1.2rem;
+  }
+
+  .faq-answer {
+    color: var(--text-light);
+    line-height: 1.7;
+    margin-left: 2.2rem;
+  }
+
+  .faq-answer ul {
+    margin-top: 0.5rem;
+    padding-left: 1.5rem;
+  }
+
+  .faq-answer li {
+    margin-bottom: 0.5rem;
+  }
+
+  .contact-box {
+    background: linear-gradient(135deg, var(--primary-light) 0%, #dbeafe 100%);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    margin-top: 3rem;
+  }
+
+  .contact-box h3 {
+    color: var(--primary-dark);
+    font-weight: 600;
+    margin-bottom: 1rem;
+  }
+
+  .contact-box p {
+    color: var(--text-color);
+    margin-bottom: 1.5rem;
+  }
+
+  .contact-box .btn {
+    background: var(--primary-color);
+    color: white;
+    padding: 0.75rem 2rem;
+    border-radius: 8px;
+    text-decoration: none;
+    display: inline-block;
+    transition: all 0.3s ease;
+    font-weight: 500;
+  }
+
+  .contact-box .btn:hover {
+    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(30, 64, 175, 0.3);
+  }
+
+  @media (max-width: 768px) {
+    .faq-header h1 {
+      font-size: 2rem;
+    }
+
+    .faq-section {
+      padding: 1.5rem;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="faq-header">
+  <div class="container text-center">
+    <h1><i class="bi bi-question-circle-fill"></i> Frequently Asked Questions</h1>
+    <p>Find answers to common questions about TrabahoLink</p>
+  </div>
+</div>
+
+<div class="container mb-5">
+  <!-- General Questions -->
+  <div class="faq-section">
+    <h2><i class="bi bi-info-circle me-2"></i>General Questions</h2>
+    
+    <div class="faq-item">
+      <div class="faq-question">
+        <i class="bi bi-question-circle-fill"></i>
+        <span>What is TrabahoLink?</span>
+      </div>
+      <div class="faq-answer">
+        TrabahoLink is a trusted platform connecting skilled workers with job opportunities across the Philippines. We help employers find qualified workers and enable workers to showcase their skills and find meaningful employment.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <i class="bi bi-question-circle-fill"></i>
+        <span>How do I get started?</span>
+      </div>
+      <div class="faq-answer">
+        Simply create an account by selecting your role (Worker or Client/Employer). Fill out your profile with relevant information, and you can start browsing jobs or posting job opportunities immediately.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <i class="bi bi-question-circle-fill"></i>
+        <span>Is TrabahoLink free to use?</span>
+      </div>
+      <div class="faq-answer">
+        Yes! TrabahoLink is currently free for both workers and employers. You can create an account, post jobs, apply for positions, and communicate with other users at no cost.
+      </div>
+    </div>
+  </div>
+
+  <!-- For Workers -->
+  <div class="faq-section">
+    <h2><i class="bi bi-person-fill-gear me-2"></i>For Workers</h2>
+    
+    <div class="faq-item">
+      <div class="faq-question">
+        <i class="bi bi-question-circle-fill"></i>
+        <span>How do I apply for a job?</span>
+      </div>
+      <div class="faq-answer">
+        Browse available jobs in the Jobs section, click on any job that interests you, and click the "Apply" button. Fill out the application form with your cover letter and relevant information, then submit. You'll receive notifications about your application status.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <i class="bi bi-question-circle-fill"></i>
+        <span>How do I create a service post?</span>
+      </div>
+      <div class="faq-answer">
+        As a worker, you can create service posts to showcase your skills and services. Navigate to the Services section and click "Create Service Post." Describe your service, set your rates, and add photos to attract potential clients.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <i class="bi bi-question-circle-fill"></i>
+        <span>How do I track my applications?</span>
+      </div>
+      <div class="faq-answer">
+        Visit your Worker Dashboard to see all your active applications, their status, and any messages from employers. You'll also receive notifications when there are updates to your applications.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <i class="bi bi-question-circle-fill"></i>
+        <span>What is the verification process?</span>
+      </div>
+      <div class="faq-answer">
+        Workers can verify their identity by submitting valid government-issued IDs through our verification system. Verified workers get a badge on their profile, increasing trust and credibility with potential employers.
+      </div>
+    </div>
+  </div>
+
+  <!-- For Employers -->
+  <div class="faq-section">
+    <h2><i class="bi bi-briefcase-fill me-2"></i>For Employers</h2>
+    
+    <div class="faq-item">
+      <div class="faq-question">
+        <i class="bi bi-question-circle-fill"></i>
+        <span>How do I post a job?</span>
+      </div>
+      <div class="faq-answer">
+        After creating a Client/Employer account, click on "Post a Job" in the navigation menu. Fill in the job details including title, description, location, budget, and requirements. Once submitted, your job will be visible to workers.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <i class="bi bi-question-circle-fill"></i>
+        <span>How do I review applications?</span>
+      </div>
+      <div class="faq-answer">
+        Go to your Employer Dashboard to see all applications for your jobs. You can review each applicant's profile, experience, and cover letter. From there, you can accept, deny, or request more information from applicants.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <i class="bi bi-question-circle-fill"></i>
+        <span>How do contracts work?</span>
+      </div>
+      <div class="faq-answer">
+        Once you accept an application, you can create a contract with job details, payment terms, and timeline. The worker reviews and can negotiate terms. Once both parties agree and sign, the contract becomes active and work can begin.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <i class="bi bi-question-circle-fill"></i>
+        <span>Can I edit or delete my job posts?</span>
+      </div>
+      <div class="faq-answer">
+        Yes! You can edit job details or deactivate jobs at any time from your dashboard. Deactivated jobs won't be visible to workers but you can reactivate them later if needed.
+      </div>
+    </div>
+  </div>
+
+  <!-- Safety & Security -->
+  <div class="faq-section">
+    <h2><i class="bi bi-shield-check me-2"></i>Safety & Security</h2>
+    
+    <div class="faq-item">
+      <div class="faq-question">
+        <i class="bi bi-question-circle-fill"></i>
+        <span>Is my personal information safe?</span>
+      </div>
+      <div class="faq-answer">
+        Yes. We take data security seriously and implement industry-standard security measures to protect your personal information. We never share your data with third parties without your consent.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <i class="bi bi-question-circle-fill"></i>
+        <span>How do I report suspicious activity or users?</span>
+      </div>
+      <div class="faq-answer">
+        You can report any suspicious activity, inappropriate content, or users by clicking the "Report Issue" button in the footer or on user profiles. Our moderation team will review all reports promptly.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <i class="bi bi-question-circle-fill"></i>
+        <span>What are some safety tips when using TrabahoLink?</span>
+      </div>
+      <div class="faq-answer">
+        <ul>
+          <li>Always verify the identity of people you work with</li>
+          <li>Use the platform's messaging system for communication</li>
+          <li>Never share sensitive financial information</li>
+          <li>Meet in public places for initial meetings</li>
+          <li>Report any suspicious behavior immediately</li>
+          <li>Read and understand contract terms before signing</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <!-- Technical Support -->
+  <div class="faq-section">
+    <h2><i class="bi bi-tools me-2"></i>Technical Support</h2>
+    
+    <div class="faq-item">
+      <div class="faq-question">
+        <i class="bi bi-question-circle-fill"></i>
+        <span>I'm having trouble with my account. What should I do?</span>
+      </div>
+      <div class="faq-answer">
+        If you're experiencing issues with your account, try resetting your password first. If the problem persists, contact our support team through the contact information below.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <i class="bi bi-question-circle-fill"></i>
+        <span>Why am I not receiving notifications?</span>
+      </div>
+      <div class="faq-answer">
+        Check your notification settings in your profile and ensure that your email address is verified. Also check your spam/junk folder for emails from TrabahoLink.
+      </div>
+    </div>
+
+    <div class="faq-item">
+      <div class="faq-question">
+        <i class="bi bi-question-circle-fill"></i>
+        <span>How do I delete my account?</span>
+      </div>
+      <div class="faq-answer">
+        If you wish to delete your account, please contact our support team. We'll help you through the account deletion process and ensure all your data is properly removed.
+      </div>
+    </div>
+  </div>
+
+  <!-- Still Need Help? -->
+  <div class="contact-box">
+    <h3><i class="bi bi-headset me-2"></i>Still Need Help?</h3>
+    <p>Can't find the answer you're looking for? Our support team is here to help!</p>
+    <div>
+      <a href="mailto:support@trabaholink.ph" class="btn">
+        <i class="bi bi-envelope-fill me-2"></i>Contact Support
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

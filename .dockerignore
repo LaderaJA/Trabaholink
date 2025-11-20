@@ -1,0 +1,99 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+
+# Django
+*.log
+local_settings.py
+db.sqlite3
+db.sqlite3-journal
+/staticfiles/
+/mediafiles/
+/media/
+/static/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Docker
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# Documentation
+*.md
+*.rst
+docs/
+README.txt
+CHANGES.txt
+TODO.txt
+# Keep requirements.txt!
+
+# Testing
+.coverage
+htmlcov/
+.pytest_cache/
+.tox/
+
+# Environment variables (important - don't copy secrets)
+.env
+.env.*
+*.env
+
+# Backup files
+*.bak
+*.backup
+backup_old_verification/
+
+# Temporary files
+tmp_*
+*.tmp
+
+# Node.js (for frontend)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# Profile pictures (can be large)
+profile_pics/
+
+# Scripts that are for local development (but keep entrypoint.sh!)
+startup.sh
+restart_services.sh
+stop_services.sh
+switch_to_simplified.sh
+fix_*.py
+diagnose_*.py
+process_*.py
+inspect_*.py
+clear_*.py
+
+# Documentation and summaries
+CHANGES_APPLIED.txt
+FINAL_SUMMARY.txt
+NOTIFICATION_*.md
+QUICK_START_GUIDE.txt
+starting up.txt

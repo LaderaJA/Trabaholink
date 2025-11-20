@@ -4,37 +4,71 @@
 {% block css %}
 <style>
 :root {
-  --primary-color: #1a94d4;
-  --primary-dark: #0d6efd;
-  --primary-light: #e6f4ff;
-  --success-color: #10b981;
+  /* Bacoor City Official Colors */
+  --bacoor-blue: #1e40af;
+  --bacoor-blue-light: #3b82f6;
+  --bacoor-gold: #f59e0b;
+  --bacoor-green: #059669;
+  
+  --primary-color: #1e40af;
+  --primary-dark: #1e3a8a;
+  --primary-light: #dbeafe;
+  --success-color: #059669;
   --warning-color: #f59e0b;
   --danger-color: #ef4444;
-  --text-dark: #2d3748;
-  --text-medium: #4a5568;
-  --text-light: #718096;
-  --bg-light: #f7fafc;
+  --text-dark: #0f172a;
+  --text-medium: #475569;
+  --text-light: #64748b;
+  --bg-light: #f8fafc;
   --bg-white: #ffffff;
   --border-color: #e2e8f0;
-  --gradient-primary: linear-gradient(135deg, #1a94d4 0%, #0d6efd 100%);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --gradient-primary: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  --gradient-bacoor: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #f59e0b 100%);
+  --shadow-sm: 0 1px 3px 0 rgba(30, 64, 175, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(30, 64, 175, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(30, 64, 175, 0.1);
 }
 
 body {
   background: var(--bg-light);
 }
 
-/* Header */
+/* Header - Bacoor Theme */
 .settings-header {
-  background: var(--gradient-primary);
+  background: var(--gradient-bacoor);
   color: white;
   padding: 2rem 0;
   margin-bottom: 2rem;
+  position: relative;
+  overflow: hidden;
+  animation: gradientAnimation 15s ease infinite;
+  background-size: 200% 200%;
+}
+
+@keyframes gradientAnimation {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+.settings-header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: repeating-linear-gradient(
+    45deg,
+    transparent,
+    transparent 35px,
+    rgba(255,255,255,0.03) 35px,
+    rgba(255,255,255,0.03) 70px
+  );
 }
 
 .settings-header h1 {
+  position: relative;
+  z-index: 1;
   font-size: 2rem;
   font-weight: 700;
   margin: 0;
@@ -42,6 +76,7 @@ body {
   align-items: center;
   gap: 0.75rem;
 }
+
 
 /* Settings Container */
 .settings-container {
@@ -117,7 +152,8 @@ body {
 }
 
 .toggle-switch:hover {
-  background: #e6f4ff;
+  background: rgba(30, 64, 175, 0.05);
+  border-left: 3px solid var(--bacoor-gold);
 }
 
 .toggle-info {
@@ -193,7 +229,7 @@ input:checked + .slider:before {
 .form-control-settings:focus {
   outline: none;
   border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(26, 148, 212, 0.1);
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
 }
 
 .form-select-settings {

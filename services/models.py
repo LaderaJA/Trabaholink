@@ -55,3 +55,56 @@ class ServicePostImage(models.Model):
 
     def __str__(self):
         return f"Image for {self.service_post.headline}"
+
+
+class ServiceReview(models.Model):
+    """Model for service post reviews/ratings with comments"""
+    RATING_CHOICES = [
+        (1, '1 - Poor'),
+        (2, '2 - Fair'),
+        (3, '3 - Good'),
+        (4, '4 - Very Good'),
+        (5, '5 - Excellent'),
+    ]
+    
+    service_post = models.ForeignKey(ServicePost, on_delete=models.CASCADE, related_name='reviews')
+    reviewer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='service_reviews')
+    rating = models.IntegerField(choices=RATING_CHOICES)
+    comment = models.TextField(help_text="Share your experience with this service")
+    is_flagged = models.BooleanField(default=False, help_text="Flagged by moderation system")
+    is_hidden = models.BooleanField(default=False, help_text="Hidden by admin or auto-removal")
+    flagged_words = models.CharField(max_length=500, blank=True, help_text="Words that triggered moderation")
+    report_count = models.IntegerField(default=0, help_text="Number of times reported by users")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    admin_notes = models.TextField(blank=True, help_text="Admin moderation notes")
+    
+    class Meta:
+        ordering = ['-created_at']
+        unique_together = ['service_post', 'reviewer']  # One review per user per service
+        
+    def __str__(self):
+        return f"Review by {self.reviewer.get_full_name()} on {self.service_post.headline}"
+    
+    def check_auto_removal(self):
+        """Auto-remove if reported 3+ times by different users"""
+        if self.report_count >= 3:
+            self.is_hidden = True
+            self.save()
+            return True
+        return False
+
+
+class ServiceReviewReport(models.Model):
+    """Track who reported which review to prevent duplicate reports"""
+    review = models.ForeignKey(ServiceReview, on_delete=models.CASCADE, related_name='reports')
+    reporter = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='service_review_reports')
+    reason = models.TextField(help_text="Reason for reporting this review")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['review', 'reporter']  # One report per user per review
+        ordering = ['-created_at']
+        
+    def __str__(self):
+        return f"Report by {self.reporter.get_full_name()} on review {self.review.id}"

@@ -13,12 +13,12 @@ load_dotenv(BASE_DIR / '.env')
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-j%%kku167m+le-25a0+o-0qvl64osod4=tf!ab$*9h!y$^9viy'
+SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-j%%kku167m+le-25a0+o-0qvl64osod4=tf!ab$*9h!y$^9viy')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.environ.get('DEBUG', 'True') == 'True'
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(',')
 
 # Application definition
 
@@ -62,7 +62,9 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
+    'users.middleware.RoleSelectionMiddleware',  # ✅ Force role selection for new social users
     'notifications.middleware.NotificationMiddleware',
+    'jobs.middleware.ExpiredJobsMiddleware',  # Auto-deactivate expired jobs
 ]
 
 
@@ -81,6 +83,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'notifications.context_processors.unread_notifications',
                 'admin_dashboard.context_processors.admin_notifications',
+                'jobs.context_processors.user_dashboard_access',
             ],
         },
     },
@@ -93,7 +96,7 @@ CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [("127.0.0.1", 6379)],  
+            "hosts": [(os.environ.get('REDIS_HOST', '127.0.0.1'), int(os.environ.get('REDIS_PORT', 6379)))],  
         },
     },
 }
@@ -108,12 +111,12 @@ CORS_ALLOWED_ORIGINS = [
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.contrib.gis.db.backends.postgis',
-        'NAME': 'trabaholink_db', 
-        'USER': 'trabaholink_db', 
-        'PASSWORD': '121628',  
-        'HOST': 'localhost', 
-        'PORT': '5432', 
+        'ENGINE': os.environ.get('DB_ENGINE', 'django.contrib.gis.db.backends.postgis'),
+        'NAME': os.environ.get('DB_NAME', 'trabaholink_db'), 
+        'USER': os.environ.get('DB_USER', 'trabaholink_db'), 
+        'PASSWORD': os.environ.get('DB_PASSWORD', '121628'),  
+        'HOST': os.environ.get('DB_HOST', 'localhost'), 
+        'PORT': os.environ.get('DB_PORT', '5432'), 
     }
 }
 
@@ -173,11 +176,15 @@ AUTHENTICATION_BACKENDS = [
 LOGIN_REDIRECT_URL = 'jobs:home'  
 LOGOUT_REDIRECT_URL = 'login'
 
-EMAIL_BACKEND = "anymail.backends.sendgrid.EmailBackend"
+EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 ANYMAIL = {
-    "SENDGRID_API_KEY": os.environ.get("SENDGRID_API_KEY")
+    "SENDGRID_API_KEY": os.environ.get('SENDGRID_API_KEY', '')
 }
-DEFAULT_FROM_EMAIL = "junnuj312@gmail.com"
+DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'trabaholinka@gmail.com')
+
+# OTP Settings
+OTP_EXPIRY_MINUTES = 10  # OTP expires after 10 minutes
+OTP_LENGTH = 6  # 6-digit OTP code
 
 GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH', '/usr/lib/libgdal.so')
 
@@ -188,14 +195,21 @@ SITE_ID = 1
 SOCIALACCOUNT_LOGIN_ON_GET = True
 ACCOUNT_LOGIN_METHODS = {'username', 'email'}
 ACCOUNT_EMAIL_REQUIRED = True
-ACCOUNT_EMAIL_VERIFICATION = 'optional'
+ACCOUNT_EMAIL_VERIFICATION = 'none'  # We handle email verification with OTP
 ACCOUNT_USERNAME_REQUIRED = True
-SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_AUTO_SIGNUP = True  # Auto-signup, then redirect to role selection
 ACCOUNT_ADAPTER = 'users.adapters.CustomAccountAdapter'
 SOCIALACCOUNT_ADAPTER = 'users.adapters.CustomSocialAccountAdapter'
 SOCIALACCOUNT_QUERY_EMAIL = True
 SOCIALACCOUNT_EMAIL_REQUIRED = True
 SOCIALACCOUNT_STORE_TOKENS = True
+SOCIALACCOUNT_LOGIN_ON_GET = True  # Allow social login via GET request
+LOGIN_ERROR_URL = '/users/register/'  # Redirect on social login cancellation
+
+# Allow connecting social accounts to existing users with same email
+# BUT require confirmation first (don't auto-connect for new signups)
+SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
+SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = False  # Changed to False to show signup form
 
 # Google OAuth2 settings
 SOCIALACCOUNT_PROVIDERS = {
@@ -214,3 +228,21 @@ SOCIALACCOUNT_PROVIDERS = {
         }
     }
 }
+
+# ============================================================================
+# CELERY CONFIGURATION
+# ============================================================================
+
+CELERY_BROKER_URL = os.environ.get('CELERY_BROKER_URL', 'redis://localhost:6379/0')
+CELERY_RESULT_BACKEND = os.environ.get('CELERY_RESULT_BACKEND', 'redis://localhost:6379/0')
+CELERY_ACCEPT_CONTENT = ['json']
+CELERY_TASK_SERIALIZER = 'json'
+CELERY_RESULT_SERIALIZER = 'json'
+CELERY_TIMEZONE = 'Asia/Manila'
+CELERY_ENABLE_UTC = True
+
+# PhilSys Verification Settings
+PHILSYS_VERIFICATION_ENABLED = True
+PHILSYS_VERIFICATION_TIMEOUT = 30000  # 30 seconds
+PHILSYS_VERIFICATION_MAX_RETRIES = 2
+PHILSYS_VERIFICATION_RATE_LIMIT = '10/m'  # 10 per minute

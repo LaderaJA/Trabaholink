@@ -1,0 +1,208 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trabaholink-web
+  labels:
+    app: trabaholink
+    component: web
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: trabaholink
+      component: web
+  template:
+    metadata:
+      labels:
+        app: trabaholink
+        component: web
+    spec:
+      containers:
+      - name: web
+        image: trabaholink:latest
+        imagePullPolicy: Always
+        ports:
+        - containerPort: 8000
+          name: http
+        env:
+        - name: DEBUG
+          value: "False"
+        - name: DB_HOST
+          value: postgres
+        - name: DB_PORT
+          value: "5432"
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: trabaholink-secrets
+              key: db-name
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: trabaholink-secrets
+              key: db-user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: trabaholink-secrets
+              key: db-password
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: trabaholink-secrets
+              key: secret-key
+        - name: REDIS_HOST
+          value: redis
+        - name: REDIS_PORT
+          value: "6379"
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+        livenessProbe:
+          httpGet:
+            path: /health/
+            port: 8000
+          initialDelaySeconds: 30
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /health/
+            port: 8000
+          initialDelaySeconds: 10
+          periodSeconds: 5
+        volumeMounts:
+        - name: static-files
+          mountPath: /app/staticfiles
+        - name: media-files
+          mountPath: /app/mediafiles
+      volumes:
+      - name: static-files
+        persistentVolumeClaim:
+          claimName: trabaholink-static-pvc
+      - name: media-files
+        persistentVolumeClaim:
+          claimName: trabaholink-media-pvc
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trabaholink-celery-worker
+  labels:
+    app: trabaholink
+    component: celery-worker
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: trabaholink
+      component: celery-worker
+  template:
+    metadata:
+      labels:
+        app: trabaholink
+        component: celery-worker
+    spec:
+      containers:
+      - name: celery-worker
+        image: trabaholink:latest
+        imagePullPolicy: Always
+        command: ["celery", "-A", "Trabaholink", "worker", "-l", "info"]
+        env:
+        - name: DEBUG
+          value: "False"
+        - name: DB_HOST
+          value: postgres
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: trabaholink-secrets
+              key: db-name
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: trabaholink-secrets
+              key: db-user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: trabaholink-secrets
+              key: db-password
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: trabaholink-secrets
+              key: secret-key
+        - name: REDIS_HOST
+          value: redis
+        - name: CELERY_BROKER_URL
+          value: redis://redis:6379/0
+        resources:
+          requests:
+            memory: "512Mi"
+            cpu: "250m"
+          limits:
+            memory: "1Gi"
+            cpu: "500m"
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: trabaholink-celery-beat
+  labels:
+    app: trabaholink
+    component: celery-beat
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: trabaholink
+      component: celery-beat
+  template:
+    metadata:
+      labels:
+        app: trabaholink
+        component: celery-beat
+    spec:
+      containers:
+      - name: celery-beat
+        image: trabaholink:latest
+        imagePullPolicy: Always
+        command: ["celery", "-A", "Trabaholink", "beat", "-l", "info"]
+        env:
+        - name: DEBUG
+          value: "False"
+        - name: DB_HOST
+          value: postgres
+        - name: DB_NAME
+          valueFrom:
+            secretKeyRef:
+              name: trabaholink-secrets
+              key: db-name
+        - name: DB_USER
+          valueFrom:
+            secretKeyRef:
+              name: trabaholink-secrets
+              key: db-user
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: trabaholink-secrets
+              key: db-password
+        - name: SECRET_KEY
+          valueFrom:
+            secretKeyRef:
+              name: trabaholink-secrets
+              key: secret-key
+        - name: REDIS_HOST
+          value: redis
+        resources:
+          requests:
+            memory: "256Mi"
+            cpu: "100m"
+          limits:
+            memory: "512Mi"
+            cpu: "250m"

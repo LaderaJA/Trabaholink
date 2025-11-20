@@ -1,0 +1,1486 @@
+{% extends 'admin_dashboard/dashboard_base.html' %}
+{% load static %}
+{% load moderation_filters %}
+
+{% block title %}Verification Details - {{ verification.user.get_full_name }}{% endblock %}
+{% block page_title %}Identity Verification Details{% endblock %}
+
+{% block breadcrumb_items %}
+<li><i data-lucide="chevron-right" class="w-4 h-4 inline"></i></li>
+<li><a href="{% url 'admin_dashboard:user_verification_list' %}" class="text-trabaholink-blue hover:underline">Verifications</a></li>
+<li><i data-lucide="chevron-right" class="w-4 h-4 inline"></i></li>
+<li class="text-gray-800">{{ verification.user.username }}</li>
+{% endblock %}
+
+{% block content %}
+<div class="space-y-6">
+    
+    <!-- Header Section -->
+    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+        <div class="flex items-start justify-between">
+            <div class="flex items-start gap-4">
+                <div class="w-16 h-16 rounded-full bg-gradient-to-br from-trabaholink-blue to-trabaholink-dark-blue flex items-center justify-center text-white text-2xl font-bold">
+                    {{ verification.user.username.0|upper }}
+                </div>
+                <div>
+                    <h2 class="text-2xl font-bold text-slate-900">{{ verification.full_name }}</h2>
+                    <p class="text-slate-600">@{{ verification.user.username }}</p>
+                    <div class="flex items-center gap-3 mt-2">
+                        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-sm font-medium
+                            {% if verification.status == 'approved' %}bg-green-100 text-green-700 border border-green-200
+                            {% elif verification.status == 'rejected' %}bg-red-100 text-red-700 border border-red-200
+                            {% else %}bg-yellow-100 text-yellow-700 border border-yellow-200{% endif %}">
+                            <i data-lucide="{% if verification.status == 'approved' %}check-circle{% elif verification.status == 'rejected' %}x-circle{% else %}clock{% endif %}" class="w-4 h-4"></i>
+                            {{ verification.get_status_display }}
+                        </span>
+                        <span class="text-sm text-slate-500">
+                            <i data-lucide="calendar" class="w-4 h-4 inline"></i>
+                            Submitted {{ verification.submitted_at|date:"M d, Y" }}
+                        </span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex gap-2">
+                {% if verification.status == 'pending' %}
+                <button onclick="handleVerificationApprove('{% url 'admin_dashboard:approve_identity_verification' verification.pk %}')" 
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 font-medium">
+                    <i data-lucide="check" class="w-4 h-4"></i>
+                    Approve
+                </button>
+                <button onclick="openRejectModal('{% url 'admin_dashboard:reject_identity_verification' verification.pk %}')" 
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 font-medium">
+                    <i data-lucide="x" class="w-4 h-4"></i>
+                    Reject
+                </button>
+                {% endif %}
+                <button onclick="reprocessVerification('{% url 'admin_dashboard:reprocess_verification' verification.pk %}')" 
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-amber-500 text-white rounded-lg hover:bg-amber-600 font-medium"
+                        id="reprocessBtn"
+                        title="Manually re-run verification if OCR results are unsatisfactory">
+                    <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                    Re-run Verification
+                </button>
+                
+                {% if verification.user.id_type|lower == 'philsys' or verification.user.id_type|lower == 'philsys_id' or verification.user.id_type|lower == 'national_id' %}
+                <button onclick="verifyPhilSysQR('{% url 'admin_dashboard:verify_philsys_qr' verification.pk %}')" 
+                        class="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 font-medium"
+                        id="philsysQRBtn"
+                        title="Extract QR code from ID back and verify with PhilSys government portal">
+                    <i data-lucide="qr-code" class="w-4 h-4"></i>
+                    Verify PhilSys QR
+                </button>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Progress Indicator (hidden by default) -->
+    <div id="progressIndicator" class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6 hidden">
+        <div class="flex items-center gap-4">
+            <div class="flex-shrink-0">
+                <i data-lucide="loader" class="w-8 h-8 text-trabaholink-blue animate-spin"></i>
+            </div>
+            <div class="flex-1">
+                <h3 class="text-lg font-semibold text-slate-900 mb-2">Processing Verification</h3>
+                <div class="w-full bg-gray-200 rounded-full h-3 mb-2">
+                    <div id="progressBar" class="bg-trabaholink-blue h-3 rounded-full transition-all duration-300" style="width: 0%"></div>
+                </div>
+                <div class="flex items-center justify-between text-sm">
+                    <span id="progressStep" class="text-slate-600">Starting...</span>
+                    <span id="progressPercent" class="text-slate-900 font-medium">0%</span>
+                </div>
+                <p id="progressMessage" class="text-sm text-slate-500 mt-1"></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        
+        <!-- Left Column: Images -->
+        <div class="lg:col-span-1 space-y-6">
+            
+            <!-- ID Document Front -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+                <h3 class="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                    <i data-lucide="credit-card" class="w-5 h-5 text-trabaholink-blue"></i>
+                    ID Document (Front)
+                </h3>
+                <div class="aspect-video bg-slate-100 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition" onclick="openImageModal('{{ verification.id_image_front.url }}')">
+                    <img src="{{ verification.id_image_front.url }}" alt="ID Front" class="w-full h-full object-contain">
+                </div>
+                <p class="text-xs text-slate-500 mt-2">
+                    <i data-lucide="info" class="w-3 h-3 inline"></i>
+                    {{ verification.get_id_type_display }}
+                </p>
+            </div>
+
+            {% if verification.id_image_back %}
+            <!-- ID Document Back -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+                <h3 class="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                    <i data-lucide="credit-card" class="w-5 h-5 text-trabaholink-blue"></i>
+                    ID Document (Back)
+                </h3>
+                <div class="aspect-video bg-slate-100 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition" onclick="openImageModal('{{ verification.id_image_back.url }}')">
+                    <img src="{{ verification.id_image_back.url }}" alt="ID Back" class="w-full h-full object-contain">
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Selfie -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-5">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                        <i data-lucide="camera" class="w-5 h-5 text-trabaholink-blue"></i>
+                        Selfie Verification
+                    </h3>
+                    
+                    <!-- Confidence Badge -->
+                    {% if verification.verification_score %}
+                    <span class="px-3 py-1 rounded-full text-xs font-semibold
+                        {% if verification.verification_score >= 80 %}bg-green-100 text-green-800
+                        {% elif verification.verification_score >= 60 %}bg-yellow-100 text-yellow-800
+                        {% else %}bg-red-100 text-red-800{% endif %}">
+                        {% if verification.verification_score >= 80 %}✓ High Confidence
+                        {% elif verification.verification_score >= 60 %}⚠ Medium Confidence
+                        {% else %}✗ Low Confidence{% endif %}
+                        ({{ verification.verification_score|floatformat:0 }}%)
+                    </span>
+                    {% endif %}
+                </div>
+                
+                {% if verification.selfie_image %}
+                <div class="aspect-square bg-slate-100 rounded-lg overflow-hidden cursor-pointer hover:opacity-90 transition" onclick="openImageModal('{{ verification.selfie_image.url }}')">
+                    <img src="{{ verification.selfie_image.url }}" alt="Selfie" class="w-full h-full object-cover">
+                </div>
+                {% else %}
+                <div class="aspect-square bg-gray-100 rounded-lg flex items-center justify-center text-gray-400">
+                    <div class="text-center">
+                        <i data-lucide="camera-off" class="w-12 h-12 mx-auto mb-2"></i>
+                        <p class="text-sm">No selfie uploaded</p>
+                    </div>
+                </div>
+                {% endif %}
+                
+                <!-- Face Match Status -->
+                {% if verification.verification_score %}
+                <div class="mt-3 p-3 rounded-lg {% if verification.verification_score >= 70 %}bg-green-50 border border-green-200{% else %}bg-yellow-50 border border-yellow-200{% endif %}">
+                    <p class="text-sm font-medium flex items-center gap-2">
+                        <i data-lucide="{% if verification.verification_score >= 70 %}check-circle{% else %}alert-circle{% endif %}" 
+                           class="w-4 h-4 {% if verification.verification_score >= 70 %}text-green-600{% else %}text-yellow-600{% endif %}"></i>
+                        Face Match: {{ verification.verification_score|floatformat:1 }}% similarity
+                    </p>
+                    <p class="text-xs text-gray-600 mt-1">
+                        {% if verification.verification_score >= 80 %}
+                            Strong match between ID photo and selfie
+                        {% elif verification.verification_score >= 60 %}
+                            Acceptable match - manual review recommended
+                        {% else %}
+                            Weak match - requires manual verification
+                        {% endif %}
+                    </p>
+                </div>
+                {% endif %}
+                
+                <!-- Quick Actions for Selfie Verification -->
+                <div class="mt-4 flex gap-2">
+                    <button onclick="viewSideBySide()" 
+                            class="flex-1 px-4 py-2 bg-purple-500 text-white rounded-lg hover:bg-purple-600 transition text-sm flex items-center justify-center gap-2">
+                        <i data-lucide="columns" class="w-4 h-4"></i>
+                        Compare Side-by-Side
+                    </button>
+                    
+                    <button onclick="compareFaces({{ verification.pk }})" 
+                            class="flex-1 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition text-sm flex items-center justify-center gap-2">
+                        <i data-lucide="scan-face" class="w-4 h-4"></i>
+                        Re-run Face Match
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Right Column: Verification Results -->
+        <div class="lg:col-span-2 space-y-6">
+            
+            <!-- Personal Information - Form Submission -->
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                <h3 class="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                    <i data-lucide="file-edit" class="w-5 h-5 text-slate-600"></i>
+                    Information from Form Submission
+                </h3>
+                <p class="text-xs text-slate-500 mb-4 italic">This is what the user manually entered in the verification form:</p>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <p class="text-xs text-slate-500 mb-1">Full Name (Form)</p>
+                        <p class="text-sm font-medium text-slate-900">{{ verification.full_name }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 mb-1">Date of Birth (Form)</p>
+                        <p class="text-sm font-medium text-slate-900">{{ verification.date_of_birth|date:"M d, Y" }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 mb-1">Gender (Form)</p>
+                        <p class="text-sm font-medium text-slate-900">{{ verification.get_gender_display }}</p>
+                    </div>
+                    <div>
+                        <p class="text-xs text-slate-500 mb-1">Contact Number (Form)</p>
+                        <p class="text-sm font-medium text-slate-900">{{ verification.contact_number }}</p>
+                    </div>
+                    <div class="col-span-2">
+                        <p class="text-xs text-slate-500 mb-1">Address (Form)</p>
+                        <p class="text-sm font-medium text-slate-900">{{ verification.address }}</p>
+                    </div>
+                </div>
+            </div>
+
+            {% if ocr_data and ocr_data.full_name or ocr_data.date_of_birth or ocr_data.address or ocr_data.id_number %}
+            <!-- Data Comparison: Form vs ID -->
+            <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-2xl shadow-sm border-2 border-amber-300 p-6">
+                <h3 class="text-lg font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                    <i data-lucide="git-compare" class="w-5 h-5 text-amber-600"></i>
+                    Data Comparison: User Form Input vs ID Document (OCR Extracted)
+                </h3>
+                <div class="bg-amber-100 border border-amber-300 rounded-lg p-3 mb-4">
+                    <p class="text-xs text-amber-900 font-semibold mb-1">
+                        <i data-lucide="alert-triangle" class="w-3 h-3 inline"></i>
+                        Verification Purpose:
+                    </p>
+                    <p class="text-xs text-amber-800">
+                        This section compares what the user <strong>manually typed in the form</strong> against what was <strong>automatically extracted from their ID image using OCR</strong>. 
+                        Mismatches may indicate typos, fraudulent submissions, or OCR errors.
+                    </p>
+                </div>
+                
+                <div class="space-y-3">
+                    {% if ocr_data.full_name %}
+                    <div class="bg-white rounded-lg p-4 border-2 border-amber-300 shadow-sm">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i data-lucide="user" class="w-4 h-4 text-amber-600"></i>
+                            <p class="text-sm font-bold text-amber-900">FULL NAME Comparison:</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-slate-50 rounded-lg p-3 border border-slate-200">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <i data-lucide="edit" class="w-3 h-3 text-slate-600"></i>
+                                    <p class="text-xs text-slate-600 font-semibold uppercase">User Typed in Form:</p>
+                                </div>
+                                <p class="text-base font-bold text-slate-900">{{ verification.full_name }}</p>
+                                <p class="text-xs text-slate-500 mt-1 italic">Manual input by user</p>
+                            </div>
+                            <div class="bg-blue-50 rounded-lg p-3 border border-blue-200">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <i data-lucide="scan" class="w-3 h-3 text-blue-600"></i>
+                                    <p class="text-xs text-blue-600 font-semibold uppercase">Extracted from ID (OCR):</p>
+                                </div>
+                                <p class="text-base font-bold text-blue-900">{{ ocr_data.full_name }}</p>
+                                <p class="text-xs text-blue-600 mt-1 italic">Automatic OCR extraction</p>
+                            </div>
+                        </div>
+                        {% if verification.full_name|upper == ocr_data.full_name|upper %}
+                        <div class="mt-3 p-2 bg-green-50 border border-green-300 rounded flex items-center gap-2">
+                            <i data-lucide="check-circle" class="w-4 h-4 text-green-600"></i>
+                            <p class="text-xs text-green-700 font-bold">✓ MATCH - Names are identical</p>
+                        </div>
+                        {% else %}
+                        <div class="mt-3 p-2 bg-red-50 border border-red-300 rounded flex items-center gap-2">
+                            <i data-lucide="alert-circle" class="w-4 h-4 text-red-600"></i>
+                            <p class="text-xs text-red-700 font-bold">⚠ MISMATCH - Names don't match, manual review required</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    {% if ocr_data.date_of_birth %}
+                    <div class="bg-white rounded-lg p-4 border-2 border-amber-300 shadow-sm">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i data-lucide="calendar" class="w-4 h-4 text-amber-600"></i>
+                            <p class="text-sm font-bold text-amber-900">DATE OF BIRTH Comparison:</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-slate-50 rounded-lg p-3 border border-slate-200">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <i data-lucide="edit" class="w-3 h-3 text-slate-600"></i>
+                                    <p class="text-xs text-slate-600 font-semibold uppercase">User Typed in Form:</p>
+                                </div>
+                                <p class="text-base font-bold text-slate-900">{{ verification.date_of_birth|date:"M d, Y" }}</p>
+                                <p class="text-xs text-slate-500 mt-1 italic">Manual input by user</p>
+                            </div>
+                            <div class="bg-purple-50 rounded-lg p-3 border border-purple-200">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <i data-lucide="scan" class="w-3 h-3 text-purple-600"></i>
+                                    <p class="text-xs text-purple-600 font-semibold uppercase">Extracted from ID (OCR):</p>
+                                </div>
+                                <p class="text-base font-bold text-purple-900">{{ ocr_data.date_of_birth }}</p>
+                                <p class="text-xs text-purple-600 mt-1 italic">Automatic OCR extraction</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if ocr_data.address %}
+                    <div class="bg-white rounded-lg p-4 border-2 border-amber-300 shadow-sm">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i data-lucide="map-pin" class="w-4 h-4 text-amber-600"></i>
+                            <p class="text-sm font-bold text-amber-900">ADDRESS Comparison:</p>
+                        </div>
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="bg-slate-50 rounded-lg p-3 border border-slate-200">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <i data-lucide="edit" class="w-3 h-3 text-slate-600"></i>
+                                    <p class="text-xs text-slate-600 font-semibold uppercase">User Typed in Form:</p>
+                                </div>
+                                <p class="text-sm font-bold text-slate-900">{{ verification.address }}</p>
+                                <p class="text-xs text-slate-500 mt-1 italic">Manual input by user</p>
+                            </div>
+                            <div class="bg-indigo-50 rounded-lg p-3 border border-indigo-200">
+                                <div class="flex items-center gap-2 mb-2">
+                                    <i data-lucide="scan" class="w-3 h-3 text-indigo-600"></i>
+                                    <p class="text-xs text-indigo-600 font-semibold uppercase">Extracted from ID (OCR):</p>
+                                </div>
+                                <p class="text-sm font-bold text-indigo-900">{{ ocr_data.address }}</p>
+                                <p class="text-xs text-indigo-600 mt-1 italic">Automatic OCR extraction</p>
+                            </div>
+                        </div>
+                    </div>
+                    {% endif %}
+
+                    {% if ocr_data.id_number %}
+                    <div class="bg-white rounded-lg p-4 border-2 border-green-300 shadow-sm">
+                        <div class="flex items-center gap-2 mb-3">
+                            <i data-lucide="credit-card" class="w-4 h-4 text-green-600"></i>
+                            <p class="text-sm font-bold text-green-900">PHILSYS CARD NUMBER (PCN):</p>
+                        </div>
+                        <div class="bg-green-50 rounded-lg p-3 border border-green-200">
+                            <div class="flex items-center gap-2 mb-2">
+                                <i data-lucide="scan" class="w-3 h-3 text-green-600"></i>
+                                <p class="text-xs text-green-600 font-semibold uppercase">Extracted from ID Document:</p>
+                            </div>
+                            <p class="text-lg font-bold text-green-900 tracking-wider">{{ ocr_data.id_number }}</p>
+                            <p class="text-xs text-green-700 mt-2 font-medium">
+                                <i data-lucide="info" class="w-3 h-3 inline"></i>
+                                This is the unique PhilSys Card Number extracted from the ID image. Users don't manually enter this.
+                            </p>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div class="mt-4 p-3 bg-white border border-amber-300 rounded-lg">
+                    <p class="text-xs text-slate-700 font-medium">
+                        <i data-lucide="lightbulb" class="w-3 h-3 inline text-amber-600"></i>
+                        <strong>Admin Note:</strong> The left column shows what the user <span class="text-slate-900 font-bold">manually typed</span> in the verification form. 
+                        The right column shows what was <span class="text-blue-700 font-bold">automatically extracted by OCR</span> from their ID image. 
+                        Both should match for a valid verification.
+                    </p>
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Automated Verification Results -->
+            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl shadow-sm border border-blue-100 p-6">
+                <h3 class="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                    <i data-lucide="cpu" class="w-5 h-5 text-blue-600"></i>
+                    Automated Verification Results
+                </h3>
+                
+                {% if verification_log and verification_log.similarity_score is not None %}
+                <!-- Overall Score -->
+                <div class="bg-white rounded-xl p-4 mb-4">
+                    <div class="flex items-center justify-between mb-2">
+                        <span class="text-sm font-medium text-slate-700">Face Matching Score</span>
+                        <span class="text-2xl font-bold 
+                            {% if verification_log.similarity_score >= 0.6 %}text-green-600
+                            {% elif verification_log.similarity_score >= 0.3 %}text-yellow-600
+                            {% else %}text-red-600{% endif %}">
+                            {{ verification_log.similarity_score|floatformat:2 }}
+                        </span>
+                    </div>
+                    <div class="w-full bg-slate-200 rounded-full h-3">
+                        <div class="h-3 rounded-full transition-all
+                            {% if verification_log.similarity_score >= 0.6 %}bg-green-500
+                            {% elif verification_log.similarity_score >= 0.3 %}bg-yellow-500
+                            {% else %}bg-red-500{% endif %}"
+                            style="width: {{ verification_log.similarity_score|floatformat:2|multiply:100 }}%">
+                        </div>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-2">
+                        {% if verification_log.similarity_score >= 0.6 %}
+                            <i data-lucide="check-circle" class="w-3 h-3 inline text-green-600"></i>
+                            High confidence - Recommended for approval
+                        {% elif verification_log.similarity_score >= 0.3 %}
+                            <i data-lucide="alert-circle" class="w-3 h-3 inline text-yellow-600"></i>
+                            Medium confidence - Manual review recommended
+                        {% else %}
+                            <i data-lucide="x-circle" class="w-3 h-3 inline text-red-600"></i>
+                            Low confidence - Verification may have failed
+                        {% endif %}
+                    </p>
+                </div>
+
+                <!-- OCR Quality & Data Validation -->
+                {% if verification_log.notes %}
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <!-- OCR Quality -->
+                    {% if 'OCR Quality:' in verification_log.notes %}
+                    <div class="bg-white rounded-xl p-4 border border-blue-200">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i data-lucide="file-text" class="w-4 h-4 text-blue-600"></i>
+                            <span class="text-xs font-semibold text-slate-700">OCR Quality</span>
+                        </div>
+                        {% for line in verification_log.notes.splitlines %}
+                            {% if 'OCR Quality:' in line %}
+                                <span class="text-lg font-bold text-blue-600">{{ line|cut:"OCR Quality: " }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Data Validation -->
+                    {% if 'Data Validation:' in verification_log.notes %}
+                    <div class="bg-white rounded-xl p-4 border border-green-200">
+                        <div class="flex items-center gap-2 mb-2">
+                            <i data-lucide="check-square" class="w-4 h-4 text-green-600"></i>
+                            <span class="text-xs font-semibold text-slate-700">Data Validation</span>
+                        </div>
+                        {% for line in verification_log.notes.splitlines %}
+                            {% if 'Data Validation:' in line %}
+                                <span class="text-lg font-bold text-green-600">{{ line|cut:"Data Validation: " }}</span>
+                            {% endif %}
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- Matched Fields -->
+                {% if 'Matched Fields:' in verification_log.notes %}
+                <div class="bg-white rounded-xl p-4 mb-4 border border-emerald-200">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i data-lucide="list-checks" class="w-4 h-4 text-emerald-600"></i>
+                        <span class="text-xs font-semibold text-slate-700">Matched Fields</span>
+                    </div>
+                    {% for line in verification_log.notes.splitlines %}
+                        {% if 'Matched Fields:' in line %}
+                            <p class="text-sm text-slate-700">{{ line|cut:"Matched Fields: " }}</p>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+
+                <!-- PhilSys Web Verification -->
+                {% if 'PhilSys Web Verified:' in verification_log.notes %}
+                <div class="bg-gradient-to-r from-purple-50 to-pink-50 rounded-xl p-4 mb-4 border-2 border-purple-300">
+                    <div class="flex items-center gap-2 mb-2">
+                        <i data-lucide="shield-check" class="w-5 h-5 text-purple-600"></i>
+                        <span class="text-sm font-semibold text-slate-900">PhilSys Government Verification</span>
+                    </div>
+                    {% for line in verification_log.notes.splitlines %}
+                        {% if 'PhilSys Web Verified: True' in line %}
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="check-circle" class="w-5 h-5 text-green-600"></i>
+                                <span class="text-sm font-bold text-green-700">✅ Verified by Government Portal</span>
+                            </div>
+                            <p class="text-xs text-slate-600 mt-1">ID verified with https://verify.philsys.gov.ph/</p>
+                        {% elif 'PhilSys Web Verified: False' in line %}
+                            <div class="flex items-center gap-2">
+                                <i data-lucide="x-circle" class="w-5 h-5 text-red-600"></i>
+                                <span class="text-sm font-bold text-red-700">❌ Not Verified by Government Portal</span>
+                            </div>
+                            <p class="text-xs text-slate-600 mt-1">ID could not be verified with government database</p>
+                        {% endif %}
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% endif %}
+
+                {% else %}
+                <!-- No Automated Results Yet -->
+                <div class="bg-white rounded-xl p-6 text-center">
+                    <div class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-blue-100 mb-4">
+                        <i data-lucide="loader" class="w-8 h-8 text-blue-600 animate-spin"></i>
+                    </div>
+                    <h4 class="text-lg font-semibold text-slate-900 mb-2">Verification Processing in Background</h4>
+                    <p class="text-sm text-slate-600 mb-4">
+                        The automated verification runs automatically after submission and processes in the background. 
+                        Results will appear here once processing is complete (usually 10-15 seconds).
+                    </p>
+                    <p class="text-xs text-amber-600 mb-4 font-medium">
+                        <i data-lucide="info" class="w-3 h-3 inline"></i>
+                        If results don't appear or you want to re-run verification, use the "Re-run Verification" button above.
+                    </p>
+                    <div class="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                        <p class="text-xs font-semibold text-blue-900 mb-2">What will be checked:</p>
+                        <ul class="text-xs text-slate-700 space-y-1 text-left">
+                            <li class="flex items-start gap-2">
+                                <i data-lucide="check" class="w-3 h-3 text-blue-600 mt-0.5"></i>
+                                <span><strong>OCR Extraction:</strong> Extract name, PCN, date of birth from ID</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i data-lucide="check" class="w-3 h-3 text-blue-600 mt-0.5"></i>
+                                <span><strong>Data Validation:</strong> Compare extracted data with profile</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i data-lucide="check" class="w-3 h-3 text-blue-600 mt-0.5"></i>
+                                <span><strong>Face Matching:</strong> Compare ID photo with selfie</span>
+                            </li>
+                            <li class="flex items-start gap-2">
+                                <i data-lucide="check" class="w-3 h-3 text-blue-600 mt-0.5"></i>
+                                <span><strong>PhilSys Verification:</strong> Verify with government portal (if applicable)</span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Score Breakdown & Explanation -->
+                <div class="bg-gradient-to-br from-indigo-50 to-purple-50 rounded-xl p-5 mb-4 border-2 border-indigo-200">
+                    <h4 class="text-sm font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                        <i data-lucide="calculator" class="w-5 h-5 text-indigo-600"></i>
+                        Score Breakdown & Analysis
+                    </h4>
+                    
+                    <div class="space-y-3">
+                        <!-- Score Explanation -->
+                        <div class="bg-white rounded-lg p-4 border border-indigo-200">
+                            <p class="text-xs font-semibold text-indigo-900 mb-2 uppercase tracking-wide">📊 How the Score is Calculated:</p>
+                            <p class="text-sm text-slate-700 leading-relaxed mb-3">
+                                The verification score is primarily based on <strong>face matching similarity</strong> between the ID photo and the selfie. 
+                                The system uses OpenCV's face recognition algorithms to compare facial features.
+                            </p>
+                            
+                            <div class="space-y-2">
+                                <div class="flex items-start gap-2">
+                                    <div class="w-2 h-2 rounded-full bg-green-500 mt-1.5 flex-shrink-0"></div>
+                                    <div class="flex-1">
+                                        <p class="text-xs font-medium text-slate-900">Score ≥ 0.60 (60%)</p>
+                                        <p class="text-xs text-slate-600">High confidence match - Faces are very similar. <strong>Recommended for automatic approval.</strong></p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-2">
+                                    <div class="w-2 h-2 rounded-full bg-yellow-500 mt-1.5 flex-shrink-0"></div>
+                                    <div class="flex-1">
+                                        <p class="text-xs font-medium text-slate-900">Score 0.30 - 0.59 (30-59%)</p>
+                                        <p class="text-xs text-slate-600">Medium confidence - Some similarity detected. <strong>Manual review required.</strong></p>
+                                    </div>
+                                </div>
+                                <div class="flex items-start gap-2">
+                                    <div class="w-2 h-2 rounded-full bg-red-500 mt-1.5 flex-shrink-0"></div>
+                                    <div class="flex-1">
+                                        <p class="text-xs font-medium text-slate-900">Score < 0.30 (< 30%)</p>
+                                        <p class="text-xs text-slate-600">Low confidence - Faces don't match well. <strong>Likely rejection.</strong></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Factors Affecting Score -->
+                        <div class="bg-white rounded-lg p-4 border border-indigo-200">
+                            <p class="text-xs font-semibold text-indigo-900 mb-2 uppercase tracking-wide">🔍 Factors That Affect the Score:</p>
+                            <ul class="space-y-1.5 text-xs text-slate-700">
+                                <li class="flex items-start gap-2">
+                                    <span class="text-indigo-600 font-bold">•</span>
+                                    <span><strong>Image Quality:</strong> Blurry, dark, or low-resolution images reduce accuracy</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-indigo-600 font-bold">•</span>
+                                    <span><strong>Lighting Conditions:</strong> Poor lighting or shadows can affect face detection</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-indigo-600 font-bold">•</span>
+                                    <span><strong>Facial Expression:</strong> Different expressions between ID and selfie may lower score</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-indigo-600 font-bold">•</span>
+                                    <span><strong>Age Difference:</strong> Older ID photos may not match current appearance</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-indigo-600 font-bold">•</span>
+                                    <span><strong>Accessories:</strong> Glasses, masks, or hats can interfere with matching</span>
+                                </li>
+                                <li class="flex items-start gap-2">
+                                    <span class="text-indigo-600 font-bold">•</span>
+                                    <span><strong>Camera Angle:</strong> Different angles between photos affect comparison</span>
+                                </li>
+                            </ul>
+                        </div>
+
+                        <!-- Current Verification Analysis -->
+                        {% if verification_log.similarity_score %}
+                        <div class="bg-white rounded-lg p-4 border-2 
+                            {% if verification_log.similarity_score >= 0.6 %}border-green-400 bg-green-50
+                            {% elif verification_log.similarity_score >= 0.3 %}border-yellow-400 bg-yellow-50
+                            {% else %}border-red-400 bg-red-50{% endif %}">
+                            <p class="text-xs font-semibold 
+                                {% if verification_log.similarity_score >= 0.6 %}text-green-900
+                                {% elif verification_log.similarity_score >= 0.3 %}text-yellow-900
+                                {% else %}text-red-900{% endif %} 
+                                mb-2 uppercase tracking-wide">
+                                ⚡ This Verification's Analysis:
+                            </p>
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs font-medium text-slate-700">Final Score:</span>
+                                    <span class="text-lg font-bold 
+                                        {% if verification_log.similarity_score >= 0.6 %}text-green-700
+                                        {% elif verification_log.similarity_score >= 0.3 %}text-yellow-700
+                                        {% else %}text-red-700{% endif %}">
+                                        {{ verification_log.similarity_score|floatformat:4 }} ({{ verification_log.similarity_score|multiply:100|floatformat:2 }}%)
+                                    </span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs font-medium text-slate-700">Confidence Level:</span>
+                                    <span class="text-sm font-semibold 
+                                        {% if verification_log.similarity_score >= 0.6 %}text-green-700
+                                        {% elif verification_log.similarity_score >= 0.3 %}text-yellow-700
+                                        {% else %}text-red-700{% endif %}">
+                                        {% if verification_log.similarity_score >= 0.6 %}HIGH
+                                        {% elif verification_log.similarity_score >= 0.3 %}MEDIUM
+                                        {% else %}LOW{% endif %}
+                                    </span>
+                                </div>
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs font-medium text-slate-700">Recommendation:</span>
+                                    <span class="text-sm font-semibold 
+                                        {% if verification_log.similarity_score >= 0.6 %}text-green-700
+                                        {% elif verification_log.similarity_score >= 0.3 %}text-yellow-700
+                                        {% else %}text-red-700{% endif %}">
+                                        {% if verification_log.similarity_score >= 0.6 %}APPROVE
+                                        {% elif verification_log.similarity_score >= 0.3 %}MANUAL REVIEW
+                                        {% else %}REJECT{% endif %}
+                                    </span>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Face Matching Results -->
+                {% if face_match_data %}
+                <div class="bg-white rounded-xl p-4 mb-4 border-2 border-purple-200">
+                    <h4 class="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                        <i data-lucide="scan-face" class="w-4 h-4 text-purple-600"></i>
+                        Face Matching Analysis
+                    </h4>
+                    
+                    <div class="bg-purple-50 rounded-lg p-3 mb-3 border border-purple-200">
+                        <p class="text-xs font-semibold text-purple-900 mb-2">
+                            {% if face_match_data.method == 'face_recognition' %}✅{% else %}⚠️{% endif %} 
+                            Understanding the Score:
+                        </p>
+                        <p class="text-xs text-purple-800 leading-relaxed">
+                            The system uses <strong>{{ face_match_data.method|upper }}</strong> for face matching. 
+                            {% if face_match_data.method == 'opencv' %}
+                            This is a basic algorithm that compares grayscale histograms and pixel patterns. 
+                            It's <strong>less accurate</strong> than deep learning methods and is affected by lighting, 
+                            angles, expressions, and image quality differences.
+                            {% else %}
+                            This uses <strong>deep learning facial recognition</strong> (dlib CNN) which analyzes 128 facial landmarks 
+                            and features. This is <strong>much more accurate</strong> and reliable than basic image comparison methods.
+                            Typical scores: 70-90%+ for same person, <50% for different people.
+                            {% endif %}
+                        </p>
+                    </div>
+                    
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-slate-600">Similarity Score</span>
+                            <span class="text-sm font-bold text-purple-600">{{ face_match_data.similarity|floatformat:4|default:"N/A" }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-slate-600">Percentage</span>
+                            <span class="text-sm font-bold text-purple-600">{{ face_match_data.confidence }}%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-slate-600">Method Used</span>
+                            <span class="text-xs font-medium text-slate-900 bg-slate-100 px-2 py-1 rounded">{{ face_match_data.method|default:"OpenCV" }}</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-slate-600">Match Status</span>
+                            <span class="text-xs font-medium px-2 py-1 rounded
+                                {% if face_match_data.match %}bg-green-100 text-green-700
+                                {% else %}bg-red-100 text-red-700{% endif %}">
+                                {{ face_match_data.match|yesno:"Match,No Match" }}
+                            </span>
+                        </div>
+                    </div>
+                    
+                    {% if face_match_data.method == 'opencv' %}
+                    <div class="mt-3 pt-3 border-t border-purple-200">
+                        <p class="text-xs font-semibold text-slate-700 mb-2">Why the score might be lower than expected:</p>
+                        <ul class="space-y-1 text-xs text-slate-600">
+                            <li class="flex items-start gap-1">
+                                <span class="text-purple-600">•</span>
+                                <span>OpenCV uses basic histogram matching, not AI face recognition</span>
+                            </li>
+                            <li class="flex items-start gap-1">
+                                <span class="text-purple-600">•</span>
+                                <span>Different lighting between ID and selfie significantly affects score</span>
+                            </li>
+                            <li class="flex items-start gap-1">
+                                <span class="text-purple-600">•</span>
+                                <span>Different facial expressions (smile vs neutral) lower the score</span>
+                            </li>
+                            <li class="flex items-start gap-1">
+                                <span class="text-purple-600">•</span>
+                                <span>Head angle/tilt differences reduce pixel pattern matching</span>
+                            </li>
+                            <li class="flex items-start gap-1">
+                                <span class="text-purple-600">•</span>
+                                <span>Image quality differences (ID photo vs phone camera) affect results</span>
+                            </li>
+                        </ul>
+                        <p class="text-xs text-amber-700 mt-2 font-medium bg-amber-50 p-2 rounded border border-amber-200">
+                            💡 <strong>Recommendation:</strong> For scores between 30-60%, perform manual visual comparison. 
+                            The algorithm may underestimate similarity due to technical differences, not actual identity mismatch.
+                        </p>
+                    </div>
+                    {% endif %}
+                </div>
+                {% endif %}
+
+                <!-- OCR Extraction Results -->
+                {% if ocr_data %}
+                <div class="bg-white rounded-xl p-4 mb-4 border-2 border-blue-200">
+                    <div class="flex items-center justify-between mb-3">
+                        <h4 class="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                            <i data-lucide="file-text" class="w-4 h-4 text-blue-600"></i>
+                            OCR Text Extraction (Tesseract)
+                        </h4>
+                        {% if ocr_data.extraction_quality %}
+                        <span class="text-xs font-medium px-3 py-1 rounded-full
+                            {% if ocr_data.extraction_quality == 'excellent' %}bg-green-100 text-green-700 border border-green-300
+                            {% elif ocr_data.extraction_quality == 'good' %}bg-blue-100 text-blue-700 border border-blue-300
+                            {% elif ocr_data.extraction_quality == 'fair' %}bg-yellow-100 text-yellow-700 border border-yellow-300
+                            {% else %}bg-red-100 text-red-700 border border-red-300{% endif %}">
+                            <i data-lucide="{% if ocr_data.extraction_quality == 'excellent' or ocr_data.extraction_quality == 'good' %}check-circle{% elif ocr_data.extraction_quality == 'fair' %}alert-circle{% else %}x-circle{% endif %}" class="w-3 h-3 inline"></i>
+                            Quality: {{ ocr_data.extraction_quality|title }}
+                            {% if ocr_data.fields_extracted_count %} ({{ ocr_data.fields_extracted_count }}/5 fields){% endif %}
+                        </span>
+                        {% endif %}
+                    </div>
+                    
+                    {% if ocr_data.raw_text %}
+                    <div class="mb-4">
+                        <div class="flex items-center justify-between mb-2">
+                            <p class="text-xs font-semibold text-slate-700 uppercase tracking-wide">📄 Raw Extracted Text from ID:</p>
+                        </div>
+                        <div class="bg-slate-900 rounded-lg p-4 border-2 border-blue-300 shadow-inner">
+                            <pre class="text-sm text-green-400 whitespace-pre-wrap font-mono leading-relaxed">{{ ocr_data.raw_text }}</pre>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-2 italic">
+                            <i data-lucide="info" class="w-3 h-3 inline"></i>
+                            This is the exact text extracted by Tesseract OCR from the ID document image.
+                        </p>
+                    </div>
+                    {% endif %}
+                    
+                    <div class="mt-4">
+                        <p class="text-xs font-semibold text-slate-700 uppercase tracking-wide mb-3">🔍 Identified Fields from ID Document:</p>
+                        <div class="grid grid-cols-2 gap-3">
+                            {% if ocr_data.full_name %}
+                            <div class="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-lg p-3 border-2 border-blue-300">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <i data-lucide="user" class="w-3 h-3 text-blue-600"></i>
+                                    <p class="text-xs text-blue-700 font-semibold">{{ ocr_data.full_name_label|default:"Full Name" }}</p>
+                                </div>
+                                <p class="text-sm font-bold text-slate-900 mb-1">{{ ocr_data.full_name }}</p>
+                                {% if ocr_data.full_name_source %}
+                                <p class="text-xs text-slate-500 italic">Source: {{ ocr_data.full_name_source }}</p>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                            {% if ocr_data.date_of_birth %}
+                            <div class="bg-gradient-to-br from-purple-50 to-pink-50 rounded-lg p-3 border-2 border-purple-300">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <i data-lucide="calendar" class="w-3 h-3 text-purple-600"></i>
+                                    <p class="text-xs text-purple-700 font-semibold">{{ ocr_data.date_of_birth_label|default:"Date of Birth" }}</p>
+                                </div>
+                                <p class="text-sm font-bold text-slate-900 mb-1">{{ ocr_data.date_of_birth }}</p>
+                                {% if ocr_data.date_of_birth_source %}
+                                <p class="text-xs text-slate-500 italic">Source: {{ ocr_data.date_of_birth_source }}</p>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                            {% if ocr_data.id_number %}
+                            <div class="bg-gradient-to-br from-green-50 to-emerald-50 rounded-lg p-3 border-2 border-green-300">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <i data-lucide="credit-card" class="w-3 h-3 text-green-600"></i>
+                                    <p class="text-xs text-green-700 font-semibold">{{ ocr_data.id_number_label|default:"ID Number" }}</p>
+                                </div>
+                                <p class="text-sm font-bold text-slate-900 mb-1">{{ ocr_data.id_number }}</p>
+                                {% if ocr_data.id_number_source %}
+                                <p class="text-xs text-slate-500 italic">Source: {{ ocr_data.id_number_source }}</p>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                            {% if ocr_data.sex %}
+                            <div class="bg-gradient-to-br from-orange-50 to-amber-50 rounded-lg p-3 border-2 border-orange-300">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <i data-lucide="user-check" class="w-3 h-3 text-orange-600"></i>
+                                    <p class="text-xs text-orange-700 font-semibold">{{ ocr_data.sex_label|default:"Sex" }}</p>
+                                </div>
+                                <p class="text-sm font-bold text-slate-900 mb-1">{{ ocr_data.sex }}</p>
+                                {% if ocr_data.sex_source %}
+                                <p class="text-xs text-slate-500 italic">Source: {{ ocr_data.sex_source }}</p>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                            {% if ocr_data.nationality %}
+                            <div class="bg-gradient-to-br from-cyan-50 to-sky-50 rounded-lg p-3 border-2 border-cyan-300">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <i data-lucide="flag" class="w-3 h-3 text-cyan-600"></i>
+                                    <p class="text-xs text-cyan-700 font-semibold">{{ ocr_data.nationality_label|default:"Nationality" }}</p>
+                                </div>
+                                <p class="text-sm font-bold text-slate-900">{{ ocr_data.nationality }}</p>
+                            </div>
+                            {% endif %}
+                            {% if ocr_data.address %}
+                            <div class="bg-gradient-to-br from-indigo-50 to-violet-50 rounded-lg p-3 border-2 border-indigo-300 col-span-2">
+                                <div class="flex items-center gap-2 mb-1">
+                                    <i data-lucide="map-pin" class="w-3 h-3 text-indigo-600"></i>
+                                    <p class="text-xs text-indigo-700 font-semibold">{{ ocr_data.address_label|default:"Address" }}</p>
+                                </div>
+                                <p class="text-sm font-bold text-slate-900 mb-1">{{ ocr_data.address }}</p>
+                                {% if ocr_data.address_source %}
+                                <p class="text-xs text-slate-500 italic">Source: {{ ocr_data.address_source }}</p>
+                                {% endif %}
+                            </div>
+                            {% endif %}
+                        </div>
+                        <div class="mt-3 p-3 bg-blue-50 rounded-lg border border-blue-200">
+                            <p class="text-xs text-blue-900 font-medium">
+                                <i data-lucide="info" class="w-3 h-3 inline"></i>
+                                <strong>How it works:</strong> The system uses Tesseract OCR with PhilSys-specific pattern matching to identify and extract each field from the ID image. 
+                                Each field is labeled with its type (Name, Date of Birth, PCN, etc.) and extraction method.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- QR Code Data -->
+                {% if qr_data %}
+                <div class="bg-white rounded-xl p-4">
+                    <h4 class="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                        <i data-lucide="qr-code" class="w-4 h-4 text-green-600"></i>
+                        QR Code Data
+                    </h4>
+                    <div class="bg-slate-50 rounded-lg p-3 border border-slate-200">
+                        <pre class="text-xs text-slate-700 whitespace-pre-wrap font-mono">{{ qr_data.data|default:"No QR code detected" }}</pre>
+                    </div>
+                </div>
+                {% endif %}
+
+                <!-- Verification Metadata -->
+                {% if verification_metadata %}
+                <div class="bg-white rounded-xl p-4 mt-4">
+                    <h4 class="text-sm font-semibold text-slate-900 mb-3 flex items-center gap-2">
+                        <i data-lucide="info" class="w-4 h-4 text-slate-600"></i>
+                        Processing Metadata
+                    </h4>
+                    <div class="grid grid-cols-2 gap-2 text-xs">
+                        {% for key, value in verification_metadata.items %}
+                        <div class="flex justify-between">
+                            <span class="text-slate-600">{{ key|title }}:</span>
+                            <span class="font-medium text-slate-900">{{ value }}</span>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endif %}
+
+            </div>
+
+            <!-- Verification History -->
+            {% if verification_history %}
+            <div class="bg-white rounded-2xl shadow-sm border border-slate-100 p-6">
+                <h3 class="text-lg font-semibold text-slate-900 mb-4 flex items-center gap-2">
+                    <i data-lucide="history" class="w-5 h-5 text-trabaholink-blue"></i>
+                    Verification History
+                </h3>
+                <div class="space-y-3">
+                    {% for log in verification_history %}
+                    <div class="flex items-start gap-3 p-3 bg-slate-50 rounded-lg">
+                        <div class="w-8 h-8 rounded-full bg-trabaholink-blue/10 flex items-center justify-center flex-shrink-0">
+                            <i data-lucide="activity" class="w-4 h-4 text-trabaholink-blue"></i>
+                        </div>
+                        <div class="flex-1 min-w-0">
+                            <div class="flex items-center justify-between mb-1">
+                                <span class="text-sm font-medium text-slate-900">{{ log.get_result_display }}</span>
+                                <span class="text-xs text-slate-500">{{ log.created_at|date:"M d, Y g:i A" }}</span>
+                            </div>
+                            <p class="text-xs text-slate-600">
+                                {{ log.get_process_type_display }} verification
+                                {% if log.similarity_score %} - Score: {{ log.similarity_score|floatformat:2 }}{% endif %}
+                            </p>
+                            {% if log.notes %}
+                            <p class="text-xs text-slate-500 mt-1 italic">{{ log.notes }}</p>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+            {% endif %}
+
+            <!-- Review Notes -->
+            {% if verification.status == 'rejected' and verification.rejection_reason %}
+            <div class="bg-red-50 rounded-2xl shadow-sm border border-red-200 p-6">
+                <h3 class="text-lg font-semibold text-red-900 mb-3 flex items-center gap-2">
+                    <i data-lucide="message-square" class="w-5 h-5"></i>
+                    Rejection Reason
+                </h3>
+                <p class="text-sm text-red-800">{{ verification.rejection_reason }}</p>
+                {% if verification.reviewed_by %}
+                <p class="text-xs text-red-600 mt-2">
+                    Reviewed by {{ verification.reviewed_by.get_full_name }} on {{ verification.reviewed_at|date:"M d, Y g:i A" }}
+                </p>
+                {% endif %}
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+
+</div>
+
+<!-- Image Modal -->
+<div id="imageModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4" onclick="closeImageModal()">
+    <div class="relative max-w-5xl max-h-full">
+        <button class="absolute top-4 right-4 text-white hover:text-gray-300 bg-black/50 rounded-full p-2" onclick="closeImageModal()">
+            <i data-lucide="x" class="w-6 h-6"></i>
+        </button>
+        <img id="modalImage" src="" alt="Full size" class="max-w-full max-h-[90vh] rounded-lg">
+    </div>
+</div>
+
+<!-- Side-by-Side Comparison Modal -->
+<div id="comparisonModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/90 p-4">
+    <div class="bg-white rounded-xl max-w-6xl w-full p-6 max-h-[90vh] overflow-y-auto">
+        <div class="flex items-center justify-between mb-6">
+            <h3 class="text-2xl font-bold text-gray-900 flex items-center gap-2">
+                <i data-lucide="scan-face" class="w-6 h-6 text-trabaholink-blue"></i>
+                ID Photo vs Selfie Comparison
+            </h3>
+            <button onclick="closeComparisonModal()" 
+                    class="text-gray-500 hover:text-gray-700 transition">
+                <i data-lucide="x" class="w-6 h-6"></i>
+            </button>
+        </div>
+        
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+            <!-- ID Photo -->
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <h4 class="font-semibold text-lg text-gray-800">ID Photo</h4>
+                    <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Reference</span>
+                </div>
+                <div class="bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-300">
+                    <img src="{{ verification.id_image_front.url }}" alt="ID" class="w-full h-auto">
+                </div>
+                <p class="text-xs text-gray-600 flex items-center gap-1">
+                    <i data-lucide="info" class="w-3 h-3"></i>
+                    Official government-issued ID photo
+                </p>
+            </div>
+            
+            <!-- Selfie -->
+            <div class="space-y-3">
+                <div class="flex items-center justify-between">
+                    <h4 class="font-semibold text-lg text-gray-800">Selfie Photo</h4>
+                    <span class="text-xs text-gray-500 bg-gray-100 px-2 py-1 rounded">Submitted</span>
+                </div>
+                {% if verification.selfie_image %}
+                <div class="bg-gray-100 rounded-lg overflow-hidden border-2 border-gray-300">
+                    <img src="{{ verification.selfie_image.url }}" alt="Selfie" class="w-full h-auto">
+                </div>
+                <p class="text-xs text-gray-600 flex items-center gap-1">
+                    <i data-lucide="camera" class="w-3 h-3"></i>
+                    User-submitted selfie for verification
+                </p>
+                {% else %}
+                <div class="bg-gray-100 rounded-lg overflow-hidden border-2 border-red-300 p-12 flex items-center justify-center">
+                    <div class="text-center text-gray-500">
+                        <i data-lucide="camera-off" class="w-16 h-16 mx-auto mb-2"></i>
+                        <p class="font-medium">No Selfie Uploaded</p>
+                        <p class="text-xs mt-1">Cannot perform face matching</p>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <!-- Match Score -->
+        {% if verification.verification_score %}
+        <div class="bg-gradient-to-r from-blue-50 to-purple-50 rounded-lg p-6 border border-blue-200">
+            <div class="flex items-center justify-between">
+                <div>
+                    <p class="text-sm font-medium text-gray-600 mb-1">Face Similarity Score</p>
+                    <p class="text-4xl font-bold {% if verification.verification_score >= 70 %}text-green-600{% elif verification.verification_score >= 50 %}text-yellow-600{% else %}text-red-600{% endif %}">
+                        {{ verification.verification_score|floatformat:1 }}%
+                    </p>
+                </div>
+                <div class="text-right">
+                    <div class="inline-flex items-center gap-2 px-4 py-2 rounded-full
+                        {% if verification.verification_score >= 80 %}bg-green-100 text-green-800
+                        {% elif verification.verification_score >= 60 %}bg-yellow-100 text-yellow-800
+                        {% else %}bg-red-100 text-red-800{% endif %}">
+                        <i data-lucide="{% if verification.verification_score >= 70 %}check-circle{% else %}alert-circle{% endif %}" class="w-5 h-5"></i>
+                        <span class="font-semibold">
+                            {% if verification.verification_score >= 80 %}Strong Match
+                            {% elif verification.verification_score >= 60 %}Acceptable Match
+                            {% else %}Weak Match{% endif %}
+                        </span>
+                    </div>
+                    <p class="text-xs text-gray-600 mt-2">
+                        {% if verification.verification_score >= 80 %}
+                            High confidence - Faces match well
+                        {% elif verification.verification_score >= 60 %}
+                            Medium confidence - Manual review recommended
+                        {% else %}
+                            Low confidence - Requires careful verification
+                        {% endif %}
+                    </p>
+                </div>
+            </div>
+        </div>
+        {% else %}
+        <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+            <p class="text-sm text-yellow-800 flex items-center gap-2">
+                <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+                No face matching score available. Click "Re-run Face Match" to generate a score.
+            </p>
+        </div>
+        {% endif %}
+        
+        <!-- Verification Checklist -->
+        <div class="mt-6 bg-white border border-gray-200 rounded-lg p-5">
+            <h4 class="font-semibold text-gray-900 mb-3 flex items-center gap-2">
+                <i data-lucide="clipboard-check" class="w-5 h-5 text-trabaholink-blue"></i>
+                Manual Verification Checklist
+            </h4>
+            <div class="space-y-2 text-sm">
+                <label class="flex items-start gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                    <input type="checkbox" class="mt-0.5 rounded text-trabaholink-blue">
+                    <span class="text-gray-700">Facial features match (eyes, nose, mouth, face shape)</span>
+                </label>
+                <label class="flex items-start gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                    <input type="checkbox" class="mt-0.5 rounded text-trabaholink-blue">
+                    <span class="text-gray-700">Person is clearly visible and identifiable in selfie</span>
+                </label>
+                <label class="flex items-start gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                    <input type="checkbox" class="mt-0.5 rounded text-trabaholink-blue">
+                    <span class="text-gray-700">No signs of photo manipulation or editing</span>
+                </label>
+                <label class="flex items-start gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                    <input type="checkbox" class="mt-0.5 rounded text-trabaholink-blue">
+                    <span class="text-gray-700">ID appears genuine and unaltered</span>
+                </label>
+                <label class="flex items-start gap-2 cursor-pointer hover:bg-gray-50 p-2 rounded">
+                    <input type="checkbox" class="mt-0.5 rounded text-trabaholink-blue">
+                    <span class="text-gray-700">Lighting and image quality are adequate for verification</span>
+                </label>
+            </div>
+        </div>
+        
+        <div class="mt-6 flex gap-3">
+            <button onclick="closeComparisonModal()" 
+                    class="flex-1 px-6 py-3 bg-gray-200 text-gray-800 rounded-lg hover:bg-gray-300 transition font-medium">
+                Close Comparison
+            </button>
+            <button onclick="compareFaces({{ verification.pk }})" 
+                    class="flex-1 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium flex items-center justify-center gap-2">
+                <i data-lucide="refresh-cw" class="w-4 h-4"></i>
+                Re-run Face Match
+            </button>
+        </div>
+    </div>
+</div>
+
+<!-- Reject Modal -->
+<div id="identityRejectModal" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4">
+    <div class="bg-white rounded-2xl shadow-xl w-full max-w-md">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-slate-100">
+            <h3 class="text-lg font-semibold text-slate-900 flex items-center gap-2">
+                <i data-lucide="x-octagon" class="w-5 h-5 text-red-500"></i>
+                Reject verification
+            </h3>
+            <button type="button" class="text-slate-400 hover:text-slate-600" onclick="closeRejectModal()">
+                <i data-lucide="x" class="w-5 h-5"></i>
+            </button>
+        </div>
+        <div class="px-6 py-5 space-y-4">
+            <p class="text-sm text-slate-600">Provide a reason for rejecting this identity verification request.</p>
+            <textarea id="identityRejectReason" rows="4" class="w-full rounded-lg border border-slate-200 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-trabaholink-blue" placeholder="Enter rejection reason"></textarea>
+        </div>
+        <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100">
+            <button type="button" class="px-4 py-2 text-sm font-medium rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50" onclick="closeRejectModal()">Cancel</button>
+            <button type="button" class="px-4 py-2 text-sm font-semibold rounded-lg bg-red-500 text-white hover:bg-red-600" onclick="submitRejectReason()">Reject request</button>
+        </div>
+    </div>
+</div>
+
+<!-- Loading Overlay -->
+<div id="identityLoadingOverlay" class="hidden fixed inset-0 z-40 flex items-center justify-center bg-black/50">
+    <div class="bg-white rounded-xl px-6 py-4 flex items-center gap-3 shadow-lg">
+        <div class="h-8 w-8 border-2 border-trabaholink-blue border-t-transparent rounded-full animate-spin"></div>
+        <span class="text-sm text-slate-700">Processing...</span>
+    </div>
+</div>
+
+<script>
+    const identityCsrfToken = '{{ csrf_token }}';
+    let currentRejectUrl = null;
+
+    function openImageModal(imageUrl) {
+        document.getElementById('modalImage').src = imageUrl;
+        document.getElementById('imageModal').classList.remove('hidden');
+        lucide.createIcons();
+    }
+
+    function closeImageModal() {
+        document.getElementById('imageModal').classList.add('hidden');
+    }
+
+    // Side-by-Side Comparison Modal Functions
+    function viewSideBySide() {
+        document.getElementById('comparisonModal').classList.remove('hidden');
+        lucide.createIcons();
+    }
+
+    function closeComparisonModal() {
+        document.getElementById('comparisonModal').classList.add('hidden');
+    }
+
+    // Re-run Face Matching
+    function compareFaces(verificationId) {
+        if (!confirm('⚙️ Re-run Face Matching Analysis?\n\nThis will:\n• Compare ID photo with selfie\n• Update verification score\n• Takes 5-10 seconds\n\nContinue?')) {
+            return;
+        }
+        
+        showIdentityLoading();
+        
+        fetch(`/admin_dashboard/identity-verifications/${verificationId}/reprocess/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': identityCsrfToken,
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideIdentityLoading();
+            if (data.success) {
+                alert(`✓ Face matching complete!\n\nSimilarity Score: ${data.score}%\nStatus: ${data.status || 'Updated'}\n\nPage will reload to show new results.`);
+                location.reload();
+            } else {
+                alert('❌ Failed to process face matching:\n\n' + (data.message || 'Unknown error'));
+            }
+        })
+        .catch(error => {
+            hideIdentityLoading();
+            console.error('Error:', error);
+            alert('❌ An error occurred during face matching analysis.\n\nPlease try again or contact support.');
+        });
+    }
+
+    function handleVerificationApprove(url) {
+        if (!url || !confirm('Are you sure you want to approve this verification?')) {
+            return;
+        }
+        showIdentityLoading();
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': identityCsrfToken
+            }
+        }).then(response => response.json())
+          .then(data => {
+              hideIdentityLoading();
+              if (data.success) {
+                  window.location.href = '{% url "admin_dashboard:user_verification_list" %}';
+              } else {
+                  alert(data.message || 'Failed to approve verification.');
+              }
+          }).catch(() => {
+              hideIdentityLoading();
+              alert('An error occurred while approving the verification.');
+          });
+    }
+
+    function openRejectModal(url) {
+        currentRejectUrl = url;
+        document.getElementById('identityRejectModal').classList.remove('hidden');
+        document.getElementById('identityRejectReason').value = '';
+        lucide.createIcons();
+    }
+
+    function closeRejectModal() {
+        document.getElementById('identityRejectModal').classList.add('hidden');
+        currentRejectUrl = null;
+    }
+
+    function submitRejectReason() {
+        if (!currentRejectUrl) {
+            alert('No verification selected.');
+            return;
+        }
+        const reasonInput = document.getElementById('identityRejectReason');
+        const reason = reasonInput.value.trim();
+        if (!reason) {
+            alert('Please provide a rejection reason.');
+            return;
+        }
+
+        showIdentityLoading();
+        fetch(currentRejectUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': identityCsrfToken
+            },
+            body: JSON.stringify({ reason })
+        }).then(response => response.json())
+          .then(data => {
+              hideIdentityLoading();
+              if (data.success) {
+                  closeRejectModal();
+                  window.location.href = '{% url "admin_dashboard:user_verification_list" %}';
+              } else {
+                  alert(data.message || 'Failed to reject verification.');
+              }
+          }).catch(() => {
+              hideIdentityLoading();
+              alert('An error occurred while rejecting the verification.');
+          });
+    }
+
+    function showIdentityLoading() {
+        document.getElementById('identityLoadingOverlay').classList.remove('hidden');
+    }
+
+    function hideIdentityLoading() {
+        document.getElementById('identityLoadingOverlay').classList.add('hidden');
+    }
+
+    let progressInterval = null;
+    const userId = {{ verification.user.id }};
+
+    function showProgress() {
+        document.getElementById('progressIndicator').classList.remove('hidden');
+        lucide.createIcons();
+    }
+
+    function hideProgress() {
+        document.getElementById('progressIndicator').classList.add('hidden');
+        if (progressInterval) {
+            clearInterval(progressInterval);
+            progressInterval = null;
+        }
+    }
+
+    function updateProgress(progress) {
+        const progressBar = document.getElementById('progressBar');
+        const progressPercent = document.getElementById('progressPercent');
+        const progressStep = document.getElementById('progressStep');
+        const progressMessage = document.getElementById('progressMessage');
+
+        progressBar.style.width = progress.progress + '%';
+        progressPercent.textContent = progress.progress + '%';
+        
+        const stepNames = {
+            'starting': '🚀 Starting',
+            'ocr': '📄 Extracting Text',
+            'qr': '📱 Scanning QR Code',
+            'validation': '✅ Validating Data',
+            'face_match': '👤 Matching Faces',
+            'complete': '✅ Complete',
+            'error': '❌ Error'
+        };
+        
+        progressStep.textContent = stepNames[progress.step] || progress.step;
+        progressMessage.textContent = progress.message || '';
+        
+        if (progress.elapsed_seconds) {
+            progressMessage.textContent += ` (${progress.elapsed_seconds}s)`;
+        }
+    }
+
+    function checkProgress() {
+        const progressUrl = `/admin_dashboard/identity-verifications/progress/${userId}/`;
+        fetch(progressUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.progress) {
+                    updateProgress(data.progress);
+                    
+                    if (data.progress.step === 'complete' || data.progress.step === 'error') {
+                        hideProgress();
+                        if (data.progress.step === 'complete') {
+                            setTimeout(() => window.location.reload(), 2000);
+                        }
+                    }
+                } else {
+                    hideProgress();
+                }
+            })
+            .catch(error => {
+                console.error('Progress check error:', error);
+            });
+    }
+
+    function startProgressTracking() {
+        showProgress();
+        checkProgress(); // Check immediately
+        progressInterval = setInterval(checkProgress, 1000); // Check every second
+    }
+
+    function reprocessVerification(url) {
+        if (!confirm('⚠️ Manually Re-run Verification?\n\nNote: Verification runs automatically after submission.\nOnly use this if:\n• OCR results are unsatisfactory\n• You want to re-extract data from the ID\n• Previous verification failed or timed out\n\nThis will:\n• Extract data from ID images again\n• Run face matching again\n• Update the verification status\n• Send notification to user\n\nProcessing time: 10-15 seconds')) {
+            return;
+        }
+
+        const btn = document.getElementById('reprocessBtn');
+        const originalContent = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Processing...';
+        lucide.createIcons();
+
+        startProgressTracking();
+        showIdentityLoading();
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': identityCsrfToken
+            }
+        })
+        .then(response => {
+            console.log('Response status:', response.status);
+            console.log('Response headers:', response.headers);
+            
+            if (!response.ok) {
+                return response.text().then(text => {
+                    console.error('Error response:', text);
+                    throw new Error(`HTTP ${response.status}: ${text.substring(0, 200)}`);
+                });
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Response data:', data);
+            
+            if (data.success) {
+                // Verification started successfully - it's running in background
+                alert(`✅ Verification processing started!\n\n${data.message}\n\nThe page will automatically reload when processing is complete (10-15 seconds).`);
+                
+                // Keep progress tracking running
+                // Don't hide loading or re-enable button yet
+                
+                // Auto-reload after 15 seconds to show results
+                setTimeout(() => {
+                    window.location.reload();
+                }, 15000);
+            } else {
+                // Failed to start verification
+                hideIdentityLoading();
+                btn.disabled = false;
+                btn.innerHTML = originalContent;
+                lucide.createIcons();
+                alert(`❌ Failed to start verification:\n${data.message}`);
+            }
+        })
+        .catch(error => {
+            console.error('Reprocess error:', error);
+            hideIdentityLoading();
+            btn.disabled = false;
+            btn.innerHTML = originalContent;
+            lucide.createIcons();
+            alert(`❌ An error occurred while re-processing the verification.\n\nError: ${error.message}\n\nCheck browser console for details.`);
+        });
+    }
+
+    function verifyPhilSysQR(url) {
+        if (!confirm('🔍 Verify PhilSys ID with Government Portal?\n\nThis will:\n• Extract QR code from the back of the ID\n• Send data to https://verify.philsys.gov.ph/\n• Verify PCN with government database\n• Update verification status\n\nNote: This requires the ID back image with QR code.\n\nProcessing time: 5-10 seconds')) {
+            return;
+        }
+
+        const btn = document.getElementById('philsysQRBtn');
+        const originalContent = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 animate-spin"></i> Verifying...';
+        lucide.createIcons();
+
+        showIdentityLoading();
+        
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': identityCsrfToken
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            hideIdentityLoading();
+            btn.disabled = false;
+            btn.innerHTML = originalContent;
+            lucide.createIcons();
+            
+            if (data.success) {
+                if (data.verified) {
+                    alert(`✅ PhilSys Verification Successful!\n\n✓ ID verified with government portal\n✓ PCN: ${data.pcn || 'N/A'}\n✓ Name: ${data.name || 'N/A'}\n\nReloading page to show updated data...`);
+                } else {
+                    alert(`⚠️ PhilSys Verification Failed\n\nReason: ${data.reason || 'ID not verified by government portal'}\n\nThe verification will be marked for manual review.`);
+                }
+                window.location.reload();
+            } else {
+                alert(`❌ Failed to verify PhilSys ID:\n${data.message}`);
+            }
+        })
+        .catch(error => {
+            console.error('PhilSys verification error:', error);
+            hideIdentityLoading();
+            btn.disabled = false;
+            btn.innerHTML = originalContent;
+            lucide.createIcons();
+            alert(`❌ An error occurred while verifying PhilSys ID.\n\nError: ${error.message}\n\nCheck browser console for details.`);
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        lucide.createIcons();
+        
+        // Auto-check if there's an active verification task
+        checkForActiveTask();
+    });
+    
+    function checkForActiveTask() {
+        // Check if there's an active verification task for this user
+        const progressUrl = `/admin_dashboard/identity-verifications/progress/${userId}/`;
+        fetch(progressUrl)
+            .then(response => response.json())
+            .then(data => {
+                if (data.success && data.progress && data.progress.step !== 'complete' && data.progress.step !== 'error') {
+                    // Active task found - start tracking
+                    console.log('Active verification task found, starting progress tracking...');
+                    startProgressTracking();
+                }
+            })
+            .catch(error => {
+                console.log('No active task found or error checking:', error);
+            });
+    }
+    
+    lucide.createIcons();
+</script>
+
+<style>
+    /* Custom filter for multiply effect */
+    .multiply {
+        mix-blend-mode: multiply;
+    }
+</style>
+{% endblock %}

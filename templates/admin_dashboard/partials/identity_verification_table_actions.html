@@ -1,5 +1,10 @@
 {% load static %}
 <div class="flex items-center justify-end gap-2">
+    <a href="{% url 'admin_dashboard:user_verification_detail' submission.pk %}" 
+       class="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium rounded-lg bg-trabaholink-blue/10 text-trabaholink-blue hover:bg-trabaholink-blue/20 transition border border-trabaholink-blue/20">
+        <i data-lucide="eye" class="w-4 h-4"></i>
+        View Details
+    </a>
     {% if submission.status == 'pending' %}
     <button type="button" class="px-3 py-1.5 text-xs font-semibold rounded-lg bg-green-500 text-white hover:bg-green-600 transition"
             data-url="{% url 'admin_dashboard:approve_identity_verification' submission.pk %}"

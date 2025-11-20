@@ -1,43 +1,78 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load user_filters %}
 
 {% block css %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
 :root {
-  --primary-color: #1a94d4;
-  --primary-dark: #0d6efd;
-  --primary-light: #e6f4ff;
-  --success-color: #10b981;
+  /* Bacoor City Colors - Inspired by the flag and identity */
+  --bacoor-blue: #1e40af;
+  --bacoor-gold: #f59e0b;
+  --bacoor-red: #dc2626;
+  --bacoor-green: #059669;
+  --primary-color: #1e40af;
+  --primary-dark: #1e3a8a;
+  --primary-light: #dbeafe;
+  --accent-gold: #f59e0b;
+  --accent-red: #dc2626;
+  --success-color: #059669;
   --warning-color: #f59e0b;
   --danger-color: #ef4444;
-  --text-dark: #2d3748;
-  --text-medium: #4a5568;
-  --text-light: #718096;
-  --bg-light: #f7fafc;
+  --text-dark: #0f172a;
+  --text-medium: #475569;
+  --text-light: #64748b;
+  --bg-light: #f8fafc;
   --bg-white: #ffffff;
   --border-color: #e2e8f0;
-  --gradient-primary: linear-gradient(135deg, #1a94d4 0%, #0d6efd 100%);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --gradient-primary: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
+  --gradient-bacoor: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #f59e0b 100%);
+  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
+  --shadow-md: 0 4px 12px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
 body {
   background: var(--bg-light);
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  overflow-x: hidden;
 }
 
-/* Cover Photo Section */
+/* Cover Photo Section - Bacoor Inspired */
 .profile-cover-section {
   position: relative;
-  height: 350px;
+  height: 400px;
   overflow: hidden;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+  background: var(--gradient-bacoor);
+}
+
+/* Bacoor Pattern Overlay */
+.profile-cover-section::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-image: 
+    repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px),
+    repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(255,255,255,0.02) 35px, rgba(255,255,255,0.02) 70px);
+  z-index: 1;
 }
 
 .profile-cover-photo {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  background: var(--gradient-primary);
+  background: var(--gradient-bacoor);
+  transition: transform 0.3s ease;
+}
+
+.profile-cover-section:hover .profile-cover-photo {
+  transform: scale(1.02);
 }
 
 .cover-overlay {
@@ -46,56 +81,84 @@ body {
   left: 0;
   right: 0;
   bottom: 0;
-  background: linear-gradient(180deg, rgba(0,0,0,0.1) 0%, rgba(0,0,0,0.4) 100%);
+  background: linear-gradient(180deg, rgba(30, 64, 175, 0.1) 0%, rgba(15, 23, 42, 0.4) 100%);
+  z-index: 2;
 }
 
 .cover-edit-btn {
   position: absolute;
-  top: 1.5rem;
-  right: 1.5rem;
+  top: 2rem;
+  right: 2rem;
   background: rgba(255, 255, 255, 0.95);
   color: var(--text-dark);
-  border: none;
-  padding: 0.75rem 1.5rem;
-  border-radius: 10px;
-  font-weight: 600;
+  border: 2px solid rgba(245, 158, 11, 0.3);
+  padding: 0.875rem 1.75rem;
+  border-radius: 12px;
+  font-weight: 700;
+  font-size: 0.9rem;
   cursor: pointer;
   transition: all 0.3s;
-  backdrop-filter: blur(10px);
-  box-shadow: var(--shadow-md);
+  backdrop-filter: blur(15px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
+  text-decoration: none;
+  z-index: 10;
 }
 
 .cover-edit-btn:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-lg);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(245, 158, 11, 0.4);
   background: white;
+  color: var(--accent-gold);
+  border-color: var(--accent-gold);
 }
 
-/* Profile Header Card */
+.cover-edit-btn i {
+  font-size: 1.1rem;
+}
+
+/* Profile Header Section */
 .profile-header-modern {
   position: relative;
-  margin-top: -120px;
+  margin-top: -140px;
   z-index: 10;
+  background: transparent;
+}
+
+/* Stats Section */
+.stats-section {
+  background: var(--bg-light);
+  padding: 0;
+}
+
+/* Content Section */
+.content-section {
+  background: var(--bg-light);
+  padding: 0;
 }
 
 .profile-header-card-modern {
   background: var(--bg-white);
-  border-radius: 20px;
+  border-radius: 24px;
   border: 1px solid var(--border-color);
-  box-shadow: none;
-  padding: 1.75rem 2rem;
-  margin-bottom: 2rem;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
+  padding: 2.5rem 3rem;
+  margin-bottom: 2.5rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 2rem;
+  transition: box-shadow 0.3s ease;
+}
+
+.profile-header-card-modern:hover {
+  box-shadow: 0 15px 50px rgba(0, 0, 0, 0.12);
 }
 
 .profile-header-top {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 2rem;
   flex-wrap: wrap;
 }
@@ -106,13 +169,18 @@ body {
 }
 
 .profile-picture-modern {
-  width: 120px;
-  height: 120px;
+  width: 140px;
+  height: 140px;
   border-radius: 50%;
-  border: 4px solid var(--bg-white);
+  border: 5px solid var(--bg-white);
   object-fit: cover;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
   background: var(--bg-light);
+  transition: transform 0.3s ease;
+}
+
+.profile-picture-section-modern:hover .profile-picture-modern {
+  transform: scale(1.05);
 }
 
 .profile-picture-edit-modern {
@@ -149,61 +217,71 @@ body {
   display: flex;
   flex-direction: column;
   gap: 0.5rem;
+  width: 100%;
 }
 
 .profile-name-row {
   display: flex;
-  align-items: center;
+  align-items: baseline;
   flex-wrap: wrap;
-  gap: 0.6rem;
+  gap: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid var(--border-color);
+  margin-bottom: 0.75rem;
 }
 
 .profile-name-modern {
-  font-size: 1.9rem;
+  font-size: 2rem;
   font-weight: 700;
-  color: var(--text-dark);
+  color: #1a202c;
   margin: 0;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  max-width: 100%;
 }
 
 .profile-job-title-modern {
-  font-size: 1rem;
+  font-size: 0.95rem;
   font-weight: 500;
-  color: var(--text-medium);
-  margin: 0;
-  display: flex;
+  color: #64748b;
+  margin: 0.5rem 0 0 0;
+  display: inline-flex;
   align-items: center;
   gap: 0.4rem;
+  padding: 0;
 }
 
 .profile-job-title-modern i {
-  color: var(--primary-color);
+  color: #94a3b8;
+  font-size: 0.9rem;
 }
 
+/* Minimal Meta Items */
 .profile-meta-modern {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem;
+  gap: 1.5rem;
+  margin-top: 1rem;
+  align-items: center;
 }
 
 .meta-item-modern {
-  display: inline-flex;
+  display: flex;
   align-items: center;
-  gap: 0.45rem;
-  color: var(--text-medium);
+  gap: 0.5rem;
   font-size: 0.9rem;
-  background: transparent;
-  border-radius: 999px;
-  padding: 0.4rem 0.85rem;
-  border: 1px solid var(--border-color);
-  box-shadow: none;
+  color: var(--text-medium);
 }
 
 .meta-item-modern i {
-  color: var(--primary-color);
-  font-size: 1.1rem;
+  color: var(--text-light);
+  font-size: 1rem;
 }
 
-.meta-item-modern span {
+.meta-value {
+  color: var(--text-dark);
   font-weight: 500;
 }
 
@@ -217,13 +295,13 @@ body {
 }
 
 .btn-modern {
-  padding: 0.75rem 1.65rem;
+  padding: 0.875rem 1.75rem;
   border-radius: 12px;
   font-weight: 600;
-  font-size: 0.95rem;
+  font-size: 0.9rem;
   display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
   transition: all 0.3s;
   border: none;
   cursor: pointer;
@@ -233,12 +311,12 @@ body {
 .btn-primary-modern {
   background: var(--gradient-primary);
   color: white;
-  box-shadow: 0 4px 15px rgba(26, 148, 212, 0.3);
+  box-shadow: 0 4px 15px rgba(59, 130, 246, 0.35);
 }
 
 .btn-primary-modern:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(26, 148, 212, 0.4);
+  transform: translateY(-3px);
+  box-shadow: 0 8px 25px rgba(59, 130, 246, 0.45);
   color: white;
 }
 
@@ -275,10 +353,24 @@ body {
   align-items: center;
   flex-wrap: wrap;
   gap: 0.75rem;
+  margin-top: 0.5rem;
 }
 
 .verification-badge-wrapper .badge {
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.12);
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.15);
+  font-weight: 700;
+  padding: 0.625rem 1.125rem !important;
+  border-radius: 12px !important;
+  font-size: 0.875rem !important;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: all 0.3s ease;
+}
+
+.verification-badge-wrapper .badge:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.2);
 }
 
 .action-dropdown {
@@ -434,61 +526,97 @@ body {
 .stats-grid-modern {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
-  gap: 1rem;
-  margin-bottom: 2rem;
+  gap: 1.5rem;
+  margin-bottom: 2.5rem;
 }
 
 .stat-card-modern {
   background: white;
-  border-radius: 10px;
-  padding: 1rem;
-  box-shadow: var(--shadow-sm);
-  transition: all 0.3s;
-  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 2.5rem 2rem;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
+  transition: all 0.3s ease;
+  border: 2px solid var(--border-color);
   text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.stat-card-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: var(--gradient-bacoor);
+  transform: scaleX(0);
+  transition: transform 0.3s ease;
 }
 
 .stat-card-modern:hover {
-  transform: translateY(-2px);
-  box-shadow: var(--shadow-md);
+  transform: translateY(-6px);
+  box-shadow: 0 16px 40px rgba(30, 64, 175, 0.15);
+  border-color: var(--bacoor-blue);
+}
+
+.stat-card-modern:hover::before {
+  transform: scaleX(1);
 }
 
 .stat-icon-modern {
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  font-size: 1.25rem;
-  margin-bottom: 0.5rem;
+  font-size: 1.75rem;
+  margin-bottom: 1.25rem;
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.12);
+  transition: all 0.3s ease;
+}
+
+.stat-card-modern:hover .stat-icon-modern {
+  transform: scale(1.1) rotate(-5deg);
 }
 
 .stat-icon-modern.blue {
-  background: rgba(26, 148, 212, 0.1);
-  color: var(--primary-color);
+  background: linear-gradient(135deg, rgba(30, 64, 175, 0.15) 0%, rgba(59, 130, 246, 0.15) 100%);
+  color: var(--bacoor-blue);
+  border: 2px solid rgba(30, 64, 175, 0.2);
 }
 
 .stat-icon-modern.green {
-  background: rgba(16, 185, 129, 0.1);
-  color: var(--success-color);
+  background: linear-gradient(135deg, rgba(5, 150, 105, 0.15) 0%, rgba(16, 185, 129, 0.15) 100%);
+  color: var(--bacoor-green);
+  border: 2px solid rgba(5, 150, 105, 0.2);
 }
 
 .stat-icon-modern.orange {
-  background: rgba(245, 158, 11, 0.1);
-  color: var(--warning-color);
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(251, 191, 36, 0.15) 100%);
+  color: var(--bacoor-gold);
+  border: 2px solid rgba(245, 158, 11, 0.2);
 }
 
 .stat-number-modern {
-  font-size: 1.5rem;
-  font-weight: 700;
+  font-size: 2.5rem;
+  font-weight: 900;
   color: var(--text-dark);
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.5rem;
+  letter-spacing: -0.03em;
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .stat-label-modern {
   color: var(--text-medium);
-  font-size: 0.85rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
 }
 
 /* Main Content Grid */
@@ -502,25 +630,34 @@ body {
 /* Sidebar Cards */
 .sidebar-card-modern {
   background: white;
-  border-radius: 12px;
-  padding: 1.5rem;
-  box-shadow: var(--shadow-sm);
-  margin-bottom: 1.5rem;
-  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 2rem;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  margin-bottom: 2rem;
+  border: 1.5px solid var(--border-color);
   transition: all 0.3s;
 }
 
 .sidebar-card-modern:hover {
-  box-shadow: var(--shadow-md);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+  transform: translateY(-2px);
 }
 
 .card-title-modern {
-  font-size: 1.1rem;
+  font-size: 1.15rem;
   font-weight: 700;
   color: var(--text-dark);
-  margin: 0 0 1.25rem 0;
-  padding-bottom: 0.75rem;
+  margin: 0 0 1.5rem 0;
+  padding-bottom: 1rem;
   border-bottom: 2px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.card-title-modern i {
+  color: var(--primary-color);
+  font-size: 1.2rem;
 }
 
 .contact-list-modern {
@@ -552,6 +689,27 @@ body {
   justify-content: center;
   flex-shrink: 0;
   font-size: 1.1rem;
+  transition: all 0.3s ease;
+}
+
+/* Contact Icon Colors - Bacoor Theme */
+.contact-item-modern:nth-child(1) .contact-icon-modern {
+  background: rgba(234, 67, 53, 0.1);
+  color: #ea4335;
+}
+
+.contact-item-modern:nth-child(2) .contact-icon-modern {
+  background: rgba(5, 150, 105, 0.1);
+  color: #059669;
+}
+
+.contact-item-modern:nth-child(3) .contact-icon-modern {
+  background: rgba(245, 158, 11, 0.1);
+  color: #f59e0b;
+}
+
+.contact-item-modern:hover .contact-icon-modern {
+  transform: scale(1.1);
 }
 
 .contact-details-modern {
@@ -580,6 +738,108 @@ body {
   text-decoration: underline;
 }
 
+/* CV/Resume Section Styles */
+.cv-info-modern {
+  text-align: center;
+  padding: 1rem 0;
+}
+
+.cv-file-icon {
+  margin-bottom: 1rem;
+}
+
+.cv-details {
+  margin-bottom: 1.5rem;
+}
+
+.cv-filename {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  margin-bottom: 0.5rem;
+  word-break: break-word;
+}
+
+.cv-timestamp {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+}
+
+.cv-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.btn-cv-download,
+.btn-cv-update,
+.btn-cv-upload {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border-radius: 10px;
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.3s ease;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-cv-download {
+  background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+}
+
+.btn-cv-download:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4);
+}
+
+.btn-cv-update {
+  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);
+}
+
+.btn-cv-update:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
+}
+
+.btn-cv-upload {
+  background: linear-gradient(135deg, #059669 0%, #047857 100%);
+  color: white;
+  box-shadow: 0 4px 12px rgba(5, 150, 105, 0.3);
+}
+
+.btn-cv-upload:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(5, 150, 105, 0.4);
+}
+
+.cv-empty-state {
+  text-align: center;
+  padding: 2rem 1rem;
+}
+
+.cv-empty-icon {
+  margin-bottom: 1rem;
+}
+
+.cv-empty-text {
+  font-size: 0.95rem;
+  color: var(--text-light);
+  margin-bottom: 1.5rem;
+}
+
 /* Action Links */
 .action-links-modern {
   list-style: none;
@@ -589,59 +849,193 @@ body {
 
 .action-link-modern {
   display: flex;
-  align-items: center;
-  gap: 0.75rem;
-  padding: 0.875rem 1rem;
-  border-radius: 10px;
-  color: var(--text-dark);
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 1rem;
+  border-radius: 12px;
   text-decoration: none;
-  transition: all 0.2s;
+  color: var(--text-dark);
+  transition: all 0.3s ease;
   margin-bottom: 0.5rem;
+  border: 2px solid transparent;
 }
 
 .action-link-modern:hover {
-  background: var(--primary-light);
-  color: var(--primary-color);
+  background: var(--bg-light);
   transform: translateX(5px);
+  border-color: var(--primary-color);
+  box-shadow: 0 4px 12px rgba(26, 148, 212, 0.15);
+}
+
+.action-link-modern.highlight {
+  background: linear-gradient(135deg, rgba(26, 148, 212, 0.08) 0%, rgba(13, 110, 253, 0.08) 100%);
+  border-color: rgba(26, 148, 212, 0.2);
+}
+
+.action-link-modern.highlight:hover {
+  background: linear-gradient(135deg, rgba(26, 148, 212, 0.15) 0%, rgba(13, 110, 253, 0.15) 100%);
+  border-color: var(--primary-color);
+}
+
+.action-link-modern.warning {
+  background: rgba(245, 158, 11, 0.08);
+  border-color: rgba(245, 158, 11, 0.2);
+}
+
+.action-link-modern.warning:hover {
+  background: rgba(245, 158, 11, 0.15);
+  border-color: #f59e0b;
 }
 
 .action-link-modern.danger {
-  color: var(--danger-color);
+  background: rgba(239, 68, 68, 0.08);
+  border-color: rgba(239, 68, 68, 0.2);
 }
 
 .action-link-modern.danger:hover {
-  background: rgba(239, 68, 68, 0.1);
+  background: rgba(239, 68, 68, 0.15);
+  border-color: var(--danger-color);
+  box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2);
+}
+
+.action-link-icon {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-light);
+  border-radius: 12px;
+  color: var(--primary-color);
+  font-size: 1.25rem;
+  transition: all 0.3s ease;
+}
+
+.action-link-modern:hover .action-link-icon {
+  transform: scale(1.1);
+  box-shadow: 0 4px 12px rgba(26, 148, 212, 0.3);
+}
+
+.action-link-modern.warning .action-link-icon {
+  background: rgba(245, 158, 11, 0.15);
+  color: #f59e0b;
+}
+
+.action-link-modern.danger .action-link-icon {
+  background: rgba(239, 68, 68, 0.15);
   color: var(--danger-color);
 }
 
-.action-link-modern i {
+.action-link-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.action-link-content strong {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  display: block;
+}
+
+.action-link-content small {
+  font-size: 0.8rem;
+  color: var(--text-light);
+  display: block;
+  line-height: 1.4;
+}
+
+.card-title-modern {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-title-modern i {
+  color: var(--primary-color);
+}
+
+.settings-card {
+  background: linear-gradient(135deg, rgba(100, 116, 139, 0.05) 0%, rgba(148, 163, 184, 0.05) 100%);
+  border: 2px solid rgba(100, 116, 139, 0.15);
+}
+
+.settings-info {
+  padding: 0.5rem 0;
+}
+
+.settings-text {
+  font-size: 0.9rem;
+  color: var(--text-medium);
+  margin-bottom: 1rem;
+  line-height: 1.5;
+}
+
+.settings-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: white;
+  border: 2px solid var(--border-color);
+  border-radius: 10px;
+  text-decoration: none;
+  color: var(--text-dark);
+  font-size: 0.9rem;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.settings-link:hover {
+  background: var(--bg-light);
+  border-color: var(--text-medium);
+  transform: translateX(4px);
+  color: var(--text-dark);
+}
+
+.settings-link i {
   font-size: 1.1rem;
-  width: 24px;
+}
+
+/* Main Content Container */
+.profile-main-content-modern {
+  max-width: 100%;
+  width: 100%;
+  overflow: hidden;
 }
 
 /* Tabs */
 .tabs-modern {
   display: flex;
-  gap: 1rem;
-  border-bottom: 1px solid rgba(229, 231, 235, 0.7);
+  gap: 0.5rem;
+  background: white;
+  border-radius: 16px;
+  padding: 0.5rem;
   margin-bottom: 2rem;
   overflow-x: auto;
-  padding-bottom: 0.5rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  border: 1.5px solid var(--border-color);
+  max-width: 100%;
 }
 
 .tab-button-modern {
   position: relative;
   display: inline-flex;
   border: none;
-  border-bottom: 3px solid transparent;
+  background: transparent;
+  padding: 0.875rem 1.5rem;
+  border-radius: 12px;
   font-weight: 600;
+  font-size: 0.9rem;
   color: var(--text-medium);
   cursor: pointer;
   transition: all 0.3s;
   white-space: nowrap;
-  display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
 }
 
 .tab-button-modern:hover {
@@ -650,12 +1044,15 @@ body {
 }
 
 .tab-button-modern.active {
-  color: var(--primary-color);
-  border-bottom-color: var(--primary-color);
+  color: white;
+  background: var(--gradient-primary);
+  box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
 }
 
 .tab-content-modern {
   display: none;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .tab-content-modern.active {
@@ -671,11 +1068,18 @@ body {
 /* Content Cards */
 .content-card-modern {
   background: white;
-  border-radius: 12px;
-  padding: 2rem;
-  box-shadow: var(--shadow-sm);
-  margin-bottom: 1.5rem;
-  border: 1px solid var(--border-color);
+  border-radius: 16px;
+  padding: 2.5rem;
+  max-width: 100%;
+  overflow: hidden;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+  margin-bottom: 2rem;
+  border: 1.5px solid var(--border-color);
+  transition: all 0.3s;
+}
+
+.content-card-modern:hover {
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
 }
 
 .content-card-header-modern {
@@ -910,8 +1314,10 @@ body {
 
 .completed-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr));
   gap: 1.5rem;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .completed-card {
@@ -923,6 +1329,9 @@ body {
   display: flex;
   flex-direction: column;
   gap: 1rem;
+  box-sizing: border-box;
+  max-width: 100%;
+  overflow: hidden;
 }
 
 .completed-card-header {
@@ -1021,9 +1430,33 @@ body {
 }
 
 /* Responsive */
+@media (max-width: 1200px) {
+  .profile-grid-modern {
+    grid-template-columns: 300px 1fr;
+    gap: 1.5rem;
+  }
+  
+  .sidebar-card-modern {
+    padding: 1.5rem;
+  }
+}
+
 @media (max-width: 1024px) {
   .profile-grid-modern {
     grid-template-columns: 1fr;
+  }
+  
+  .stats-grid-modern {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+  }
+  
+  .stat-card-modern {
+    padding: 1.5rem 1rem;
+  }
+  
+  .stat-number-modern {
+    font-size: 2rem;
   }
 }
 
@@ -1032,19 +1465,31 @@ body {
     height: 200px;
   }
   
+  .cover-edit-btn {
+    top: 1rem;
+    right: 1rem;
+    padding: 0.65rem 1.25rem;
+    font-size: 0.85rem;
+  }
+  
   .profile-header-modern {
     margin-top: -60px;
   }
   
-  .profile-header-content-modern {
+  .profile-header-card-modern {
+    padding: 1.5rem 1rem;
+    gap: 1.5rem;
+  }
+  
+  .profile-header-top {
     flex-direction: column;
-    align-items: center;
-    text-align: center;
+    align-items: flex-start;
+    gap: 1rem;
   }
   
   .profile-picture-modern {
-    width: 120px;
-    height: 120px;
+    width: 100px;
+    height: 100px;
   }
   
   .profile-name-modern {
@@ -1052,20 +1497,27 @@ body {
   }
   
   .profile-job-title-modern {
-    font-size: 0.95rem;
+    font-size: 0.9rem;
     justify-content: center;
   }
   
-  .profile-actions-modern {
-    grid-template-columns: 1fr;
-  }
-  
-  .action-group-buttons {
+  .profile-meta-modern {
+    gap: 1rem;
+    font-size: 0.85rem;
     flex-direction: column;
+    align-items: flex-start;
   }
   
-  .btn-modern {
-    width: 100%;
+  .meta-item-modern {
+    font-size: 0.85rem;
+  }
+  
+  .meta-item-modern i {
+    font-size: 0.9rem;
+  }
+  
+  .verification-badge-wrapper {
+    justify-content: flex-start;
   }
   
   .stats-grid-modern {
@@ -1074,36 +1526,529 @@ body {
   }
   
   .stat-card-modern {
-    padding: 0.875rem;
+    padding: 1.25rem 1rem;
+  }
+  
+  .stat-icon-modern {
+    width: 48px;
+    height: 48px;
+    font-size: 1.4rem;
+  }
+  
+  .stat-number-modern {
+    font-size: 1.75rem;
+  }
+  
+  .stat-label-modern {
+    font-size: 0.85rem;
   }
   
   .tabs-modern {
     flex-wrap: nowrap;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
+    padding: 0.4rem;
   }
   
   .tab-button-modern {
-    padding: 0.875rem 1.25rem;
-    font-size: 0.9rem;
+    padding: 0.75rem 1rem;
+    font-size: 0.85rem;
   }
   
-  .profile-header-card-modern {
+  .content-card-modern {
     padding: 1.5rem 1rem;
   }
   
-  .meta-item-modern {
+  .sidebar-card-modern {
+    padding: 1.25rem;
+  }
+  
+  .card-title-modern {
+    font-size: 1rem;
+  }
+  
+  .action-link-modern {
+    padding: 0.875rem;
+  }
+  
+  .action-link-icon {
+    width: 40px;
+    height: 40px;
+    font-size: 1.1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-cover-section {
+    height: 160px;
+  }
+  
+  .cover-edit-btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.8rem;
+  }
+  
+  .cover-edit-btn span {
+    display: none;
+  }
+  
+  .profile-header-modern {
+    margin-top: -50px;
+  }
+  
+  .profile-header-card-modern {
+    padding: 1.25rem 0.875rem;
+    overflow: hidden;
+  }
+  
+  .profile-picture-modern {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .profile-name-modern {
+    font-size: 1.25rem;
+  }
+  
+  .profile-job-title-modern {
     font-size: 0.85rem;
   }
+  
+  .profile-meta-modern {
+    gap: 0.75rem;
+    font-size: 0.8rem;
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .meta-item-modern {
+    font-size: 0.8rem;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  
+  .meta-item-modern i {
+    font-size: 0.85rem;
+  }
+  
+  .meta-value {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  
+  .stat-card-modern {
+    padding: 1rem 0.75rem;
+  }
+  
+  .stat-icon-modern {
+    width: 40px;
+    height: 40px;
+    font-size: 1.2rem;
+    margin-bottom: 0.75rem;
+  }
+  
+  .stat-number-modern {
+    font-size: 1.5rem;
+  }
+  
+  .stat-label-modern {
+    font-size: 0.8rem;
+  }
+  
+  .tab-button-modern {
+    padding: 0.65rem 0.875rem;
+    font-size: 0.8rem;
+  }
+  
+  .tab-button-modern i {
+    font-size: 0.9rem;
+  }
+  
+  .content-card-modern {
+    padding: 1.25rem 0.875rem;
+  }
+  
+  .btn-modern {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.85rem;
+  }
+}
+
+/* Clickable Images */
+.clickable-image {
+  transition: transform 0.3s ease, filter 0.3s ease;
+}
+
+.profile-picture-section-modern:hover .clickable-image,
+.profile-cover-section:hover .clickable-image {
+  transform: scale(1.05);
+  filter: brightness(1.1);
+}
+
+.profile-picture-section-modern,
+.profile-cover-section {
+  position: relative;
+}
+
+.profile-picture-section-modern::after,
+.profile-cover-section::after {
+  content: '🔍 Click to view';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-size: 0.9rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.profile-picture-section-modern[style*="cursor: pointer"]:hover::after,
+.profile-cover-section[style*="cursor: pointer"]:hover::after {
+  opacity: 1;
+}
+
+/* Image Modal */
+.image-modal {
+  display: none;
+  position: fixed;
+  z-index: 9999;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.95);
+  align-items: center;
+  justify-content: center;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.modal-content {
+  max-width: 90%;
+  max-height: 90%;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: zoomIn 0.3s ease;
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.close-modal {
+  position: absolute;
+  top: 20px;
+  right: 40px;
+  color: white;
+  font-size: 48px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  z-index: 10000;
+}
+
+.close-modal:hover {
+  color: #ff4444;
+  transform: rotate(90deg);
+}
+
+/* Profile Actions Sidebar Redesign */
+.profile-actions-modern {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+@media (min-width: 1024px) {
+  .profile-actions-modern {
+    position: fixed;
+    right: 20px;
+    top: 100px;
+    width: 280px;
+    grid-template-columns: 1fr;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 16px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+    border: 2px solid var(--border-color);
+    z-index: 100;
+  }
+  
+  .container.profile-header-modern {
+    margin-right: 320px;
+  }
+}
+
+.action-dropdown {
+  position: relative;
+}
+
+.dropdown-toggle {
+  width: 100%;
+  padding: 1rem 1.25rem;
+  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
+  color: white;
+  border: none;
+  border-radius: 12px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(26, 148, 212, 0.3);
+}
+
+.dropdown-toggle:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(26, 148, 212, 0.4);
+}
+
+.dropdown-toggle span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+  border: 2px solid var(--border-color);
+  padding: 0.5rem;
+  list-style: none;
+  margin: 0;
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(-10px);
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+
+.action-dropdown.open .dropdown-menu {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
+@media (min-width: 1024px) {
+  .dropdown-menu {
+    position: static;
+    opacity: 1;
+    visibility: visible;
+    transform: none;
+    margin-top: 0.75rem;
+    box-shadow: none;
+    border: 1px solid var(--border-color);
+  }
+  
+  .dropdown-toggle {
+    background: var(--bg-light);
+    color: var(--text-dark);
+    box-shadow: none;
+    border: 2px solid var(--border-color);
+  }
+  
+  .dropdown-toggle:hover {
+    background: white;
+    border-color: var(--primary-color);
+  }
+  
+  .dropdown-toggle .bi-chevron-down {
+    display: none;
+  }
+}
+
+.dropdown-link {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  padding: 0.875rem 1rem;
+  border-radius: 8px;
+  text-decoration: none;
+  color: var(--text-dark);
+  transition: all 0.2s ease;
+}
+
+.dropdown-link:hover {
+  background: var(--bg-light);
+  transform: translateX(4px);
+}
+
+.dropdown-link.highlight {
+  background: linear-gradient(135deg, rgba(26, 148, 212, 0.1) 0%, rgba(13, 110, 253, 0.1) 100%);
+}
+
+.dropdown-link.highlight:hover {
+  background: linear-gradient(135deg, rgba(26, 148, 212, 0.15) 0%, rgba(13, 110, 253, 0.15) 100%);
+}
+
+.dropdown-link.warning {
+  background: rgba(245, 158, 11, 0.1);
+}
+
+.dropdown-link.warning:hover {
+  background: rgba(245, 158, 11, 0.15);
+}
+
+.dropdown-icon {
+  flex-shrink: 0;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--primary-light);
+  border-radius: 10px;
+  color: var(--primary-color);
+  font-size: 1.25rem;
+}
+
+.dropdown-text {
+  flex: 1;
+}
+
+.dropdown-text strong {
+  display: block;
+  font-size: 0.95rem;
+  color: var(--text-dark);
+  margin-bottom: 0.25rem;
+}
+
+.dropdown-text small {
+  display: block;
+  font-size: 0.8rem;
+  color: var(--text-light);
+  line-height: 1.4;
+}
+
+/* Activity Timeline Styles */
+.activity-timeline {
+  padding: 1rem;
+}
+
+.activity-item {
+  display: flex;
+  gap: 1rem;
+  padding: 1rem;
+  border-bottom: 1px solid #e5e7eb;
+  transition: background-color 0.2s;
+}
+
+.activity-item:last-child {
+  border-bottom: none;
+}
+
+.activity-item:hover {
+  background-color: #f9fafb;
+}
+
+.activity-icon-wrapper {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.25rem;
+}
+
+.activity-icon-wrapper.primary {
+  background-color: rgba(13, 110, 253, 0.1);
+  color: #0d6efd;
+}
+
+.activity-icon-wrapper.success {
+  background-color: rgba(25, 135, 84, 0.1);
+  color: #198754;
+}
+
+.activity-icon-wrapper.danger {
+  background-color: rgba(220, 53, 69, 0.1);
+  color: #dc3545;
+}
+
+.activity-icon-wrapper.warning {
+  background-color: rgba(255, 193, 7, 0.1);
+  color: #ffc107;
+}
+
+.activity-icon-wrapper.info {
+  background-color: rgba(13, 202, 240, 0.1);
+  color: #0dcaf0;
+}
+
+.activity-icon-wrapper.secondary {
+  background-color: rgba(108, 117, 125, 0.1);
+  color: #6c757d;
+}
+
+.activity-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.activity-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.5rem;
+  gap: 1rem;
+}
+
+.activity-type {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-dark);
+}
+
+.activity-time {
+  font-size: 0.85rem;
+  color: var(--text-light);
+  white-space: nowrap;
+}
+
+.activity-description {
+  font-size: 0.9rem;
+  color: var(--text-body);
+  line-height: 1.5;
 }
 </style>
 {% endblock %}
 
 {% block content %}
 <!-- Cover Photo Section -->
-<div class="profile-cover-section">
+<div class="profile-cover-section" {% if user.cover_photo_custom %}onclick="openImageModal('{{ user.cover_photo_custom.url }}')" style="cursor: pointer;"{% endif %}>
   {% if user.cover_photo_custom %}
-    <img src="{{ user.cover_photo_custom.url }}" alt="Cover Photo" class="profile-cover-photo">
+    <img src="{{ user.cover_photo_custom.url }}" alt="Cover Photo" class="profile-cover-photo clickable-image">
   {% elif user.cover_photo %}
     <div class="profile-cover-photo" style="background: {% if user.cover_photo == 'default1' %}linear-gradient(135deg, #667eea 0%, #764ba2 100%){% elif user.cover_photo == 'default2' %}linear-gradient(135deg, #f093fb 0%, #f5576c 100%){% elif user.cover_photo == 'default3' %}linear-gradient(135deg, #4facfe 0%, #00f2fe 100%){% elif user.cover_photo == 'default4' %}linear-gradient(135deg, #43e97b 0%, #38f9d7 100%){% elif user.cover_photo == 'default5' %}linear-gradient(135deg, #fa709a 0%, #fee140 100%){% elif user.cover_photo == 'default6' %}linear-gradient(135deg, #30cfd0 0%, #330867 100%){% else %}linear-gradient(135deg, #1a94d4 0%, #0d6efd 100%){% endif %};"></div>
   {% else %}
@@ -1111,7 +2056,7 @@ body {
   {% endif %}
   <div class="cover-overlay"></div>
   {% if user.pk == request.user.pk %}
-  <a href="{% url 'profile_edit' request.user.pk %}" class="cover-edit-btn">
+  <a href="{% url 'profile_edit' request.user.pk %}" class="cover-edit-btn" onclick="event.stopPropagation();">
     <i class="bi bi-camera"></i>
     <span>Edit Cover</span>
   </a>
@@ -1119,18 +2064,19 @@ body {
 </div>
 
 <!-- Profile Header -->
-<div class="container profile-header-modern">
-  <div class="profile-header-card-modern">
+<div class="profile-header-modern">
+  <div class="container">
+    <div class="profile-header-card-modern">
     <div class="profile-header-top">
       <!-- Profile Picture -->
-      <div class="profile-picture-section-modern">
+      <div class="profile-picture-section-modern" {% if user.profile_picture %}onclick="openImageModal('{{ user.profile_picture.url }}')" style="cursor: pointer;"{% endif %}>
         {% if user.profile_picture %}
-          <img src="{{ user.profile_picture.url }}" class="profile-picture-modern" alt="Profile Picture">
+          <img src="{{ user.profile_picture.url }}" class="profile-picture-modern clickable-image" alt="Profile Picture">
         {% else %}
           <img src="{% static 'images/default_profile.png' %}" class="profile-picture-modern" alt="Default Profile">
         {% endif %}
         {% if user.pk == request.user.pk %}
-        <a href="{% url 'profile_edit' request.user.pk %}" class="profile-picture-edit-modern">
+        <a href="{% url 'profile_edit' request.user.pk %}" class="profile-picture-edit-modern" onclick="event.stopPropagation();">
           <i class="bi bi-camera-fill"></i>
         </a>
         {% endif %}
@@ -1146,6 +2092,15 @@ body {
             {% if user.is_verified %}
             <i class="bi bi-patch-check-fill" style="color: #1d4ed8; font-size: 1.4rem;" title="Verified Account"></i>
             {% endif %}
+            {% if user.is_verified_philsys %}
+            <span style="display: inline-flex; align-items: center; gap: 0.25rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600; margin-left: 0.5rem;" title="PhilSys Verified{% if user.philsys_verified_at %} on {{ user.philsys_verified_at|date:'M d, Y' }}{% endif %}">
+              <i class="bi bi-shield-check"></i>
+              PhilSys
+              {% if user.philsys_pcn_masked %}
+              <span style="opacity: 0.8; font-size: 0.7rem;">({{ user.philsys_pcn_masked }})</span>
+              {% endif %}
+            </span>
+            {% endif %}
           </div>
           {% if user.job_title %}
           <div class="profile-job-title-modern">
@@ -1155,19 +2110,20 @@ body {
           {% endif %}
         </div>
 
+        <!-- Minimal Meta Items -->
         <div class="profile-meta-modern">
           <div class="meta-item-modern">
             <i class="bi bi-geo-alt-fill"></i>
-            <span>{{ user.get_location_display }}</span>
+            <span class="meta-value">{{ user.get_location_display }}</span>
           </div>
           <div class="meta-item-modern">
             <i class="bi bi-envelope-fill"></i>
-            <span>{{ user.email }}</span>
+            <span class="meta-value">{{ user.email }}</span>
           </div>
           {% if user.contact_number %}
           <div class="meta-item-modern">
             <i class="bi bi-telephone-fill"></i>
-            <span>{{ user.contact_number }}</span>
+            <span class="meta-value">{{ user.contact_number }}</span>
           </div>
           {% endif %}
         </div>
@@ -1178,153 +2134,91 @@ body {
             <span class="badge" style="background: rgba(16, 185, 129, 0.12); color: #047857; padding: 0.45rem 0.9rem; border-radius: 16px; font-size: 0.85rem; border: 1px solid rgba(16, 185, 129, 0.25);">
               <i class="bi bi-patch-check-fill"></i> Verified account
             </span>
-          {% elif user.verification_status == 'pending' %}
+          {% elif user.verification_status == 'manual_review' %}
             <span class="badge" style="background: rgba(245, 158, 11, 0.14); color: #b45309; padding: 0.45rem 0.9rem; border-radius: 16px; font-size: 0.85rem; border: 1px solid rgba(245, 158, 11, 0.2);">
-              <i class="bi bi-clock-fill"></i> Verification pending
+              <i class="bi bi-clock-fill"></i> Under review
             </span>
-          {% elif user.verification_status == 'rejected' %}
+          {% elif user.verification_status == 'failed' %}
             <span class="badge" style="background: rgba(239, 68, 68, 0.14); color: #b91c1c; padding: 0.45rem 0.9rem; border-radius: 16px; font-size: 0.85rem; border: 1px solid rgba(239, 68, 68, 0.25);">
-              <i class="bi bi-x-circle-fill"></i> Verification rejected
+              <i class="bi bi-x-circle-fill"></i> Verification failed
             </span>
           {% else %}
             <span class="badge" style="background: rgba(102, 112, 133, 0.16); color: #475569; padding: 0.45rem 0.9rem; border-radius: 16px; font-size: 0.85rem; border: 1px solid rgba(102, 112, 133, 0.2);">
-              <i class="bi bi-shield"></i> Basic account
+              <i class="bi bi-shield"></i> Not verified
             </span>
           {% endif %}
         </div>
         {% endif %}
       </div>
 
-      {% if user.pk == request.user.pk %}
-      <div class="profile-actions-modern">
-        <div class="action-dropdown" data-dropdown="account-actions">
-          <button type="button" class="dropdown-toggle">
-            <span><i class="bi bi-person-gear"></i>Account actions</span>
-            <i class="bi bi-chevron-down"></i>
-          </button>
-          <ul class="dropdown-menu">
-            <li>
-              <a href="{% url 'profile_edit' request.user.pk %}" class="dropdown-link highlight">
-                <span class="dropdown-icon"><i class="bi bi-pencil-square"></i></span>
-                <span class="dropdown-text">
-                  <strong>Edit profile</strong>
-                  <small>Update your personal information</small>
-                </span>
-              </a>
-            </li>
-            {% if user.verification_status == 'unverified' or user.verification_status == 'rejected' %}
-            <li>
-              <a href="{% url 'ekyc_start' %}" class="dropdown-link highlight">
-                <span class="dropdown-icon"><i class="bi bi-shield-check"></i></span>
-                <span class="dropdown-text">
-                  <strong>{% if user.verification_status == 'rejected' %}Retry {% endif %}Verify account</strong>
-                  <small>Restart the verification process</small>
-                </span>
-              </a>
-            </li>
-            {% elif user.verification_status == 'pending' %}
-            <li>
-              <a href="{% url 'ekyc_pending' %}" class="dropdown-link">
-                <span class="dropdown-icon"><i class="bi bi-clock-history"></i></span>
-                <span class="dropdown-text">
-                  <strong>View verification status</strong>
-                  <small>Track the review progress</small>
-                </span>
-              </a>
-            </li>
-            {% endif %}
-          </ul>
-        </div>
-
-        {% if user.posted_jobs.exists or user.job_applications.exists or request.user.is_staff %}
-        <div class="action-dropdown" data-dropdown="dashboard-shortcuts">
-          <button type="button" class="dropdown-toggle">
-            <span><i class="bi bi-grid"></i>Dashboards & shortcuts</span>
-            <i class="bi bi-chevron-down"></i>
-          </button>
-          <ul class="dropdown-menu">
-            {% if user.posted_jobs.exists %}
-            <li>
-              <a href="{% url 'jobs:employer_dashboard' %}" class="dropdown-link">
-                <span class="dropdown-icon"><i class="bi bi-briefcase"></i></span>
-                <span class="dropdown-text">
-                  <strong>Employer dashboard</strong>
-                  <small>Manage job postings and applicants</small>
-                </span>
-              </a>
-            </li>
-            {% else %}
-            <li>
-              <a href="{% url 'jobs:job_create' %}" class="dropdown-link">
-                <span class="dropdown-icon"><i class="bi bi-briefcase-fill"></i></span>
-                <span class="dropdown-text">
-                  <strong>Post a job</strong>
-                  <small>Share a new opportunity</small>
-                </span>
-              </a>
-            </li>
-            {% endif %}
-
-            {% if user.job_applications.exists %}
-            <li>
-              <a href="{% url 'jobs:worker_dashboard' %}" class="dropdown-link">
-                <span class="dropdown-icon"><i class="bi bi-person-workspace"></i></span>
-                <span class="dropdown-text">
-                  <strong>Worker dashboard</strong>
-                  <small>Track applications and offers</small>
-                </span>
-              </a>
-            </li>
-            {% endif %}
-
-            {% if request.user.is_staff %}
-            <li>
-              <a href="{% url 'admin_dashboard:dashboard_main' %}" class="dropdown-link warning">
-                <span class="dropdown-icon"><i class="bi bi-speedometer2"></i></span>
-                <span class="dropdown-text">
-                  <strong>Admin dashboard</strong>
-                  <small>Review platform activity</small>
-                </span>
-              </a>
-            </li>
-            {% endif %}
-          </ul>
-        </div>
-        {% endif %}
-      </div>
-      {% endif %}
+      <!-- Dropdown section removed - all links moved to left sidebar -->
     </div>
   </div>
-  
-  <!-- Stats Grid -->
-  <div class="stats-grid-modern">
-    <div class="stat-card-modern">
-      <div class="stat-icon-modern blue">
-        <i class="bi bi-briefcase-fill"></i>
-      </div>
-      <div class="stat-number-modern">{{ user.posted_jobs.count|default:"0" }}</div>
-      <div class="stat-label-modern">Jobs Posted</div>
-    </div>
-    
-    <div class="stat-card-modern">
-      <div class="stat-icon-modern green">
-        <i class="bi bi-file-earmark-text-fill"></i>
-      </div>
-      <div class="stat-number-modern">{{ user.job_applications.count|default:"0" }}</div>
-      <div class="stat-label-modern">Applications</div>
-    </div>
-    
-    <div class="stat-card-modern">
-      <div class="stat-icon-modern orange">
-        <i class="bi bi-star-fill"></i>
-      </div>
-      <div class="stat-number-modern">{{ user.skill_verifications.all.count|default:"0" }}</div>
-      <div class="stat-label-modern">Skills</div>
-    </div>
   </div>
-  
-  <!-- Main Content Grid -->
-  <div class="profile-grid-modern">
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-section">
+  <div class="container">
+    <div class="stats-grid-modern">
+    {% if is_worker %}
+      <!-- Worker Stats -->
+      <div class="stat-card-modern">
+        <div class="stat-icon-modern green">
+          <i class="bi bi-file-earmark-text-fill"></i>
+        </div>
+        <div class="stat-number-modern">{{ user.job_applications.count|default:"0" }}</div>
+        <div class="stat-label-modern">Applications</div>
+      </div>
+      
+      <div class="stat-card-modern">
+        <div class="stat-icon-modern orange">
+          <i class="bi bi-star-fill"></i>
+        </div>
+        <div class="stat-number-modern">{{ user.skill_verifications.all.count|default:"0" }}</div>
+        <div class="stat-label-modern">Skills</div>
+      </div>
+      
+      <div class="stat-card-modern">
+        <div class="stat-icon-modern blue">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <div class="stat-number-modern">{{ completed_contracts|length|default:"0" }}</div>
+        <div class="stat-label-modern">Completed Jobs</div>
+      </div>
+    {% elif is_client %}
+      <!-- Client Stats -->
+      <div class="stat-card-modern">
+        <div class="stat-icon-modern blue">
+          <i class="bi bi-briefcase-fill"></i>
+        </div>
+        <div class="stat-number-modern">{{ user.posted_jobs.count|default:"0" }}</div>
+        <div class="stat-label-modern">Jobs Posted</div>
+      </div>
+      
+      <div class="stat-card-modern">
+        <div class="stat-icon-modern green">
+          <i class="bi bi-people-fill"></i>
+        </div>
+        <div class="stat-number-modern">{{ user.posted_jobs.all.0.applications.count|default:"0" }}</div>
+        <div class="stat-label-modern">Total Applicants</div>
+      </div>
+      
+      <div class="stat-card-modern">
+        <div class="stat-icon-modern orange">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+        <div class="stat-number-modern">{{ completed_contracts_client|length|default:"0" }}</div>
+        <div class="stat-label-modern">Contracts Completed</div>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Main Content Grid -->
+<div class="content-section">
+  <div class="container">
+    <div class="profile-grid-modern">
     <!-- Sidebar -->
     <div class="profile-sidebar-modern">
       <!-- Contact Information -->
@@ -1369,36 +2263,215 @@ body {
         </ul>
       </div>
       
-      <!-- Account Actions -->
+      <!-- CV/Resume Section (Worker Only) -->
+      {% if is_worker %}
+      <div class="sidebar-card-modern">
+        <h3 class="card-title-modern">
+          <i class="bi bi-file-earmark-text-fill"></i>
+          My CV/Resume
+        </h3>
+        {% if user.cv_file %}
+          <div class="cv-info-modern">
+            <div class="cv-file-icon">
+              <i class="bi {{ user.cv_file|file_icon }}" style="font-size: 3rem; color: {{ user.cv_file|file_color }};"></i>
+            </div>
+            <div class="cv-details">
+              <p class="cv-filename">{{ user.cv_file|original_filename }}</p>
+              {% if user.cv_uploaded_at %}
+              <p class="cv-timestamp">
+                <i class="bi bi-clock"></i>
+                Last updated: {{ user.cv_uploaded_at|date:"M d, Y" }}
+              </p>
+              {% endif %}
+            </div>
+            <div class="cv-actions">
+              <a href="{{ user.cv_file.url }}" class="btn-cv-download" download>
+                <i class="bi bi-download"></i>
+                Download CV
+              </a>
+              {% if user.pk == request.user.pk %}
+              <a href="{% url 'profile_edit' request.user.pk %}" class="btn-cv-update">
+                <i class="bi bi-arrow-repeat"></i>
+                Update CV
+              </a>
+              {% endif %}
+            </div>
+          </div>
+        {% else %}
+          <div class="cv-empty-state">
+            <div class="cv-empty-icon">
+              <i class="bi bi-file-earmark-x" style="font-size: 3rem; color: #94a3b8;"></i>
+            </div>
+            <p class="cv-empty-text">No CV uploaded yet</p>
+            {% if user.pk == request.user.pk %}
+            <a href="{% url 'profile_edit' request.user.pk %}" class="btn-cv-upload">
+              <i class="bi bi-upload"></i>
+              Upload Your CV
+            </a>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+      {% endif %}
+      
+      <!-- Quick Actions -->
       {% if user.pk == request.user.pk %}
       <div class="sidebar-card-modern">
-        <h3 class="card-title-modern">Account Actions</h3>
+        <h3 class="card-title-modern">
+          <i class="bi bi-lightning-charge-fill"></i>
+          Quick Actions
+        </h3>
         <ul class="action-links-modern">
           <li>
+            <a href="{% url 'profile_edit' request.user.pk %}" class="action-link-modern highlight">
+              <div class="action-link-icon">
+                <i class="bi bi-pencil-square"></i>
+              </div>
+              <div class="action-link-content">
+                <strong>Edit Profile</strong>
+                <small>Update your personal information</small>
+              </div>
+            </a>
+          </li>
+          
+          {% if user.verification_status == 'pending' or user.verification_status == 'failed' %}
+          <li>
+            <a href="{% url 'ekyc_start' %}" class="action-link-modern highlight">
+              <div class="action-link-icon">
+                <i class="bi bi-shield-check"></i>
+              </div>
+              <div class="action-link-content">
+                <strong>{% if user.verification_status == 'failed' %}Retry {% endif %}Verify Account</strong>
+                <small>{% if user.verification_status == 'failed' %}Restart verification{% else %}Complete identity verification{% endif %}</small>
+              </div>
+            </a>
+          </li>
+          {% elif user.verification_status == 'manual_review' %}
+          <li>
+            <a href="{% url 'ekyc_pending' %}" class="action-link-modern">
+              <div class="action-link-icon">
+                <i class="bi bi-clock-history"></i>
+              </div>
+              <div class="action-link-content">
+                <strong>Verification Status</strong>
+                <small>Track review progress</small>
+              </div>
+            </a>
+          </li>
+          {% endif %}
+          
+          <li>
             <a href="{% url 'change_password' %}" class="action-link-modern">
-              <i class="bi bi-shield-lock"></i>
-              <span>Change Password</span>
+              <div class="action-link-icon">
+                <i class="bi bi-shield-lock"></i>
+              </div>
+              <div class="action-link-content">
+                <strong>Change Password</strong>
+                <small>Update your security</small>
+              </div>
             </a>
           </li>
           <li>
             <a href="{% url 'privacy_settings' %}" class="action-link-modern">
-              <i class="bi bi-eye"></i>
-              <span>Privacy Settings</span>
+              <div class="action-link-icon">
+                <i class="bi bi-eye"></i>
+              </div>
+              <div class="action-link-content">
+                <strong>Privacy Settings</strong>
+                <small>Control your visibility</small>
+              </div>
             </a>
           </li>
           <li>
             <a href="{% url 'set_location' %}" class="action-link-modern">
-              <i class="bi bi-geo-alt"></i>
-              <span>Set Notification Location</span>
-            </a>
-          </li>
-          <li>
-            <a href="{% url 'profile_delete' user.pk %}" class="action-link-modern danger">
-              <i class="bi bi-trash"></i>
-              <span>Delete Account</span>
+              <div class="action-link-icon">
+                <i class="bi bi-geo-alt"></i>
+              </div>
+              <div class="action-link-content">
+                <strong>Notification Location</strong>
+                <small>Set your preferred area</small>
+              </div>
             </a>
           </li>
         </ul>
+      </div>
+      
+      <!-- Dashboards & Shortcuts -->
+      <div class="sidebar-card-modern">
+        <h3 class="card-title-modern">
+          <i class="bi bi-grid-fill"></i>
+          Dashboards
+        </h3>
+        <ul class="action-links-modern">
+          {% if user.posted_jobs.exists %}
+          <li>
+            <a href="{% url 'jobs:employer_dashboard' %}" class="action-link-modern">
+              <div class="action-link-icon">
+                <i class="bi bi-briefcase"></i>
+              </div>
+              <div class="action-link-content">
+                <strong>Employer Dashboard</strong>
+                <small>Manage job postings</small>
+              </div>
+            </a>
+          </li>
+          {% else %}
+          <li>
+            <a href="{% url 'jobs:job_create' %}" class="action-link-modern">
+              <div class="action-link-icon">
+                <i class="bi bi-briefcase-fill"></i>
+              </div>
+              <div class="action-link-content">
+                <strong>Post a Job</strong>
+                <small>Share new opportunity</small>
+              </div>
+            </a>
+          </li>
+          {% endif %}
+          
+          {% if user.job_applications.exists %}
+          <li>
+            <a href="{% url 'jobs:worker_dashboard' %}" class="action-link-modern">
+              <div class="action-link-icon">
+                <i class="bi bi-person-workspace"></i>
+              </div>
+              <div class="action-link-content">
+                <strong>Worker Dashboard</strong>
+                <small>Track applications</small>
+              </div>
+            </a>
+          </li>
+          {% endif %}
+          
+          {% if request.user.is_staff %}
+          <li>
+            <a href="{% url 'admin_dashboard:dashboard_main' %}" class="action-link-modern warning">
+              <div class="action-link-icon">
+                <i class="bi bi-speedometer2"></i>
+              </div>
+              <div class="action-link-content">
+                <strong>Admin Dashboard</strong>
+                <small>Review platform activity</small>
+              </div>
+            </a>
+          </li>
+          {% endif %}
+        </ul>
+      </div>
+      
+      <!-- Account Settings -->
+      <div class="sidebar-card-modern settings-card">
+        <h3 class="card-title-modern">
+          <i class="bi bi-gear-fill"></i>
+          Account Settings
+        </h3>
+        <div class="settings-info">
+          <p class="settings-text">Need to deactivate your account?</p>
+          <a href="{% url 'profile_delete' user.pk %}" class="settings-link">
+            <i class="bi bi-box-arrow-right"></i>
+            <span>Manage Account</span>
+          </a>
+        </div>
       </div>
       {% endif %}
     </div>
@@ -1407,34 +2480,49 @@ body {
     <div class="profile-main-content-modern">
       <!-- Tabs -->
       <div class="tabs-modern">
+        <!-- Common tab for both -->
         <button class="tab-button-modern active" data-tab="about">
           <i class="bi bi-person"></i>
           <span>About</span>
         </button>
-        <button class="tab-button-modern" data-tab="activity">
-          <i class="bi bi-activity"></i>
-          <span>Activity</span>
-        </button>
-        <button class="tab-button-modern" data-tab="jobs">
-          <i class="bi bi-briefcase"></i>
-          <span>Jobs</span>
-        </button>
-        <button class="tab-button-modern" data-tab="skills">
-          <i class="bi bi-star"></i>
-          <span>Skills</span>
-        </button>
-        <button class="tab-button-modern" data-tab="services">
-          <i class="bi bi-wrench"></i>
-          <span>Services</span>
-        </button>
-        <button class="tab-button-modern" data-tab="gallery">
-          <i class="bi bi-images"></i>
-          <span>Gallery</span>
-        </button>
-        <button class="tab-button-modern" data-tab="completed">
-          <i class="bi bi-check2-circle"></i>
-          <span>Completed Jobs</span>
-        </button>
+        
+        {% if is_worker %}
+          <!-- Worker-only tabs -->
+          <button class="tab-button-modern" data-tab="activity">
+            <i class="bi bi-activity"></i>
+            <span>Activity</span>
+          </button>
+          <button class="tab-button-modern" data-tab="skills">
+            <i class="bi bi-star"></i>
+            <span>Skills</span>
+          </button>
+          <button class="tab-button-modern" data-tab="services">
+            <i class="bi bi-wrench"></i>
+            <span>Services</span>
+          </button>
+          <button class="tab-button-modern" data-tab="gallery">
+            <i class="bi bi-images"></i>
+            <span>Gallery</span>
+          </button>
+          <button class="tab-button-modern" data-tab="completed">
+            <i class="bi bi-check2-circle"></i>
+            <span>Completed Jobs</span>
+          </button>
+        {% elif is_client %}
+          <!-- Client-only tabs -->
+          <button class="tab-button-modern" data-tab="activity">
+            <i class="bi bi-activity"></i>
+            <span>Activity</span>
+          </button>
+          <button class="tab-button-modern" data-tab="jobs">
+            <i class="bi bi-briefcase"></i>
+            <span>Jobs</span>
+          </button>
+          <button class="tab-button-modern" data-tab="completed">
+            <i class="bi bi-check2-circle"></i>
+            <span>Contracts Completed</span>
+          </button>
+        {% endif %}
       </div>
       
       <!-- About Tab -->
@@ -1545,26 +2633,56 @@ body {
         </div>
       </div>
       
-      <!-- Activity Tab -->
+      <!-- Activity Tab (Both Worker and Client) -->
       <div class="tab-content-modern" id="activity-tab">
         <div class="content-card-modern">
           <div class="content-card-header-modern">
             <h3 class="content-card-title-modern">Recent Activity</h3>
           </div>
-          <div class="empty-state-modern">
-            <i class="bi bi-activity empty-icon-modern"></i>
-            <p class="empty-text-modern">No recent activity to show.</p>
-            <a href="{% url 'jobs:job_list' %}" class="btn-modern btn-primary-modern">
-              <i class="bi bi-search"></i>
-              <span>Browse Jobs</span>
-            </a>
-          </div>
+          
+          {% if recent_activities %}
+            <div class="activity-timeline">
+              {% for activity in recent_activities %}
+              <div class="activity-item">
+                <div class="activity-icon-wrapper {{ activity.color_class }}">
+                  <i class="{{ activity.icon }}"></i>
+                </div>
+                <div class="activity-content">
+                  <div class="activity-header">
+                    <span class="activity-type">{{ activity.get_activity_type_display }}</span>
+                    <span class="activity-time">{{ activity.timestamp|timesince }} ago</span>
+                  </div>
+                  <div class="activity-description">
+                    {{ activity.description }}
+                  </div>
+                </div>
+              </div>
+              {% endfor %}
+            </div>
+          {% else %}
+            <div class="empty-state-modern">
+              <i class="bi bi-activity empty-icon-modern"></i>
+              <p class="empty-text-modern">No recent activity to show.</p>
+              {% if is_worker %}
+              <a href="{% url 'jobs:job_list' %}" class="btn-modern btn-primary-modern">
+                <i class="bi bi-search"></i>
+                <span>Browse Jobs</span>
+              </a>
+              {% elif is_client %}
+              <a href="{% url 'jobs:job_create' %}" class="btn-modern btn-primary-modern">
+                <i class="bi bi-plus-circle"></i>
+                <span>Post a Job</span>
+              </a>
+              {% endif %}
+            </div>
+          {% endif %}
         </div>
       </div>
       
       <!-- Jobs Tab -->
       <div class="tab-content-modern" id="jobs-tab">
-        <!-- Posted Jobs -->
+        {% if is_client %}
+        <!-- Posted Jobs (Client Only) -->
         <div class="content-card-modern">
           <div class="content-card-header-modern">
             <h3 class="content-card-title-modern">Posted Jobs</h3>
@@ -1581,6 +2699,15 @@ body {
                 <li class="list-item-modern">
                   <div class="list-item-title-modern">
                     <a href="{% url 'jobs:job_detail' job.id %}" style="color: var(--primary-color); text-decoration: none;">{{ job.title }}</a>
+                    {% if not job.is_active %}
+                      <span class="badge" style="background-color: #6c757d; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; margin-left: 0.5rem;">
+                        <i class="bi bi-eye-slash"></i> Inactive
+                      </span>
+                    {% else %}
+                      <span class="badge" style="background-color: #198754; color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; margin-left: 0.5rem;">
+                        <i class="bi bi-eye"></i> Active
+                      </span>
+                    {% endif %}
                   </div>
                   <div class="list-item-subtitle-modern">
                     <i class="bi bi-geo-alt"></i> {{ job.municipality }}, {{ job.barangay }}
@@ -1588,6 +2715,12 @@ body {
                   </div>
                   {% if user.pk == request.user.pk %}
                   <div class="job-actions-modern">
+                    <button onclick="toggleJobStatus({{ job.id }}, '{{ job.title|escapejs }}', '{% url 'jobs:toggle_job_status' job.id %}')" 
+                            class="btn-modern btn-outline-modern btn-sm-modern toggle-job-btn-{{ job.id }}"
+                            style="{% if job.is_active %}color: #dc3545; border-color: #dc3545;{% else %}color: #198754; border-color: #198754;{% endif %}">
+                      <i class="bi {% if job.is_active %}bi-eye-slash{% else %}bi-eye{% endif %}"></i>
+                      <span class="toggle-text-{{ job.id }}">{% if job.is_active %}Deactivate{% else %}Activate{% endif %}</span>
+                    </button>
                     <a href="{% url 'jobs:job_edit' job.id %}" class="btn-modern btn-outline-modern btn-sm-modern">
                       <i class="bi bi-pencil"></i> Edit
                     </a>
@@ -1606,8 +2739,8 @@ body {
             </div>
           {% endif %}
         </div>
-        
-        <!-- Job Applications -->
+        {% elif is_worker %}
+        <!-- Job Applications (Worker Only) -->
         <div class="content-card-modern">
           <div class="content-card-header-modern">
             <h3 class="content-card-title-modern">Job Applications</h3>
@@ -1648,9 +2781,11 @@ body {
             </div>
           {% endif %}
         </div>
+        {% endif %}
       </div>
       
-      <!-- Skills Tab -->
+      {% if is_worker %}
+      <!-- Skills Tab (Worker Only) -->
       <div class="tab-content-modern" id="skills-tab">
         <div class="content-card-modern">
           <div class="content-card-header-modern">
@@ -1719,7 +2854,7 @@ body {
         </div>
       </div>
       
-      <!-- Services Tab -->
+      <!-- Services Tab (Worker Only) -->
       <div class="tab-content-modern" id="services-tab">
         <div class="content-card-modern">
           <div class="content-card-header-modern">
@@ -1801,7 +2936,7 @@ body {
         </div>
       </div>
       
-      <!-- Gallery Tab -->
+      <!-- Gallery Tab (Worker Only) -->
       <div class="tab-content-modern" id="gallery-tab">
         <div class="content-card-modern">
           <div class="content-card-header-modern">
@@ -1848,79 +2983,146 @@ body {
           {% endif %}
         </div>
       </div>
+      {% endif %}
 
-      <!-- Completed Jobs Tab -->
+      <!-- Completed Jobs Tab (Both Worker and Client) -->
       <div class="tab-content-modern" id="completed-tab">
         <div class="content-card-modern">
           <div class="content-card-header-modern">
-            <h3 class="content-card-title-modern">Completed Jobs</h3>
+            <h3 class="content-card-title-modern">{% if is_worker %}Completed Jobs{% else %}Contracts Completed{% endif %}</h3>
           </div>
 
-          {% if completed_contracts %}
-          <div class="completed-grid">
-            {% for contract in completed_contracts %}
-            <div class="completed-card">
-              <div class="completed-card-header">
-                <div>
-                  <div class="completed-title">{{ contract.job.title }}</div>
-                  <div class="completed-meta">
-                    <i class="bi bi-person-badge"></i>
-                    Client: {{ contract.client.get_full_name|default:contract.client.username }}
+          {% if is_worker %}
+            {% if completed_contracts %}
+            <div class="completed-grid">
+              {% for contract in completed_contracts %}
+              <div class="completed-card">
+                <div class="completed-card-header">
+                  <div>
+                    <div class="completed-title">{{ contract.job.title }}</div>
+                    <div class="completed-meta">
+                      <i class="bi bi-person-badge"></i>
+                      Client: {{ contract.client.get_full_name|default:contract.client.username }}
+                    </div>
+                  </div>
+                  <span class="status-badge-modern success">Completed</span>
+                </div>
+
+                <div class="completed-info">
+                  <div><i class="bi bi-calendar-check"></i> Completed {{ contract.updated_at|date:"M d, Y" }}</div>
+                  {% if contract.payment_status %}
+                  <div><i class="bi bi-cash"></i> Payment: {{ contract.payment_status }}</div>
+                  {% endif %}
+                  {% if contract.rating_by_client %}
+                  <div><i class="bi bi-star-fill"></i> Rated {{ contract.rating_by_client }}/5</div>
+                  {% endif %}
+                </div>
+
+                {% if contract.worker_feedback %}
+                <div class="feedback-card">
+                  <div class="feedback-header">
+                    <div class="rating-stars">
+                      {% for i in "12345"|make_list %}
+                        {% if forloop.counter <= contract.worker_feedback.rating %}
+                          ★
+                        {% else %}
+                          ☆
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                    <div class="feedback-meta">{{ contract.worker_feedback.created_at|date:"M d, Y" }}</div>
+                  </div>
+                  <p class="feedback-message">{{ contract.worker_feedback.message|linebreaksbr }}</p>
+                  <div class="feedback-author">
+                    <i class="bi bi-person"></i>
+                    {{ contract.worker_feedback.giver.get_full_name|default:contract.worker_feedback.giver.username }}
                   </div>
                 </div>
-                <span class="status-badge-modern success">Completed</span>
-              </div>
-
-              <div class="completed-info">
-                <div><i class="bi bi-calendar-check"></i> Completed {{ contract.updated_at|date:"M d, Y" }}</div>
-                {% if contract.payment_status %}
-                <div><i class="bi bi-cash"></i> Payment: {{ contract.payment_status }}</div>
-                {% endif %}
-                {% if contract.rating_by_client %}
-                <div><i class="bi bi-star-fill"></i> Rated {{ contract.rating_by_client }}/5</div>
-                {% endif %}
-              </div>
-
-              {% if contract.worker_feedback %}
-              <div class="feedback-card">
-                <div class="feedback-header">
-                  <div class="rating-stars">
-                    {% for i in "12345"|make_list %}
-                      {% if forloop.counter <= contract.worker_feedback.rating %}
-                        ★
-                      {% else %}
-                        ☆
-                      {% endif %}
-                    {% endfor %}
-                  </div>
-                  <div class="feedback-meta">{{ contract.worker_feedback.created_at|date:"M d, Y" }}</div>
+                {% else %}
+                <div class="feedback-empty">
+                  <i class="bi bi-chat-left-dots"></i>
+                  <span>No feedback from employer yet.</span>
                 </div>
-                <p class="feedback-message">{{ contract.worker_feedback.message|linebreaksbr }}</p>
-                <div class="feedback-author">
-                  <i class="bi bi-person"></i>
-                  {{ contract.worker_feedback.giver.get_full_name|default:contract.worker_feedback.giver.username }}
-                </div>
-              </div>
-              {% else %}
-              <div class="feedback-empty">
-                <i class="bi bi-chat-left-dots"></i>
-                <span>No feedback from employer yet.</span>
-              </div>
-              {% endif %}
+                {% endif %}
 
+              </div>
+              {% endfor %}
             </div>
-            {% endfor %}
-          </div>
-          {% else %}
-          <div class="empty-state-modern" style="padding: 2rem;">
-            <i class="bi bi-check2-circle empty-icon-modern" style="font-size: 3rem;"></i>
-            <p class="empty-text-modern">No completed jobs yet.</p>
-          </div>
+            {% else %}
+            <div class="empty-state-modern" style="padding: 2rem;">
+              <i class="bi bi-check2-circle empty-icon-modern" style="font-size: 3rem;"></i>
+              <p class="empty-text-modern">No completed jobs yet.</p>
+            </div>
+            {% endif %}
+          {% elif is_client %}
+            {% if completed_contracts_client %}
+            <div class="completed-grid">
+              {% for contract in completed_contracts_client %}
+              <div class="completed-card">
+                <div class="completed-card-header">
+                  <div>
+                    <div class="completed-title">{{ contract.job.title }}</div>
+                    <div class="completed-meta">
+                      <i class="bi bi-person-badge"></i>
+                      Worker: {{ contract.worker.get_full_name|default:contract.worker.username }}
+                    </div>
+                  </div>
+                  <span class="status-badge-modern success">Completed</span>
+                </div>
+
+                <div class="completed-info">
+                  <div><i class="bi bi-calendar-check"></i> Completed {{ contract.updated_at|date:"M d, Y" }}</div>
+                  {% if contract.payment_status %}
+                  <div><i class="bi bi-cash"></i> Payment: {{ contract.payment_status }}</div>
+                  {% endif %}
+                  {% if contract.rating_by_worker %}
+                  <div><i class="bi bi-star-fill"></i> Rated {{ contract.rating_by_worker }}/5</div>
+                  {% endif %}
+                </div>
+
+                {% if contract.worker_feedback %}
+                <div class="feedback-card">
+                  <div class="feedback-header">
+                    <div class="rating-stars">
+                      {% for i in "12345"|make_list %}
+                        {% if forloop.counter <= contract.worker_feedback.rating %}
+                          ★
+                        {% else %}
+                          ☆
+                        {% endif %}
+                      {% endfor %}
+                    </div>
+                    <div class="feedback-meta">{{ contract.worker_feedback.created_at|date:"M d, Y" }}</div>
+                  </div>
+                  <p class="feedback-message">{{ contract.worker_feedback.message|linebreaksbr }}</p>
+                  <div class="feedback-author">
+                    <i class="bi bi-person"></i>
+                    Feedback from: {{ contract.worker_feedback.giver.get_full_name|default:contract.worker_feedback.giver.username }}
+                  </div>
+                </div>
+                {% else %}
+                <div class="feedback-empty">
+                  <i class="bi bi-chat-left-dots"></i>
+                  <span>No feedback from worker yet.</span>
+                </div>
+                {% endif %}
+
+              </div>
+              {% endfor %}
+            </div>
+            {% else %}
+            <div class="empty-state-modern" style="padding: 2rem;">
+              <i class="bi bi-check2-circle empty-icon-modern" style="font-size: 3rem;"></i>
+              <p class="empty-text-modern">No contracts completed yet.</p>
+            </div>
+            {% endif %}
           {% endif %}
         </div>
       </div>
     </div>
   </div>
+  </div>
+</div>
 </div>
 
 <script>
@@ -1961,5 +3163,118 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
 });
+
+// Image Modal Functionality
+function openImageModal(imageSrc) {
+  const modal = document.getElementById('imageModal');
+  const modalImg = document.getElementById('modalImage');
+  if (modal && modalImg) {
+    modal.style.display = 'flex';
+    modalImg.src = imageSrc;
+    document.body.style.overflow = 'hidden';
+  }
+}
+
+function closeImageModal() {
+  const modal = document.getElementById('imageModal');
+  if (modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = 'auto';
+  }
+}
+
+// Close modal on escape key
+document.addEventListener('keydown', function(event) {
+  if (event.key === 'Escape') {
+    closeImageModal();
+  }
+});
+
+// Get CSRF token from cookie
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+
+// Toggle Job Status Function
+function toggleJobStatus(jobId, jobTitle, toggleUrl) {
+  if (!confirm(`Are you sure you want to toggle the status of "${jobTitle}"?`)) {
+    return;
+  }
+  
+  const button = document.querySelector(`.toggle-job-btn-${jobId}`);
+  const originalHTML = button.innerHTML;
+  button.disabled = true;
+  button.innerHTML = '<i class="bi bi-hourglass-split"></i> Processing...';
+  
+  const csrftoken = getCookie('csrftoken');
+  
+  console.log('Toggle URL:', toggleUrl);
+  
+  fetch(toggleUrl, {
+    method: 'POST',
+    headers: {
+      'X-CSRFToken': csrftoken,
+      'Content-Type': 'application/json',
+    },
+    credentials: 'same-origin'
+  })
+  .then(response => {
+    // Log response for debugging
+    console.log('Response status:', response.status);
+    console.log('Response headers:', response.headers);
+    
+    // Try to get response text first to see what we're receiving
+    return response.text().then(text => {
+      console.log('Response text:', text);
+      
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}, response: ${text}`);
+      }
+      
+      // Try to parse as JSON
+      try {
+        return JSON.parse(text);
+      } catch (e) {
+        throw new Error(`Invalid JSON response: ${text}`);
+      }
+    });
+  })
+  .then(data => {
+    console.log('Parsed data:', data);
+    
+    if (data.success) {
+      // Reload page to show updated status
+      location.reload();
+    } else {
+      alert(data.message || 'Failed to toggle job status');
+      button.disabled = false;
+      button.innerHTML = originalHTML;
+    }
+  })
+  .catch(error => {
+    console.error('Full error:', error);
+    alert('An error occurred while toggling job status. Check console for details.\n\nError: ' + error.message);
+    button.disabled = false;
+    button.innerHTML = originalHTML;
+  });
+}
 </script>
+
+<!-- Image Modal -->
+<div id="imageModal" class="image-modal" onclick="closeImageModal()">
+  <span class="close-modal" onclick="closeImageModal()">&times;</span>
+  <img class="modal-content" id="modalImage" onclick="event.stopPropagation();">
+</div>
+
 {% endblock %}

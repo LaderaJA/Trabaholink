@@ -4,6 +4,9 @@
 {% block title %}Worker Dashboard - TrabahoLink{% endblock %}
 
 {% block css %}
+<!-- FullCalendar CSS -->
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
+
 <style>
     body {
         background: #f3f4f6 !important;
@@ -474,6 +477,23 @@
             width: 100%;
         }
     }
+
+    /* Calendar completed contract styling */
+    .fc-event.completed-contract {
+        opacity: 0.6;
+        background-image: repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 10px,
+            rgba(255, 255, 255, 0.3) 10px,
+            rgba(255, 255, 255, 0.3) 20px
+        );
+        font-style: italic;
+    }
+
+    .fc-event.completed-contract:hover {
+        opacity: 0.8;
+    }
 </style>
 {% endblock %}
 
@@ -536,6 +556,157 @@
         </div>
     </div>
 
+    <!-- PROMINENT ACTIVE CONTRACTS TRACKING SECTION -->
+    {% if active_contracts_list %}
+    <div class="content-section" style="margin-bottom: 2rem; border: 2px solid #059669;">
+        <div class="section-header" style="margin-bottom: 1.5rem; background: linear-gradient(135deg, #059669 0%, #10b981 100%); margin: -1.5rem -1.5rem 1.5rem; padding: 1.25rem 1.5rem; border-radius: 12px 12px 0 0;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; color: white; margin: 0; display: flex; align-items: center; gap: 0.75rem;">
+                <i class="bi bi-graph-up-arrow" style="font-size: 1.75rem;"></i> 
+                <span>Active Jobs Tracking</span>
+                <span style="background: rgba(255,255,255,0.2); padding: 0.25rem 0.75rem; border-radius: 9999px; font-size: 0.875rem;">{{ active_contracts }} Active</span>
+            </h2>
+            <p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: rgba(255,255,255,0.9);">Track your ongoing work and deadlines at a glance</p>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem;">
+            {% for contract in active_contracts_list|slice:":6" %}
+            <div style="background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%); border: 2px solid #e5e7eb; border-radius: 12px; padding: 1.25rem; transition: all 0.3s;">
+                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
+                    <h3 style="font-size: 1rem; font-weight: 700; color: #111827; margin: 0; flex: 1;">{{ contract.job.title }}</h3>
+                    <span style="font-size: 0.75rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-weight: 600; white-space: nowrap; margin-left: 0.5rem; {% if contract.status == 'In Progress' %}background: #d1fae5; color: #065f46;{% elif contract.status == 'Accepted' %}background: #dbeafe; color: #1e40af;{% else %}background: #fef3c7; color: #92400e;{% endif %}">
+                        {{ contract.status }}
+                    </span>
+                </div>
+                
+                <div style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.75rem;">
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                        <i class="bi bi-person-circle"></i>
+                        <span>Client: <strong>{{ contract.client.get_full_name|default:contract.client.username }}</strong></span>
+                    </div>
+                    {% if contract.start_date %}
+                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                        <i class="bi bi-calendar-range"></i>
+                        <span>{{ contract.start_date|date:"M d" }} - {% if contract.end_date %}{{ contract.end_date|date:"M d, Y" }}{% else %}Ongoing{% endif %}</span>
+                    </div>
+                    {% endif %}
+                    {% if contract.agreed_rate %}
+                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="bi bi-cash-coin"></i>
+                        <span><strong>₱{{ contract.agreed_rate }}</strong></span>
+                    </div>
+                    {% endif %}
+                </div>
+                
+                <div style="display: flex; gap: 0.5rem;">
+                    <a href="{% url 'jobs:job_tracking' contract.pk %}" style="flex: 1; background: #059669; color: white; padding: 0.625rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.875rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s;">
+                        <i class="bi bi-graph-up"></i>
+                        Track Progress
+                    </a>
+                    <a href="{% url 'jobs:contract_detail' contract.pk %}" style="background: #f3f4f6; color: #374151; padding: 0.625rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.875rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                        <i class="bi bi-eye"></i>
+                    </a>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        
+        {% if active_contracts > 6 %}
+        <div style="text-align: center; margin-top: 1rem;">
+            <button onclick="document.querySelector('.tabs-header button:nth-child(3)').click()" style="background: #f3f4f6; color: #059669; padding: 0.625rem 1.5rem; border-radius: 8px; border: none; font-weight: 600; cursor: pointer; transition: all 0.2s;">
+                View All {{ active_contracts }} Contracts →
+            </button>
+        </div>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    <!-- Calendar and Schedule Section -->
+    <div class="content-section" style="margin-bottom: 2rem;">
+        <div class="section-header" style="margin-bottom: 1.5rem;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; color: #111827; margin: 0;">
+                <i class="bi bi-calendar3" style="color: #059669;"></i> My Schedule
+            </h2>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem;">
+            <!-- Calendar -->
+            <div>
+                <div id="calendar-loading" style="background: white; border-radius: 8px; padding: 2rem; text-align: center; min-height: 600px; display: flex; align-items: center; justify-content: center;">
+                    <div>
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p style="margin-top: 1rem; color: #6b7280;">Loading calendar...</p>
+                    </div>
+                </div>
+                <div id="calendar" style="background: white; border-radius: 8px; padding: 1rem; min-height: 600px; display: none;"></div>
+            </div>
+            
+            <!-- Upcoming Deadlines Sidebar -->
+            <div>
+                <div style="background: #f9fafb; border-radius: 8px; padding: 1.25rem; border: 1px solid #e5e7eb;">
+                    <h3 style="font-size: 1.125rem; font-weight: 600; color: #111827; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
+                        <i class="bi bi-alarm" style="color: #f59e0b;"></i>
+                        Upcoming Deadlines
+                    </h3>
+                    
+                    <div id="deadlines-list">
+                        {% if upcoming_deadlines %}
+                            {% for deadline in upcoming_deadlines %}
+                            <div class="deadline-item" style="background: white; padding: 1rem; border-radius: 6px; margin-bottom: 0.75rem; border-left: 3px solid {% if deadline.urgency == 'high' %}#ef4444{% elif deadline.urgency == 'medium' %}#f59e0b{% else %}#10b981{% endif %};">
+                                <div style="font-weight: 600; color: #111827; margin-bottom: 0.25rem;">{{ deadline.title }}</div>
+                                <div style="font-size: 0.875rem; color: #6b7280; margin-bottom: 0.5rem;">{{ deadline.client }}</div>
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <span style="font-size: 0.75rem; color: #6b7280;">
+                                        <i class="bi bi-calendar-event"></i> {{ deadline.deadline|date:"M d, Y" }}
+                                    </span>
+                                    <span style="font-size: 0.75rem; font-weight: 600; color: {% if deadline.urgency == 'high' %}#ef4444{% elif deadline.urgency == 'medium' %}#f59e0b{% else %}#10b981{% endif %};">
+                                        {{ deadline.days_remaining }} day{{ deadline.days_remaining|pluralize }} left
+                                    </span>
+                                </div>
+                            </div>
+                            {% endfor %}
+                        {% else %}
+                            <div style="text-align: center; padding: 2rem; color: #9ca3af;">
+                                <i class="bi bi-check-circle" style="font-size: 2rem; display: block; margin-bottom: 0.5rem;"></i>
+                                <p style="margin: 0;">No upcoming deadlines</p>
+                            </div>
+                        {% endif %}
+                    </div>
+                    
+                    <!-- Scheduled Contracts List -->
+                    <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid #e5e7eb;">
+                        <h4 style="font-size: 0.875rem; font-weight: 600; color: #6b7280; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 1rem;">
+                            Scheduled Contracts
+                        </h4>
+                        <div id="scheduled-contracts-list" style="max-height: 300px; overflow-y: auto;">
+                            {% if scheduled_contracts %}
+                                {% for contract in scheduled_contracts %}
+                                <a href="{% url 'jobs:contract_detail' contract.id %}" style="display: block; background: white; padding: 0.75rem; border-radius: 6px; margin-bottom: 0.5rem; text-decoration: none; border: 1px solid #e5e7eb; transition: all 0.2s;">
+                                    <div style="font-weight: 600; color: #111827; font-size: 0.875rem; margin-bottom: 0.25rem;">{{ contract.job.title }}</div>
+                                    <div style="font-size: 0.75rem; color: #6b7280;">
+                                        <i class="bi bi-calendar-range"></i> 
+                                        {{ contract.start_date|date:"M d" }} - {% if contract.end_date %}{{ contract.end_date|date:"M d, Y" }}{% else %}Ongoing{% endif %}
+                                    </div>
+                                    <div style="margin-top: 0.25rem;">
+                                        <span style="font-size: 0.7rem; padding: 0.125rem 0.5rem; border-radius: 9999px; background: {% if contract.status == 'In Progress' %}#d1fae5; color: #059669{% elif contract.status == 'Accepted' %}#dbeafe; color: #2563eb{% else %}#e9d5ff; color: #7c3aed{% endif %};">
+                                            {{ contract.status }}
+                                        </span>
+                                    </div>
+                                </a>
+                                {% endfor %}
+                            {% else %}
+                                <div style="text-align: center; padding: 1.5rem; color: #9ca3af; font-size: 0.875rem;">
+                                    No scheduled contracts
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <!-- Tabbed Content -->
     <div class="tabs-container">
         <div class="tabs-header">
@@ -558,6 +729,11 @@
                 <i class="bi bi-check2-circle"></i>
                 <span>Completed</span>
                 <span class="tab-badge">{{ completed_contracts }}</span>
+            </button>
+            <button class="tab-button" onclick="switchTab(event, 'cancelled-contracts')">
+                <i class="bi bi-x-circle"></i>
+                <span>Cancelled</span>
+                <span class="tab-badge">{{ cancelled_contracts }}</span>
             </button>
             <button class="tab-button" onclick="switchTab(event, 'jobs')">
                 <i class="bi bi-briefcase"></i>
@@ -690,6 +866,51 @@
                     <i class="bi bi-check2-circle"></i>
                     <h3>No Completed Contracts Yet</h3>
                     <p>Completed contracts will appear here</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Cancelled Contracts Tab -->
+        <div id="cancelled-contracts-tab" class="tab-content">
+            <div class="filter-bar">
+                <input type="text" class="search-input" id="cancelled-contracts-search" placeholder="Search cancelled contracts..." onkeyup="filterCancelledContracts()">
+            </div>
+
+            <div id="cancelled-contracts-list">
+                {% for contract in cancelled_contracts_list %}
+                <div class="job-card" data-title="{{ contract.job.title|lower }}">
+                    <div class="job-header">
+                        <div class="job-info">
+                            <h3>{{ contract.job.title }}</h3>
+                            <div class="job-meta">
+                                Client: {{ contract.client.get_full_name|default:contract.client.username }}
+                            </div>
+                        </div>
+                        <span class="status-badge" style="background: #fee2e2; color: #991b1b;">
+                            <i class="bi bi-x-circle"></i> Cancelled
+                        </span>
+                    </div>
+                    <div class="job-details">
+                        <span><i class="bi bi-calendar-x"></i> Cancelled {{ contract.updated_at|date:"M d, Y" }}</span>
+                        {% if contract.start_date %}
+                        <span><i class="bi bi-calendar"></i> Was scheduled: {{ contract.start_date|date:"M d, Y" }}</span>
+                        {% endif %}
+                        {% if contract.agreed_rate %}
+                        <span><i class="bi bi-cash"></i> ₱{{ contract.agreed_rate }}</span>
+                        {% endif %}
+                    </div>
+                    <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="{% url 'jobs:contract_detail' contract.pk %}" class="btn-action btn-secondary">
+                            <i class="bi bi-eye"></i> View Details
+                        </a>
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state">
+                    <i class="bi bi-x-circle"></i>
+                    <h3>No Cancelled Contracts</h3>
+                    <p>Cancelled contracts will appear here</p>
                 </div>
                 {% endfor %}
             </div>
@@ -899,6 +1120,18 @@ function filterContracts() {
     });
 }
 
+// Filter Cancelled Contracts
+function filterCancelledContracts() {
+    const searchTerm = document.getElementById('cancelled-contracts-search').value.toLowerCase();
+    const cards = document.querySelectorAll('#cancelled-contracts-list .job-card');
+    
+    cards.forEach(card => {
+        const title = card.getAttribute('data-title');
+        const matchesSearch = !searchTerm || title.includes(searchTerm);
+        card.style.display = matchesSearch ? 'block' : 'none';
+    });
+}
+
 // Filter Jobs
 function filterJobs() {
     const searchTerm = document.getElementById('jobs-search').value.toLowerCase();
@@ -910,5 +1143,112 @@ function filterJobs() {
         card.style.display = matchesSearch ? 'block' : 'none';
     });
 }
+
+// ============================================================================
+// Calendar Initialization
+// ============================================================================
+</script>
+
+<!-- Load FullCalendar JS Library -->
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Initializing calendar...');
+    
+    const calendarEl = document.getElementById('calendar');
+    if (!calendarEl) {
+        console.error('Calendar element not found!');
+        return;
+    }
+    
+    console.log('Calendar element found:', calendarEl);
+    console.log('FullCalendar available:', typeof FullCalendar !== 'undefined');
+    
+    if (typeof FullCalendar === 'undefined') {
+        console.error('FullCalendar library not loaded!');
+        return;
+    }
+    
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,listWeek'
+        },
+        height: 'auto',
+        displayEventTime: false,  // Don't show time for all-day events
+        displayEventEnd: true,    // Show end date
+        eventDisplay: 'block',    // Display as blocks spanning full duration
+        events: function(info, successCallback, failureCallback) {
+            console.log('Fetching events from:', info.startStr, 'to:', info.endStr);
+            const url = `/api/schedule/events/?start=${info.startStr}&end=${info.endStr}`;
+            console.log('API URL:', url);
+            
+            fetch(url)
+                .then(response => {
+                    console.log('API Response status:', response.status);
+                    return response.json();
+                })
+                .then(data => {
+                    console.log('Calendar events loaded:', data);
+                    console.log('Number of events:', data.length);
+                    if (data.length > 0) {
+                        console.log('First event:', data[0]);
+                    } else {
+                        console.warn('No events returned from API');
+                    }
+                    successCallback(data);
+                })
+                .catch(error => {
+                    console.error('Error loading calendar events:', error);
+                    failureCallback(error);
+                });
+        },
+        eventClick: function(info) {
+            try {
+                if (info.event.url) {
+                    window.location.href = info.event.url;
+                    info.jsEvent.preventDefault();
+                }
+            } catch (error) {
+                console.error('Error handling event click:', error);
+            }
+        },
+        eventDidMount: function(info) {
+            // Add tooltip with contract details
+            const tooltip = `${info.event.title}\nClient: ${info.event.extendedProps.client}\nStatus: ${info.event.extendedProps.status}`;
+            info.el.title = tooltip;
+            
+            // Add bold font weight for better visibility
+            info.el.style.fontWeight = '600';
+            info.el.style.fontSize = '0.85rem';
+            
+            // Add subtle shadow for depth
+            info.el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.15)';
+        },
+        dayCellDidMount: function(info) {
+            // Highlight today with a subtle background
+            if (info.isToday) {
+                info.el.style.backgroundColor = '#fffbeb';
+                info.el.style.border = '2px solid #fbbf24';
+            }
+        },
+        eventContent: function(arg) {
+            // Customize event display to show full title
+            return {
+                html: `<div style="padding: 2px 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${arg.event.title}</div>`
+            };
+        }
+    });
+    
+    calendar.render();
+    
+    // Hide loading indicator and show calendar
+    console.log('Calendar rendered successfully');
+    document.getElementById('calendar-loading').style.display = 'none';
+    document.getElementById('calendar').style.display = 'block';
+});
 </script>
 {% endblock %}

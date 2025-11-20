@@ -1,5 +1,5 @@
 from django import forms
-from .models import ServicePost, ServicePostImage
+from .models import ServicePost, ServicePostImage, ServiceReview, ServiceReviewReport
 
 class ServicePostForm(forms.ModelForm):
     class Meta:
@@ -69,4 +69,42 @@ class ServiceImageForm(forms.ModelForm):
                 'class': 'block w-full text-sm text-gray-900 border border-gray-300 rounded-lg cursor-pointer bg-gray-50 focus:outline-none',
                 'accept': 'image/*'
             })
+        }
+
+
+class ServiceReviewForm(forms.ModelForm):
+    """Form for creating/editing service reviews"""
+    class Meta:
+        model = ServiceReview
+        fields = ['rating', 'comment']
+        widgets = {
+            'rating': forms.RadioSelect(attrs={
+                'class': 'rating-input'
+            }),
+            'comment': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'rows': 4,
+                'placeholder': 'Share your experience with this service provider...'
+            })
+        }
+        labels = {
+            'rating': 'Your Rating',
+            'comment': 'Your Review'
+        }
+
+
+class ServiceReviewReportForm(forms.ModelForm):
+    """Form for reporting a review"""
+    class Meta:
+        model = ServiceReviewReport
+        fields = ['reason']
+        widgets = {
+            'reason': forms.Textarea(attrs={
+                'class': 'w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-red-500',
+                'rows': 3,
+                'placeholder': 'Please explain why you are reporting this review...'
+            })
+        }
+        labels = {
+            'reason': 'Reason for Report'
         }

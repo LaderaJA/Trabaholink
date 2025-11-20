@@ -639,6 +639,12 @@ class ContractViewSet(viewsets.ModelViewSet):
             contract.is_finalized = True
             contract.save()
             
+            # Decrement job vacancy
+            if contract.job.decrement_vacancy():
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.info(f"Job {contract.job.id} vacancy decremented via API. Remaining: {contract.job.vacancies}")
+            
             # Notify both parties
             Notification.objects.create(
                 user=contract.worker,

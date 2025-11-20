@@ -1,0 +1,133 @@
+# Default values for trabaholink
+# This is a YAML-formatted file.
+
+replicaCount: 2
+
+image:
+  repository: trabaholink
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+
+podAnnotations: {}
+
+podSecurityContext:
+  fsGroup: 2000
+
+securityContext:
+  capabilities:
+    drop:
+    - ALL
+  readOnlyRootFilesystem: false
+  runAsNonRoot: true
+  runAsUser: 1000
+
+service:
+  type: ClusterIP
+  port: 8000
+
+ingress:
+  enabled: true
+  className: "nginx"
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-prod
+    nginx.ingress.kubernetes.io/ssl-redirect: "true"
+    nginx.ingress.kubernetes.io/proxy-body-size: "100m"
+  hosts:
+    - host: trabaholink.com
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    - secretName: trabaholink-tls
+      hosts:
+        - trabaholink.com
+
+resources:
+  limits:
+    cpu: 500m
+    memory: 1Gi
+  requests:
+    cpu: 250m
+    memory: 512Mi
+
+autoscaling:
+  enabled: true
+  minReplicas: 2
+  maxReplicas: 10
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+# Django settings
+django:
+  debug: false
+  secretKey: "change-me-in-production"
+  allowedHosts: "trabaholink.com,www.trabaholink.com"
+
+# Database settings
+postgresql:
+  enabled: true
+  auth:
+    username: trabaholink
+    password: changeme
+    database: trabaholink
+  primary:
+    persistence:
+      enabled: true
+      size: 20Gi
+  
+# Redis settings
+redis:
+  enabled: true
+  auth:
+    enabled: false
+  master:
+    persistence:
+      enabled: true
+      size: 5Gi
+
+# Celery settings
+celery:
+  worker:
+    replicaCount: 2
+    resources:
+      limits:
+        cpu: 500m
+        memory: 1Gi
+      requests:
+        cpu: 250m
+        memory: 512Mi
+  beat:
+    enabled: true
+    resources:
+      limits:
+        cpu: 250m
+        memory: 512Mi
+      requests:
+        cpu: 100m
+        memory: 256Mi
+
+# Persistence
+persistence:
+  static:
+    enabled: true
+    size: 10Gi
+    accessMode: ReadWriteMany
+  media:
+    enabled: true
+    size: 50Gi
+    accessMode: ReadWriteMany

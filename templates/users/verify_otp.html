@@ -1,0 +1,289 @@
+{% extends 'mainpages/base.html' %}
+{% load static %}
+
+{% block title %}Verify Email - TrabahoLink{% endblock %}
+
+{% block css %}
+<style>
+    .verify-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .verify-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 500px;
+        width: 100%;
+        padding: 3rem 2rem;
+        animation: slideUp 0.5s ease-out;
+    }
+
+    @keyframes slideUp {
+        from {
+            opacity: 0;
+            transform: translateY(30px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    .verify-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .verify-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+        animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+        0%, 100% {
+            transform: scale(1);
+        }
+        50% {
+            transform: scale(1.05);
+        }
+    }
+
+    .verify-icon i {
+        font-size: 2.5rem;
+        color: white;
+    }
+
+    .verify-header h2 {
+        color: #1e293b;
+        font-weight: 700;
+        margin-bottom: 0.5rem;
+    }
+
+    .verify-header p {
+        color: #64748b;
+        font-size: 0.95rem;
+    }
+
+    .email-display {
+        background: #f1f5f9;
+        padding: 1rem;
+        border-radius: 10px;
+        text-align: center;
+        margin-bottom: 1.5rem;
+    }
+
+    .email-display strong {
+        color: #2563eb;
+        font-size: 1.1rem;
+    }
+
+    .otp-input-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .otp-input {
+        width: 100%;
+        padding: 1rem;
+        font-size: 1.5rem;
+        text-align: center;
+        letter-spacing: 0.5rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 10px;
+        transition: all 0.3s;
+        font-weight: 600;
+    }
+
+    .otp-input:focus {
+        outline: none;
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .verify-btn {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+        margin-bottom: 1rem;
+    }
+
+    .verify-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .verify-btn:active {
+        transform: translateY(0);
+    }
+
+    .resend-section {
+        text-align: center;
+        padding-top: 1.5rem;
+        border-top: 1px solid #e2e8f0;
+    }
+
+    .resend-text {
+        color: #64748b;
+        margin-bottom: 0.5rem;
+    }
+
+    .resend-btn {
+        background: none;
+        border: none;
+        color: #2563eb;
+        font-weight: 600;
+        cursor: pointer;
+        text-decoration: underline;
+        padding: 0.5rem 1rem;
+        transition: all 0.3s;
+    }
+
+    .resend-btn:hover {
+        color: #1e40af;
+    }
+
+    .info-box {
+        background: #eff6ff;
+        border-left: 4px solid #2563eb;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-bottom: 1.5rem;
+    }
+
+    .info-box i {
+        color: #2563eb;
+        margin-right: 0.5rem;
+    }
+
+    .info-box p {
+        margin: 0;
+        color: #1e40af;
+        font-size: 0.9rem;
+    }
+
+    .back-link {
+        display: block;
+        text-align: center;
+        color: #64748b;
+        text-decoration: none;
+        margin-top: 1rem;
+        transition: color 0.3s;
+    }
+
+    .back-link:hover {
+        color: #2563eb;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="verify-container">
+    <div class="verify-card">
+        <div class="verify-header">
+            <div class="verify-icon">
+                <i class="bi bi-envelope-check"></i>
+            </div>
+            <h2>Verify Your Email</h2>
+            <p>We've sent a verification code to:</p>
+        </div>
+
+        <div class="email-display">
+            <strong>{{ email }}</strong>
+        </div>
+
+        <div class="info-box">
+            <i class="bi bi-info-circle-fill"></i>
+            <p>Enter the 6-digit code sent to your email. The code expires in 10 minutes.</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" id="otpForm">
+            {% csrf_token %}
+            <div class="otp-input-group">
+                <input 
+                    type="text" 
+                    name="otp_code" 
+                    id="otpInput" 
+                    class="otp-input" 
+                    placeholder="000000"
+                    maxlength="6"
+                    pattern="[0-9]{6}"
+                    required
+                    autofocus
+                >
+            </div>
+            <button type="submit" class="verify-btn">
+                <i class="bi bi-check-circle me-2"></i>Verify Email
+            </button>
+        </form>
+
+        <div class="resend-section">
+            <p class="resend-text">Didn't receive the code?</p>
+            <form method="post" action="{% url 'resend_otp' email=email %}" style="display: inline;">
+                {% csrf_token %}
+                <button type="submit" class="resend-btn">
+                    <i class="bi bi-arrow-clockwise me-1"></i>Resend Code
+                </button>
+            </form>
+        </div>
+
+        <a href="{% url 'register' %}" class="back-link">
+            <i class="bi bi-arrow-left me-1"></i>Back to Registration
+        </a>
+    </div>
+</div>
+
+<script>
+    // Auto-format OTP input (digits only)
+    const otpInput = document.getElementById('otpInput');
+    
+    otpInput.addEventListener('input', function(e) {
+        // Remove non-digits
+        this.value = this.value.replace(/\D/g, '');
+        
+        // Auto-submit when 6 digits are entered
+        if (this.value.length === 6) {
+            document.getElementById('otpForm').submit();
+        }
+    });
+
+    // Prevent paste of non-digits
+    otpInput.addEventListener('paste', function(e) {
+        e.preventDefault();
+        const pastedText = (e.clipboardData || window.clipboardData).getData('text');
+        const digitsOnly = pastedText.replace(/\D/g, '').substring(0, 6);
+        this.value = digitsOnly;
+        
+        if (digitsOnly.length === 6) {
+            document.getElementById('otpForm').submit();
+        }
+    });
+</script>
+{% endblock %}

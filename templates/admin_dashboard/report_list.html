@@ -18,7 +18,7 @@
             <table class="table table-striped table-hover" id="reportsTable">
                 <thead class="table-dark">
                     <tr>
-                        <th>User</th>
+                        <th>Reporter</th>
                         <th>Type</th>
                         <th>Entity</th>
                         <th>Content</th>
@@ -30,18 +30,18 @@
                 <tbody>
                     {% for report in reports %}
                     <tr data-status="{{ report.status }}">
-                        <td>{{ report.user.username }}</td>
-                        <td>{{ report.get_report_type_display }}</td>
+                        <td>{{ report.reporter.username|default:"Anonymous" }}</td>
+                        <td>{{ report.report_type }}</td>
                         <td>
                             {% if report.reported_user %}
                                 User: {{ report.reported_user.username }}
-                            {% elif report.job_posting %}
-                                Job: <a href="{% url 'jobs:job_detail' report.job_posting.id %}">{{ report.job_posting.title }}</a>
+                            {% elif report.reported_post %}
+                                Job: <a href="{% url 'admin:jobs_job_change' report.reported_post.id %}">{{ report.reported_post.title }}</a>
                             {% else %}
                                 N/A
                             {% endif %}
                         </td>
-                        <td>{{ report.reported_content }}</td>
+                        <td>{{ report.reason }}</td>
                         <td>
                             {% if report.screenshot %}
                                 <a href="{{ report.screenshot.url }}" target="_blank">View Screenshot</a>

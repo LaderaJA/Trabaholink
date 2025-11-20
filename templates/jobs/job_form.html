@@ -897,7 +897,7 @@ input[type="checkbox"] {
             <div class="form-group">
               <label for="{{ form.subdivision.id_for_label }}" class="form-label">
                 <i class="bi bi-houses"></i>
-                Subdivision (Optional)
+                Subdivision 
               </label>
               {{ form.subdivision }}
               {% if form.subdivision.errors %}
@@ -911,7 +911,7 @@ input[type="checkbox"] {
             <div class="form-group">
               <label for="{{ form.street.id_for_label }}" class="form-label">
                 <i class="bi bi-signpost"></i>
-                Street (Optional)
+                Street/Block/Lot Number
               </label>
               {{ form.street }}
               {% if form.street.errors %}
@@ -1132,15 +1132,37 @@ input[type="checkbox"] {
             <div class="form-group">
               <label for="{{ form.number_of_workers.id_for_label }}" class="form-label">
                 <i class="bi bi-people"></i>
-                Number of Workers Needed
+                Number of Positions
               </label>
               {{ form.number_of_workers }}
+              <small class="form-text text-muted">
+                <i class="bi bi-info-circle"></i>
+                Total number of workers needed for this job. Available vacancies will automatically update as contracts are finalized.
+              </small>
               {% if form.number_of_workers.errors %}
                 <div class="error-message">
                   <i class="bi bi-exclamation-circle"></i>
                   {{ form.number_of_workers.errors.0 }}
                 </div>
               {% endif %}
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="{{ form.posting_duration_days.id_for_label }}" class="form-label">
+              <i class="bi bi-clock-history"></i>
+              Posting Duration (Days)
+            </label>
+            {{ form.posting_duration_days }}
+            {% if form.posting_duration_days.errors %}
+              <div class="error-message">
+                <i class="bi bi-exclamation-circle"></i>
+                {{ form.posting_duration_days.errors.0 }}
+              </div>
+            {% endif %}
+            <div class="help-text">
+              <i class="bi bi-info-circle"></i>
+              <span>How many days should this job posting remain active? (Default: 7 days, Max: 90 days)</span>
             </div>
           </div>
         </div>
@@ -1481,11 +1503,13 @@ function populateReview() {
   const duration = document.getElementById('{{ form.duration.id_for_label }}').value;
   const schedule = document.getElementById('{{ form.schedule.id_for_label }}').value;
   const workers = document.getElementById('{{ form.number_of_workers.id_for_label }}').value;
+  const postingDuration = document.getElementById('{{ form.posting_duration_days.id_for_label }}').value;
   
   document.getElementById('review-requirements').innerHTML = `
     <p><strong>Duration:</strong> ${duration || 'Not specified'}</p>
     <p><strong>Schedule:</strong> ${schedule || 'Not specified'}</p>
     <p><strong>Workers Needed:</strong> ${workers || '1'}</p>
+    <p><strong>Posting Duration:</strong> ${postingDuration || '7'} days</p>
   `;
   
   // Images
@@ -1552,41 +1576,85 @@ function initializeMap() {
 function setupImagePreview() {
   const fileInput = document.getElementById("{{ image_form.images.id_for_label }}");
   const previewContainer = document.getElementById("new-image-previews");
+  let filesArray = [];
   
   if (fileInput) {
     fileInput.addEventListener("change", function(event) {
-      previewContainer.innerHTML = "";
-      const files = event.target.files;
-      
-      if (files.length > 0) {
-        previewContainer.style.marginTop = "1.5rem";
-      }
-      
-      for (let i = 0; i < files.length; i++) {
-        const file = files[i];
-        const reader = new FileReader();
-        reader.onload = function(e) {
-          const div = document.createElement("div");
-          div.className = "preview-item";
-          div.innerHTML = `<img src="${e.target.result}" alt="Preview">`;
-          previewContainer.appendChild(div);
-        }
-        reader.readAsDataURL(file);
-      }
-      
+      // Convert FileList to Array
+      filesArray = Array.from(event.target.files);
+      renderPreviews();
       formChanged = true;
     });
   }
+  
+  function renderPreviews() {
+    previewContainer.innerHTML = "";
+    
+    if (filesArray.length > 0) {
+      previewContainer.style.marginTop = "1.5rem";
+    } else {
+      previewContainer.style.marginTop = "0";
+    }
+    
+    filesArray.forEach((file, index) => {
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const div = document.createElement("div");
+        div.className = "preview-item";
+        div.innerHTML = `
+          <img src="${e.target.result}" alt="Preview">
+          <button type="button" class="preview-delete-btn" onclick="deleteNewImage(${index})">
+            <i class="bi bi-trash"></i>
+          </button>
+        `;
+        previewContainer.appendChild(div);
+      }
+      reader.readAsDataURL(file);
+    });
+    
+    // Update file input with remaining files
+    updateFileInput();
+  }
+  
+  function updateFileInput() {
+    const dataTransfer = new DataTransfer();
+    filesArray.forEach(file => {
+      dataTransfer.items.add(file);
+    });
+    fileInput.files = dataTransfer.files;
+  }
+  
+  // Make deleteNewImage globally accessible
+  window.deleteNewImage = function(index) {
+    if (confirm('Remove this image?')) {
+      filesArray.splice(index, 1);
+      renderPreviews();
+      formChanged = true;
+    }
+  };
 }
 
 function deleteExistingImage(imageId) {
   if (confirm('Are you sure you want to delete this image?')) {
     const imageEl = document.getElementById('image-' + imageId);
     if (imageEl) {
-      imageEl.style.opacity = '0.5';
-      imageEl.style.pointerEvents = 'none';
+      // Add fade-out animation
+      imageEl.style.transition = 'opacity 0.3s ease, transform 0.3s ease';
+      imageEl.style.opacity = '0';
+      imageEl.style.transform = 'scale(0.8)';
       
-      // Add hidden input to mark for deletion
+      // Remove from DOM after animation
+      setTimeout(() => {
+        imageEl.remove();
+        
+        // Check if there are no more existing images
+        const existingImagesContainer = document.getElementById('existing-images');
+        if (existingImagesContainer && existingImagesContainer.children.length === 0) {
+          existingImagesContainer.parentElement.style.display = 'none';
+        }
+      }, 300);
+      
+      // Add hidden input to mark for deletion on server
       const input = document.createElement('input');
       input.type = 'hidden';
       input.name = 'delete_image';

@@ -4,30 +4,44 @@
 {% block content %}
 <style>
 :root {
-  --primary-color: #1a94d4;
-  --primary-dark: #0d6efd;
-  --primary-light: #e6f4ff;
-  --success-color: #10b981;
+  /* Bacoor City Official Colors */
+  --bacoor-blue: #1e40af;
+  --bacoor-blue-light: #3b82f6;
+  --bacoor-gold: #f59e0b;
+  --bacoor-green: #059669;
+  
+  --primary-color: #1e40af;
+  --primary-dark: #1e3a8a;
+  --primary-light: #dbeafe;
+  --success-color: #059669;
   --warning-color: #f59e0b;
   --danger-color: #ef4444;
-  --text-dark: #2d3748;
-  --text-medium: #4a5568;
-  --text-light: #718096;
-  --bg-light: #f7fafc;
+  --text-dark: #0f172a;
+  --text-medium: #475569;
+  --text-light: #64748b;
+  --bg-light: #f8fafc;
   --bg-white: #ffffff;
   --border-color: #e2e8f0;
-  --gradient-primary: linear-gradient(135deg, #1a94d4 0%, #0d6efd 100%);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --gradient-primary: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  --gradient-bacoor: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #f59e0b 100%);
+  --shadow-sm: 0 1px 3px 0 rgba(30, 64, 175, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(30, 64, 175, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(30, 64, 175, 0.1);
 }
 
-/* Compact Hero Section */
+/* Compact Hero Section - Bacoor Theme */
 .compact-hero {
-  background: var(--gradient-primary);
+  background: var(--gradient-bacoor);
   padding: 2rem 0 1.5rem;
   position: relative;
   overflow: hidden;
+  animation: gradientAnimation 15s ease infinite;
+  background-size: 200% 200%;
+}
+
+@keyframes gradientAnimation {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
 }
 
 .compact-hero::before {
@@ -349,6 +363,38 @@
   position: relative;
 }
 
+.job-thumbnail-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.job-thumbnail-link::after {
+  content: '👁️ View Details';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.job-thumbnail-link:hover::after {
+  opacity: 1;
+}
+
 .job-thumbnail img {
   width: 100%;
   height: 100%;
@@ -356,7 +402,7 @@
   transition: transform 0.3s;
 }
 
-.job-card-list:hover .job-thumbnail img {
+.job-thumbnail-link:hover img {
   transform: scale(1.05);
 }
 
@@ -379,6 +425,8 @@
 .job-content {
   flex: 1;
   min-width: 0;
+  display: flex;
+  flex-direction: column;
 }
 
 .job-header {
@@ -469,6 +517,7 @@
   line-height: 1.6;
   margin-bottom: 1rem;
   font-size: 0.95rem;
+  flex: 1;
 }
 
 .job-footer-row {
@@ -477,6 +526,7 @@
   align-items: center;
   padding-top: 1rem;
   border-top: 1px solid var(--border-color);
+  margin-top: auto;
 }
 
 .job-budget {
@@ -525,6 +575,8 @@
   box-shadow: var(--shadow-sm);
   border: 1px solid var(--border-color);
   transition: all 0.3s;
+  display: flex;
+  flex-direction: column;
 }
 
 .job-card-grid:hover {
@@ -540,6 +592,38 @@
   position: relative;
 }
 
+.job-image-link {
+  display: block;
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+.job-image-link::after {
+  content: '👁️ View Details';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  z-index: 1;
+}
+
+.job-image-link:hover::after {
+  opacity: 1;
+}
+
 .job-image-grid img {
   width: 100%;
   height: 100%;
@@ -547,12 +631,15 @@
   transition: transform 0.3s;
 }
 
-.job-card-grid:hover .job-image-grid img {
+.job-image-link:hover img {
   transform: scale(1.05);
 }
 
 .job-card-body {
   padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  flex: 1;
 }
 
 .timestamp-badge {
@@ -867,7 +954,7 @@
           {% endif %}
         </select>
         
-        {% if user.is_authenticated %}
+        {% if user.is_authenticated and user.role == 'client' %}
         <a href="{% url 'jobs:job_create' %}" class="btn-primary-custom">
           <i class="bi bi-plus-circle"></i> Post a Job
         </a>
@@ -875,6 +962,46 @@
         <button class="btn-primary-custom" style="background: white; color: var(--primary-color); border: 2px solid var(--primary-color);" data-bs-toggle="modal" data-bs-target="#locationModal">
           <i class="bi bi-geo-alt"></i> Set Location
         </button>
+        <button onclick="findJobsNearMe()" class="btn-primary-custom" style="background: #28a745; color: white; border: none;">
+          <i class="bi bi-crosshair"></i> Jobs Near Me
+        </button>
+      </div>
+      
+      <!-- Cached Location Info -->
+      <div id="cachedLocationInfo" style="display: none; padding: 0.75rem 1rem; background: #e7f3ff; border: 1px solid #b3d9ff; border-radius: 8px; margin-top: 1rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+          <div style="display: flex; align-items: center; gap: 0.5rem;">
+            <i class="bi bi-pin-map-fill" style="color: var(--primary-color);"></i>
+            <span style="font-size: 0.9rem;">
+              <strong>Saved Location:</strong> <span id="cachedLocationText"></span>
+            </span>
+          </div>
+          <button onclick="clearCachedLocation()" class="btn btn-sm btn-outline-danger" style="padding: 0.25rem 0.5rem; font-size: 0.85rem;">
+            <i class="bi bi-trash"></i> Clear
+          </button>
+        </div>
+      </div>
+      
+      <!-- Proximity Filter (shown when location is set) -->
+      <div id="proximityFilter" style="display: none; padding: 1rem; background: #f8f9fa; border-radius: 12px; margin-top: 1rem;">
+        <div style="display: flex; align-items: center; gap: 1rem;">
+          <i class="bi bi-bullseye" style="font-size: 1.5rem; color: var(--primary-color);"></i>
+          <div style="flex: 1;">
+            <label for="distanceSlider" style="font-weight: 600; margin-bottom: 0.5rem; display: block;">
+              Show jobs within: <span id="distanceValue">100</span> km
+            </label>
+            <input type="range" id="distanceSlider" min="1" max="100" value="100" step="1" 
+                   style="width: 100%;" oninput="updateProximityFilter(this.value)" onchange="updateProximityFilter(this.value)">
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; color: #666;">
+              <span>1km</span>
+              <span>50km</span>
+              <span>100km</span>
+            </div>
+          </div>
+          <button onclick="clearProximityFilter()" class="btn btn-sm btn-outline-secondary">
+            <i class="bi bi-x-circle"></i> Clear
+          </button>
+        </div>
       </div>
     </div>
     
@@ -883,15 +1010,17 @@
       {% for job in jobs %}
       <div class="job-card-list" data-lat="{{ job.location.y }}" data-lng="{{ job.location.x }}">
         <div class="job-thumbnail">
-          {% if job.jobimage_set.exists %}
-          <img src="{{ job.jobimage_set.first.image.url }}" alt="{{ job.title }}">
-          {% else %}
-          <div class="no-image-placeholder">
-            <i class="bi bi-image"></i>
-            <small>No image</small>
-          </div>
-          {% endif %}
-          <div class="timestamp-badge">
+          <a href="{% url 'jobs:job_detail' job.id %}" class="job-thumbnail-link">
+            {% if job.jobimage_set.exists %}
+            <img src="{{ job.jobimage_set.first.image.url }}" alt="{{ job.title }}">
+            {% else %}
+            <div class="no-image-placeholder">
+              <i class="bi bi-image"></i>
+              <small>No image</small>
+            </div>
+            {% endif %}
+          </a>
+          <div class="timestamp-badge" style="z-index: 2;">
             <i class="bi bi-clock"></i> {{ job.created_at|timesince }} ago
           </div>
         </div>
@@ -928,7 +1057,7 @@
             </div>
             <div class="meta-item">
               <i class="bi bi-geo-alt-fill"></i>
-              <span>{{ job.municipality }}{% if job.barangay %}, {{ job.barangay }}{% endif %}</span>
+              <span>{{ job.full_address|default:job.municipality }}</span>
             </div>
             <div class="meta-item">
               <i class="bi bi-tag-fill"></i>
@@ -936,8 +1065,14 @@
             </div>
             <div class="meta-item">
               <i class="bi bi-calendar-event"></i>
-              <span>{{ job.created_at|date:"M d, Y" }}</span>
+              <span>{{ job.created_at|date:"M d, Y" }} at {{ job.created_at|date:"g:i A" }}</span>
             </div>
+            {% if job.expires_at and job.is_active %}
+            <div class="meta-item" style="color: var(--warning-color);">
+              <i class="bi bi-clock-history"></i>
+              <span>Expires {{ job.expires_at|date:"M d" }}</span>
+            </div>
+            {% endif %}
             <div class="meta-item distance-display" style="color: var(--primary-color); font-weight: 600; display: none;">
               <i class="bi bi-geo-alt-fill"></i>
               <span>Calculating...</span>
@@ -974,15 +1109,17 @@
       {% for job in jobs %}
       <div class="job-card-grid" data-lat="{{ job.location.y }}" data-lng="{{ job.location.x }}">
         <div class="job-image-grid">
-          {% if job.jobimage_set.exists %}
-          <img src="{{ job.jobimage_set.first.image.url }}" alt="{{ job.title }}">
-          {% else %}
-          <div class="no-image-placeholder">
-            <i class="bi bi-image"></i>
-            <small>No image</small>
-          </div>
-          {% endif %}
-          <div class="timestamp-badge">
+          <a href="{% url 'jobs:job_detail' job.id %}" class="job-image-link">
+            {% if job.jobimage_set.exists %}
+            <img src="{{ job.jobimage_set.first.image.url }}" alt="{{ job.title }}">
+            {% else %}
+            <div class="no-image-placeholder">
+              <i class="bi bi-image"></i>
+              <small>No image</small>
+            </div>
+            {% endif %}
+          </a>
+          <div class="timestamp-badge" style="z-index: 2;">
             <i class="bi bi-clock"></i> {{ job.created_at|timesince }} ago
           </div>
         </div>
@@ -1007,12 +1144,18 @@
           <div class="job-meta-row" style="margin-top: 0.75rem; margin-bottom: 0.75rem;">
             <div class="meta-item">
               <i class="bi bi-geo-alt-fill"></i>
-              <span>{{ job.municipality }}</span>
+              <span>{{ job.full_address|default:job.municipality }}</span>
             </div>
             <div class="meta-item">
               <i class="bi bi-calendar-event"></i>
-              <span>{{ job.created_at|date:"M d" }}</span>
+              <span>{{ job.created_at|date:"M d, Y" }}</span>
             </div>
+            {% if job.expires_at and job.is_active %}
+            <div class="meta-item" style="color: var(--warning-color);">
+              <i class="bi bi-clock-history"></i>
+              <span>Exp: {{ job.expires_at|date:"M d" }}</span>
+            </div>
+            {% endif %}
             <div class="meta-item distance-display" style="color: var(--primary-color); font-weight: 600; display: none;">
               <i class="bi bi-geo-alt-fill"></i>
               <span>Calculating...</span>
@@ -1112,17 +1255,19 @@
         {% for service in services %}
         <div class="job-card-list">
           <div class="job-thumbnail">
-            {% with service.images.first as service_image %}
-            {% if service_image %}
-            <img src="{{ service_image.image.url }}" alt="{{ service.headline }}">
-            {% else %}
-            <div class="no-image-placeholder">
-              <i class="bi bi-tools"></i>
-              <small>No image</small>
-            </div>
-            {% endif %}
-            {% endwith %}
-            <div class="timestamp-badge">
+            <a href="{{ service.get_absolute_url }}" class="job-thumbnail-link">
+              {% with service.images.first as service_image %}
+              {% if service_image %}
+              <img src="{{ service_image.image.url }}" alt="{{ service.headline }}">
+              {% else %}
+              <div class="no-image-placeholder">
+                <i class="bi bi-tools"></i>
+                <small>No image</small>
+              </div>
+              {% endif %}
+              {% endwith %}
+            </a>
+            <div class="timestamp-badge" style="z-index: 2;">
               <i class="bi bi-clock"></i> {{ service.created_at|timesince }} ago
             </div>
           </div>
@@ -1146,7 +1291,7 @@
               </div>
               <div class="meta-item">
                 <i class="bi bi-calendar-event"></i>
-                <span>{{ service.created_at|date:"M d, Y" }}</span>
+                <span>{{ service.created_at|date:"M d, Y" }} at {{ service.created_at|date:"g:i A" }}</span>
               </div>
               {% if service.distance %}
               <div class="meta-item" style="color: var(--success-color);">
@@ -1244,6 +1389,7 @@ servicesTabBtn.addEventListener('click', function() {
 });
 
 // Check URL parameter on load
+// Define urlParams globally for use in other functions
 const urlParams = new URLSearchParams(window.location.search);
 const activeTab = urlParams.get('tab');
 if (activeTab === 'services') {
@@ -1305,80 +1451,344 @@ function sortJobs(sortValue) {
   window.location.href = url.toString();
 }
 
-// Location Functions
-function getCurrentLocation() {
-  const statusDiv = document.getElementById('locationStatus');
-  const activeTab = urlParams.get('tab') || 'jobs';
-  
-  statusDiv.style.display = 'block';
-  statusDiv.innerHTML = '<div class="alert alert-info"><i class="bi bi-arrow-repeat spin"></i> <span>Getting your location...</span></div>';
+// Clean modal input handlers
+function handleModalKeydown(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        event.stopPropagation();
+        applyManualLocation();
+        return false;
+    }
+}
 
-  if (navigator.geolocation) {
+function handleModalKeypress(event) {
+    if (event.key === 'Enter') {
+        event.preventDefault();
+        event.stopPropagation();
+        return false;
+    }
+}
+
+// Clean Location Functions
+function getCurrentLocation() {
+    const statusDiv = document.getElementById('locationStatus');
+    const activeTab = new URLSearchParams(window.location.search).get('tab') || 'jobs';
+    
+    statusDiv.style.display = 'block';
+    statusDiv.innerHTML = '<div class="alert alert-info"><i class="bi bi-arrow-repeat spin"></i> <span>Getting your location...</span></div>';
+
+    if (!navigator.geolocation) {
+        statusDiv.innerHTML = '<div class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i> <span>Geolocation is not supported by this browser.</span></div>';
+        return;
+    }
+
     navigator.geolocation.getCurrentPosition(
-      function(position) {
-        const lat = position.coords.latitude;
-        const lng = position.coords.longitude;
-        
-        const url = new URL(window.location);
-        url.searchParams.set('lat', lat);
-        url.searchParams.set('lng', lng);
-        url.searchParams.set('tab', activeTab);
-        
-        statusDiv.innerHTML = '<div class="alert alert-success"><i class="bi bi-check-circle"></i> <span>Location detected successfully!</span></div>';
-        
-        setTimeout(() => {
-          const modal = bootstrap.Modal.getInstance(document.getElementById('locationModal'));
-          modal.hide();
-          window.location.href = url.toString();
-        }, 1500);
-      },
-      function(error) {
-        let errorMessage = 'Unable to get your location. ';
-        switch(error.code) {
-          case error.PERMISSION_DENIED:
-            errorMessage += 'Please allow location access.';
-            break;
-          case error.POSITION_UNAVAILABLE:
-            errorMessage += 'Location information unavailable.';
-            break;
-          case error.TIMEOUT:
-            errorMessage += 'Location request timed out.';
-            break;
-          default:
-            errorMessage += 'An unknown error occurred.';
-            break;
-        }
-        
-        statusDiv.innerHTML = `<div class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i> <span>${errorMessage}</span></div>`;
-      }
+        function(position) {
+            // Cache GPS location
+            const locationData = {
+                municipality: 'GPS Location',
+                barangay: '',
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('userLocation', JSON.stringify(locationData));
+            console.log('GPS location cached:', locationData);
+            
+            const url = new URL(window.location);
+            url.searchParams.set('lat', position.coords.latitude);
+            url.searchParams.set('lng', position.coords.longitude);
+            url.searchParams.set('tab', activeTab);
+            url.searchParams.delete('municipality');
+            url.searchParams.delete('barangay');
+            
+            statusDiv.innerHTML = '<div class="alert alert-success"><i class="bi bi-check-circle"></i> <span>Location saved successfully!</span></div>';
+            
+            setTimeout(() => {
+                const modal = bootstrap.Modal.getInstance(document.getElementById('locationModal'));
+                if (modal) modal.hide();
+                window.location.href = url.toString();
+            }, 1500);
+        },
+        function(error) {
+            const messages = {
+                1: 'Please allow location access.',
+                2: 'Location information unavailable.',
+                3: 'Location request timed out.'
+            };
+            const errorMessage = messages[error.code] || 'An unknown error occurred.';
+            statusDiv.innerHTML = `<div class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i> <span>Unable to get your location. ${errorMessage}</span></div>`;
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
     );
-  } else {
-    statusDiv.innerHTML = '<div class="alert alert-danger"><i class="bi bi-exclamation-triangle"></i> <span>Geolocation is not supported by this browser.</span></div>';
-  }
 }
 
 function applyManualLocation() {
-  const city = document.getElementById('manualCity').value.trim();
-  const barangay = document.getElementById('manualBarangay').value.trim();
-  const activeTab = urlParams.get('tab') || 'jobs';
-  
-  if (!city) {
-    alert('Please enter a city or municipality.');
-    return;
-  }
-  
-  const url = new URL(window.location);
-  url.searchParams.set('municipality', city);
-  if (barangay) {
-    url.searchParams.set('barangay', barangay);
-  }
-  url.searchParams.delete('lat');
-  url.searchParams.delete('lng');
-  url.searchParams.set('tab', activeTab);
-  
-  const modal = bootstrap.Modal.getInstance(document.getElementById('locationModal'));
-  modal.hide();
-  window.location.href = url.toString();
+    const city = document.getElementById('manualCity').value.trim();
+    const barangay = document.getElementById('manualBarangay').value.trim();
+    const activeTab = new URLSearchParams(window.location.search).get('tab') || 'jobs';
+    const statusDiv = document.getElementById('locationStatus');
+    
+    if (!city) {
+        alert('Please enter a city or municipality.');
+        return;
+    }
+    
+    // Show processing message
+    statusDiv.style.display = 'block';
+    statusDiv.innerHTML = '<div class="alert alert-info"><i class="bi bi-arrow-repeat spin"></i> <span>Converting location to GPS coordinates...</span></div>';
+    
+    // Check if we can convert to GPS coordinates
+    const locationKey = city.toLowerCase();
+    const coords = LocationManager.getCityCoordinates(locationKey);
+    
+    if (coords) {
+        // Successfully found GPS coordinates
+        // Cache the location in localStorage
+        const locationData = {
+            municipality: city,
+            barangay: barangay || '',
+            lat: coords.lat,
+            lng: coords.lng,
+            timestamp: Date.now()
+        };
+        localStorage.setItem('userLocation', JSON.stringify(locationData));
+        console.log('Location cached:', locationData);
+        
+        statusDiv.innerHTML = `<div class="alert alert-success"><i class="bi bi-check-circle"></i> <span>Location saved: ${city}${barangay ? ' - ' + barangay : ''}</span></div>`;
+        
+        setTimeout(() => {
+            const url = new URL(window.location);
+            url.searchParams.set('municipality', city);
+            if (barangay) {
+                url.searchParams.set('barangay', barangay);
+            }
+            url.searchParams.delete('lat');
+            url.searchParams.delete('lng');
+            url.searchParams.set('tab', activeTab);
+            
+            const modal = bootstrap.Modal.getInstance(document.getElementById('locationModal'));
+            if (modal) modal.hide();
+            window.location.href = url.toString();
+        }, 1000);
+    } else {
+        // Location not found in our database
+        statusDiv.innerHTML = `<div class="alert alert-warning"><i class="bi bi-exclamation-triangle"></i> <span>Location "${city}" not found in database. Please try a nearby major city or use GPS location.</span></div>`;
+        
+        setTimeout(() => {
+            statusDiv.style.display = 'none';
+        }, 3000);
+    }
+}
+
+// Quick Search: Jobs Near Me
+function findJobsNearMe() {
+    const activeTab = new URLSearchParams(window.location.search).get('tab') || 'jobs';
+    
+    if (!navigator.geolocation) {
+        alert('Geolocation is not supported by your browser.');
+        return;
+    }
+    
+    // Show loading state
+    const btn = event.target.closest('button');
+    const originalContent = btn.innerHTML;
+    btn.disabled = true;
+    btn.innerHTML = '<i class="bi bi-arrow-repeat spin"></i> Getting location...';
+    
+    navigator.geolocation.getCurrentPosition(
+        function(position) {
+            // Cache GPS location
+            const locationData = {
+                municipality: 'GPS Location',
+                barangay: '',
+                lat: position.coords.latitude,
+                lng: position.coords.longitude,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('userLocation', JSON.stringify(locationData));
+            console.log('GPS location cached:', locationData);
+            
+            const url = new URL(window.location);
+            url.searchParams.set('lat', position.coords.latitude);
+            url.searchParams.set('lng', position.coords.longitude);
+            url.searchParams.set('sort', 'distance');
+            url.searchParams.set('tab', activeTab);
+            url.searchParams.delete('municipality');
+            url.searchParams.delete('barangay');
+            window.location.href = url.toString();
+        },
+        function(error) {
+            btn.disabled = false;
+            btn.innerHTML = originalContent;
+            alert('Unable to get your location. Please allow location access or use "Set Location" instead.');
+        },
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+}
+
+// Proximity Filter Functions
+let currentMaxDistance = 100;
+
+function updateProximityFilter(distance) {
+    currentMaxDistance = parseFloat(distance);
+    document.getElementById('distanceValue').textContent = currentMaxDistance;
+    filterJobsByDistance();
+    console.log(`Filtering jobs within ${currentMaxDistance}km`);
+}
+
+function filterJobsByDistance() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const userLat = parseFloat(urlParams.get('lat'));
+    const userLng = parseFloat(urlParams.get('lng'));
+    const municipality = urlParams.get('municipality');
+    const cachedLocation = localStorage.getItem('userLocation');
+    
+    if (!userLat && !userLng && !municipality && !cachedLocation) {
+        console.log('No location set, skipping filter');
+        return; // No location set
+    }
+    
+    // Find only job cards in the ACTIVE view (list or grid) that have location data
+    const gridViewElement = document.getElementById('gridView');
+    const isGridView = gridViewElement && gridViewElement.style.display !== 'none';
+    const viewSelector = isGridView ? '.job-card-grid[data-lat][data-lng]' : '.job-card-list[data-lat][data-lng]';
+    const jobCards = document.querySelectorAll(viewSelector);
+    let hiddenCount = 0;
+    let totalCount = 0;
+    
+    console.log(`=== FILTER DEBUG ===`);
+    console.log(`Active view: ${isGridView ? 'Grid' : 'List'}`);
+    console.log(`Current max distance: ${currentMaxDistance}km`);
+    console.log(`Found ${jobCards.length} job cards with location data to filter`);
+    console.log(`URL params: lat=${userLat}, lng=${userLng}, municipality=${municipality}`);
+    console.log(`Has cached location: ${!!cachedLocation}`);
+    
+    jobCards.forEach((card, index) => {
+        const distanceDisplay = card.querySelector('.distance-display span');
+        
+        if (distanceDisplay && distanceDisplay.textContent) {
+            const distanceText = distanceDisplay.textContent.trim();
+            
+            // Skip if still calculating
+            if (distanceText === 'Calculating...') {
+                return;
+            }
+            
+            totalCount++;
+            console.log(`Processing card with distance: "${distanceText}"`);
+            
+            const distanceMatch = distanceText.match(/(\d+\.?\d*)/);
+            
+            if (distanceMatch) {
+                let distance = parseFloat(distanceMatch[1]);
+                
+                // Convert meters to km if needed
+                if (distanceText.toLowerCase().includes('m away') && !distanceText.toLowerCase().includes('km')) {
+                    distance = distance / 1000;
+                }
+                
+                console.log(`  Parsed distance: ${distance}km, Max allowed: ${currentMaxDistance}km, Show: ${distance <= currentMaxDistance}`);
+                
+                if (distance <= currentMaxDistance) {
+                    card.style.display = '';
+                    card.style.opacity = '1';
+                } else {
+                    card.style.display = 'none';
+                    card.style.opacity = '0';
+                    hiddenCount++;
+                    console.log(`  Hidden: ${distance}km > ${currentMaxDistance}km`);
+                }
+            } else {
+                console.warn(`  Could not parse distance from: "${distanceText}"`);
+            }
+        }
+    });
+    
+    console.log(`Filtered: ${hiddenCount} hidden, ${totalCount - hiddenCount} shown`);
+    
+    // Show message if jobs are hidden
+    updateFilterMessage(hiddenCount, totalCount);
+}
+
+function updateFilterMessage(hiddenCount, totalCount) {
+    let messageDiv = document.getElementById('proximityFilterMessage');
+    if (!messageDiv) {
+        messageDiv = document.createElement('div');
+        messageDiv.id = 'proximityFilterMessage';
+        messageDiv.style.cssText = 'padding: 0.75rem; background: #fff3cd; border: 1px solid #ffc107; border-radius: 8px; margin-top: 1rem; text-align: center;';
+        document.getElementById('proximityFilter').after(messageDiv);
+    }
+    
+    if (hiddenCount > 0) {
+        messageDiv.innerHTML = `<i class="bi bi-info-circle"></i> Showing ${totalCount - hiddenCount} job(s) within ${currentMaxDistance}km • ${hiddenCount} hidden beyond radius`;
+        messageDiv.style.display = 'block';
+    } else if (totalCount > 0) {
+        messageDiv.innerHTML = `<i class="bi bi-check-circle"></i> Showing all ${totalCount} job(s) within ${currentMaxDistance}km radius`;
+        messageDiv.style.display = 'block';
+    } else {
+        messageDiv.style.display = 'none';
+    }
+}
+
+function clearProximityFilter() {
+    currentMaxDistance = 100;
+    document.getElementById('distanceSlider').value = 100;
+    document.getElementById('distanceValue').textContent = 100;
+    
+    // Clear both list and grid view cards
+    const allJobCards = document.querySelectorAll('.job-card-list[data-lat][data-lng], .job-card-grid[data-lat][data-lng]');
+    allJobCards.forEach(card => {
+        card.style.display = '';
+        card.style.opacity = '1';
+    });
+    
+    const messageDiv = document.getElementById('proximityFilterMessage');
+    if (messageDiv) {
+        messageDiv.style.display = 'none';
+    }
+    
+    // Re-filter to show all
+    filterJobsByDistance();
+}
+
+function clearCachedLocation() {
+    if (confirm('Are you sure you want to clear your saved location?')) {
+        localStorage.removeItem('userLocation');
+        document.getElementById('cachedLocationInfo').style.display = 'none';
+        console.log('Cached location cleared');
+        
+        // Reload page to remove distance calculations
+        const url = new URL(window.location);
+        url.searchParams.delete('municipality');
+        url.searchParams.delete('barangay');
+        url.searchParams.delete('lat');
+        url.searchParams.delete('lng');
+        window.location.href = url.toString();
+    }
+}
+
+function showCachedLocationInfo() {
+    const cached = localStorage.getItem('userLocation');
+    if (cached) {
+        try {
+            const locationData = JSON.parse(cached);
+            let locationText;
+            
+            if (locationData.municipality === 'GPS Location') {
+                locationText = `GPS (${locationData.lat.toFixed(4)}, ${locationData.lng.toFixed(4)})`;
+            } else {
+                locationText = locationData.barangay 
+                    ? `${locationData.municipality} - ${locationData.barangay}`
+                    : locationData.municipality;
+            }
+            
+            document.getElementById('cachedLocationText').textContent = locationText;
+            document.getElementById('cachedLocationInfo').style.display = 'block';
+        } catch (e) {
+            console.error('Error displaying cached location:', e);
+        }
+    }
 }
 </script>
 
@@ -1412,8 +1822,10 @@ function applyManualLocation() {
             </div>
             <div style="flex: 1;">
               <h6 style="margin: 0 0 0.75rem 0; color: var(--text-dark); font-weight: 600;">Enter Manually</h6>
-              <input type="text" class="form-control mb-2" id="manualCity" placeholder="Enter city/municipality" style="border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem;">
-              <input type="text" class="form-control" id="manualBarangay" placeholder="Enter barangay (optional)" style="border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem;">
+              <div style="margin: 0; padding: 0;">
+                <input type="text" class="form-control mb-2" id="manualCity" placeholder="Enter city/municipality" style="border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem;" autocomplete="off">
+                <input type="text" class="form-control" id="manualBarangay" placeholder="Enter barangay (optional)" style="border: 1px solid var(--border-color); border-radius: 8px; padding: 0.6rem;" autocomplete="off">
+              </div>
             </div>
           </div>
         </div>
@@ -1511,34 +1923,158 @@ const LocationManager = {
         }
     },
     
-    async initializeDistances() {
-        try {
-            // Try to get cached location first
-            let location = this.getCachedLocation();
-            
-            // If no cache, get current location
-            if (!location) {
-                console.log('Getting current location...');
-                location = await this.getCurrentLocation();
-            }
-            
-            if (location) {
-                console.log('User location:', location);
-                this.updateDistances(location);
-            }
-        } catch (error) {
-            console.log('Could not get location:', error.message);
-            // Hide all distance displays if location unavailable
-            document.querySelectorAll('.distance-display').forEach(el => {
-                el.style.display = 'none';
-            });
+    initializeDistances() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const userLat = parseFloat(urlParams.get('lat'));
+        const userLng = parseFloat(urlParams.get('lng'));
+        const municipality = urlParams.get('municipality');
+        
+        // GPS coordinates from URL (highest priority)
+        if (userLat && userLng && !isNaN(userLat) && !isNaN(userLng)) {
+            console.log('Using GPS coordinates from URL');
+            this.updateDistances({ latitude: userLat, longitude: userLng });
+            return;
         }
+        
+        // Manual location from URL (second priority)
+        if (municipality) {
+            const barangay = urlParams.get('barangay');
+            let locationKey = municipality.toLowerCase().trim();
+            
+            // If barangay is provided, combine them in the format expected by getCityCoordinates
+            if (barangay) {
+                locationKey = `${municipality.toLowerCase().trim()} - ${barangay.toLowerCase().trim()}`;
+            }
+            
+            const coords = this.getCityCoordinates(locationKey);
+            if (coords) {
+                console.log(`Using coordinates for ${locationKey}: (${coords.lat}, ${coords.lng})`);
+                this.updateDistances({ latitude: coords.lat, longitude: coords.lng });
+                return;
+            } else {
+                console.warn(`Coordinates not found for: ${locationKey}`);
+            }
+        }
+        
+        // Try cached location (third priority - for pages without location params)
+        const cachedLocation = this.getCachedManualLocation();
+        if (cachedLocation) {
+            console.log('Using cached location:', cachedLocation);
+            this.updateDistances({ latitude: cachedLocation.lat, longitude: cachedLocation.lng });
+            return;
+        }
+        
+        console.log('No location data available');
+    },
+    
+    getCachedManualLocation() {
+        try {
+            const cached = localStorage.getItem('userLocation');
+            if (cached) {
+                const locationData = JSON.parse(cached);
+                // Check if cache is less than 30 days old
+                const daysSinceCache = (Date.now() - locationData.timestamp) / (1000 * 60 * 60 * 24);
+                if (daysSinceCache < 30) {
+                    return locationData;
+                } else {
+                    // Clear expired cache
+                    localStorage.removeItem('userLocation');
+                }
+            }
+        } catch (e) {
+            console.error('Error reading cached location:', e);
+        }
+        return null;
+    },
+    
+    getCityCoordinates(cityName) {
+        // Comprehensive coordinates database with 6 decimal places (matching backend)
+        const cities = {
+            // Metro Manila
+            'manila': { lat: 14.599512, lng: 120.984222 },
+            'quezon city': { lat: 14.676041, lng: 121.043700 },
+            'makati': { lat: 14.554729, lng: 121.024445 },
+            'pasig': { lat: 14.576417, lng: 121.085098 },
+            'taguig': { lat: 14.517637, lng: 121.050935 },
+            'pasay': { lat: 14.537840, lng: 120.989639 },
+            'paranaque': { lat: 14.479322, lng: 121.019817 },
+            'las pinas': { lat: 14.449910, lng: 120.976158 },
+            'muntinlupa': { lat: 14.383240, lng: 121.040863 },
+            'marikina': { lat: 14.650703, lng: 121.102905 },
+            'valenzuela': { lat: 14.700024, lng: 120.983299 },
+            'caloocan': { lat: 14.648813, lng: 120.966835 },
+            'malabon': { lat: 14.658348, lng: 120.956726 },
+            'navotas': { lat: 14.669125, lng: 120.947189 },
+            'san juan': { lat: 14.601909, lng: 121.035538 },
+            'mandaluyong': { lat: 14.579399, lng: 121.035905 },
+            
+            // Cavite
+            'bacoor': { lat: 14.431095, lng: 120.968096 },
+            'imus': { lat: 14.429741, lng: 120.937028 },
+            'dasmarinas': { lat: 14.400415, lng: 120.985887 },
+            'dasmariñas': { lat: 14.400415, lng: 120.985887 },
+            'cavite city': { lat: 14.479142, lng: 120.897897 },
+            'general trias': { lat: 14.386906, lng: 120.881014 },
+            'trece martires': { lat: 14.281448, lng: 120.867188 },
+            'tagaytay': { lat: 14.115912, lng: 120.960219 },
+            'silang': { lat: 14.231042, lng: 120.976951 },
+            
+            // Rizal
+            'antipolo': { lat: 14.593069, lng: 121.180027 },
+            'cainta': { lat: 14.578293, lng: 121.122215 },
+            'taytay': { lat: 14.557601, lng: 121.132437 },
+            'binangonan': { lat: 14.464722, lng: 121.192502 },
+            'rodriguez': { lat: 14.713628, lng: 121.107524 },
+            'montalban': { lat: 14.713628, lng: 121.107524 },
+            'san mateo': { lat: 14.696908, lng: 121.121895 },
+            
+            // Laguna
+            'calamba': { lat: 14.211651, lng: 121.165314 },
+            'biñan': { lat: 14.337783, lng: 121.080849 },
+            'santa rosa': { lat: 14.312336, lng: 111.376 },
+            'cabuyao': { lat: 14.278415, lng: 121.124573 },
+            'san pedro': { lat: 14.355304, lng: 121.017847 },
+            'los baños': { lat: 14.169908, lng: 121.220631 },
+            
+            // Bulacan
+            'malolos': { lat: 14.843252, lng: 120.811399 },
+            'meycauayan': { lat: 14.735024, lng: 120.953308 },
+            'san jose del monte': { lat: 14.813612, lng: 121.045301 },
+            'santa maria': { lat: 14.816917, lng: 120.956701 },
+        };
+        
+        // Barangay-level coordinates for Bacoor (6 decimal places)
+        const bacoorBarangays = {
+            'molino': { lat: 14.423512, lng: 120.982478 },
+            'queens row': { lat: 14.440013, lng: 120.974982 },
+            'salawag': { lat: 14.417528, lng: 120.954983 },
+            'springville': { lat: 14.429045, lng: 120.991987 },
+            'panapaan': { lat: 14.452013, lng: 120.968041 },
+            'tabing dagat': { lat: 14.462015, lng: 120.959028 },
+            'mabolo': { lat: 14.414987, lng: 120.969964 },
+            'niog': { lat: 14.420019, lng: 120.960047 },
+        };
+        
+        // Check if it's a barangay (format: "municipality - barangay")
+        if (cityName.includes(' - ')) {
+            const parts = cityName.split(' - ');
+            const municipality = parts[0].toLowerCase().trim();
+            const barangay = parts[1].toLowerCase().trim();
+            
+            if (municipality === 'bacoor' && bacoorBarangays[barangay]) {
+                return bacoorBarangays[barangay];
+            }
+        }
+        
+        return cities[cityName.toLowerCase()] || null;
     },
     
     updateDistances(userLocation) {
         const jobCards = document.querySelectorAll('[data-lat][data-lng]');
+        console.log(`=== DISTANCE CALCULATION ===`);
+        console.log(`User location: lat=${userLocation.latitude}, lng=${userLocation.longitude}`);
         
-        jobCards.forEach(card => {
+        jobCards.forEach((card, index) => {
             const jobLat = parseFloat(card.dataset.lat);
             const jobLng = parseFloat(card.dataset.lng);
             
@@ -1549,6 +2085,10 @@ const LocationManager = {
                     jobLat,
                     jobLng
                 );
+                
+                if (index < 3) {
+                    console.log(`Job ${index + 1}: (${jobLat}, ${jobLng}) -> ${distance.toFixed(3)}km`);
+                }
                 
                 const distanceDisplay = card.querySelector('.distance-display');
                 if (distanceDisplay) {
@@ -1563,9 +2103,100 @@ const LocationManager = {
     }
 };
 
-// Initialize on page load
+// Clean initialization  
 document.addEventListener('DOMContentLoaded', function() {
+    // Show cached location info if available
+    showCachedLocationInfo();
+    
     LocationManager.initializeDistances();
+    
+    // Show proximity filter if location is set (URL params or cached)
+    const urlParams = new URLSearchParams(window.location.search);
+    const hasLocation = urlParams.get('lat') || urlParams.get('municipality');
+    const cachedLocation = localStorage.getItem('userLocation');
+    
+    if (hasLocation || cachedLocation) {
+        const proximityFilter = document.getElementById('proximityFilter');
+        proximityFilter.style.display = 'block';
+        
+        // Wait for distance displays to be populated, then initialize filter
+        setTimeout(() => {
+            // Make sure slider matches currentMaxDistance
+            document.getElementById('distanceValue').textContent = currentMaxDistance;
+            document.getElementById('distanceSlider').value = currentMaxDistance;
+            
+            console.log('Initializing proximity filter at ' + currentMaxDistance + 'km');
+            filterJobsByDistance();
+        }, 500);
+    }
+    
+    // Prevent modal inputs from triggering search form
+    const locationModal = document.getElementById('locationModal');
+    const searchForm = document.getElementById('searchForm');
+    
+    // Add event listeners to modal inputs
+    const cityInput = document.getElementById('manualCity');
+    const barangayInput = document.getElementById('manualBarangay');
+    
+    if (cityInput) {
+        cityInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                applyManualLocation();
+                return false;
+            }
+        });
+        
+        cityInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+        });
+    }
+    
+    if (barangayInput) {
+        barangayInput.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+                applyManualLocation();
+                return false;
+            }
+        });
+        
+        barangayInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                e.stopPropagation();
+                return false;
+            }
+        });
+    }
+    
+    // Prevent search form from intercepting modal inputs
+    if (searchForm && locationModal) {
+        searchForm.addEventListener('submit', function(e) {
+            const activeEl = document.activeElement;
+            if (activeEl && (activeEl.id === 'manualCity' || activeEl.id === 'manualBarangay')) {
+                e.preventDefault();
+                e.stopPropagation();
+                applyManualLocation();
+                return false;
+            }
+        });
+        
+        // Stop propagation from modal to prevent any parent form submission
+        locationModal.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter' && e.target.tagName === 'INPUT') {
+                e.stopPropagation();
+            }
+        }, true);
+    }
 });
 </script>
 

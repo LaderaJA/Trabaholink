@@ -1,0 +1,241 @@
+{% extends 'mainpages/base.html' %}
+{% load static %}
+
+{% block title %}Complete Your Profile - TrabahoLink{% endblock %}
+
+{% block css %}
+<style>
+    .signup-container {
+        min-height: 70vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 2rem 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+
+    .signup-card {
+        background: white;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        max-width: 500px;
+        width: 100%;
+        padding: 3rem 2rem;
+    }
+
+    .signup-header {
+        text-align: center;
+        margin-bottom: 2rem;
+    }
+
+    .signup-icon {
+        width: 80px;
+        height: 80px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 1.5rem;
+    }
+
+    .signup-icon i {
+        font-size: 2.5rem;
+        color: white;
+    }
+
+    .signup-header h2 {
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+
+    .signup-header p {
+        color: #64748b;
+    }
+
+    .form-control {
+        padding: 0.75rem;
+        border-radius: 10px;
+        border: 2px solid #e2e8f0;
+        transition: all 0.3s;
+    }
+
+    .form-control:focus {
+        border-color: #667eea;
+        box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn-submit {
+        width: 100%;
+        padding: 1rem;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 10px;
+        font-size: 1.1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.3s;
+    }
+
+    .btn-submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .role-selection {
+        margin: 2rem 0;
+    }
+
+    .role-option {
+        display: none;
+    }
+
+    .role-label {
+        display: block;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        border: 2px solid #e2e8f0;
+        border-radius: 12px;
+        cursor: pointer;
+        transition: all 0.3s;
+        background: white;
+    }
+
+    .role-label:hover {
+        border-color: #667eea;
+        background: #f8f9ff;
+        transform: translateY(-2px);
+    }
+
+    .role-option:checked + .role-label {
+        border-color: #667eea;
+        background: linear-gradient(135deg, rgba(102, 126, 234, 0.1) 0%, rgba(118, 75, 162, 0.1) 100%);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+    }
+
+    .role-icon {
+        font-size: 2rem;
+        color: #667eea;
+        margin-bottom: 0.5rem;
+    }
+
+    .role-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #1e293b;
+        margin-bottom: 0.5rem;
+    }
+
+    .role-description {
+        color: #64748b;
+        font-size: 0.9rem;
+        margin: 0;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="signup-container">
+    <div class="signup-card">
+        <div class="signup-header">
+            <div class="signup-icon">
+                <i class="bi bi-person-check"></i>
+            </div>
+            <h2>Complete Your Profile</h2>
+            <p>Just one more step to get started!</p>
+        </div>
+
+        {% if form.errors %}
+            <div class="alert alert-danger">
+                {{ form.errors }}
+            </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'socialaccount_signup' %}">
+            {% csrf_token %}
+            
+            {% if form.username %}
+            <div class="mb-3">
+                <label for="{{ form.username.id_for_label }}" class="form-label">Username</label>
+                {{ form.username }}
+            </div>
+            {% endif %}
+
+            {% if form.email %}
+            <div class="mb-3">
+                <label for="{{ form.email.id_for_label }}" class="form-label">Email</label>
+                {{ form.email }}
+            </div>
+            {% endif %}
+
+            <!-- Role Selection -->
+            {% if form.role %}
+            <div class="role-selection">
+                <label class="form-label" style="font-size: 1.1rem; font-weight: 600; color: #1e293b; margin-bottom: 1rem; display: block;">
+                    <i class="bi bi-people me-2"></i>{{ form.role.label }}
+                </label>
+                
+                {% for value, label in form.role.field.choices %}
+                <input 
+                    type="radio" 
+                    name="{{ form.role.name }}" 
+                    value="{{ value }}" 
+                    id="role_{{ value }}"
+                    class="role-option"
+                    {% if forloop.first %}checked{% endif %}
+                >
+                <label for="role_{{ value }}" class="role-label">
+                    <div style="display: flex; align-items: center; gap: 1rem;">
+                        <div class="role-icon">
+                            {% if value == 'client' %}
+                            <i class="bi bi-briefcase-fill"></i>
+                            {% else %}
+                            <i class="bi bi-tools"></i>
+                            {% endif %}
+                        </div>
+                        <div style="flex: 1; text-align: left;">
+                            <div class="role-title">{{ label }}</div>
+                            <p class="role-description">
+                                {% if value == 'client' %}
+                                Post jobs and hire skilled workers for your projects
+                                {% else %}
+                                Find work opportunities and offer your skills
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div>
+                            <i class="bi bi-check-circle-fill" style="font-size: 1.5rem; color: #667eea; opacity: 0;" id="check_{{ value }}"></i>
+                        </div>
+                    </div>
+                </label>
+                {% endfor %}
+            </div>
+            {% endif %}
+
+            <button type="submit" class="btn-submit mt-3">
+                <i class="bi bi-check-circle me-2"></i>Complete Registration
+            </button>
+        </form>
+
+        <script>
+            // Show checkmark on selected role
+            document.querySelectorAll('.role-option').forEach(radio => {
+                radio.addEventListener('change', function() {
+                    document.querySelectorAll('[id^="check_"]').forEach(check => {
+                        check.style.opacity = '0';
+                    });
+                    if (this.checked) {
+                        document.getElementById('check_' + this.value).style.opacity = '1';
+                    }
+                });
+                
+                // Initialize first selected
+                if (radio.checked) {
+                    document.getElementById('check_' + radio.value).style.opacity = '1';
+                }
+            });
+        </script>
+    </div>
+</div>
+{% endblock %}

@@ -144,31 +144,64 @@
 
             <!-- Employer Actions -->
             {% if show_employer_review_actions %}
-            <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                <h2 class="text-xl font-bold text-gray-800 mb-4">Review Complete Work</h2>
-                <p class="text-gray-600 mb-4">The worker has marked this job as completed. End the job if everything looks good or request revisions if more work is needed.</p>
-                <form method="post" action="{% url 'jobs:oppose_job_completion' contract.pk %}" class="space-y-4"
-                      onsubmit="return confirm('Send this revision request to the worker?');">
-                    {% csrf_token %}
-                    <div>
-                        <label for="revision_reason" class="block text-sm font-medium text-gray-700 mb-2">Reason for Revision *</label>
-                        <textarea id="revision_reason" name="reason" required rows="3"
-                                  class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent"
-                                  placeholder="Describe what still needs to be done or corrected..."></textarea>
+            <div class="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg border-2 border-gray-100 p-8 mb-6">
+                <div class="flex items-center gap-3 mb-4">
+                    <div class="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full p-3">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                        </svg>
                     </div>
-                    <button type="submit"
-                            class="w-full bg-red-600 hover:bg-red-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
-                        ↩️ Request Revisions
-                    </button>
-                </form>
-                <form method="post" action="{% url 'jobs:end_job' contract.pk %}" 
-                      onsubmit="return confirm('Are you sure you want to end this job? You will be prompted to leave feedback.');">
-                    {% csrf_token %}
-                    <button type="submit" 
-                            class="w-full bg-purple-600 hover:bg-purple-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
-                        🏁 End Job & Leave Feedback
-                    </button>
-                </form>
+                    <h2 class="text-2xl font-bold text-gray-800">Review Completed Work</h2>
+                </div>
+                <p class="text-gray-600 mb-6 text-base leading-relaxed">The worker has marked this job as completed. Review the work and choose an action below.</p>
+                
+                <!-- Action Buttons Container -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- Request Revisions Form -->
+                    <form method="post" action="{% url 'jobs:oppose_job_completion' contract.pk %}" class="flex flex-col"
+                          onsubmit="return confirm('Send this revision request to the worker?');">
+                        {% csrf_token %}
+                        <div class="mb-4">
+                            <label for="revision_reason" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+                                </svg>
+                                Reason for Revision *
+                            </label>
+                            <textarea id="revision_reason" name="reason" required rows="4"
+                                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 resize-none"
+                                      placeholder="Describe what needs to be corrected or improved..."></textarea>
+                        </div>
+                        <button type="submit"
+                                class="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center gap-3 group">
+                            <svg class="w-5 h-5 transform group-hover:rotate-180 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
+                            </svg>
+                            Request Revisions
+                        </button>
+                    </form>
+                    
+                    <!-- End Job Form -->
+                    <form method="post" action="{% url 'jobs:end_job' contract.pk %}" class="flex flex-col justify-end"
+                          onsubmit="return confirm('Are you sure you want to end this job? You will be prompted to leave feedback.');">
+                        {% csrf_token %}
+                        <div class="mb-4 bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-lg border border-purple-200">
+                            <p class="text-sm text-purple-800 flex items-start gap-2">
+                                <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
+                                </svg>
+                                <span>Ending the job will prompt you to leave feedback and finalize payment. This action cannot be undone.</span>
+                            </p>
+                        </div>
+                        <button type="submit" 
+                                class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center gap-3 group">
+                            <svg class="w-5 h-5 group-hover:animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                            </svg>
+                            End Job & Leave Feedback
+                        </button>
+                    </form>
+                </div>
             </div>
             {% endif %}
 

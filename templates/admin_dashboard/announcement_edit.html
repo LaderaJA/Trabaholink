@@ -53,11 +53,32 @@
                 </label>
                 {{ form.image }}
                 {% if form.instance.image %}
-                    <div class="mt-3">
-                        <p class="text-sm text-gray-600 mb-2">Current image:</p>
-                        <img src="{{ form.instance.image.url }}" alt="Current image" class="h-40 rounded-lg border border-gray-200">
+                    <div class="mt-3" id="current-image-container">
+                        <div class="flex items-start justify-between mb-2">
+                            <p class="text-sm text-gray-600">Current image:</p>
+                            <button type="button" id="delete-current-image-btn" 
+                                    class="px-3 py-1.5 bg-red-500 text-white text-xs font-semibold rounded-lg hover:bg-red-600 transition inline-flex items-center gap-1.5">
+                                <i data-lucide="trash-2" class="w-3.5 h-3.5"></i>
+                                Delete Image
+                            </button>
+                        </div>
+                        <img src="{{ form.instance.image.url }}" alt="Current image" class="h-40 rounded-lg border border-gray-200" id="current-image">
+                        <p class="text-xs text-gray-500 mt-1">Click "Delete Image" to remove this image from the announcement.</p>
                     </div>
                 {% endif %}
+                <!-- New Image Preview -->
+                <div class="mt-3 hidden" id="new-image-container">
+                    <div class="flex items-start justify-between mb-2">
+                        <p class="text-sm text-green-600 font-semibold">New image preview:</p>
+                        <button type="button" id="remove-preview-btn" 
+                                class="px-3 py-1.5 bg-gray-500 text-white text-xs font-semibold rounded-lg hover:bg-gray-600 transition inline-flex items-center gap-1.5">
+                            <i data-lucide="x" class="w-3.5 h-3.5"></i>
+                            Remove
+                        </button>
+                    </div>
+                    <img src="" alt="New image preview" class="h-40 rounded-lg border-2 border-green-500" id="new-image-preview">
+                    <p class="text-xs text-gray-500 mt-1">This is a preview. Click "Update Announcement" to save.</p>
+                </div>
                 {% if form.image.errors %}
                     <p class="mt-1 text-sm text-red-600">{{ form.image.errors.0 }}</p>
                 {% endif %}
@@ -126,6 +147,85 @@
     // Initialize Lucide icons
     document.addEventListener('DOMContentLoaded', function() {
         lucide.createIcons();
+        
+        // Image preview functionality
+        const imageInput = document.querySelector('input[type="file"]');
+        const newImageContainer = document.getElementById('new-image-container');
+        const newImagePreview = document.getElementById('new-image-preview');
+        const currentImageContainer = document.getElementById('current-image-container');
+        const deleteCurrentImageBtn = document.getElementById('delete-current-image-btn');
+        const removePreviewBtn = document.getElementById('remove-preview-btn');
+        
+        // Handle new image selection
+        if (imageInput) {
+            imageInput.addEventListener('change', function(e) {
+                const file = e.target.files[0];
+                
+                if (file) {
+                    // Check if it's an image
+                    if (file.type.startsWith('image/')) {
+                        const reader = new FileReader();
+                        
+                        reader.onload = function(e) {
+                            // Show the new image preview
+                            newImagePreview.src = e.target.result;
+                            newImageContainer.classList.remove('hidden');
+                            
+                            // Re-initialize icons for the new button
+                            lucide.createIcons();
+                            
+                            // Scroll to the preview
+                            newImageContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                        };
+                        
+                        reader.readAsDataURL(file);
+                    } else {
+                        alert('Please select a valid image file.');
+                        imageInput.value = '';
+                    }
+                } else {
+                    // Hide preview if no file selected
+                    newImageContainer.classList.add('hidden');
+                }
+            });
+        }
+        
+        // Handle delete current image button
+        if (deleteCurrentImageBtn) {
+            deleteCurrentImageBtn.addEventListener('click', function() {
+                if (confirm('Are you sure you want to delete this image? This will remove the image when you save.')) {
+                    // Find and check the "Clear" checkbox that Django provides
+                    const clearCheckbox = document.querySelector('input[name="image-clear"]');
+                    if (clearCheckbox) {
+                        clearCheckbox.checked = true;
+                    }
+                    
+                    // Hide the current image container
+                    currentImageContainer.style.opacity = '0.5';
+                    currentImageContainer.style.pointerEvents = 'none';
+                    
+                    // Update button text
+                    deleteCurrentImageBtn.innerHTML = '<i data-lucide="check" class="w-3.5 h-3.5"></i> Will be deleted on save';
+                    deleteCurrentImageBtn.classList.remove('bg-red-500', 'hover:bg-red-600');
+                    deleteCurrentImageBtn.classList.add('bg-gray-500', 'cursor-not-allowed');
+                    deleteCurrentImageBtn.disabled = true;
+                    
+                    // Re-initialize icons
+                    lucide.createIcons();
+                }
+            });
+        }
+        
+        // Handle remove preview button
+        if (removePreviewBtn) {
+            removePreviewBtn.addEventListener('click', function() {
+                // Clear the file input
+                imageInput.value = '';
+                
+                // Hide the preview
+                newImageContainer.classList.add('hidden');
+            });
+        }
     });
 </script>
 {% endblock %}
