@@ -92,11 +92,19 @@ TEMPLATES = [
 WSGI_APPLICATION = 'Trabaholink.wsgi.application'
 
 ASGI_APPLICATION = "Trabaholink.asgi.application"
+
+# Configure Redis connection for Channels
+redis_password = os.environ.get('REDIS_PASSWORD', '')
+if redis_password:
+    redis_url = f"redis://:{redis_password}@{os.environ.get('REDIS_HOST', '127.0.0.1')}:{os.environ.get('REDIS_PORT', '6379')}/0"
+else:
+    redis_url = f"redis://{os.environ.get('REDIS_HOST', '127.0.0.1')}:{os.environ.get('REDIS_PORT', '6379')}/0"
+
 CHANNEL_LAYERS = {
     "default": {
         "BACKEND": "channels_redis.core.RedisChannelLayer",
         "CONFIG": {
-            "hosts": [(os.environ.get('REDIS_HOST', '127.0.0.1'), int(os.environ.get('REDIS_PORT', 6379)))],  
+            "hosts": [redis_url],  
         },
     },
 }

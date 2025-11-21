@@ -13,10 +13,17 @@ echo "PostgreSQL is up and running!"
 
 # Wait for Redis to be ready
 echo "Waiting for Redis..."
-until redis-cli -h "$REDIS_HOST" -p "${REDIS_PORT:-6379}" ping 2>/dev/null; do
-  echo "Redis is unavailable - sleeping"
-  sleep 2
-done
+if [ -n "$REDIS_PASSWORD" ]; then
+  until python -c "import redis; redis.Redis(host=\"${REDIS_HOST}\", port=${REDIS_PORT:-6379}, password=\"${REDIS_PASSWORD}\", socket_connect_timeout=1).ping()" 2>/dev/null; do
+    echo "Redis is unavailable - sleeping"
+    sleep 2
+  done
+else
+  until python -c "import redis; redis.Redis(host=\"${REDIS_HOST}\", port=${REDIS_PORT:-6379}, socket_connect_timeout=1).ping()" 2>/dev/null; do
+    echo "Redis is unavailable - sleeping"
+    sleep 2
+  done
+fi
 echo "Redis is up and running!"
 
 # Run migrations
