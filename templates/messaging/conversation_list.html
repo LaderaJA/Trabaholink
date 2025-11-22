@@ -804,11 +804,7 @@ function searchUsers() {
       searchResults.innerHTML = '<p style="text-align: center; color: var(--text-light); margin-top: 2rem;">Type at least 2 characters to search</p>';
       return;
     }
-  } catch (error) {
-    console.error('Error in searchUsers:', error);
-    return;
-  }
-  
+    
     searchTimeout = setTimeout(() => {
       try {
         const resultsDiv = document.getElementById('searchResults');
@@ -854,8 +850,8 @@ function searchUsers() {
         console.error('Error in setTimeout callback:', innerError);
       }
     }, 300);
-  } catch (outerError) {
-    console.error('Error in searchUsers outer:', outerError);
+  } catch (error) {
+    console.error('Error in searchUsers:', error);
   }
 }
 
