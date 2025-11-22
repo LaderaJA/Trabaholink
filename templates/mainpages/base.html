@@ -741,6 +741,21 @@
       overflow: visible !important;
     }
     
+    /* Navbar nav list */
+    .tl-navbar-nav {
+      overflow: visible !important;
+    }
+    
+    /* Nav items - prevent clipping */
+    .tl-nav-item {
+      overflow: visible !important;
+    }
+    
+    /* Profile menu - ensure dropdown is not clipped */
+    .tl-profile-menu {
+      overflow: visible !important;
+    }
+    
     /* Desktop: hide toggler, show collapse normally */
     @media (min-width: 992px) {
       .tl-navbar-toggler {
@@ -1210,12 +1225,12 @@
                 <span class="nav-text">Messages</span>
               </a>
             </li>
-            <li class="tl-nav-item position-relative me-3">
+            <li class="tl-nav-item me-3">
               <button
                 class="tl-nav-link notification-bell-btn"
                 id="notificationBellBtn"
                 type="button"
-                style="position:relative; background: none; border: none; cursor: pointer;"
+                style="position:relative; background: none; border: none; cursor: pointer; overflow: visible;"
               >
                 <i class="bi bi-bell nav-icon" style="position: relative;"></i>
                 <span class="nav-text">Notifications</span>
