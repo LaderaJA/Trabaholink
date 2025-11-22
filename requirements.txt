@@ -85,7 +85,7 @@ autobahn==24.4.2
 # Authentication & Security
 # ============================================
 cryptography==44.0.1
-jwt==1.4.0
+PyJWT==2.8.0
 pyOpenSSL==25.0.0
 pyasn1==0.6.1
 pyasn1_modules==0.4.1
