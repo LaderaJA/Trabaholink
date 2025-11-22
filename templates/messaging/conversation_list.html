@@ -696,8 +696,7 @@ body {
           type="text" 
           class="search-input" 
           placeholder="Search by username..."
-          id="userSearch"
-          onkeyup="searchUsers()">
+          id="userSearch">
       </div>
       <div class="search-results" id="searchResults">
         <p style="text-align: center; color: var(--text-light); margin-top: 2rem;">
@@ -736,13 +735,27 @@ function closeSearchModal() {
 
 // Initialize modal event listeners after DOM is loaded
 document.addEventListener('DOMContentLoaded', function() {
+  console.log('Initializing messaging search...');
+  
   const searchModal = document.getElementById('searchModal');
+  const userSearchInput = document.getElementById('userSearch');
+  
   if (searchModal) {
     searchModal.addEventListener('click', function(e) {
       if (e.target === this) {
         closeSearchModal();
       }
     });
+  }
+  
+  // Add keyup event listener to search input
+  if (userSearchInput) {
+    console.log('Search input found, attaching event listener');
+    userSearchInput.addEventListener('keyup', function() {
+      searchUsers();
+    });
+  } else {
+    console.error('User search input not found!');
   }
 });
 
