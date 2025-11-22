@@ -212,6 +212,8 @@ SOCIALACCOUNT_EMAIL_AUTHENTICATION = True
 SOCIALACCOUNT_EMAIL_AUTHENTICATION_AUTO_CONNECT = False  # Changed to False to show signup form
 
 # Google OAuth2 settings
+# Note: OAuth credentials are configured in the database via Django Admin
+# (Sites > Social Applications) to avoid duplication
 SOCIALACCOUNT_PROVIDERS = {
     'google': {
         'SCOPE': [
@@ -221,11 +223,6 @@ SOCIALACCOUNT_PROVIDERS = {
         'AUTH_PARAMS': {
             'access_type': 'online',
         },
-        'APP': {
-            'client_id': os.environ.get('GOOGLE_CLIENT_ID', ''),
-            'secret': os.environ.get('GOOGLE_CLIENT_SECRET', ''),
-            'key': ''
-        }
     }
 }
 
