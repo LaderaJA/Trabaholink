@@ -809,18 +809,25 @@ function searchUsers() {
     return;
   }
   
-  searchTimeout = setTimeout(() => {
-    // Show loading
-    document.getElementById('searchResults').innerHTML = `
-      <div class="loading-state">
-        <div class="spinner"></div>
-        <p>Searching...</p>
-      </div>
-    `;
-    
-    // Make AJAX request to search users
-    console.log('Searching for:', searchTerm);
-    fetch(`/users/api/search/?q=${encodeURIComponent(searchTerm)}`, {
+    searchTimeout = setTimeout(() => {
+      try {
+        const resultsDiv = document.getElementById('searchResults');
+        if (!resultsDiv) {
+          console.error('Results div not found in setTimeout');
+          return;
+        }
+        
+        // Show loading
+        resultsDiv.innerHTML = `
+          <div class="loading-state">
+            <div class="spinner"></div>
+            <p>Searching...</p>
+          </div>
+        `;
+        
+        // Make AJAX request to search users
+        console.log('Searching for:', searchTerm);
+        fetch(`/users/api/search/?q=${encodeURIComponent(searchTerm)}`, {
       headers: {
         'X-Requested-With': 'XMLHttpRequest'
       }
@@ -835,12 +842,21 @@ function searchUsers() {
     .then(data => {
       console.log('Search results received:', data);
       displaySearchResults(data.users || []);
-    })
-    .catch(error => {
-      console.error('Search error:', error);
-      document.getElementById('searchResults').innerHTML = '<p style="text-align: center; color: var(--danger-color); margin-top: 2rem;">Error searching users: ' + error.message + '</p>';
-    });
-  }, 300);
+      })
+      .catch(error => {
+        console.error('Search error:', error);
+        const resultsDiv = document.getElementById('searchResults');
+        if (resultsDiv) {
+          resultsDiv.innerHTML = '<p style="text-align: center; color: var(--danger-color); margin-top: 2rem;">Error searching users: ' + error.message + '</p>';
+        }
+      });
+      } catch (innerError) {
+        console.error('Error in setTimeout callback:', innerError);
+      }
+    }, 300);
+  } catch (outerError) {
+    console.error('Error in searchUsers outer:', outerError);
+  }
 }
 
 function displaySearchResults(users) {
