@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load moderation_filters %}
 
 {% block css %}
 <style>
@@ -1113,7 +1114,7 @@
 {% endblock %}
 
 {% block content %}
-<div class="chat-interface" style="padding-top: 75px; margin-top: 0;">
+<div class="chat-interface" style="margin-top: 0;">
   <!-- Sidebar: Conversations List -->
   <div class="chat-sidebar" id="chatSidebar">
     <div class="sidebar-header">
@@ -1249,7 +1250,7 @@
             <div class="message-content">
               {% if message.content %}
                 <div class="message-bubble">
-                  {{ message.content }}
+                  {{ message.content|censor_text }}
                 </div>
               {% endif %}
               
