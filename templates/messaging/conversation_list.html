@@ -766,18 +766,26 @@ function searchUsers() {
     `;
     
     // Make AJAX request to search users
+    console.log('Searching for:', searchTerm);
     fetch(`/users/api/search/?q=${encodeURIComponent(searchTerm)}`, {
       headers: {
         'X-Requested-With': 'XMLHttpRequest'
       }
     })
-    .then(response => response.json())
+    .then(response => {
+      console.log('Response status:', response.status);
+      if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+      }
+      return response.json();
+    })
     .then(data => {
+      console.log('Search results received:', data);
       displaySearchResults(data.users || []);
     })
     .catch(error => {
       console.error('Search error:', error);
-      document.getElementById('searchResults').innerHTML = '<p style="text-align: center; color: var(--danger-color); margin-top: 2rem;">Error searching users</p>';
+      document.getElementById('searchResults').innerHTML = '<p style="text-align: center; color: var(--danger-color); margin-top: 2rem;">Error searching users: ' + error.message + '</p>';
     });
   }, 300);
 }
@@ -785,7 +793,9 @@ function searchUsers() {
 function displaySearchResults(users) {
   const resultsContainer = document.getElementById('searchResults');
   
-  if (users.length === 0) {
+  console.log('Displaying results. User count:', users ? users.length : 0);
+  
+  if (!users || users.length === 0) {
     resultsContainer.innerHTML = '<p style="text-align: center; color: var(--text-light); margin-top: 2rem;">No users found</p>';
     return;
   }
