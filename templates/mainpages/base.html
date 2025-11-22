@@ -813,36 +813,23 @@
     .tl-profile-button .profile-name {
       font-size: 0.95rem;
       font-weight: 600;
-      white-space: nowrap;
-      max-width: 150px;
-      overflow: hidden;
-      text-overflow: ellipsis;
     }
 
     .tl-profile-dropdown {
       position: absolute;
       right: 0;
-      top: calc(100% + 0.5rem);
+      top: calc(100% + 0.75rem);
       background: #ffffff;
       border-radius: 12px;
-      box-shadow: 0 10px 30px rgba(15, 23, 42, 0.2);
-      border: 1px solid #e5e7eb;
-      padding: 0.5rem 0;
-      min-width: 240px;
-      max-height: 0;
-      overflow: hidden;
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(-10px);
-      transition: all 0.2s ease;
+      box-shadow: 0 10px 25px rgba(15, 23, 42, 0.15);
+      padding: 0.75rem 0;
+      min-width: 220px;
+      display: none;
       z-index: 2000;
     }
 
     .tl-profile-dropdown.show {
-      max-height: 500px;
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
+      display: block;
     }
 
     .tl-profile-dropdown a,
@@ -851,47 +838,26 @@
       align-items: center;
       gap: 0.75rem;
       width: 100%;
-      padding: 0.75rem 1.25rem;
+      padding: 0.65rem 1.25rem;
       font-size: 0.95rem;
       background: transparent;
       border: none;
       text-align: left;
-      color: #374151;
+      color: #1f2937;
       text-decoration: none;
-      transition: all 0.15s ease;
+      transition: background 0.2s ease, color 0.2s ease;
       cursor: pointer;
-      white-space: nowrap;
     }
 
     .tl-profile-dropdown a:hover,
     .tl-profile-dropdown button:hover {
-      background: #eff6ff;
-      color: #1e40af;
+      background: #eef2ff;
+      color: #4c1d95;
     }
 
-    .tl-profile-dropdown a i,
-    .tl-profile-dropdown button i {
-      font-size: 1.1rem;
-      width: 20px;
-      text-align: center;
-    }
-
-    /* Mobile profile dropdown */
-    @media (max-width: 991px) {
+    @media (max-width: 992px) {
       .tl-profile-menu {
         width: 100%;
-        position: relative;
-      }
-
-      .tl-profile-button {
-        width: 100%;
-        justify-content: flex-start;
-        padding: 0.875rem 1rem;
-        border-radius: 8px;
-      }
-
-      .tl-profile-button .profile-name {
-        max-width: none;
       }
 
       .tl-profile-dropdown {
@@ -899,15 +865,7 @@
         margin-top: 0.5rem;
         min-width: unset;
         width: 100%;
-        box-shadow: none;
-        border: none;
-        border-radius: 0;
-        padding: 0;
-      }
-
-      .tl-profile-dropdown a,
-      .tl-profile-dropdown button {
-        padding: 0.875rem 1rem 0.875rem 3rem;
+        box-shadow: 0 5px 20px rgba(15, 23, 42, 0.1);
       }
     }
     
