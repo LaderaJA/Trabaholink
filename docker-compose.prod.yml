@@ -125,9 +125,10 @@ services:
       dockerfile: Dockerfile
     container_name: trabaholink_nginx
     restart: always
+    image: null  # Override base image
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME:-localhost}
-    volumes:
+    volumes: # Complete override - don't merge with base
       - ./nginx/nginx.conf:/etc/nginx/templates/nginx.conf.template:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
       - static_volume:/app/staticfiles:ro
