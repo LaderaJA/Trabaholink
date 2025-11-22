@@ -79,6 +79,10 @@ services:
   celery_worker:
     restart: always
     command: celery -A Trabaholink worker -l info --concurrency=4 --max-tasks-per-child=1000
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      CELERY_BROKER_URL: "redis://:${REDIS_PASSWORD}@redis:6379/0"
+      CELERY_RESULT_BACKEND: "redis://:${REDIS_PASSWORD}@redis:6379/0"
     deploy:
       resources:
         limits:
@@ -96,6 +100,10 @@ services:
   # Override Celery beat for production
   celery_beat:
     restart: always
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD}
+      CELERY_BROKER_URL: "redis://:${REDIS_PASSWORD}@redis:6379/0"
+      CELERY_RESULT_BACKEND: "redis://:${REDIS_PASSWORD}@redis:6379/0"
     deploy:
       resources:
         limits:

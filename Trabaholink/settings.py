@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'allauth.socialaccount',
     'allauth.socialaccount.providers.google',
     'channels',
+    'django_celery_beat',
     'messaging',
     'users',
     'jobs',

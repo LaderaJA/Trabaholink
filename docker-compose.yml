@@ -28,6 +28,8 @@ services:
     image: redis:7-alpine
     container_name: trabaholink_redis
     command: sh -c 'redis-server --appendonly yes $${REDIS_PASSWORD:+--requirepass $$REDIS_PASSWORD}'
+    environment:
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
     volumes:
       - redis_data:/data
     ports:
@@ -66,11 +68,12 @@ services:
       # Redis
       REDIS_HOST: redis
       REDIS_PORT: 6379
-      REDIS_URL: redis://redis:6379/0
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
+      REDIS_URL: ${REDIS_PASSWORD:+redis://:${REDIS_PASSWORD}@redis:6379/0}${REDIS_PASSWORD:-redis://redis:6379/0}
       
       # Celery
-      CELERY_BROKER_URL: redis://redis:6379/0
-      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      CELERY_BROKER_URL: ${REDIS_PASSWORD:+redis://:${REDIS_PASSWORD}@redis:6379/0}${REDIS_PASSWORD:-redis://redis:6379/0}
+      CELERY_RESULT_BACKEND: ${REDIS_PASSWORD:+redis://:${REDIS_PASSWORD}@redis:6379/0}${REDIS_PASSWORD:-redis://redis:6379/0}
       
       # Channels
       CHANNEL_LAYERS_HOST: redis
@@ -131,10 +134,11 @@ services:
       # Redis
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
       
       # Celery
-      CELERY_BROKER_URL: redis://redis:6379/0
-      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      CELERY_BROKER_URL: ${REDIS_PASSWORD:+redis://:${REDIS_PASSWORD}@redis:6379/0}${REDIS_PASSWORD:-redis://redis:6379/0}
+      CELERY_RESULT_BACKEND: ${REDIS_PASSWORD:+redis://:${REDIS_PASSWORD}@redis:6379/0}${REDIS_PASSWORD:-redis://redis:6379/0}
       
       # Skip migrations for workers
       RUN_MIGRATIONS: "false"
@@ -178,10 +182,11 @@ services:
       # Redis
       REDIS_HOST: redis
       REDIS_PORT: 6379
+      REDIS_PASSWORD: ${REDIS_PASSWORD:-}
       
       # Celery
-      CELERY_BROKER_URL: redis://redis:6379/0
-      CELERY_RESULT_BACKEND: redis://redis:6379/0
+      CELERY_BROKER_URL: ${REDIS_PASSWORD:+redis://:${REDIS_PASSWORD}@redis:6379/0}${REDIS_PASSWORD:-redis://redis:6379/0}
+      CELERY_RESULT_BACKEND: ${REDIS_PASSWORD:+redis://:${REDIS_PASSWORD}@redis:6379/0}${REDIS_PASSWORD:-redis://redis:6379/0}
       
       # Skip migrations for beat
       RUN_MIGRATIONS: "false"
