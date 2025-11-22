@@ -4,6 +4,7 @@
 {% block content %}
 <h2>Announcement Summary</h2>
 
+<div class="table-responsive">
 <table class="table table-striped">
     <thead>
         <tr>
@@ -33,6 +34,7 @@
         {% endfor %}
     </tbody>
 </table>
+</div>
 
 <a href="{% url 'admin_dashboard:admin_announcement_create' %}" class="btn btn-success mt-3">Create New Announcement</a>
 

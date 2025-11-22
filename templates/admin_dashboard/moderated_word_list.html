@@ -2,8 +2,9 @@
 
 {% block content %}
 <h2>Moderated Words</h2>
-<a href="{% url 'admin_dashboard:moderated_word_create' %}" class="btn btn-primary">Add New Word</a>
+<a href="{% url 'admin_dashboard:moderated_word_create' %}" class="btn btn-primary mb-3">Add New Word</a>
 
+<div class="table-responsive">
 <table class="table">
     <thead>
         <tr>
@@ -27,4 +28,5 @@
         {% endfor %}
     </tbody>
 </table>
+</div>
 {% endblock %}

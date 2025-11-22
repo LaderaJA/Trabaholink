@@ -30,7 +30,8 @@
     
     {% if reports %}
         <h2>Report History ({{ reports.count }} total)</h2>
-        <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+        <div class="table-responsive">
+<table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
             <thead style="background-color: #417690; color: white;">
                 <tr>
                     <th style="padding: 10px; text-align: left; border: 1px solid #ddd;">ID</th>
@@ -78,6 +79,7 @@
                 {% endfor %}
             </tbody>
         </table>
+</div>
     {% else %}
         <p style="padding: 20px; background-color: #d4edda; border: 1px solid #c3e6cb; border-radius: 5px; color: #155724;">
             No reports found for this job posting.

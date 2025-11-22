@@ -2,7 +2,8 @@
 {% with is_compact=compact|default_if_none:False status_value=status|default:'pending' %}
     {% if requests %}
     <div class="overflow-x-auto">
-        <table class="min-w-full divide-y divide-gray-200">
+        <div class="table-responsive">
+<table class="min-w-full divide-y divide-gray-200">
             <thead class="{% if is_compact %}bg-white{% else %}bg-gray-50{% endif %}">
                 <tr>
                     {% if not is_compact %}
@@ -77,6 +78,7 @@
             </tbody>
             {% endif %}
         </table>
+</div>
         {% if is_compact and requests|length > 5 %}
         <div class="px-6 py-3 text-xs text-gray-500">
             Showing first 5 entries · <a href="?status={{ status_value }}" class="text-trabaholink-blue hover:underline">View all</a>
