@@ -1012,7 +1012,7 @@
         <div class="job-thumbnail">
           <a href="{% url 'jobs:job_detail' job.id %}" class="job-thumbnail-link">
             {% if job.jobimage_set.exists %}
-            <img src="{{ job.jobimage_set.first.image.url }}" alt="{{ job.title }}">
+            <img src="{{ job.jobimage_set.first.image.url }}" alt="{{ job.title }}" class="img-fluid">
             {% else %}
             <div class="no-image-placeholder">
               <i class="bi bi-image"></i>
@@ -1111,7 +1111,7 @@
         <div class="job-image-grid">
           <a href="{% url 'jobs:job_detail' job.id %}" class="job-image-link">
             {% if job.jobimage_set.exists %}
-            <img src="{{ job.jobimage_set.first.image.url }}" alt="{{ job.title }}">
+            <img src="{{ job.jobimage_set.first.image.url }}" alt="{{ job.title }}" class="img-fluid">
             {% else %}
             <div class="no-image-placeholder">
               <i class="bi bi-image"></i>
@@ -1258,7 +1258,7 @@
             <a href="{{ service.get_absolute_url }}" class="job-thumbnail-link">
               {% with service.images.first as service_image %}
               {% if service_image %}
-              <img src="{{ service_image.image.url }}" alt="{{ service.headline }}">
+              <img src="{{ service_image.image.url }}" alt="{{ service.headline }}" class="img-fluid">
               {% else %}
               <div class="no-image-placeholder">
                 <i class="bi bi-tools"></i>

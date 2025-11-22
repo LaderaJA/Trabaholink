@@ -1229,7 +1229,7 @@
     {% if job.jobimage_set.exists %}
     <div class="job-hero-section">
         <div class="hero-image-container" onclick="openImageModal('{{ job.jobimage_set.first.image.url }}')">
-            <img src="{{ job.jobimage_set.first.image.url }}" alt="{{ job.title }}" class="hero-image">
+            <img src="{{ job.jobimage_set.first.image.url }}" alt="{{ job.title }}" class="hero-image img-fluid">
             <div class="image-click-hint">
                 <i class="bi bi-zoom-in"></i>
                 <span>Click to view full size</span>
@@ -1277,7 +1277,7 @@
                 <div class="thumbnail-scroll">
                     {% for image in job.jobimage_set.all %}
                     <div class="thumbnail-item {% if forloop.first %}active{% endif %}" onclick="changeHeroImage('{{ image.image.url }}', this)">
-                        <img src="{{ image.image.url }}" alt="Image {{ forloop.counter }}">
+                        <img src="{{ image.image.url }}" alt="Image {{ forloop.counter }}" class="img-fluid">
                     </div>
                     {% endfor %}
                 </div>
@@ -1535,7 +1535,7 @@
                 <div class="sidebar-gallery">
                     {% for image in job.jobimage_set.all %}
                     <div class="sidebar-gallery-item" onclick="openImageModal('{{ image.image.url }}')">
-                        <img src="{{ image.image.url }}" alt="Job image {{ forloop.counter }}">
+                        <img src="{{ image.image.url }}" alt="Job image {{ forloop.counter }}" class="img-fluid">
                         <div class="gallery-overlay">
                             <i class="bi bi-zoom-in"></i>
                         </div>

@@ -1258,7 +1258,7 @@
                   {% if message.file.name|slice:"-4:" == ".jpg" or message.file.name|slice:"-4:" == ".png" or message.file.name|slice:"-4:" == ".gif" or message.file.name|slice:"-5:" == ".jpeg" or message.file.name|slice:"-5:" == ".webp" %}
                     <!-- Image Preview -->
                     <div class="message-image" onclick="openLightbox('{{ message.file.url }}')">
-                      <img src="{{ message.file.url }}" alt="Image attachment" loading="lazy">
+                      <img src="{{ message.file.url }}" alt="Image attachment" loading="lazy" class="img-fluid">
                     </div>
                   {% else %}
                     <!-- File Attachment -->

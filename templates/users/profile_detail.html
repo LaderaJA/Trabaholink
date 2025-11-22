@@ -2048,7 +2048,7 @@ body {
 <!-- Cover Photo Section -->
 <div class="profile-cover-section" {% if user.cover_photo_custom %}onclick="openImageModal('{{ user.cover_photo_custom.url }}')" style="cursor: pointer;"{% endif %}>
   {% if user.cover_photo_custom %}
-    <img src="{{ user.cover_photo_custom.url }}" alt="Cover Photo" class="profile-cover-photo clickable-image">
+    <img src="{{ user.cover_photo_custom.url }}" alt="Cover Photo" class="profile-cover-photo clickable-image img-fluid">
   {% elif user.cover_photo %}
     <div class="profile-cover-photo" style="background: {% if user.cover_photo == 'default1' %}linear-gradient(135deg, #667eea 0%, #764ba2 100%){% elif user.cover_photo == 'default2' %}linear-gradient(135deg, #f093fb 0%, #f5576c 100%){% elif user.cover_photo == 'default3' %}linear-gradient(135deg, #4facfe 0%, #00f2fe 100%){% elif user.cover_photo == 'default4' %}linear-gradient(135deg, #43e97b 0%, #38f9d7 100%){% elif user.cover_photo == 'default5' %}linear-gradient(135deg, #fa709a 0%, #fee140 100%){% elif user.cover_photo == 'default6' %}linear-gradient(135deg, #30cfd0 0%, #330867 100%){% else %}linear-gradient(135deg, #1a94d4 0%, #0d6efd 100%){% endif %};"></div>
   {% else %}
@@ -2952,7 +2952,7 @@ body {
             <div class="gallery-grid-modern">
               {% for item in user.completed_jobs.all %}
                 <div class="gallery-item-modern">
-                  <img src="{{ item.image.url }}" alt="{{ item.description }}">
+                  <img src="{{ item.image.url }}" alt="{{ item.description }}" class="img-fluid">
                   <div class="gallery-overlay-modern">
                     <p style="margin: 0;">{{ item.description|truncatechars:50 }}</p>
                     {% if user.pk == request.user.pk %}

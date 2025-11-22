@@ -683,7 +683,7 @@
                 {% if announcement.image %}
                   <a href="{% url 'announcements:announcement_detail' announcement.pk %}" class="text-decoration-none">
                     <div class="announcement-slide-with-image">
-                      <img src="{{ announcement.image.url }}" alt="{{ announcement.title }}" class="announcement-full-image">
+                      <img src="{{ announcement.image.url }}" alt="{{ announcement.title }}" class="announcement-full-image img-fluid">
                       <div class="announcement-overlay">
                         <h3 class="announcement-title">{{ announcement.title }}</h3>
                         <small class="text-white-50 d-block mt-2">
