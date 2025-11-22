@@ -67,6 +67,11 @@ MIDDLEWARE = [
     'jobs.middleware.ExpiredJobsMiddleware',  # Auto-deactivate expired jobs
 ]
 
+# Trust proxy headers (for ngrok and reverse proxies)
+SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = True
+USE_X_FORWARDED_PORT = True
+
 
 ROOT_URLCONF = 'Trabaholink.urls'
 
