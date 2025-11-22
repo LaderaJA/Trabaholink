@@ -120,12 +120,12 @@ services:
 
   # Add Nginx reverse proxy
   nginx:
+    image: trabaholink-nginx  # Override base nginx:alpine with custom build
     build:
       context: ./nginx
       dockerfile: Dockerfile
     container_name: trabaholink_nginx
     restart: always
-    image: null  # Override base image
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME:-localhost}
     volumes: # Complete override - don't merge with base
