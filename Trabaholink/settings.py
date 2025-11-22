@@ -178,6 +178,7 @@ AUTHENTICATION_BACKENDS = [
 
 
 # Redirect users after login/logout
+LOGIN_URL = '/users/login/'
 LOGIN_REDIRECT_URL = 'jobs:home'  
 LOGOUT_REDIRECT_URL = 'login'
 
