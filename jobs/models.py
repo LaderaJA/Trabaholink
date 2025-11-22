@@ -142,7 +142,7 @@ class Job(models.Model):
 
     def save(self, *args, **kwargs):
         # Initialize vacancies to match number_of_workers if creating new job
-        if not self.pk and not self.vacancies:
+        if not self.pk:
             self.vacancies = self.number_of_workers
         # Load banned words
         banned_words = load_banned_words()

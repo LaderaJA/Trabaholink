@@ -1341,8 +1341,8 @@
                     <div class="stat-label">Applicants</div>
                 </div>
                 <div class="stat-item">
-                    <div class="stat-value" id="vacancy-count">{{ job.vacancies }}</div>
-                    <div class="stat-label">Positions Available</div>
+                    <div class="stat-value" id="vacancy-count">{{ job.get_vacancies_remaining }}</div>
+                    <div class="stat-label">Vacancies Remaining</div>
                 </div>
                 <div class="stat-item">
                     <div class="stat-value">{{ job.urgency }}</div>
