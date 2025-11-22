@@ -369,7 +369,7 @@ body {
   display: none;
   align-items: center;
   justify-content: center;
-  z-index: 1050;
+  z-index: 1000;
   backdrop-filter: blur(4px);
 }
 
@@ -696,7 +696,8 @@ body {
           type="text" 
           class="search-input" 
           placeholder="Search by username..."
-          id="userSearch">
+          id="userSearch"
+          onkeyup="searchUsers()">
       </div>
       <div class="search-results" id="searchResults">
         <p style="text-align: center; color: var(--text-light); margin-top: 2rem;">
@@ -707,55 +708,23 @@ body {
   </div>
 </div>
 
-<script data-version="v2.0.1732285200">
+<script>
 // Search Modal Functions
 function openSearchModal() {
-  const modal = document.getElementById('searchModal');
-  const searchInput = document.getElementById('userSearch');
-  
-  if (modal && searchInput) {
-    modal.classList.add('active');
-    searchInput.focus();
-  } else {
-    console.error('Modal elements not found', {modal, searchInput});
-  }
+  document.getElementById('searchModal').classList.add('active');
+  document.getElementById('userSearch').focus();
 }
 
 function closeSearchModal() {
-  const modal = document.getElementById('searchModal');
-  const searchInput = document.getElementById('userSearch');
-  const searchResults = document.getElementById('searchResults');
-  
-  if (modal) modal.classList.remove('active');
-  if (searchInput) searchInput.value = '';
-  if (searchResults) {
-    searchResults.innerHTML = '<p style="text-align: center; color: var(--text-light); margin-top: 2rem;">Type to search for users</p>';
-  }
+  document.getElementById('searchModal').classList.remove('active');
+  document.getElementById('userSearch').value = '';
+  document.getElementById('searchResults').innerHTML = '<p style="text-align: center; color: var(--text-light); margin-top: 2rem;">Type to search for users</p>';
 }
 
-// Initialize modal event listeners after DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
-  console.log('Initializing messaging search...');
-  
-  const searchModal = document.getElementById('searchModal');
-  const userSearchInput = document.getElementById('userSearch');
-  
-  if (searchModal) {
-    searchModal.addEventListener('click', function(e) {
-      if (e.target === this) {
-        closeSearchModal();
-      }
-    });
-  }
-  
-  // Add keyup event listener to search input
-  if (userSearchInput) {
-    console.log('Search input found, attaching event listener');
-    userSearchInput.addEventListener('keyup', function() {
-      searchUsers();
-    });
-  } else {
-    console.error('User search input not found!');
+// Close modal on overlay click
+document.getElementById('searchModal').addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeSearchModal();
   }
 });
 
@@ -779,88 +748,44 @@ function filterConversations() {
 // Search Users (AJAX)
 let searchTimeout;
 function searchUsers() {
-  try {
-    clearTimeout(searchTimeout);
-    
-    const searchInput = document.getElementById('userSearch');
-    const searchResults = document.getElementById('searchResults');
-    
-    console.log('searchUsers called', {searchInput, searchResults});
-    
-    if (!searchInput || !searchResults) {
-      console.error('Search elements not found', {searchInput, searchResults});
-      return;
-    }
-    
-    if (!searchInput.value) {
-      console.error('searchInput.value is undefined');
-      return;
-    }
-    
-    const searchTerm = searchInput.value.trim();
-    console.log('Search term:', searchTerm, 'Length:', searchTerm.length);
-    
-    if (searchTerm.length < 2) {
-      searchResults.innerHTML = '<p style="text-align: center; color: var(--text-light); margin-top: 2rem;">Type at least 2 characters to search</p>';
-      return;
-    }
-    
-    searchTimeout = setTimeout(() => {
-      try {
-        const resultsDiv = document.getElementById('searchResults');
-        if (!resultsDiv) {
-          console.error('Results div not found in setTimeout');
-          return;
-        }
-        
-        // Show loading
-        resultsDiv.innerHTML = `
-          <div class="loading-state">
-            <div class="spinner"></div>
-            <p>Searching...</p>
-          </div>
-        `;
-        
-        // Make AJAX request to search users
-        console.log('Searching for:', searchTerm);
-        fetch(`/users/api/search/?q=${encodeURIComponent(searchTerm)}`, {
-          headers: {
-            'X-Requested-With': 'XMLHttpRequest'
-          }
-        })
-        .then(response => {
-          console.log('Response status:', response.status);
-          if (!response.ok) {
-            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-          }
-          return response.json();
-        })
-        .then(data => {
-          console.log('Search results received:', data);
-          displaySearchResults(data.users || []);
-        })
-        .catch(error => {
-          console.error('Search error:', error);
-          const resultsDiv = document.getElementById('searchResults');
-          if (resultsDiv) {
-            resultsDiv.innerHTML = '<p style="text-align: center; color: var(--danger-color); margin-top: 2rem;">Error searching users: ' + error.message + '</p>';
-          }
-        });
-      } catch (innerError) {
-        console.error('Error in setTimeout callback:', innerError);
-      }
-    }, 300);
-  } catch (error) {
-    console.error('Error in searchUsers:', error);
+  clearTimeout(searchTimeout);
+  const searchTerm = document.getElementById('userSearch').value.trim();
+  
+  if (searchTerm.length < 2) {
+    document.getElementById('searchResults').innerHTML = '<p style="text-align: center; color: var(--text-light); margin-top: 2rem;">Type at least 2 characters to search</p>';
+    return;
   }
+  
+  searchTimeout = setTimeout(() => {
+    // Show loading
+    document.getElementById('searchResults').innerHTML = `
+      <div class="loading-state">
+        <div class="spinner"></div>
+        <p>Searching...</p>
+      </div>
+    `;
+    
+    // Make AJAX request to search users
+    fetch(`/users/api/search/?q=${encodeURIComponent(searchTerm)}`, {
+      headers: {
+        'X-Requested-With': 'XMLHttpRequest'
+      }
+    })
+    .then(response => response.json())
+    .then(data => {
+      displaySearchResults(data.users || []);
+    })
+    .catch(error => {
+      console.error('Search error:', error);
+      document.getElementById('searchResults').innerHTML = '<p style="text-align: center; color: var(--danger-color); margin-top: 2rem;">Error searching users</p>';
+    });
+  }, 300);
 }
 
 function displaySearchResults(users) {
   const resultsContainer = document.getElementById('searchResults');
   
-  console.log('Displaying results. User count:', users ? users.length : 0);
-  
-  if (!users || users.length === 0) {
+  if (users.length === 0) {
     resultsContainer.innerHTML = '<p style="text-align: center; color: var(--text-light); margin-top: 2rem;">No users found</p>';
     return;
   }
