@@ -129,12 +129,8 @@ services:
     environment:
       DOMAIN_NAME: ${DOMAIN_NAME:-localhost}
     volumes:
-      # Override the base nginx-simple.conf mount with a tmpfs (empty)
-      # This prevents "Resource busy" when entrypoint tries to create default.conf
-      - type: tmpfs
-        target: /etc/nginx/conf.d/default.conf
-      - ./nginx/nginx.conf:/etc/nginx/templates/nginx.conf.template:ro
-      - ./nginx/nginx.dev.conf:/etc/nginx/conf.d/nginx.dev.conf:ro
+      # Override base mount: use nginx.dev.conf directly as default.conf (no SSL on ngrok)
+      - ./nginx/nginx-simple.conf:/etc/nginx/conf.d/default.conf:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
       - static_volume:/app/staticfiles:ro
       - media_volume:/app/mediafiles:ro
@@ -145,6 +141,8 @@ services:
       - "443:443"
     depends_on:
       - web
+    entrypoint: []  # Override custom entrypoint, use default nginx entrypoint
+    command: ["nginx", "-g", "daemon off;"]
     networks:
       - trabaholink_network
     logging:
