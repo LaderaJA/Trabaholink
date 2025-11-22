@@ -77,6 +77,13 @@ Thumbs.db
 *.orig
 *.rej
 
+# Temporary and backup files
+.redis_password.txt
+docker-compose.*.backup
+docker-compose.*.backup*
+requirements-*.backup*
+tmp_rovodev_*
+
 # Docker
 .env.docker
 .env.production
