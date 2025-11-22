@@ -96,8 +96,8 @@ services:
       - ./:/app
       - static_volume:/app/staticfiles
       - media_volume:/app/mediafiles
-    ports:
-      - "${WEB_PORT:-8000}:8000"
+    expose:
+      - "8000"
     depends_on:
       db:
         condition: service_healthy
@@ -196,6 +196,22 @@ services:
         condition: service_healthy
       web:
         condition: service_started
+    networks:
+      - trabaholink_network
+    restart: unless-stopped
+
+  # Nginx Reverse Proxy
+  nginx:
+    image: nginx:alpine
+    container_name: trabaholink_nginx
+    volumes:
+      - ./nginx/nginx-simple.conf:/etc/nginx/conf.d/default.conf:ro
+      - static_volume:/app/staticfiles:ro
+      - media_volume:/app/mediafiles:ro
+    ports:
+      - "80:80"
+    depends_on:
+      - web
     networks:
       - trabaholink_network
     restart: unless-stopped
