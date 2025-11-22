@@ -113,7 +113,7 @@ WORKDIR /app
 COPY --chown=appuser:appuser . .
 
 # Create necessary directories with proper permissions
-RUN mkdir -p /app/staticfiles /app/mediafiles /app/logs && \
+RUN mkdir -p /app/staticfiles /app/media /app/mediafiles /app/logs && \
     chown -R appuser:appuser /app
 
 # Copy entrypoint script
