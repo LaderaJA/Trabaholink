@@ -39,6 +39,14 @@ class ConversationsListView(LoginRequiredMixin, ListView):
             last_message_content=last_message_subquery,
             last_message_created_at=last_message_time_subquery,  
         ).order_by('-last_message_created_at', '-updated_at')
+    
+    def render_to_response(self, context, **response_kwargs):
+        """Override to add no-cache headers"""
+        response = super().render_to_response(context, **response_kwargs)
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
+        return response
 
 
 @login_required
