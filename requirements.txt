@@ -16,7 +16,7 @@ channels_redis==4.2.1
 
 # Async & Celery
 celery==5.3.4
-django-celery-beat==2.5.0
+django-celery-beat==2.7.0
 redis==5.2.1
 
 # Database
