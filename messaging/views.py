@@ -144,18 +144,21 @@ def send_message(request, conversation_id):
 
     if request.method == "POST":
         try:
-            # Check if request has files (FormData) or JSON
-            if request.FILES or request.POST:
-                # Handle FormData (with file upload) or regular POST
+            # Always check POST/FILES first (FormData always uses POST)
+            if request.POST or request.FILES:
+                # Handle FormData (with or without file upload)
                 content = request.POST.get("content", "")
                 file = request.FILES.get("file", None)
                 print(f"Received FormData/POST - content: {content}, file: {file}")  # Debugging
-            else:
-                # Handle JSON data (text only)
+            elif request.body:
+                # Handle JSON data (text only) - fallback
                 data = json.loads(request.body)
                 content = data.get("content", "")
                 file = None
                 print(f"Received JSON - content: {content}")  # Debugging
+            else:
+                # No data received
+                return JsonResponse({"error": "No content provided"}, status=400)
 
             # Check for banned words
             is_flagged, flagged_words = check_for_banned_words(content)

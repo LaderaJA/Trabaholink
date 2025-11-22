@@ -33,10 +33,11 @@
   height: calc(100vh - 80px); /* Account for navbar */
   background: white;
   position: fixed;
-  top: 80px; /* Below navbar */
+  top: 0; /* Body already has padding-top: 80px */
   left: 0;
   right: 0;
   bottom: 0;
+  margin-top: 80px; /* Offset for navbar */
 }
 
 /* ===== SIDEBAR (Conversations List) ===== */
