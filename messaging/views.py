@@ -160,6 +160,11 @@ def send_message(request, conversation_id):
             # Check for banned words
             is_flagged, flagged_words = check_for_banned_words(content)
             
+            # Censor banned words if found
+            if is_flagged:
+                from admin_dashboard.moderation_utils import sanitize_text
+                content = sanitize_text(content)
+            
             # Create and save the new message
             new_message = Message.objects.create(
                 conversation=conversation,
