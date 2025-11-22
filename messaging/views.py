@@ -149,7 +149,6 @@ def send_message(request, conversation_id):
             print(f"Content-Type: {request.content_type}")
             print(f"POST data: {request.POST}")
             print(f"FILES: {request.FILES}")
-            print(f"Body length: {len(request.body) if request.body else 0}")
             
             # Always check POST/FILES first (FormData always uses POST)
             if request.POST or request.FILES:
