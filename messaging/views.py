@@ -144,21 +144,38 @@ def send_message(request, conversation_id):
 
     if request.method == "POST":
         try:
+            # Debug: Print request info
+            print(f"=== DEBUG send_message ===")
+            print(f"Content-Type: {request.content_type}")
+            print(f"POST data: {request.POST}")
+            print(f"FILES: {request.FILES}")
+            print(f"Body length: {len(request.body) if request.body else 0}")
+            
             # Always check POST/FILES first (FormData always uses POST)
             if request.POST or request.FILES:
                 # Handle FormData (with or without file upload)
-                content = request.POST.get("content", "")
+                content = request.POST.get("content", "").strip()
                 file = request.FILES.get("file", None)
-                print(f"Received FormData/POST - content: {content}, file: {file}")  # Debugging
+                print(f"Received FormData/POST - content: '{content}', file: {file}")
             elif request.body:
                 # Handle JSON data (text only) - fallback
-                data = json.loads(request.body)
-                content = data.get("content", "")
-                file = None
-                print(f"Received JSON - content: {content}")  # Debugging
+                try:
+                    data = json.loads(request.body)
+                    content = data.get("content", "").strip()
+                    file = None
+                    print(f"Received JSON - content: '{content}'")
+                except json.JSONDecodeError as je:
+                    print(f"JSON decode error: {je}")
+                    return JsonResponse({"error": "Invalid JSON"}, status=400)
             else:
                 # No data received
+                print("No POST, FILES, or body data")
                 return JsonResponse({"error": "No content provided"}, status=400)
+
+            # Validate that we have content or file
+            if not content and not file:
+                print("Empty content and no file")
+                return JsonResponse({"error": "Message cannot be empty"}, status=400)
 
             # Check for banned words
             is_flagged, flagged_words = check_for_banned_words(content)
