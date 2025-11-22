@@ -1473,7 +1473,7 @@
                 <i class="bi bi-person-search" style="color: #3b82f6;"></i> Search for User <span style="color: #ef4444;">*</span>
               </label>
               <div style="position: relative;">
-                <input type="text" id="userSearchInput" class="form-control" placeholder="Type username or name to search..." style="padding: 0.75rem 2.5rem 0.75rem 0.75rem; border: 2px solid #cbd5e1; border-radius: 0.5rem; font-size: 1rem;" oninput="searchUsers(this.value)" autocomplete="off" />
+                <input type="text" id="userSearchInput" class="form-control" placeholder="Type username or name to search..." style="padding: 0.75rem 2.5rem 0.75rem 0.75rem; border: 2px solid #cbd5e1; border-radius: 0.5rem; font-size: 1rem;" oninput="searchReportUsers(this.value)" autocomplete="off" />
                 <i class="bi bi-search" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
                 <input type="hidden" id="userId" name="user_id" />
                 <div id="userSearchResults" class="search-results" style="display: none;"></div>
@@ -1913,7 +1913,7 @@
     }
 
     // Search users with debounce
-    function searchUsers(query) {
+    function searchReportUsers(query) {
       clearTimeout(userSearchTimeout);
       const resultsDiv = document.getElementById('userSearchResults');
       
