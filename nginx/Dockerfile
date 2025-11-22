@@ -7,8 +7,9 @@ RUN apk add --no-cache gettext
 # Remove default nginx config
 RUN rm -f /etc/nginx/conf.d/default.conf
 
-# Copy nginx configuration template
+# Copy nginx configuration files (will be overridden by volume mounts)
 COPY nginx.conf /etc/nginx/templates/nginx.conf.template
+COPY nginx.dev.conf /etc/nginx/conf.d/nginx.dev.conf
 
 # Copy startup script
 COPY docker-entrypoint.sh /docker-entrypoint.sh
