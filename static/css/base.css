@@ -1,0 +1,326 @@
+/* Custom navbar styles with higher specificity to override Bootstrap */
+.tl-navbar {
+  position: fixed !important;
+  top: 0;
+  left: 0;
+  width: 100%;
+  background-color: #1a1a1a !important;
+  z-index: 1030 !important; /* Higher than Bootstrap's default */
+  transition: all 0.3s ease;
+  padding: 0 !important; /* Override Bootstrap padding */
+}
+
+.tl-navbar.scrolled {
+  background-color: rgba(26, 26, 26, 0.95) !important;
+  backdrop-filter: blur(8px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.tl-navbar-content {
+  display: flex !important;
+  justify-content: space-between !important;
+  align-items: center !important;
+  height: 70px;
+  transition: height 0.3s ease;
+}
+
+.tl-navbar.scrolled .tl-navbar-content {
+  height: 60px;
+}
+
+.tl-navbar-brand {
+  font-size: 1.5rem !important;
+  font-weight: 700 !important;
+  text-decoration: none !important;
+  color: #fff !important;
+  display: flex !important;
+  align-items: center !important;
+  margin-right: 1rem !important;
+  padding: 0 !important;
+}
+
+.tl-brand-text {
+  display: inline-block;
+  transition: transform 0.3s ease;
+}
+
+.tl-brand-highlight {
+  color: #3b82f6 !important;
+}
+
+.tl-navbar-brand:hover .tl-brand-text {
+  transform: scale(1.05);
+}
+
+.tl-navbar-toggler {
+  display: none;
+  background: none !important;
+  border: none !important;
+  color: #fff !important;
+  font-size: 1.5rem !important;
+  cursor: pointer;
+  transition: color 0.3s ease;
+  padding: 0.25rem 0.75rem !important;
+}
+
+.tl-navbar-toggler:hover {
+  color: #3b82f6 !important;
+}
+
+.tl-navbar-toggler:focus {
+  box-shadow: none !important;
+  outline: none !important;
+}
+
+.tl-navbar-nav {
+  display: flex !important;
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  flex-direction: row !important; /* Override Bootstrap's column direction */
+}
+
+.tl-nav-item {
+  margin: 0 5px !important;
+  position: relative !important;
+}
+
+.tl-nav-link {
+  display: block !important;
+  padding: 10px 15px !important;
+  color: #e2e2e2 !important;
+  text-decoration: none !important;
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  transition: all 0.3s ease !important;
+  position: relative !important;
+  border-radius: 4px !important;
+  background-color: transparent !important;
+}
+
+.tl-nav-link:hover {
+  color: #fff !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.tl-nav-link::after {
+  content: '' !important;
+  position: absolute !important;
+  bottom: 0 !important;
+  left: 50% !important;
+  width: 0 !important;
+  height: 2px !important;
+  background-color: #3b82f6 !important;
+  transition: all 0.3s ease !important;
+  transform: translateX(-50%) !important;
+}
+
+.tl-nav-link:hover::after,
+.tl-nav-link.active::after {
+  width: 80% !important;
+}
+
+.tl-nav-link.active {
+  color: #fff !important;
+}
+
+.tl-btn-logout {
+  background: none !important;
+  border: none !important;
+  cursor: pointer !important;
+  font-family: inherit !important;
+  font-size: 0.95rem !important;
+  font-weight: 500 !important;
+  padding: 10px 15px !important;
+  color: #f87171 !important;
+  transition: all 0.3s ease !important;
+  border-radius: 4px !important;
+}
+
+.tl-btn-logout:hover {
+  color: #ef4444 !important;
+  background-color: rgba(255, 255, 255, 0.1) !important;
+}
+
+.tl-nav-link i, .tl-btn-logout i {
+  font-size: 1.3rem !important;
+  vertical-align: middle;
+}
+
+/* Mobile menu */
+.tl-navbar-collapse {
+  transition: all 0.4s ease-in-out !important;
+  display: flex !important;
+  flex-basis: auto !important;
+}
+
+/* Responsive styles */
+@media (max-width: 992px) {
+  .tl-navbar-toggler {
+    display: block !important;
+  }
+  
+  .tl-navbar-collapse {
+    position: absolute !important;
+    top: 70px !important;
+    left: 0 !important;
+    right: 0 !important;
+    background-color: rgba(26, 26, 26, 0.97) !important;
+    backdrop-filter: blur(8px) !important;
+    max-height: 0 !important;
+    overflow: hidden !important;
+    transition: max-height 0.4s ease-in-out !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+    display: block !important; /* Override Bootstrap flex */
+  }
+  
+  .tl-navbar.scrolled .tl-navbar-collapse {
+    top: 60px !important;
+  }
+  
+  .tl-navbar-collapse.show {
+    max-height: 500px !important;
+  }
+  
+  .tl-navbar-nav {
+    flex-direction: column !important;
+    padding: 10px 0 !important;
+  }
+  
+  .tl-nav-item {
+    margin: 0 !important;
+    width: 100% !important;
+    opacity: 0;
+    transform: translateX(20px);
+    transition: all 0.3s ease !important;
+  }
+  
+  .tl-navbar-collapse.show .tl-nav-item {
+    opacity: 1 !important;
+    transform: translateX(0) !important;
+  }
+  
+  /* Staggered animation for nav items */
+  .tl-navbar-collapse.show .tl-nav-item:nth-child(1) { transition-delay: 0.1s !important; }
+  .tl-navbar-collapse.show .tl-nav-item:nth-child(2) { transition-delay: 0.15s !important; }
+  .tl-navbar-collapse.show .tl-nav-item:nth-child(3) { transition-delay: 0.2s !important; }
+  .tl-navbar-collapse.show .tl-nav-item:nth-child(4) { transition-delay: 0.25s !important; }
+  .tl-navbar-collapse.show .tl-nav-item:nth-child(5) { transition-delay: 0.3s !important; }
+  .tl-navbar-collapse.show .tl-nav-item:nth-child(6) { transition-delay: 0.35s !important; }
+  .tl-navbar-collapse.show .tl-nav-item:nth-child(7) { transition-delay: 0.4s !important; }
+  
+  .tl-nav-link {
+    padding: 12px 20px !important;
+    width: 100% !important;
+  }
+  
+  .tl-nav-link::after {
+    bottom: auto !important;
+    top: 0 !important;
+    left: 0 !important;
+    height: 100% !important;
+    width: 3px !important;
+    transform: none !important;
+  }
+  
+  .tl-nav-link:hover::after,
+  .tl-nav-link.active::after {
+    width: 3px !important;
+    height: 100% !important;
+  }
+  
+  .tl-btn-logout {
+    width: 100% !important;
+    text-align: left !important;
+    padding: 12px 20px !important;
+  }
+}
+
+/* Hide navbar toggler on larger screens */
+@media (min-width: 992px) {
+  .tl-navbar-toggler {
+    display: none !important;
+  }
+}
+
+/* Show navbar toggler only on smaller screens */
+@media (max-width: 991px) {
+  .tl-navbar-toggler {
+    display: block !important;
+  }
+}
+
+/* Navbar collapse styles */
+.tl-navbar-collapse {
+  display: none;
+  transition: max-height 0.4s ease-in-out;
+}
+
+.tl-navbar-collapse.show {
+  display: block;
+  max-height: 500px;
+}
+
+/* Ensure the body and html take up the full height */
+html, body {
+  height: 100%;
+  margin: 0;
+}
+
+/* Flexbox layout for the body */
+body {
+  display: flex;
+  flex-direction: column;
+}
+
+/* Main content grows to fill available space */
+main {
+  flex-grow: 1;
+}
+
+/* Add padding to body to account for fixed navbar */
+body {
+  padding-top: 50px!important;
+}
+
+.notification-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: #dc3545;
+    color: white;
+    border-radius: 50%;
+    width: 12px;
+    height: 12px;
+    display: inline-block;
+    border: 2px solid white;
+    box-shadow: 0 0 0 2px #fff;
+    animation: pulse 1.5s infinite;
+}
+
+.notification-badge-number {
+    position: absolute;
+    top: 0px;
+    right: 2px;
+    background: #dc3545;
+    color: #fff;
+    border-radius: 50%;
+    min-width: 20px;
+    height: 20px;
+    padding: 0 6px;
+    font-size: 0.95rem;
+    font-weight: bold;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #fff;
+    z-index: 10;
+    line-height: 1;
+}
+
+@keyframes pulse {
+    0% { transform: scale(1);}
+    50% { transform: scale(1.2);}
+    100% { transform: scale(1);}
+}
