@@ -711,20 +711,38 @@ body {
 <script>
 // Search Modal Functions
 function openSearchModal() {
-  document.getElementById('searchModal').classList.add('active');
-  document.getElementById('userSearch').focus();
+  const modal = document.getElementById('searchModal');
+  const searchInput = document.getElementById('userSearch');
+  
+  if (modal && searchInput) {
+    modal.classList.add('active');
+    searchInput.focus();
+  } else {
+    console.error('Modal elements not found', {modal, searchInput});
+  }
 }
 
 function closeSearchModal() {
-  document.getElementById('searchModal').classList.remove('active');
-  document.getElementById('userSearch').value = '';
-  document.getElementById('searchResults').innerHTML = '<p style="text-align: center; color: var(--text-light); margin-top: 2rem;">Type to search for users</p>';
+  const modal = document.getElementById('searchModal');
+  const searchInput = document.getElementById('userSearch');
+  const searchResults = document.getElementById('searchResults');
+  
+  if (modal) modal.classList.remove('active');
+  if (searchInput) searchInput.value = '';
+  if (searchResults) {
+    searchResults.innerHTML = '<p style="text-align: center; color: var(--text-light); margin-top: 2rem;">Type to search for users</p>';
+  }
 }
 
-// Close modal on overlay click
-document.getElementById('searchModal').addEventListener('click', function(e) {
-  if (e.target === this) {
-    closeSearchModal();
+// Initialize modal event listeners after DOM is loaded
+document.addEventListener('DOMContentLoaded', function() {
+  const searchModal = document.getElementById('searchModal');
+  if (searchModal) {
+    searchModal.addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeSearchModal();
+      }
+    });
   }
 });
 
@@ -749,10 +767,19 @@ function filterConversations() {
 let searchTimeout;
 function searchUsers() {
   clearTimeout(searchTimeout);
-  const searchTerm = document.getElementById('userSearch').value.trim();
+  
+  const searchInput = document.getElementById('userSearch');
+  const searchResults = document.getElementById('searchResults');
+  
+  if (!searchInput || !searchResults) {
+    console.error('Search elements not found', {searchInput, searchResults});
+    return;
+  }
+  
+  const searchTerm = searchInput.value.trim();
   
   if (searchTerm.length < 2) {
-    document.getElementById('searchResults').innerHTML = '<p style="text-align: center; color: var(--text-light); margin-top: 2rem;">Type at least 2 characters to search</p>';
+    searchResults.innerHTML = '<p style="text-align: center; color: var(--text-light); margin-top: 2rem;">Type at least 2 characters to search</p>';
     return;
   }
   
