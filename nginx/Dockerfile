@@ -4,10 +4,13 @@ FROM nginx:1.25-alpine
 # Install envsubst for environment variable substitution
 RUN apk add --no-cache gettext
 
-# Remove default nginx config
-RUN rm /etc/nginx/conf.d/default.conf
+# Remove default nginx config                                                                                       │
+ RUN rm /etc/nginx/conf.d/default.conf
 
-# Copy nginx configuration template
+
+# Copy nginx configuration file
+COPY nginx.conf /etc/nginx/conf.d/nginx.conf
+COPY nginx.dev.conf /etc/nginx/conf.d/nginx.dev.conf
 COPY nginx.conf /etc/nginx/templates/nginx.conf.template
 
 # Copy startup script

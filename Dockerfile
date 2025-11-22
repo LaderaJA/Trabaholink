@@ -68,8 +68,14 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Set GDAL environment variables
+# Find the actual GDAL library path and create symlink
+RUN GDAL_LIB=$(find /usr/lib -name "libgdal.so*" | head -n 1) && \
+    if [ -n "$GDAL_LIB" ]; then \
+        ln -sf "$GDAL_LIB" /usr/lib/libgdal.so; \
+    fi
+
 ENV GDAL_LIBRARY_PATH=/usr/lib/libgdal.so \
-    GEOS_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/libgeos_c.so
+    GEOS_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/libgeos_c.so 
 
 WORKDIR /app
 
