@@ -828,28 +828,28 @@ function searchUsers() {
         // Make AJAX request to search users
         console.log('Searching for:', searchTerm);
         fetch(`/users/api/search/?q=${encodeURIComponent(searchTerm)}`, {
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    })
-    .then(response => {
-      console.log('Response status:', response.status);
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      return response.json();
-    })
-    .then(data => {
-      console.log('Search results received:', data);
-      displaySearchResults(data.users || []);
-      })
-      .catch(error => {
-        console.error('Search error:', error);
-        const resultsDiv = document.getElementById('searchResults');
-        if (resultsDiv) {
-          resultsDiv.innerHTML = '<p style="text-align: center; color: var(--danger-color); margin-top: 2rem;">Error searching users: ' + error.message + '</p>';
-        }
-      });
+          headers: {
+            'X-Requested-With': 'XMLHttpRequest'
+          }
+        })
+        .then(response => {
+          console.log('Response status:', response.status);
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+          console.log('Search results received:', data);
+          displaySearchResults(data.users || []);
+        })
+        .catch(error => {
+          console.error('Search error:', error);
+          const resultsDiv = document.getElementById('searchResults');
+          if (resultsDiv) {
+            resultsDiv.innerHTML = '<p style="text-align: center; color: var(--danger-color); margin-top: 2rem;">Error searching users: ' + error.message + '</p>';
+          }
+        });
       } catch (innerError) {
         console.error('Error in setTimeout callback:', innerError);
       }
