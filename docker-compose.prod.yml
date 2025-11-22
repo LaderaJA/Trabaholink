@@ -129,7 +129,6 @@ services:
       DOMAIN_NAME: ${DOMAIN_NAME:-localhost}
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/templates/nginx.conf.template:ro
-      - ./nginx/nginx.dev.conf:/etc/nginx/conf.d/nginx.dev.conf:ro
       - ./nginx/ssl:/etc/nginx/ssl:ro
       - static_volume:/app/staticfiles:ro
       - media_volume:/app/mediafiles:ro
