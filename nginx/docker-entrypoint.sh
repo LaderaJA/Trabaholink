@@ -6,8 +6,12 @@ echo "Starting Nginx entrypoint..."
 # Set default values for environment variables
 export DOMAIN_NAME="${DOMAIN_NAME:-localhost}"
 
-# Remove default.conf if it exists to avoid conflicts
-rm -f /etc/nginx/conf.d/default.conf
+# Remove default.conf if it exists (file or directory) to avoid conflicts
+if [ -d /etc/nginx/conf.d/default.conf ]; then
+    rmdir /etc/nginx/conf.d/default.conf
+elif [ -f /etc/nginx/conf.d/default.conf ]; then
+    rm -f /etc/nginx/conf.d/default.conf
+fi
 
 # Use development config if SSL certificates don't exist
 if [ ! -f /etc/nginx/ssl/cert.pem ] || [ ! -f /etc/nginx/ssl/key.pem ]; then
