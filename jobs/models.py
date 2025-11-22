@@ -49,7 +49,7 @@ class Job(models.Model):
     required_skills = models.TextField(blank=True)
     payment_method = models.CharField(
         max_length=50,
-        choices=[("Cash", "Cash"), ("GCash", "GCash"), ("Bank Transfer", "Bank Transfer")],
+        choices=[("Cash", "Cash")],
         default="Cash"
     )
     payment_schedule = models.CharField(max_length=100, blank=True)
