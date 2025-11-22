@@ -779,20 +779,33 @@ function filterConversations() {
 // Search Users (AJAX)
 let searchTimeout;
 function searchUsers() {
-  clearTimeout(searchTimeout);
-  
-  const searchInput = document.getElementById('userSearch');
-  const searchResults = document.getElementById('searchResults');
-  
-  if (!searchInput || !searchResults) {
-    console.error('Search elements not found', {searchInput, searchResults});
-    return;
-  }
-  
-  const searchTerm = searchInput.value.trim();
-  
-  if (searchTerm.length < 2) {
-    searchResults.innerHTML = '<p style="text-align: center; color: var(--text-light); margin-top: 2rem;">Type at least 2 characters to search</p>';
+  try {
+    clearTimeout(searchTimeout);
+    
+    const searchInput = document.getElementById('userSearch');
+    const searchResults = document.getElementById('searchResults');
+    
+    console.log('searchUsers called', {searchInput, searchResults});
+    
+    if (!searchInput || !searchResults) {
+      console.error('Search elements not found', {searchInput, searchResults});
+      return;
+    }
+    
+    if (!searchInput.value) {
+      console.error('searchInput.value is undefined');
+      return;
+    }
+    
+    const searchTerm = searchInput.value.trim();
+    console.log('Search term:', searchTerm, 'Length:', searchTerm.length);
+    
+    if (searchTerm.length < 2) {
+      searchResults.innerHTML = '<p style="text-align: center; color: var(--text-light); margin-top: 2rem;">Type at least 2 characters to search</p>';
+      return;
+    }
+  } catch (error) {
+    console.error('Error in searchUsers:', error);
     return;
   }
   
