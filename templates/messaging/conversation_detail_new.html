@@ -44,15 +44,23 @@
 /* Sidebar for conversation list */
 .conversations-sidebar {
   display: none;
-  width: 320px;
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 300px;
   background: var(--white);
   border-right: 1px solid var(--gray-200);
   flex-shrink: 0;
   overflow-y: auto;
+  z-index: 100;
+  transform: translateX(-100%);
+  transition: transform 0.3s ease;
 }
 
 .conversations-sidebar.show {
   display: block;
+  transform: translateX(0);
 }
 
 .sidebar-header {
@@ -485,10 +493,17 @@
 @media (min-width: 768px) {
   .conversations-sidebar {
     display: block;
+    position: relative;
+    transform: translateX(0);
+    width: 320px;
   }
   
   .chat-container {
     flex-direction: row;
+  }
+  
+  .chat-main {
+    flex: 1;
   }
   
   .back-btn {
@@ -662,15 +677,31 @@ function toggleSidebar() {
       <li class="conversation-item {% if conv.id == conversation.id %}active{% endif %}">
         <a href="{% url 'messaging:conversation_detail' conv.id %}" style="display: flex; gap: 0.75rem; align-items: center; text-decoration: none; color: inherit; width: 100%;">
           <div class="conv-avatar">
-            {{ conv.get_other_user.first_name|slice:":1"|upper }}
+            {% if conv.user1.id == request.user.id %}
+              {{ conv.user2.first_name|slice:":1"|upper }}
+            {% else %}
+              {{ conv.user1.first_name|slice:":1"|upper }}
+            {% endif %}
           </div>
           <div class="conv-info">
-            <div class="conv-name">{{ conv.get_other_user.get_full_name }}</div>
-            <div class="conv-preview">{{ conv.latest_message.content|truncatewords:5|default:"No messages yet" }}</div>
+            <div class="conv-name">
+              {% if conv.user1.id == request.user.id %}
+                {{ conv.user2.get_full_name }}
+              {% else %}
+                {{ conv.user1.get_full_name }}
+              {% endif %}
+            </div>
+            <div class="conv-preview">
+              {% if conv.last_message_content %}
+                {{ conv.last_message_content|truncatewords:5|censor_text }}
+              {% else %}
+                No messages yet
+              {% endif %}
+            </div>
           </div>
           <div class="conv-time">
-            {% if conv.latest_message %}
-              {{ conv.latest_message.timestamp|timesince|truncatewords:1 }}
+            {% if conv.last_message_created_at %}
+              {{ conv.last_message_created_at|timesince|truncatewords:1 }} ago
             {% endif %}
           </div>
         </a>
