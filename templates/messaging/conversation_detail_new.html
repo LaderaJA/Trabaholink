@@ -379,24 +379,132 @@
   display: block;
 }
 
-/* Desktop Styles */
+/* Tablet Styles */
 @media (min-width: 768px) {
-  .chat-container {
-    flex-direction: row;
-  }
-  
   .back-btn {
     display: none;
   }
   
+  .chat-header {
+    padding: 1.25rem 2rem;
+  }
+  
+  .user-avatar {
+    width: 48px;
+    height: 48px;
+    font-size: 1.25rem;
+  }
+  
+  .user-details h2 {
+    font-size: 1.125rem;
+  }
+  
+  .messages-area {
+    padding: 2rem;
+  }
+  
   .message-bubble {
     max-width: 60%;
+    font-size: 1rem;
+    padding: 0.75rem 1rem;
+  }
+  
+  .input-area {
+    padding: 1rem 2rem;
+  }
+  
+  .input-wrapper {
+    max-width: none;
+  }
+  
+  .send-btn {
+    width: 48px;
+    height: 48px;
+    font-size: 1.375rem;
+  }
+  
+  .emoji-picker {
+    max-width: 420px;
+    max-height: 360px;
+    bottom: 160px;
+  }
+  
+  .emoji-grid {
+    grid-template-columns: repeat(10, 1fr);
   }
 }
 
+/* Desktop Styles */
 @media (min-width: 1024px) {
+  .chat-container {
+    max-width: 1400px;
+    margin: 0 auto;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+  
+  .chat-header {
+    padding: 1.5rem 3rem;
+    border-radius: 0;
+  }
+  
+  .messages-area {
+    padding: 2.5rem 3rem;
+  }
+  
   .message-bubble {
     max-width: 50%;
+    font-size: 1rem;
+    padding: 0.875rem 1.125rem;
+  }
+  
+  .input-area {
+    padding: 1.25rem 3rem;
+  }
+  
+  .input-wrapper {
+    padding: 0.625rem 1rem;
+    min-height: 48px;
+  }
+  
+  .message-input {
+    font-size: 1rem;
+  }
+  
+  .emoji-picker {
+    max-width: 480px;
+    max-height: 400px;
+    right: 3rem;
+    left: auto;
+  }
+  
+  .emoji-grid {
+    grid-template-columns: repeat(12, 1fr);
+    gap: 0.875rem;
+  }
+  
+  .emoji-item {
+    font-size: 2rem;
+    padding: 0.625rem;
+  }
+}
+
+/* Large Desktop */
+@media (min-width: 1440px) {
+  .chat-container {
+    max-width: 1600px;
+  }
+  
+  .message-bubble {
+    max-width: 45%;
+  }
+  
+  .messages-area {
+    padding: 3rem 4rem;
+  }
+  
+  .input-area {
+    padding: 1.5rem 4rem;
   }
 }
 </style>
