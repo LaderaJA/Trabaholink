@@ -593,8 +593,16 @@
 
 /* Desktop Styles */
 @media (min-width: 1024px) {
+  .conversations-sidebar {
+    width: 350px;
+  }
+  
+  .chat-main {
+    width: calc(100% - 350px);
+  }
+  
   .chat-container {
-    max-width: 1400px;
+    max-width: 1600px;
     margin: 0 auto;
     left: 50%;
     transform: translateX(-50%);
@@ -648,8 +656,16 @@
 
 /* Large Desktop */
 @media (min-width: 1440px) {
+  .conversations-sidebar {
+    width: 380px;
+  }
+  
+  .chat-main {
+    width: calc(100% - 380px);
+  }
+  
   .chat-container {
-    max-width: 1600px;
+    max-width: 1800px;
   }
   
   .message-bubble {
@@ -662,6 +678,33 @@
   
   .input-area {
     padding: 1.5rem 4rem;
+  }
+}
+
+/* Ultra Wide Desktop */
+@media (min-width: 1920px) {
+  .conversations-sidebar {
+    width: 420px;
+  }
+  
+  .chat-main {
+    width: calc(100% - 420px);
+  }
+  
+  .chat-container {
+    max-width: 2000px;
+  }
+  
+  .message-bubble {
+    max-width: 40%;
+  }
+  
+  .messages-area {
+    padding: 3rem 5rem;
+  }
+  
+  .input-area {
+    padding: 1.5rem 5rem;
   }
 }
 </style>
