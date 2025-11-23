@@ -137,6 +137,17 @@ body {
   display: flex;
   gap: 0.5rem;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.filter-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.filter-tabs::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
 }
 
 .filter-tab {
@@ -152,6 +163,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .filter-tab:hover {
@@ -433,6 +445,7 @@ body {
   .header-content {
     flex-direction: column;
     align-items: flex-start;
+    gap: 1rem;
   }
   
   .header-title h1 {
@@ -441,24 +454,38 @@ body {
   
   .header-actions {
     width: 100%;
+    flex-wrap: wrap;
   }
   
   .btn-header {
-    flex: 1;
+    flex: 1 1 auto;
     justify-content: center;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
   }
   
   .filter-tabs {
     padding: 0.35rem;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    border-radius: 0;
+    width: calc(100% + 2rem);
   }
   
   .filter-tab {
-    padding: 0.6rem 1rem;
-    font-size: 0.9rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  .filter-tab .count {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.4rem;
   }
   
   .notification-item-modern {
     padding: 1rem;
+    flex-direction: row;
+    gap: 0.75rem;
   }
   
   .notification-icon-modern {
