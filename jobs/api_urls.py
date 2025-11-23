@@ -3,7 +3,8 @@ from rest_framework.routers import DefaultRouter
 from .api_views import (
     JobViewSet, JobApplicationViewSet, JobOfferViewSet,
     ContractViewSet, ProgressLogViewSet, DashboardViewSet,
-    JobCategoryViewSet, JobProgressViewSet, FeedbackViewSet
+    JobCategoryViewSet, JobProgressViewSet, FeedbackViewSet,
+    schedule_events_api
 )
 
 router = DefaultRouter()
@@ -21,4 +22,5 @@ app_name = 'jobs_api'
 
 urlpatterns = [
     path('', include(router.urls)),
+    path('schedule/events/', schedule_events_api, name='schedule_events'),
 ]

@@ -940,3 +940,47 @@ class FeedbackViewSet(viewsets.ModelViewSet):
             notif_type="feedback",
             object_id=feedback.pk
         )
+
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.utils.dateparse import parse_datetime
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def schedule_events_api(request):
+    """
+    API endpoint to get worker's schedule events for calendar.
+    Returns contracts in FullCalendar format.
+    """
+    user = request.user
+    
+    # Get date range from query parameters
+    start_date = request.GET.get('start')
+    end_date = request.GET.get('end')
+    
+    # Parse dates
+    start = parse_datetime(start_date) if start_date else None
+    end = parse_datetime(end_date) if end_date else None
+    
+    # Get worker's contracts
+    contracts = Contract.objects.filter(
+        worker=user,
+        status__in=['Finalized', 'In Progress', 'Awaiting Review', 'Completed']
+    ).select_related('job', 'client')
+    
+    # Filter by date range if provided
+    if start:
+        contracts = contracts.filter(end_date__gte=start.date())
+    if end:
+        contracts = contracts.filter(start_date__lte=end.date())
+    
+    # Convert to calendar events
+    events = []
+    for contract in contracts:
+        event_data = contract.get_calendar_event_data()
+        if event_data:
+            events.append(event_data)
+    
+    return Response(events)
