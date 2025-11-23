@@ -95,12 +95,18 @@ def conversation_detail(request, conversation_id):
     ).order_by('-last_message_created_at', '-updated_at')
 
     receiver_id = conversation.user2.id if request.user == conversation.user1 else conversation.user1.id
+    
+    # Get banned words for frontend censoring
+    from admin_dashboard.moderation_utils import get_banned_words
+    banned_words = get_banned_words()
+    banned_words_json = json.dumps(banned_words)
 
-    return render(request, "messaging/conversation_detail.html", {
+    return render(request, "messaging/conversation_detail_new.html", {
         "conversation": conversation,
-        "chat_messages": messages,
+        "messages": messages,
         "receiver_id": receiver_id,
-        "conversations": conversations,  
+        "conversations": conversations,
+        "banned_words_json": banned_words_json,
     })
 
 
