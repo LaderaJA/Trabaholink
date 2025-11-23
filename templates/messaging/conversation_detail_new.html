@@ -660,7 +660,7 @@ function toggleSidebar() {
     <ul class="conversation-list">
       {% for conv in conversations %}
       <li class="conversation-item {% if conv.id == conversation.id %}active{% endif %}">
-        <a href="{% url 'conversation_detail' conv.id %}" style="display: flex; gap: 0.75rem; align-items: center; text-decoration: none; color: inherit; width: 100%;">
+        <a href="{% url 'messaging:conversation_detail' conv.id %}" style="display: flex; gap: 0.75rem; align-items: center; text-decoration: none; color: inherit; width: 100%;">
           <div class="conv-avatar">
             {{ conv.get_other_user.first_name|slice:":1"|upper }}
           </div>
