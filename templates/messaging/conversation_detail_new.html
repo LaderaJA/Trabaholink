@@ -403,6 +403,14 @@
 {% endblock %}
 
 {% block content %}
+<style>
+/* Hide message toasts on conversation detail page */
+.toast-notification.alert-info,
+.toast-notification.alert-success {
+  display: none !important;
+}
+</style>
+
 <div class="chat-container">
   <!-- Chat Header -->
   <div class="chat-header">
