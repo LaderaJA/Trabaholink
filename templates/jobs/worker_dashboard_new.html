@@ -229,40 +229,206 @@
         {% include 'jobs/components/worker_calendar.html' %}
         
         <!-- Active Contracts List -->
-        <div style="background: white; padding: 2rem; border-radius: 12px; margin-top: 2rem;">
-            <h2 style="margin-bottom: 1.5rem;">Active Jobs</h2>
+        <div class="active-jobs-container">
+            <h2 class="active-jobs-title">Active Jobs</h2>
             {% if active_contracts %}
-            <div style="display: grid; gap: 1rem;">
+            <div class="active-jobs-grid">
                 {% for contract in active_contracts %}
-                <div style="padding: 1rem; border: 1px solid #e5e7eb; border-radius: 8px;">
-                    <h4>{{ contract.job_title|default:contract.job.title }}</h4>
-                    <p style="color: #6b7280; margin: 0.5rem 0;">
-                        Employer: {{ contract.client.get_full_name|default:contract.client.username }}
+                <div class="active-job-card">
+                    <h4 class="job-card-title">{{ contract.job_title|default:contract.job.title }}</h4>
+                    <p class="job-card-client">
+                        <i class="bi bi-person-circle"></i> {{ contract.client.get_full_name|default:contract.client.username }}
                     </p>
                     {% if contract.start_date and contract.end_date %}
-                    <p style="color: #6b7280; margin: 0.5rem 0; font-size: 0.875rem;">
-                        <i class="bi bi-calendar"></i> {{ contract.start_date }} to {{ contract.end_date }}
+                    <div class="job-card-schedule">
+                        <div class="schedule-item">
+                            <i class="bi bi-calendar"></i>
+                            <span>{{ contract.start_date|date:"M d" }} - {{ contract.end_date|date:"M d, Y" }}</span>
+                        </div>
                         {% if contract.start_time and contract.end_time %}
-                        <br><i class="bi bi-clock"></i> {{ contract.start_time|time:"g:i A" }} - {{ contract.end_time|time:"g:i A" }}
+                        <div class="schedule-item">
+                            <i class="bi bi-clock"></i>
+                            <span>{{ contract.start_time|time:"g:i A" }} - {{ contract.end_time|time:"g:i A" }}</span>
+                        </div>
                         {% endif %}
-                    </p>
+                    </div>
                     {% endif %}
-                    <div style="margin-top: 0.5rem;">
+                    <div class="job-card-status">
                         {% include 'jobs/components/status_badge.html' with status=contract.status %}
                     </div>
-                    <a href="{% url 'jobs:job_tracking' contract.pk %}" 
-                       style="display: inline-block; margin-top: 0.5rem; padding: 0.5rem 1rem; background: #10b981; color: white; border-radius: 6px; text-decoration: none;">
+                    <a href="{% url 'jobs:job_tracking' contract.pk %}" class="job-card-btn">
                         <i class="bi bi-graph-up"></i> Track Progress
                     </a>
                 </div>
                 {% endfor %}
             </div>
             {% else %}
-            <p style="text-align: center; color: #6b7280; padding: 2rem;">
+            <p class="no-jobs-message">
                 No active jobs to track.
             </p>
             {% endif %}
         </div>
+        
+        <style>
+        /* Active Jobs Container */
+        .active-jobs-container {
+            background: white;
+            padding: 2rem;
+            border-radius: 12px;
+            margin-top: 2rem;
+        }
+        
+        .active-jobs-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #1e293b;
+            margin-bottom: 1.5rem;
+        }
+        
+        .active-jobs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 1rem;
+        }
+        
+        .active-job-card {
+            padding: 1.5rem;
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+        
+        .active-job-card:hover {
+            border-color: #3b82f6;
+            box-shadow: 0 4px 6px rgba(59, 130, 246, 0.1);
+        }
+        
+        .job-card-title {
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1e293b;
+            margin: 0 0 0.75rem 0;
+        }
+        
+        .job-card-client {
+            color: #64748b;
+            font-size: 0.875rem;
+            margin: 0 0 1rem 0;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        .job-card-schedule {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+        
+        .schedule-item {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: #64748b;
+            font-size: 0.875rem;
+        }
+        
+        .schedule-item i {
+            color: #3b82f6;
+        }
+        
+        .job-card-status {
+            margin-bottom: 1rem;
+        }
+        
+        .job-card-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.75rem 1.25rem;
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+            border-radius: 8px;
+            text-decoration: none;
+            font-weight: 600;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+            width: 100%;
+            justify-content: center;
+        }
+        
+        .job-card-btn:hover {
+            background: linear-gradient(135deg, #059669, #047857);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 6px rgba(16, 185, 129, 0.2);
+        }
+        
+        .no-jobs-message {
+            text-align: center;
+            color: #64748b;
+            padding: 3rem;
+            font-size: 1rem;
+        }
+        
+        /* Mobile Responsive */
+        @media (max-width: 768px) {
+            .active-jobs-container {
+                padding: 1rem;
+                margin-top: 1rem;
+            }
+            
+            .active-jobs-title {
+                font-size: 1.25rem;
+                margin-bottom: 1rem;
+            }
+            
+            .active-jobs-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+            
+            .active-job-card {
+                padding: 1rem;
+            }
+            
+            .job-card-title {
+                font-size: 1rem;
+            }
+            
+            .job-card-client,
+            .schedule-item {
+                font-size: 0.8rem;
+            }
+            
+            .job-card-btn {
+                padding: 0.625rem 1rem;
+                font-size: 0.8rem;
+            }
+        }
+        
+        @media (max-width: 480px) {
+            .active-jobs-container {
+                padding: 0.75rem;
+            }
+            
+            .active-jobs-title {
+                font-size: 1.1rem;
+            }
+            
+            .active-job-card {
+                padding: 0.75rem;
+            }
+            
+            .job-card-title {
+                font-size: 0.95rem;
+            }
+            
+            .job-card-schedule {
+                gap: 0.375rem;
+            }
+        }
+        </style>
     </div>
 </div>
 
