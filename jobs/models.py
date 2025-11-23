@@ -284,8 +284,127 @@ class JobOffer(models.Model):
     def __str__(self):
         return f"Offer for {self.worker.username} - {self.job.title}"
     
+    def check_worker_availability(self):
+        """
+        Check if worker is available for this offer's schedule.
+        Returns a dict with 'available' (bool), 'conflicts' (list), and 'message' (str).
+        """
+        from datetime import time as dt_time
+        import re
+        
+        # Parse work_schedule for time information
+        start_time = None
+        end_time = None
+        
+        if self.work_schedule:
+            time_pattern = r'(\d{1,2})(?::(\d{2}))?\s*(AM|PM|am|pm)?\s*[-–]\s*(\d{1,2})(?::(\d{2}))?\s*(AM|PM|am|pm)?'
+            match = re.search(time_pattern, self.work_schedule)
+            
+            if match:
+                start_hour = int(match.group(1))
+                start_min = int(match.group(2)) if match.group(2) else 0
+                start_period = match.group(3).upper() if match.group(3) else None
+                
+                end_hour = int(match.group(4))
+                end_min = int(match.group(5)) if match.group(5) else 0
+                end_period = match.group(6).upper() if match.group(6) else None
+                
+                # Convert to 24-hour format
+                if start_period == 'PM' and start_hour != 12:
+                    start_hour += 12
+                elif start_period == 'AM' and start_hour == 12:
+                    start_hour = 0
+                    
+                if end_period == 'PM' and end_hour != 12:
+                    end_hour += 12
+                elif end_period == 'AM' and end_hour == 12:
+                    end_hour = 0
+                
+                try:
+                    start_time = dt_time(start_hour, start_min)
+                    end_time = dt_time(end_hour, end_min)
+                except ValueError:
+                    pass
+        
+        # If we don't have time info, assume available (will be set during negotiation)
+        if not start_time or not end_time or not self.proposed_start_date:
+            return {
+                'available': True,
+                'conflicts': [],
+                'message': 'Schedule details will be finalized during negotiation.'
+            }
+        
+        # Use proposed_end_date or start_date as fallback
+        end_date = self.proposed_end_date or self.proposed_start_date
+        
+        # Check availability
+        result = WorkerAvailability.check_availability_for_contract(
+            worker=self.worker,
+            start_date=self.proposed_start_date,
+            end_date=end_date,
+            start_time=start_time,
+            end_time=end_time
+        )
+        
+        if result['available']:
+            return {
+                'available': True,
+                'conflicts': [],
+                'message': 'Worker is available for this schedule.'
+            }
+        else:
+            conflict_msgs = []
+            for conflict in result['conflicts'][:5]:
+                conflict_msgs.append(f"{conflict['date'].strftime('%a, %b %d')}: {conflict['reason']}")
+            
+            return {
+                'available': False,
+                'conflicts': result['conflicts'],
+                'message': 'Worker has schedule conflicts:\n' + '\n'.join(conflict_msgs)
+            }
+    
     def accept_offer(self):
         """Accept the offer and create a dedicated contract for this application"""
+        from datetime import time as dt_time
+        import re
+        
+        # Parse work_schedule for time information (e.g., "9AM-5PM" or "09:00-17:00")
+        start_time = None
+        end_time = None
+        
+        if self.work_schedule:
+            # Try to extract time from schedule string
+            # Pattern for formats like "9AM-5PM", "9:00AM-5:00PM", "09:00-17:00"
+            time_pattern = r'(\d{1,2})(?::(\d{2}))?\s*(AM|PM|am|pm)?\s*[-–]\s*(\d{1,2})(?::(\d{2}))?\s*(AM|PM|am|pm)?'
+            match = re.search(time_pattern, self.work_schedule)
+            
+            if match:
+                start_hour = int(match.group(1))
+                start_min = int(match.group(2)) if match.group(2) else 0
+                start_period = match.group(3).upper() if match.group(3) else None
+                
+                end_hour = int(match.group(4))
+                end_min = int(match.group(5)) if match.group(5) else 0
+                end_period = match.group(6).upper() if match.group(6) else None
+                
+                # Convert to 24-hour format if AM/PM specified
+                if start_period == 'PM' and start_hour != 12:
+                    start_hour += 12
+                elif start_period == 'AM' and start_hour == 12:
+                    start_hour = 0
+                    
+                if end_period == 'PM' and end_hour != 12:
+                    end_hour += 12
+                elif end_period == 'AM' and end_hour == 12:
+                    end_hour = 0
+                
+                try:
+                    start_time = dt_time(start_hour, start_min)
+                    end_time = dt_time(end_hour, end_min)
+                except ValueError:
+                    # Invalid time values, keep as None
+                    pass
+        
         self.status = "Accepted"
         self.responded_at = timezone.now()
         self.save(update_fields=["status", "responded_at", "updated_at"])
@@ -306,9 +425,11 @@ class JobOffer(models.Model):
             rate_type="fixed",
             payment_schedule=self.job.payment_schedule or "End of Project",
             duration=self.job.duration or "To be determined",
-            schedule=self.job.schedule or "To be determined",
+            schedule=self.work_schedule or self.job.schedule or "To be determined",
             start_date=self.proposed_start_date,
             end_date=self.proposed_end_date,
+            start_time=start_time,
+            end_time=end_time,
             terms=self.terms_and_conditions or "",
         )
 

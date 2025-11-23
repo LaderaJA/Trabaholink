@@ -1,5 +1,5 @@
 from django import forms
-from .models import Job, JobApplication, Contract, ProgressLog, JobOffer
+from .models import Job, JobApplication, Contract, ProgressLog, JobOffer, WorkerAvailability
 from django.forms.widgets import ClearableFileInput
 
 class MultipleFileInput(ClearableFileInput):
@@ -153,6 +153,50 @@ class ContractForm(forms.ModelForm):
                 'end_time': 'End time must be after start time.'
             })
         
+        # Check worker availability if all date/time fields are provided
+        if start_date and end_date and start_time and end_time:
+            # Get worker from instance (contract being edited)
+            if self.instance and self.instance.worker:
+                worker = self.instance.worker
+                
+                # Check for schedule conflicts with existing contracts
+                conflicts = self.instance.check_time_conflict()
+                if conflicts:
+                    conflict_details = []
+                    for conflict in conflicts[:3]:  # Show first 3 conflicts
+                        conflict_details.append(
+                            f"• {conflict['job_title']} ({conflict['dates']}, {conflict['times']})"
+                        )
+                    
+                    error_msg = "Schedule conflict detected with existing contracts:\n" + "\n".join(conflict_details)
+                    if len(conflicts) > 3:
+                        error_msg += f"\n...and {len(conflicts) - 3} more conflict(s)"
+                    
+                    raise forms.ValidationError(error_msg)
+                
+                # Check worker's availability settings
+                availability_check = WorkerAvailability.check_availability_for_contract(
+                    worker=worker,
+                    start_date=start_date,
+                    end_date=end_date,
+                    start_time=start_time,
+                    end_time=end_time
+                )
+                
+                if not availability_check['available']:
+                    conflicts = availability_check['conflicts']
+                    conflict_details = []
+                    for conflict in conflicts[:5]:  # Show first 5 days
+                        conflict_details.append(
+                            f"• {conflict['date'].strftime('%a, %b %d')}: {conflict['reason']}"
+                        )
+                    
+                    error_msg = "Worker is not available for the proposed schedule:\n" + "\n".join(conflict_details)
+                    if len(conflicts) > 5:
+                        error_msg += f"\n...and {len(conflicts) - 5} more day(s) with conflicts"
+                    
+                    raise forms.ValidationError(error_msg)
+        
         return cleaned_data
 
 class ProgressLogForm(forms.ModelForm):
@@ -251,6 +295,51 @@ class ContractDraftForm(forms.ModelForm):
             raise forms.ValidationError({
                 'payment_terms': 'Payment terms must be at least 20 characters. Please provide more details.'
             })
+        
+        # Check worker availability if all date/time fields are provided
+        if start_date and end_date and start_time and end_time:
+            # Get worker from instance (contract being drafted)
+            if self.instance and self.instance.worker:
+                worker = self.instance.worker
+                
+                # Check for schedule conflicts with existing contracts
+                conflicts = self.instance.check_time_conflict()
+                if conflicts:
+                    conflict_details = []
+                    for conflict in conflicts[:3]:  # Show first 3 conflicts
+                        conflict_details.append(
+                            f"• {conflict['job_title']} ({conflict['dates']}, {conflict['times']})"
+                        )
+                    
+                    error_msg = "⚠️ Schedule conflict with existing contracts:\n" + "\n".join(conflict_details)
+                    if len(conflicts) > 3:
+                        error_msg += f"\n...and {len(conflicts) - 3} more conflict(s)"
+                    
+                    raise forms.ValidationError(error_msg)
+                
+                # Check worker's availability settings
+                availability_check = WorkerAvailability.check_availability_for_contract(
+                    worker=worker,
+                    start_date=start_date,
+                    end_date=end_date,
+                    start_time=start_time,
+                    end_time=end_time
+                )
+                
+                if not availability_check['available']:
+                    conflicts = availability_check['conflicts']
+                    conflict_details = []
+                    for conflict in conflicts[:5]:  # Show first 5 days
+                        conflict_details.append(
+                            f"• {conflict['date'].strftime('%a, %b %d')}: {conflict['reason']}"
+                        )
+                    
+                    error_msg = "⚠️ Worker is not available for the proposed schedule:\n" + "\n".join(conflict_details)
+                    if len(conflicts) > 5:
+                        error_msg += f"\n...and {len(conflicts) - 5} more day(s) with conflicts"
+                    error_msg += "\n\n💡 Tip: Adjust the schedule or contact the worker to update their availability."
+                    
+                    raise forms.ValidationError(error_msg)
         
         return cleaned_data
 
