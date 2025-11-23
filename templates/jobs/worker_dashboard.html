@@ -1183,7 +1183,7 @@ document.addEventListener('DOMContentLoaded', function() {
         eventDisplay: 'block',    // Display as blocks spanning full duration
         events: function(info, successCallback, failureCallback) {
             console.log('Fetching events from:', info.startStr, 'to:', info.endStr);
-            const url = `/api/schedule/events/?start=${info.startStr}&end=${info.endStr}`;
+            const url = `/api/jobs/schedule/events/?start=${info.startStr}&end=${info.endStr}`;
             console.log('API URL:', url);
             
             fetch(url)
