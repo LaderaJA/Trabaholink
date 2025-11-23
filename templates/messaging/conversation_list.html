@@ -737,7 +737,8 @@ function openSearchModal() {
 function closeSearchModal() {
   document.getElementById('searchModal').classList.remove('active');
   document.getElementById('userSearch').value = '';
-  document.getElementById('searchResults').innerHTML = '<p style="text-align: center; color: var(--text-light); margin-top: 2rem;">Type to search for users</p>';
+  document.getElementById('searchResults').innerHTML = '';
+  document.getElementById('searchResults').style.display = 'none';
 }
 
 // Close modal on overlay click
@@ -771,7 +772,7 @@ function searchUsers() {
   const searchTerm = document.getElementById('userSearch').value.trim();
   
   if (searchTerm.length < 2) {
-    document.getElementById('searchResults').innerHTML = '<p style="text-align: center; color: var(--text-light); margin-top: 2rem;">Type at least 2 characters to search</p>';
+    document.getElementById('searchResults').style.display = 'none';
     return;
   }
   
