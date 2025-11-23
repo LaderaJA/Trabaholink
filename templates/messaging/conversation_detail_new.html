@@ -595,6 +595,11 @@
 
 /* Desktop Styles */
 @media (min-width: 1024px) {
+  body {
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+  
   .conversations-sidebar {
     width: 320px;
     flex-shrink: 0;
@@ -611,6 +616,7 @@
     margin: 0 auto;
     left: 50%;
     transform: translateX(-50%);
+    width: 100%;
   }
   
   .chat-header {
@@ -740,6 +746,20 @@
 /* Hide footer on this page */
 footer {
   display: none !important;
+}
+
+/* Override body padding from base.html */
+body {
+  padding-top: 85px !important;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+/* Override any container padding/margins */
+.container {
+  max-width: 100% !important;
+  padding: 0 !important;
+  margin: 0 !important;
 }
 </style>
 
