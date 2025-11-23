@@ -610,15 +610,31 @@ function addMessageToUI(message, isSent) {
   const messageBubble = document.createElement('div');
   messageBubble.className = 'message-bubble';
   
-  // Apply censoring immediately
-  const censoredContent = censorText(message.content);
-  messageBubble.textContent = censoredContent;
+  // Add text content if exists
+  if (message.content) {
+    const censoredContent = censorText(message.content);
+    const textNode = document.createTextNode(censoredContent);
+    messageBubble.appendChild(textNode);
+  }
   
+  // Add image if exists
   if (message.image) {
     const img = document.createElement('img');
     img.src = message.image;
     img.className = 'message-image';
+    img.alt = 'Shared image';
     messageBubble.appendChild(img);
+  }
+  
+  // Add file if exists
+  if (message.file) {
+    const fileDiv = document.createElement('div');
+    fileDiv.className = 'message-file';
+    fileDiv.innerHTML = `
+      <i class="bi bi-file-earmark"></i>
+      <span>${message.file_name || 'File attachment'}</span>
+    `;
+    messageBubble.appendChild(fileDiv);
   }
   
   const timeDiv = document.createElement('div');
@@ -645,18 +661,24 @@ messageForm.addEventListener('submit', async function(e) {
   
   const formData = new FormData();
   formData.append('content', content);
+  
+  let filePreviewUrl = null;
+  let fileName = null;
+  
   if (selectedFile) {
     formData.append('file', selectedFile);
+    fileName = selectedFile.name;
+    
+    // Create preview URL for images
+    if (selectedFile.type.startsWith('image/')) {
+      filePreviewUrl = URL.createObjectURL(selectedFile);
+    }
   }
   
-  // Add to UI immediately with censoring
-  if (content) {
-    addMessageToUI({ content: content }, true);
-  }
-  
-  // Clear input
+  // Clear input immediately
   messageInput.value = '';
   messageInput.style.height = 'auto';
+  const tempFile = selectedFile;
   removeFile();
   
   try {
@@ -675,9 +697,26 @@ messageForm.addEventListener('submit', async function(e) {
     const data = await response.json();
     console.log('Message sent:', data);
     
+    // Add message to UI after successful send
+    const messageData = {
+      content: content,
+      image: filePreviewUrl,
+      file: tempFile && !tempFile.type.startsWith('image/') ? true : false,
+      file_name: fileName
+    };
+    
+    addMessageToUI(messageData, true);
+    
+    // Clean up preview URL
+    if (filePreviewUrl) {
+      setTimeout(() => URL.revokeObjectURL(filePreviewUrl), 1000);
+    }
+    
   } catch (error) {
     console.error('Error sending message:', error);
     alert('Failed to send message. Please try again.');
+    // Restore the message if it failed
+    messageInput.value = content;
   }
 });
 
