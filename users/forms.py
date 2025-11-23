@@ -317,7 +317,6 @@ class VerificationStep3Form(forms.Form):
     selfie_image = forms.ImageField(
         widget=forms.FileInput(attrs={
             'class': 'form-control',
-            'accept': 'image/*',
-            'capture': 'user'
+            'accept': 'image/*'
         })
     )
