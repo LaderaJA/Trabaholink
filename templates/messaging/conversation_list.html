@@ -789,7 +789,7 @@ function searchUsers() {
 function displaySearchResults(users) {
   const resultsContainer = document.getElementById('searchResults');
   
-  if (users.length === 0) {
+  if (!users || users.length === 0) {
     resultsContainer.innerHTML = '<p style="text-align: center; color: var(--text-light); margin-top: 2rem;">No users found</p>';
     return;
   }
@@ -797,11 +797,12 @@ function displaySearchResults(users) {
   resultsContainer.innerHTML = users.map(user => `
     <div class="user-result" onclick="startConversation('${user.username}')">
       <div class="user-result-avatar">
-        ${user.username.charAt(0).toUpperCase()}
+        ${(user.username || 'U').charAt(0).toUpperCase()}
       </div>
       <div class="user-result-info">
         <h4 class="user-result-name">${user.full_name || user.username}</h4>
         <p class="user-result-username">@${user.username}</p>
+        ${user.role ? `<span style="font-size: 0.75rem; color: var(--text-light);">${user.role}</span>` : ''}
       </div>
       <button class="btn-start-chat">
         <i class="bi bi-chat"></i>
@@ -809,6 +810,8 @@ function displaySearchResults(users) {
       </button>
     </div>
   `).join('');
+  
+  console.log('Displayed', users.length, 'users');
 }
 
 function startConversation(username) {
