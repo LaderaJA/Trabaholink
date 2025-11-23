@@ -38,6 +38,108 @@
   display: flex;
   flex-direction: column;
   background: var(--gray-50);
+  z-index: 10;
+}
+
+/* Sidebar for conversation list */
+.conversations-sidebar {
+  display: none;
+  width: 320px;
+  background: var(--white);
+  border-right: 1px solid var(--gray-200);
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+.conversations-sidebar.show {
+  display: block;
+}
+
+.sidebar-header {
+  padding: 1rem;
+  border-bottom: 1px solid var(--gray-200);
+  background: linear-gradient(135deg, var(--royal-blue) 0%, var(--royal-blue-dark) 100%);
+  color: var(--white);
+}
+
+.sidebar-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  margin: 0;
+}
+
+.conversation-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.conversation-item {
+  padding: 1rem;
+  border-bottom: 1px solid var(--gray-100);
+  cursor: pointer;
+  transition: background 0.2s;
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.conversation-item:hover {
+  background: var(--gray-50);
+}
+
+.conversation-item.active {
+  background: linear-gradient(to right, var(--royal-blue-light), transparent);
+  border-left: 4px solid var(--gold);
+}
+
+.conv-avatar {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: var(--gold);
+  color: var(--royal-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.125rem;
+  flex-shrink: 0;
+}
+
+.conv-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.conv-name {
+  font-weight: 600;
+  font-size: 0.9375rem;
+  margin-bottom: 0.25rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.conv-preview {
+  font-size: 0.8125rem;
+  color: var(--gray-600);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.conv-time {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  flex-shrink: 0;
+}
+
+.chat-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
 }
 
 /* Chat Header */
@@ -381,6 +483,14 @@
 
 /* Tablet Styles */
 @media (min-width: 768px) {
+  .conversations-sidebar {
+    display: block;
+  }
+  
+  .chat-container {
+    flex-direction: row;
+  }
+  
   .back-btn {
     display: none;
   }
@@ -519,6 +629,11 @@
 .toast-notification {
   display: none !important;
 }
+
+/* Hide footer on this page */
+footer {
+  display: none !important;
+}
 </style>
 
 <script>
@@ -529,14 +644,52 @@ document.addEventListener('DOMContentLoaded', function() {
     toastContainer.remove();
   }
 });
+
+// Toggle sidebar on mobile
+function toggleSidebar() {
+  document.querySelector('.conversations-sidebar').classList.toggle('show');
+}
 </script>
 
 <div class="chat-container">
-  <!-- Chat Header -->
-  <div class="chat-header">
-    <button class="back-btn" onclick="window.history.back()">
-      <i class="bi bi-arrow-left"></i>
-    </button>
+  <!-- Conversations Sidebar -->
+  <div class="conversations-sidebar">
+    <div class="sidebar-header">
+      <h3 class="sidebar-title">Messages</h3>
+    </div>
+    <ul class="conversation-list">
+      {% for conv in conversations %}
+      <li class="conversation-item {% if conv.id == conversation.id %}active{% endif %}">
+        <a href="{% url 'conversation_detail' conv.id %}" style="display: flex; gap: 0.75rem; align-items: center; text-decoration: none; color: inherit; width: 100%;">
+          <div class="conv-avatar">
+            {{ conv.get_other_user.first_name|slice:":1"|upper }}
+          </div>
+          <div class="conv-info">
+            <div class="conv-name">{{ conv.get_other_user.get_full_name }}</div>
+            <div class="conv-preview">{{ conv.latest_message.content|truncatewords:5|default:"No messages yet" }}</div>
+          </div>
+          <div class="conv-time">
+            {% if conv.latest_message %}
+              {{ conv.latest_message.timestamp|timesince|truncatewords:1 }}
+            {% endif %}
+          </div>
+        </a>
+      </li>
+      {% empty %}
+      <li style="padding: 2rem; text-align: center; color: var(--gray-500);">
+        No conversations yet
+      </li>
+      {% endfor %}
+    </ul>
+  </div>
+
+  <!-- Chat Main Area -->
+  <div class="chat-main">
+      <!-- Chat Header -->
+    <div class="chat-header">
+      <button class="back-btn" onclick="toggleSidebar()">
+        <i class="bi bi-list"></i>
+      </button>
     
     <div class="user-info">
       <div class="user-avatar">
