@@ -404,12 +404,24 @@
 
 {% block content %}
 <style>
-/* Hide message toasts on conversation detail page */
-.toast-notification.alert-info,
-.toast-notification.alert-success {
+/* Hide ALL toast notifications on conversation detail page */
+.toast-notifications-container {
+  display: none !important;
+}
+.toast-notification {
   display: none !important;
 }
 </style>
+
+<script>
+// Also remove any dynamically added toasts
+document.addEventListener('DOMContentLoaded', function() {
+  const toastContainer = document.querySelector('.toast-notifications-container');
+  if (toastContainer) {
+    toastContainer.remove();
+  }
+});
+</script>
 
 <div class="chat-container">
   <!-- Chat Header -->
