@@ -121,14 +121,39 @@ class ContractForm(forms.ModelForm):
             'feedback_by_worker',
             'start_date',
             'end_date',
+            'start_time',
+            'end_time',
         ]
         widgets = {
             'start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'end_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'start_time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control', 'placeholder': '09:00'}),
+            'end_time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control', 'placeholder': '17:00'}),
             'feedback_by_client': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'feedback_by_worker': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'rating_by_client': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get('start_date')
+        end_date = cleaned_data.get('end_date')
+        start_time = cleaned_data.get('start_time')
+        end_time = cleaned_data.get('end_time')
+        
+        # Validate dates
+        if start_date and end_date and end_date < start_date:
+            raise forms.ValidationError({
+                'end_date': 'End date must be after or equal to start date.'
+            })
+        
+        # Validate times
+        if start_time and end_time and start_time >= end_time:
+            raise forms.ValidationError({
+                'end_time': 'End time must be after start time.'
+            })
+        
+        return cleaned_data
 
 class ProgressLogForm(forms.ModelForm):
     class Meta:
@@ -148,6 +173,8 @@ class ContractDraftForm(forms.ModelForm):
             'deliverables',
             'start_date',
             'end_date',
+            'start_time',
+            'end_time',
         ]
         widgets = {
             'scope_of_work': forms.Textarea(attrs={
@@ -170,6 +197,8 @@ class ContractDraftForm(forms.ModelForm):
             }),
             'start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'end_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'start_time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control', 'placeholder': '09:00'}),
+            'end_time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control', 'placeholder': '17:00'}),
         }
         labels = {
             'scope_of_work': 'Scope of Work',
@@ -177,6 +206,8 @@ class ContractDraftForm(forms.ModelForm):
             'deliverables': 'Deliverables',
             'start_date': 'Project Start Date',
             'end_date': 'Project End Date (Deadline)',
+            'start_time': 'Daily Start Time',
+            'end_time': 'Daily End Time',
         }
         help_texts = {
             'scope_of_work': 'Maximum 2000 characters. Be specific about what work will be performed.',
@@ -184,12 +215,16 @@ class ContractDraftForm(forms.ModelForm):
             'deliverables': 'Maximum 1500 characters. List everything the client will receive.',
             'start_date': 'When will the work begin?',
             'end_date': 'When should the project be completed?',
+            'start_time': 'Daily work start time (e.g., 9:00 AM)',
+            'end_time': 'Daily work end time (e.g., 5:00 PM)',
         }
     
     def clean(self):
         cleaned_data = super().clean()
         start_date = cleaned_data.get('start_date')
         end_date = cleaned_data.get('end_date')
+        start_time = cleaned_data.get('start_time')
+        end_time = cleaned_data.get('end_time')
         scope_of_work = cleaned_data.get('scope_of_work')
         payment_terms = cleaned_data.get('payment_terms')
         
@@ -199,6 +234,12 @@ class ContractDraftForm(forms.ModelForm):
                 raise forms.ValidationError({
                     'end_date': 'End date must be after the start date.'
                 })
+        
+        # Validate times
+        if start_time and end_time and start_time >= end_time:
+            raise forms.ValidationError({
+                'end_time': 'End time must be after start time.'
+            })
         
         # Validate required fields have meaningful content
         if scope_of_work and len(scope_of_work.strip()) < 50:

@@ -83,9 +83,8 @@ urlpatterns = [
     path('worker/contracts/', worker_contracts_view, name="worker_contracts"),
     
     # Calendar and Schedule APIs
-    path('api/schedule/events/', views.get_schedule_events, name="api_schedule_events"),
+    path('api/worker/calendar/', views.worker_calendar_api, name="worker_calendar_api"),
     path('api/schedule/check-conflict/', views.check_contract_conflict, name="api_check_conflict"),
-    path('api/schedule/deadlines/', views.get_upcoming_deadlines_api, name="api_deadlines"),
     
     # Job Status Toggle
     path('<int:job_id>/toggle-status/', views.toggle_job_status, name="toggle_job_status"),

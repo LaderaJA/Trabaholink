@@ -2457,3 +2457,77 @@ class TermsOfServiceView(TemplateView):
 class PrivacyPolicyView(TemplateView):
     """View for the Privacy Policy page"""
     template_name = "mainpages/privacy_policy.html"
+
+
+@login_required
+def worker_calendar_api(request):
+    """
+    API endpoint to return worker's contracts in FullCalendar format
+    """
+    worker = request.user
+    
+    # Get date range from query params (optional)
+    start_date = request.GET.get('start')
+    end_date = request.GET.get('end')
+    
+    # Convert to date objects if provided
+    if start_date:
+        start_date = datetime.fromisoformat(start_date.replace('Z', '')).date()
+    if end_date:
+        end_date = datetime.fromisoformat(end_date.replace('Z', '')).date()
+    
+    # Get worker's contracts
+    contracts = Contract.get_worker_schedule(worker, start_date, end_date)
+    
+    # Convert to calendar events
+    events = []
+    for contract in contracts:
+        event_data = contract.get_calendar_event_data()
+        if event_data:
+            events.append(event_data)
+    
+    return JsonResponse(events, safe=False)
+
+
+@login_required
+def check_contract_conflict(request):
+    """
+    API endpoint to check if a contract has time conflicts
+    Expects POST with: start_date, end_date, start_time, end_time
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=400)
+    
+    try:
+        data = json.loads(request.body)
+        start_date = datetime.strptime(data['start_date'], '%Y-%m-%d').date()
+        end_date = datetime.strptime(data['end_date'], '%Y-%m-%d').date()
+        start_time = datetime.strptime(data['start_time'], '%H:%M').time()
+        end_time = datetime.strptime(data['end_time'], '%H:%M').time()
+        contract_id = data.get('contract_id')  # Optional, for editing existing contract
+        
+        # Create a temporary contract to check conflicts
+        temp_contract = Contract(
+            worker=request.user,
+            start_date=start_date,
+            end_date=end_date,
+            start_time=start_time,
+            end_time=end_time,
+            pk=contract_id  # If editing, use existing ID
+        )
+        
+        conflicts = temp_contract.check_time_conflict()
+        
+        if conflicts:
+            return JsonResponse({
+                'has_conflict': True,
+                'conflicts': conflicts
+            })
+        else:
+            return JsonResponse({
+                'has_conflict': False,
+                'message': 'No time conflicts found'
+            })
+    
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)

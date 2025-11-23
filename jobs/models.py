@@ -376,6 +376,8 @@ class Contract(models.Model):
     duration = models.CharField(max_length=100, blank=True)
     schedule = models.CharField(max_length=255, blank=True)
     start_date = models.DateField(null=True, blank=True)
+    start_time = models.TimeField(null=True, blank=True, help_text="Daily start time (e.g., 9:00 AM)")
+    end_time = models.TimeField(null=True, blank=True, help_text="Daily end time (e.g., 5:00 PM)")
     notes = models.TextField(blank=True, help_text="Special terms or notes")
     terms = models.TextField(blank=True, help_text="Contract terms and conditions")
     
@@ -445,6 +447,99 @@ class Contract(models.Model):
         self.termination_reason = reason
         self.termination_requested_at = timezone.now()
         self.save()
+    
+    def check_time_conflict(self):
+        """Check if this contract conflicts with worker's existing contracts"""
+        if not self.start_date or not self.end_date or not self.start_time or not self.end_time:
+            return None
+        
+        # Get all active contracts for this worker (excluding this contract)
+        worker_contracts = Contract.objects.filter(
+            worker=self.worker,
+            status__in=['Finalized', 'In Progress', 'Awaiting Review']
+        ).exclude(pk=self.pk)
+        
+        conflicts = []
+        for contract in worker_contracts:
+            if not contract.start_date or not contract.end_date or not contract.start_time or not contract.end_time:
+                continue
+            
+            # Check if date ranges overlap
+            date_overlap = (
+                self.start_date <= contract.end_date and 
+                self.end_date >= contract.start_date
+            )
+            
+            if date_overlap:
+                # Check if time ranges overlap
+                time_overlap = (
+                    self.start_time < contract.end_time and 
+                    self.end_time > contract.start_time
+                )
+                
+                if time_overlap:
+                    conflicts.append({
+                        'contract': contract,
+                        'job_title': contract.job_title or contract.job.title,
+                        'dates': f"{contract.start_date} to {contract.end_date}",
+                        'times': f"{contract.start_time.strftime('%I:%M %p')} - {contract.end_time.strftime('%I:%M %p')}"
+                    })
+        
+        return conflicts if conflicts else None
+    
+    @staticmethod
+    def get_worker_schedule(worker, start_date=None, end_date=None):
+        """Get all contracts for a worker in a date range"""
+        contracts = Contract.objects.filter(
+            worker=worker,
+            status__in=['Finalized', 'In Progress', 'Awaiting Review', 'Completed']
+        ).select_related('job', 'client')
+        
+        if start_date:
+            contracts = contracts.filter(end_date__gte=start_date)
+        if end_date:
+            contracts = contracts.filter(start_date__lte=end_date)
+        
+        return contracts.order_by('start_date', 'start_time')
+    
+    def get_calendar_event_data(self):
+        """Return contract data in FullCalendar format"""
+        if not self.start_date or not self.end_date:
+            return None
+        
+        # Combine date and time for proper calendar display
+        from datetime import datetime, time as dt_time
+        
+        start_time = self.start_time or dt_time(9, 0)  # Default 9:00 AM
+        end_time = self.end_time or dt_time(17, 0)  # Default 5:00 PM
+        
+        return {
+            'id': self.pk,
+            'title': self.job_title or self.job.title,
+            'start': f"{self.start_date}T{start_time.strftime('%H:%M:%S')}",
+            'end': f"{self.end_date}T{end_time.strftime('%H:%M:%S')}",
+            'backgroundColor': self._get_status_color(),
+            'borderColor': self._get_status_color(),
+            'extendedProps': {
+                'status': self.status,
+                'client': self.client.get_full_name() or self.client.username,
+                'rate': str(self.agreed_rate) if self.agreed_rate else 'N/A',
+                'description': self.job_description[:100] if self.job_description else '',
+                'contractId': self.pk
+            }
+        }
+    
+    def _get_status_color(self):
+        """Get color based on contract status"""
+        colors = {
+            'Negotiation': '#f59e0b',  # Orange
+            'Finalized': '#3b82f6',    # Blue
+            'In Progress': '#10b981',  # Green
+            'Awaiting Review': '#8b5cf6',  # Purple
+            'Completed': '#6b7280',    # Gray
+            'Cancelled': '#ef4444'     # Red
+        }
+        return colors.get(self.status, '#6b7280')
     
     def __str__(self):
         return f"Contract for {self.job.title} - {self.worker.username}"

@@ -225,8 +225,12 @@
 
     <!-- Tab Content: Track Jobs -->
     <div id="track-tab" class="tab-content">
-        <div style="background: white; padding: 2rem; border-radius: 12px;">
-            <h2 style="margin-bottom: 1.5rem;">Track My Jobs</h2>
+        <!-- Calendar Component -->
+        {% include 'jobs/components/worker_calendar.html' %}
+        
+        <!-- Active Contracts List -->
+        <div style="background: white; padding: 2rem; border-radius: 12px; margin-top: 2rem;">
+            <h2 style="margin-bottom: 1.5rem;">Active Jobs</h2>
             {% if active_contracts %}
             <div style="display: grid; gap: 1rem;">
                 {% for contract in active_contracts %}
@@ -235,6 +239,14 @@
                     <p style="color: #6b7280; margin: 0.5rem 0;">
                         Employer: {{ contract.client.get_full_name|default:contract.client.username }}
                     </p>
+                    {% if contract.start_date and contract.end_date %}
+                    <p style="color: #6b7280; margin: 0.5rem 0; font-size: 0.875rem;">
+                        <i class="bi bi-calendar"></i> {{ contract.start_date }} to {{ contract.end_date }}
+                        {% if contract.start_time and contract.end_time %}
+                        <br><i class="bi bi-clock"></i> {{ contract.start_time|time:"g:i A" }} - {{ contract.end_time|time:"g:i A" }}
+                        {% endif %}
+                    </p>
+                    {% endif %}
                     <div style="margin-top: 0.5rem;">
                         {% include 'jobs/components/status_badge.html' with status=contract.status %}
                     </div>
