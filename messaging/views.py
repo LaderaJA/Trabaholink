@@ -106,6 +106,7 @@ def conversation_detail(request, conversation_id):
     Notification.objects.filter(
         user=request.user,
         notif_type='message',
+        object_id=conversation_id,
         is_read=False
     ).update(is_read=True)
 
