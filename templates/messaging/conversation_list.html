@@ -789,29 +789,41 @@ function searchUsers() {
 function displaySearchResults(users) {
   const resultsContainer = document.getElementById('searchResults');
   
-  if (!users || users.length === 0) {
-    resultsContainer.innerHTML = '<p style="text-align: center; color: var(--text-light); margin-top: 2rem;">No users found</p>';
+  console.log('displaySearchResults called with:', users);
+  console.log('Results container:', resultsContainer);
+  
+  if (!resultsContainer) {
+    console.error('searchResults container not found!');
     return;
   }
   
-  resultsContainer.innerHTML = users.map(user => `
-    <div class="user-result" onclick="startConversation('${user.username}')">
-      <div class="user-result-avatar">
+  if (!users || users.length === 0) {
+    resultsContainer.innerHTML = '<p style="text-align: center; color: #666; margin-top: 2rem; padding: 1rem;">No users found</p>';
+    resultsContainer.style.display = 'block';
+    return;
+  }
+  
+  const html = users.map(user => `
+    <div class="user-result" onclick="startConversation('${user.username}')" style="display: flex !important; padding: 1rem; background: white; margin-bottom: 0.5rem; border-radius: 8px; cursor: pointer; align-items: center; gap: 1rem;">
+      <div class="user-result-avatar" style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #1A94D5, #0EA5E9); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.25rem; flex-shrink: 0;">
         ${(user.username || 'U').charAt(0).toUpperCase()}
       </div>
-      <div class="user-result-info">
-        <h4 class="user-result-name">${user.full_name || user.username}</h4>
-        <p class="user-result-username">@${user.username}</p>
-        ${user.role ? `<span style="font-size: 0.75rem; color: var(--text-light);">${user.role}</span>` : ''}
+      <div class="user-result-info" style="flex: 1; min-width: 0;">
+        <h4 class="user-result-name" style="margin: 0; font-size: 1rem; font-weight: 600; color: #1f2937;">${user.full_name || user.username}</h4>
+        <p class="user-result-username" style="margin: 0.25rem 0 0 0; font-size: 0.875rem; color: #6b7280;">@${user.username}</p>
+        ${user.role ? `<span style="font-size: 0.75rem; color: #9ca3af; display: block; margin-top: 0.25rem;">${user.role}</span>` : ''}
       </div>
-      <button class="btn-start-chat">
+      <button class="btn-start-chat" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1e3a8a; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 0.5rem;">
         <i class="bi bi-chat"></i>
         Chat
       </button>
     </div>
   `).join('');
   
-  console.log('Displayed', users.length, 'users');
+  resultsContainer.innerHTML = html;
+  resultsContainer.style.display = 'block';
+  
+  console.log('Displayed', users.length, 'users in UI');
 }
 
 function startConversation(username) {
