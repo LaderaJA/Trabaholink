@@ -444,32 +444,42 @@ body {
   padding: 1.5rem;
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-  max-height: calc(85vh - 90px);
+  overflow: visible;
+}
+
+.search-input-wrapper {
+  position: relative;
 }
 
 .search-results {
-  margin-top: 1rem;
-  position: relative;
-  z-index: 1;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #cbd5e1;
+  border-top: none;
+  border-radius: 0 0 0.5rem 0.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  margin-top: 0;
 }
 
 .user-result {
-  display: flex !important;
-  align-items: center;
-  padding: 1rem;
-  border-radius: 12px;
-  margin-bottom: 0.5rem;
-  transition: all 0.2s ease;
+  padding: 0.75rem 1rem;
   cursor: pointer;
-  background: #f9fafb;
-  position: relative;
-  z-index: 1;
+  border-bottom: 1px solid #e2e8f0;
+  transition: all 0.2s;
 }
 
 .user-result:hover {
-  background: #f3f4f6;
-  transform: translateX(4px);
+  background: #eff6ff;
+}
+
+.user-result:last-child {
+  border-bottom: none;
 }
 
 .user-result-avatar {
@@ -803,66 +813,30 @@ function displaySearchResults(users) {
   }
   
   if (!users || users.length === 0) {
-    resultsContainer.innerHTML = '<p style="text-align: center; color: #666; margin-top: 2rem; padding: 1rem;">No users found</p>';
+    resultsContainer.innerHTML = '<div style="padding: 1rem; text-align: center; color: #64748b;">No users found</div>';
+    resultsContainer.style.display = 'block';
     return;
   }
   
-  // Build HTML using DOM createElement for better compatibility
-  resultsContainer.innerHTML = '';
+  // Use template literals like report modal (proven to work)
+  resultsContainer.innerHTML = users.map(user => `
+    <div class="user-result" onclick="startConversation('${user.username}')">
+      <div style="display: flex; align-items: center; gap: 1rem; width: 100%;">
+        <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #1A94D5, #0EA5E9); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.25rem; flex-shrink: 0;">
+          ${(user.username || 'U').charAt(0).toUpperCase()}
+        </div>
+        <div style="flex: 1; min-width: 0;">
+          <div style="font-weight: 600; color: #1e293b;">${user.full_name || user.username}</div>
+          <div style="font-size: 0.875rem; color: #64748b;">@${user.username}${user.role ? ' • ' + user.role : ''}</div>
+        </div>
+        <button onclick="event.stopPropagation(); startConversation('${user.username}')" style="background: linear-gradient(135deg, #1e3a8a, #1e40af); color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; flex-shrink: 0;">
+          Chat
+        </button>
+      </div>
+    </div>
+  `).join('');
   
-  users.forEach(user => {
-    const userDiv = document.createElement('div');
-    userDiv.className = 'user-result';
-    userDiv.onclick = () => startConversation(user.username);
-    userDiv.style.cssText = 'display: flex !important; padding: 1rem; background: #f9fafb !important; margin-bottom: 0.75rem; border-radius: 12px; cursor: pointer; align-items: center; gap: 1rem; border: 1px solid #e5e7eb; transition: all 0.2s ease;';
-    
-    // Avatar
-    const avatar = document.createElement('div');
-    avatar.className = 'user-result-avatar';
-    avatar.style.cssText = 'width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #1A94D5, #0EA5E9); color: white; display: flex !important; align-items: center; justify-content: center; font-weight: 700; font-size: 1.25rem; flex-shrink: 0;';
-    avatar.textContent = (user.username || 'U').charAt(0).toUpperCase();
-    
-    // Info container
-    const info = document.createElement('div');
-    info.className = 'user-result-info';
-    info.style.cssText = 'flex: 1; min-width: 0;';
-    
-    const name = document.createElement('h4');
-    name.className = 'user-result-name';
-    name.style.cssText = 'margin: 0; font-size: 1rem; font-weight: 600; color: #1f2937;';
-    name.textContent = user.full_name || user.username;
-    
-    const username = document.createElement('p');
-    username.className = 'user-result-username';
-    username.style.cssText = 'margin: 0.25rem 0 0 0; font-size: 0.875rem; color: #6b7280;';
-    username.textContent = '@' + user.username;
-    
-    info.appendChild(name);
-    info.appendChild(username);
-    
-    if (user.role) {
-      const role = document.createElement('span');
-      role.style.cssText = 'font-size: 0.75rem; color: #9ca3af; display: block; margin-top: 0.25rem;';
-      role.textContent = user.role;
-      info.appendChild(role);
-    }
-    
-    // Chat button
-    const button = document.createElement('button');
-    button.className = 'btn-start-chat';
-    button.style.cssText = 'background: linear-gradient(135deg, #1e3a8a, #1e40af); color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex !important; align-items: center; gap: 0.5rem; flex-shrink: 0;';
-    button.textContent = 'Chat';
-    button.onclick = (e) => {
-      e.stopPropagation();
-      startConversation(user.username);
-    };
-    
-    userDiv.appendChild(avatar);
-    userDiv.appendChild(info);
-    userDiv.appendChild(button);
-    resultsContainer.appendChild(userDiv);
-  });
-  
+  resultsContainer.style.display = 'block';
   console.log('Displayed', users.length, 'users in UI');
 }
 
