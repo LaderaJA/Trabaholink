@@ -773,15 +773,11 @@ function searchUsers() {
       </div>
     `;
     
-    // Make AJAX request to search users
-    fetch(`/users/api/search/?q=${encodeURIComponent(searchTerm)}`, {
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    })
+    // Use the same endpoint as report modal (proven to work)
+    fetch(`/reports/search/users/?q=${encodeURIComponent(searchTerm)}`)
     .then(response => response.json())
     .then(data => {
-      displaySearchResults(data.users || []);
+      displaySearchResults(data.results || []);
     })
     .catch(error => {
       console.error('Search error:', error);
