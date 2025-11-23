@@ -596,21 +596,21 @@
 /* Desktop Styles */
 @media (min-width: 1024px) {
   .conversations-sidebar {
-    width: 350px;
+    width: 340px;
     flex-shrink: 0;
   }
   
   .chat-main {
     flex: 1;
-    width: 0;
+    width: auto;
     min-width: 0;
   }
   
   .chat-container {
-    max-width: 1600px;
-    margin: 0 auto;
-    left: 50%;
-    transform: translateX(-50%);
+    max-width: 100%;
+    margin: 0;
+    left: 0;
+    transform: none;
   }
   
   .chat-header {
@@ -668,12 +668,15 @@
   
   .chat-main {
     flex: 1;
-    width: 0;
+    width: auto;
     min-width: 0;
   }
   
   .chat-container {
     max-width: 1800px;
+    margin: 0 auto;
+    left: 50%;
+    transform: translateX(-50%);
   }
   
   .message-bubble {
@@ -698,12 +701,15 @@
   
   .chat-main {
     flex: 1;
-    width: 0;
+    width: auto;
     min-width: 0;
   }
   
   .chat-container {
     max-width: 2000px;
+    margin: 0 auto;
+    left: 50%;
+    transform: translateX(-50%);
   }
   
   .message-bubble {
