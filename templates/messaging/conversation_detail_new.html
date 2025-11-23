@@ -36,31 +36,50 @@
   right: 0;
   bottom: 0;
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   background: var(--gray-50);
   z-index: 10;
+  overflow: hidden;
 }
 
 /* Sidebar for conversation list */
 .conversations-sidebar {
   display: none;
-  position: absolute;
+  position: fixed;
   left: 0;
-  top: 0;
+  top: 85px;
   bottom: 0;
-  width: 300px;
+  width: 85%;
+  max-width: 320px;
   background: var(--white);
   border-right: 1px solid var(--gray-200);
   flex-shrink: 0;
   overflow-y: auto;
-  z-index: 100;
+  z-index: 200;
   transform: translateX(-100%);
   transition: transform 0.3s ease;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
 }
 
 .conversations-sidebar.show {
   display: block;
   transform: translateX(0);
+}
+
+/* Overlay for mobile sidebar */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 85px;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 150;
+}
+
+.sidebar-overlay.show {
+  display: block;
 }
 
 .sidebar-header {
@@ -148,6 +167,8 @@
   display: flex;
   flex-direction: column;
   min-width: 0;
+  height: 100%;
+  overflow: hidden;
 }
 
 /* Chat Header */
@@ -226,11 +247,13 @@
 .messages-area {
   flex: 1;
   overflow-y: auto;
+  overflow-x: hidden;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
   background: var(--gray-50);
+  -webkit-overflow-scrolling: touch;
 }
 
 .message-group {
@@ -313,6 +336,7 @@
   align-items: center;
   gap: 0.5rem;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.05);
+  flex-shrink: 0;
 }
 
 .file-preview {
@@ -496,6 +520,13 @@
     position: relative;
     transform: translateX(0);
     width: 320px;
+    top: auto;
+    max-width: none;
+    box-shadow: none;
+  }
+  
+  .sidebar-overlay {
+    display: none !important;
   }
   
   .chat-container {
@@ -504,6 +535,7 @@
   
   .chat-main {
     flex: 1;
+    width: calc(100% - 320px);
   }
   
   .back-btn {
@@ -662,11 +694,26 @@ document.addEventListener('DOMContentLoaded', function() {
 
 // Toggle sidebar on mobile
 function toggleSidebar() {
-  document.querySelector('.conversations-sidebar').classList.toggle('show');
+  const sidebar = document.querySelector('.conversations-sidebar');
+  const overlay = document.querySelector('.sidebar-overlay');
+  
+  sidebar.classList.toggle('show');
+  overlay.classList.toggle('show');
 }
+
+// Close sidebar when clicking overlay
+document.addEventListener('DOMContentLoaded', function() {
+  const overlay = document.querySelector('.sidebar-overlay');
+  if (overlay) {
+    overlay.addEventListener('click', toggleSidebar);
+  }
+});
 </script>
 
 <div class="chat-container">
+  <!-- Overlay for mobile sidebar -->
+  <div class="sidebar-overlay"></div>
+  
   <!-- Conversations Sidebar -->
   <div class="conversations-sidebar">
     <div class="sidebar-header">
