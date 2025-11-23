@@ -314,18 +314,20 @@
 
 /* Emoji Picker */
 .emoji-picker {
-  position: absolute;
-  bottom: 70px;
+  position: fixed;
+  bottom: 140px;
   right: 1rem;
+  left: 1rem;
   background: var(--white);
   border-radius: 12px;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
   padding: 1rem;
   display: none;
-  max-width: 320px;
-  max-height: 300px;
+  max-width: 360px;
+  max-height: 280px;
   overflow-y: auto;
-  z-index: 100;
+  z-index: 1000;
+  margin: 0 auto;
 }
 
 .emoji-picker.show {
@@ -335,20 +337,26 @@
 .emoji-grid {
   display: grid;
   grid-template-columns: repeat(8, 1fr);
-  gap: 0.5rem;
+  gap: 0.75rem;
 }
 
 .emoji-item {
-  font-size: 1.5rem;
+  font-size: 1.75rem;
   cursor: pointer;
-  padding: 0.25rem;
-  border-radius: 4px;
+  padding: 0.5rem;
+  border-radius: 8px;
   transition: background 0.2s;
   text-align: center;
+  user-select: none;
 }
 
 .emoji-item:hover {
   background: var(--gray-100);
+  transform: scale(1.1);
+}
+
+.emoji-item:active {
+  transform: scale(0.95);
 }
 
 /* Loading Indicator */
@@ -450,7 +458,8 @@
   </div>
 
   <!-- Input Area -->
-  <div class="input-area">
+  <div class="input-area" style="flex-direction: column; align-items: stretch;">
+    <!-- File Preview (above input) -->
     <div class="file-preview" id="filePreview">
       <img id="filePreviewImg" src="" alt="Preview">
       <span id="filePreviewName"></span>
@@ -471,7 +480,6 @@
           class="message-input" 
           placeholder="Type a message..."
           rows="1"
-          required
         ></textarea>
         
         <button type="button" class="input-btn" onclick="toggleEmojiPicker()">
@@ -483,21 +491,12 @@
         <i class="bi bi-send-fill"></i>
       </button>
     </form>
+  </div>
 
-    <!-- Emoji Picker -->
-    <div class="emoji-picker" id="emojiPicker">
-      <div class="emoji-grid">
-        😀😃😄😁😆😅🤣😂🙂🙃😉😊😇
-        🥰😍🤩😘😗😚😙🥲😋😛😜🤪😝
-        🤑🤗🤭🤫🤔🤐🤨😐😑😶😏😒
-        🙄😬🤥😌😔😪🤤😴😷🤒🤕🤢
-        🤮🤧🥵🥶🥴😵🤯🤠🥳🥸😎🤓
-        👍👎👌✌️🤞🤟🤘🤙👈👉👆👇☝️
-        ✋🤚🖐️🖖👋🤙💪🦾🙏✍️💅🦵
-        ❤️🧡💛💚💙💜🖤🤍🤎💔❣️💕
-        💞💓💗💖💘💝💟☮️✝️☪️🕉️
-        ⭐🌟✨⚡💥🔥💧💦☀️🌙⭐🌈
-      </div>
+  <!-- Emoji Picker (outside input area) -->
+  <div class="emoji-picker" id="emojiPicker">
+    <div class="emoji-grid" id="emojiGrid">
+      <!-- Emojis will be added by JavaScript -->
     </div>
   </div>
 </div>
@@ -551,22 +550,40 @@ function removeFile() {
   filePreview.classList.remove('show');
 }
 
-// Emoji picker
+// Emoji picker - populate dynamically
+const emojis = [
+  '😀','😃','😄','😁','😆','😅','🤣','😂','🙂','🙃','😉','😊','😇',
+  '🥰','😍','🤩','😘','😗','😚','😙','🥲','😋','😛','😜','🤪','😝',
+  '🤑','🤗','🤭','🤫','🤔','🤐','🤨','😐','😑','😶','😏','😒',
+  '🙄','😬','🤥','😌','😔','😪','🤤','😴','😷','🤒','🤕','🤢',
+  '🤮','🤧','🥵','🥶','🥴','😵','🤯','🤠','🥳','🥸','😎','🤓',
+  '👍','👎','👌','✌️','🤞','🤟','🤘','🤙','👈','👉','👆','👇','☝️',
+  '✋','🤚','🖐️','🖖','👋','💪','🦾','🙏','✍️','💅','🦵',
+  '❤️','🧡','💛','💚','💙','💜','🖤','🤍','🤎','💔','❣️','💕',
+  '💞','💓','💗','💖','💘','💝','💟','☮️','✝️','☪️','🕉️',
+  '⭐','🌟','✨','⚡','💥','🔥','💧','💦','☀️','🌙','🌈'
+];
+
+const emojiGrid = document.getElementById('emojiGrid');
+emojis.forEach(emoji => {
+  const span = document.createElement('span');
+  span.className = 'emoji-item';
+  span.textContent = emoji;
+  span.onclick = function() {
+    messageInput.value += emoji;
+    messageInput.focus();
+    emojiPicker.classList.remove('show');
+  };
+  emojiGrid.appendChild(span);
+});
+
 function toggleEmojiPicker() {
   emojiPicker.classList.toggle('show');
 }
 
-document.querySelectorAll('.emoji-item').forEach(item => {
-  item.addEventListener('click', function() {
-    messageInput.value += this.textContent;
-    messageInput.focus();
-    emojiPicker.classList.remove('show');
-  });
-});
-
 // Close emoji picker when clicking outside
 document.addEventListener('click', function(e) {
-  if (!e.target.closest('.emoji-picker') && !e.target.closest('.input-btn')) {
+  if (!e.target.closest('.emoji-picker') && !e.target.closest('[onclick*="toggleEmojiPicker"]')) {
     emojiPicker.classList.remove('show');
   }
 });
@@ -620,7 +637,11 @@ messageForm.addEventListener('submit', async function(e) {
   e.preventDefault();
   
   const content = messageInput.value.trim();
-  if (!content && !selectedFile) return;
+  // Allow sending if there's content OR a file
+  if (!content && !selectedFile) {
+    alert('Please type a message or attach a file');
+    return;
+  }
   
   const formData = new FormData();
   formData.append('content', content);

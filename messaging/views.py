@@ -100,6 +100,16 @@ def conversation_detail(request, conversation_id):
     from admin_dashboard.models import ModeratedWord
     banned_words = list(ModeratedWord.objects.filter(is_banned=True).values_list('word', flat=True))
     banned_words_json = json.dumps(banned_words)
+    
+    # Mark notifications as read for this conversation
+    from notifications.models import Notification
+    Notification.objects.filter(
+        user=request.user,
+        notification_type='message',
+        is_read=False
+    ).filter(
+        message__in=[f"New message from {conversation.get_other_user.get_full_name}"]
+    ).update(is_read=True)
 
     return render(request, "messaging/conversation_detail_new.html", {
         "conversation": conversation,
