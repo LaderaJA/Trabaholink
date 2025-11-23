@@ -116,16 +116,16 @@
 }
 
 .conversation-item.active {
-  background: linear-gradient(to right, var(--royal-blue-light), transparent);
-  border-left: 4px solid var(--gold);
+  background: linear-gradient(to right, rgba(30, 58, 138, 0.1), transparent);
+  border-left: 4px solid var(--royal-blue);
 }
 
 .conv-avatar {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: var(--gold);
-  color: var(--royal-blue);
+  background: linear-gradient(135deg, var(--royal-blue) 0%, var(--royal-blue-light) 100%);
+  color: var(--white);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -214,14 +214,14 @@
   width: 40px;
   height: 40px;
   border-radius: 50%;
-  background: var(--gold);
+  background: var(--white);
   color: var(--royal-blue);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
   font-size: 1.1rem;
-  border: 2px solid var(--gold-light);
+  border: 2px solid rgba(255, 255, 255, 0.3);
 }
 
 .user-details h2 {
@@ -242,7 +242,7 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: var(--gold);
+  background: #10b981;
 }
 
 /* Messages Area */
@@ -362,8 +362,8 @@
 }
 
 .remove-file {
-  background: var(--gold);
-  color: var(--royal-blue);
+  background: var(--royal-blue);
+  color: var(--white);
   border: none;
   border-radius: 50%;
   width: 24px;
@@ -426,21 +426,21 @@
   width: 44px;
   height: 44px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+  background: linear-gradient(135deg, var(--royal-blue) 0%, var(--royal-blue-light) 100%);
   border: none;
-  color: var(--royal-blue);
+  color: var(--white);
   font-size: 1.25rem;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
   transition: all 0.2s;
-  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.3);
+  box-shadow: 0 2px 8px rgba(30, 58, 138, 0.3);
 }
 
 .send-btn:hover {
   transform: scale(1.05);
-  box-shadow: 0 4px 12px rgba(251, 191, 36, 0.4);
+  box-shadow: 0 4px 12px rgba(30, 58, 138, 0.4);
 }
 
 .send-btn:disabled {

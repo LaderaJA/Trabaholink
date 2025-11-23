@@ -812,24 +812,62 @@ function displaySearchResults(users) {
     return;
   }
   
-  const html = users.map(user => `
-    <div class="user-result" onclick="startConversation('${user.username}')" style="display: flex !important; padding: 1rem; background: #f9fafb !important; margin-bottom: 0.75rem; border-radius: 12px; cursor: pointer; align-items: center; gap: 1rem; border: 1px solid #e5e7eb; transition: all 0.2s ease;">
-      <div class="user-result-avatar" style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #1A94D5, #0EA5E9); color: white; display: flex !important; align-items: center; justify-content: center; font-weight: 700; font-size: 1.25rem; flex-shrink: 0;">
-        ${(user.username || 'U').charAt(0).toUpperCase()}
-      </div>
-      <div class="user-result-info" style="flex: 1; min-width: 0;">
-        <h4 class="user-result-name" style="margin: 0; font-size: 1rem; font-weight: 600; color: #1f2937;">${user.full_name || user.username}</h4>
-        <p class="user-result-username" style="margin: 0.25rem 0 0 0; font-size: 0.875rem; color: #6b7280;">@${user.username}</p>
-        ${user.role ? `<span style="font-size: 0.75rem; color: #9ca3af; display: block; margin-top: 0.25rem;">${user.role}</span>` : ''}
-      </div>
-      <button class="btn-start-chat" onclick="event.stopPropagation(); startConversation('${user.username}')" style="background: linear-gradient(135deg, #fbbf24, #f59e0b); color: #1e3a8a; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex !important; align-items: center; gap: 0.5rem; flex-shrink: 0;">
-        <i class="bi bi-chat"></i>
-        Chat
-      </button>
-    </div>
-  `).join('');
+  // Build HTML using DOM createElement for better compatibility
+  resultsContainer.innerHTML = '';
   
-  resultsContainer.innerHTML = html;
+  users.forEach(user => {
+    const userDiv = document.createElement('div');
+    userDiv.className = 'user-result';
+    userDiv.onclick = () => startConversation(user.username);
+    userDiv.style.cssText = 'display: flex !important; padding: 1rem; background: #f9fafb !important; margin-bottom: 0.75rem; border-radius: 12px; cursor: pointer; align-items: center; gap: 1rem; border: 1px solid #e5e7eb; transition: all 0.2s ease;';
+    
+    // Avatar
+    const avatar = document.createElement('div');
+    avatar.className = 'user-result-avatar';
+    avatar.style.cssText = 'width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #1A94D5, #0EA5E9); color: white; display: flex !important; align-items: center; justify-content: center; font-weight: 700; font-size: 1.25rem; flex-shrink: 0;';
+    avatar.textContent = (user.username || 'U').charAt(0).toUpperCase();
+    
+    // Info container
+    const info = document.createElement('div');
+    info.className = 'user-result-info';
+    info.style.cssText = 'flex: 1; min-width: 0;';
+    
+    const name = document.createElement('h4');
+    name.className = 'user-result-name';
+    name.style.cssText = 'margin: 0; font-size: 1rem; font-weight: 600; color: #1f2937;';
+    name.textContent = user.full_name || user.username;
+    
+    const username = document.createElement('p');
+    username.className = 'user-result-username';
+    username.style.cssText = 'margin: 0.25rem 0 0 0; font-size: 0.875rem; color: #6b7280;';
+    username.textContent = '@' + user.username;
+    
+    info.appendChild(name);
+    info.appendChild(username);
+    
+    if (user.role) {
+      const role = document.createElement('span');
+      role.style.cssText = 'font-size: 0.75rem; color: #9ca3af; display: block; margin-top: 0.25rem;';
+      role.textContent = user.role;
+      info.appendChild(role);
+    }
+    
+    // Chat button
+    const button = document.createElement('button');
+    button.className = 'btn-start-chat';
+    button.style.cssText = 'background: linear-gradient(135deg, #1e3a8a, #1e40af); color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; display: flex !important; align-items: center; gap: 0.5rem; flex-shrink: 0;';
+    button.textContent = 'Chat';
+    button.onclick = (e) => {
+      e.stopPropagation();
+      startConversation(user.username);
+    };
+    
+    userDiv.appendChild(avatar);
+    userDiv.appendChild(info);
+    userDiv.appendChild(button);
+    resultsContainer.appendChild(userDiv);
+  });
+  
   // Force visibility with !important styles
   resultsContainer.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; margin-top: 1rem; overflow-y: auto; max-height: 400px; min-height: 100px;';
   
