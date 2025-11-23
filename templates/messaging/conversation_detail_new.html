@@ -819,9 +819,9 @@ document.addEventListener('DOMContentLoaded', function() {
           <div class="conv-info">
             <div class="conv-name">
               {% if conv.user1.id == request.user.id %}
-                {{ conv.user2.get_full_name }}
+                {{ conv.user2.get_full_name|default:conv.user2.username }}
               {% else %}
-                {{ conv.user1.get_full_name }}
+                {{ conv.user1.get_full_name|default:conv.user1.username }}
               {% endif %}
             </div>
             <div class="conv-preview">
