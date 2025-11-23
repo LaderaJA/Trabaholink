@@ -387,7 +387,7 @@ body {
   max-height: 85vh;
   display: flex;
   flex-direction: column;
-  overflow: visible;
+  overflow: hidden;
   animation: modalSlideIn 0.3s ease;
   position: relative;
   z-index: 1001;
@@ -445,14 +445,11 @@ body {
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  overflow-x: visible;
-  max-height: calc(85vh - 120px);
+  flex: 1;
 }
 
 .search-results {
   margin-top: 1rem;
-  overflow-y: visible;
-  overflow-x: visible;
   position: relative;
   z-index: 1;
 }
@@ -807,7 +804,6 @@ function displaySearchResults(users) {
   
   if (!users || users.length === 0) {
     resultsContainer.innerHTML = '<p style="text-align: center; color: #666; margin-top: 2rem; padding: 1rem;">No users found</p>';
-    resultsContainer.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important;';
     return;
   }
   
@@ -867,14 +863,7 @@ function displaySearchResults(users) {
     resultsContainer.appendChild(userDiv);
   });
   
-  // Force visibility with !important styles
-  resultsContainer.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; margin-top: 1rem; overflow: visible; min-height: 100px;';
-  
-  // Force a reflow
-  resultsContainer.offsetHeight;
-  
   console.log('Displayed', users.length, 'users in UI');
-  console.log('Container computed styles:', window.getComputedStyle(resultsContainer).display, window.getComputedStyle(resultsContainer).visibility);
 }
 
 function startConversation(username) {
