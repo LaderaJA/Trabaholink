@@ -105,10 +105,8 @@ def conversation_detail(request, conversation_id):
     from notifications.models import Notification
     Notification.objects.filter(
         user=request.user,
-        notification_type='message',
+        notif_type='message',
         is_read=False
-    ).filter(
-        message__in=[f"New message from {conversation.get_other_user.get_full_name}"]
     ).update(is_read=True)
 
     return render(request, "messaging/conversation_detail_new.html", {
