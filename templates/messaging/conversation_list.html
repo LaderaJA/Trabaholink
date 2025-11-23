@@ -822,8 +822,14 @@ function displaySearchResults(users) {
   
   resultsContainer.innerHTML = html;
   resultsContainer.style.display = 'block';
+  resultsContainer.style.visibility = 'visible';
+  resultsContainer.style.height = 'auto';
+  resultsContainer.style.minHeight = '50px';
+  resultsContainer.style.maxHeight = '400px';
+  resultsContainer.style.overflow = 'visible';
   
   console.log('Displayed', users.length, 'users in UI');
+  console.log('Container styles applied:', resultsContainer.style.cssText);
 }
 
 function startConversation(username) {
