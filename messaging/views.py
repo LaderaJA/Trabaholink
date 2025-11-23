@@ -97,8 +97,8 @@ def conversation_detail(request, conversation_id):
     receiver_id = conversation.user2.id if request.user == conversation.user1 else conversation.user1.id
     
     # Get banned words for frontend censoring
-    from admin_dashboard.moderation_utils import get_banned_words
-    banned_words = get_banned_words()
+    from admin_dashboard.models import ModeratedWord
+    banned_words = list(ModeratedWord.objects.filter(is_banned=True).values_list('word', flat=True))
     banned_words_json = json.dumps(banned_words)
 
     return render(request, "messaging/conversation_detail_new.html", {
