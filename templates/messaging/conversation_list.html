@@ -387,8 +387,10 @@ body {
   max-height: 85vh;
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  overflow: visible;
   animation: modalSlideIn 0.3s ease;
+  position: relative;
+  z-index: 1001;
 }
 
 @keyframes modalSlideIn {
@@ -443,16 +445,18 @@ body {
   flex: 1;
   display: flex;
   flex-direction: column;
-  overflow: visible;
+  overflow-y: auto;
+  overflow-x: visible;
   min-height: 300px;
+  max-height: calc(85vh - 120px);
 }
 
 .search-results {
   margin-top: 1rem;
   flex: 1;
-  overflow-y: auto;
+  overflow-y: visible;
   overflow-x: visible;
-  max-height: 400px;
+  max-height: none;
   min-height: 100px;
   position: relative;
   z-index: 1;
@@ -869,7 +873,7 @@ function displaySearchResults(users) {
   });
   
   // Force visibility with !important styles
-  resultsContainer.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; margin-top: 1rem; overflow-y: auto; max-height: 400px; min-height: 100px;';
+  resultsContainer.style.cssText = 'display: block !important; visibility: visible !important; opacity: 1 !important; margin-top: 1rem; overflow: visible; min-height: 100px;';
   
   // Force a reflow
   resultsContainer.offsetHeight;
