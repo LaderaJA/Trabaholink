@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse, path
 from django.shortcuts import render
-from .models import Job, ProgressLog, JobApplication, JobCategory, JobImage, Contract, JobOffer, JobProgress, Feedback
+from .models import Job, ProgressLog, JobApplication, JobCategory, JobImage, Contract, JobOffer, JobProgress, Feedback, WorkerAvailability
 
 
 @admin.register(Job)
@@ -130,4 +130,15 @@ admin.site.register(ProgressLog)
 admin.site.register(JobOffer)
 admin.site.register(JobProgress)
 admin.site.register(Feedback)
+
+@admin.register(WorkerAvailability)
+class WorkerAvailabilityAdmin(admin.ModelAdmin):
+    list_display = ['worker', 'get_day_name', 'start_time', 'end_time', 'is_available']
+    list_filter = ['day_of_week', 'is_available', 'worker']
+    search_fields = ['worker__username', 'worker__first_name', 'worker__last_name']
+    ordering = ['worker', 'day_of_week', 'start_time']
+    
+    def get_day_name(self, obj):
+        return dict(obj.DAYS_OF_WEEK)[obj.day_of_week]
+    get_day_name.short_description = 'Day'
 

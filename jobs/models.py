@@ -618,3 +618,117 @@ def notify_workers_about_new_job(sender, instance, created, **kwargs):
                 notif_type="job_post",
                 object_id=instance.pk,
             )
+
+
+class WorkerAvailability(models.Model):
+    """
+    Manage worker's available working hours per day to prevent schedule conflicts.
+    Workers can set their preferred working hours for each day of the week.
+    """
+    DAYS_OF_WEEK = [
+        (0, 'Monday'),
+        (1, 'Tuesday'),
+        (2, 'Wednesday'),
+        (3, 'Thursday'),
+        (4, 'Friday'),
+        (5, 'Saturday'),
+        (6, 'Sunday'),
+    ]
+    
+    worker = models.ForeignKey(
+        CustomUser, 
+        on_delete=models.CASCADE, 
+        related_name="work_availability"
+    )
+    day_of_week = models.IntegerField(choices=DAYS_OF_WEEK)
+    start_time = models.TimeField(help_text="Available start time")
+    end_time = models.TimeField(help_text="Available end time")
+    is_available = models.BooleanField(default=True, help_text="Toggle availability for this day")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['day_of_week', 'start_time']
+        verbose_name_plural = "Worker Availabilities"
+        unique_together = ['worker', 'day_of_week', 'start_time']
+    
+    def __str__(self):
+        day_name = dict(self.DAYS_OF_WEEK)[self.day_of_week]
+        return f"{self.worker.username} - {day_name} {self.start_time.strftime('%I:%M %p')} to {self.end_time.strftime('%I:%M %p')}"
+    
+    def check_conflict_with_contract(self, contract):
+        """
+        Check if this availability slot conflicts with a contract's schedule.
+        Returns True if there's a conflict, False otherwise.
+        """
+        if not contract.start_time or not contract.end_time:
+            return False
+        
+        # Check if time ranges overlap
+        time_overlap = (
+            self.start_time < contract.end_time and 
+            self.end_time > contract.start_time
+        )
+        
+        return time_overlap
+    
+    @staticmethod
+    def get_worker_availability(worker, day_of_week=None):
+        """Get worker's availability schedule"""
+        availability = WorkerAvailability.objects.filter(
+            worker=worker,
+            is_available=True
+        )
+        
+        if day_of_week is not None:
+            availability = availability.filter(day_of_week=day_of_week)
+        
+        return availability.order_by('day_of_week', 'start_time')
+    
+    @staticmethod
+    def check_availability_for_contract(worker, start_date, end_date, start_time, end_time):
+        """
+        Check if worker is available for the proposed contract schedule.
+        Returns a dict with 'available' (bool) and 'conflicts' (list of conflicting days).
+        """
+        from datetime import timedelta
+        
+        conflicts = []
+        current_date = start_date
+        
+        while current_date <= end_date:
+            day_of_week = current_date.weekday()  # 0=Monday, 6=Sunday
+            
+            # Check if worker has availability set for this day
+            day_availability = WorkerAvailability.objects.filter(
+                worker=worker,
+                day_of_week=day_of_week,
+                is_available=True
+            )
+            
+            if not day_availability.exists():
+                conflicts.append({
+                    'date': current_date,
+                    'reason': 'No availability set for this day'
+                })
+            else:
+                # Check if requested time falls within any availability slot
+                has_matching_slot = False
+                for slot in day_availability:
+                    if start_time >= slot.start_time and end_time <= slot.end_time:
+                        has_matching_slot = True
+                        break
+                
+                if not has_matching_slot:
+                    conflicts.append({
+                        'date': current_date,
+                        'reason': f'Requested time {start_time.strftime("%I:%M %p")} - {end_time.strftime("%I:%M %p")} not available'
+                    })
+            
+            current_date += timedelta(days=1)
+        
+        return {
+            'available': len(conflicts) == 0,
+            'conflicts': conflicts
+        }
