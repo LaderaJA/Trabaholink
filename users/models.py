@@ -500,3 +500,75 @@ class EmailOTP(models.Model):
 
 # Import ActivityLog model
 from .activity_logger import ActivityLog, log_activity
+
+
+class PrivacySettings(models.Model):
+    """
+    Privacy settings for user profiles.
+    Controls what information is visible and to whom.
+    """
+    VISIBILITY_CHOICES = [
+        ('public', 'Public - Anyone can view my profile'),
+        ('connections', 'Connections Only - Only my connections can view'),
+        ('private', 'Private - Only I can view my profile'),
+    ]
+    
+    user = models.OneToOneField(
+        CustomUser, 
+        on_delete=models.CASCADE, 
+        related_name='privacy_settings'
+    )
+    
+    # Profile visibility
+    profile_visibility = models.CharField(
+        max_length=20,
+        choices=VISIBILITY_CHOICES,
+        default='public',
+        help_text='Who can view your profile'
+    )
+    
+    # Contact information visibility
+    show_email = models.BooleanField(
+        default=True,
+        help_text='Show email address on profile'
+    )
+    show_phone = models.BooleanField(
+        default=True,
+        help_text='Show phone number on profile'
+    )
+    
+    # Activity privacy
+    show_activity = models.BooleanField(
+        default=True,
+        help_text='Show your activity in public feeds'
+    )
+    allow_search_engines = models.BooleanField(
+        default=False,
+        help_text='Allow search engines to index your profile'
+    )
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Privacy Settings'
+        verbose_name_plural = 'Privacy Settings'
+    
+    def __str__(self):
+        return f"Privacy settings for {self.user.username}"
+    
+    @staticmethod
+    def get_or_create_for_user(user):
+        """Get or create privacy settings for a user with default values"""
+        settings, created = PrivacySettings.objects.get_or_create(
+            user=user,
+            defaults={
+                'profile_visibility': 'public',
+                'show_email': True,
+                'show_phone': True,
+                'show_activity': True,
+                'allow_search_engines': False,
+            }
+        )
+        return settings

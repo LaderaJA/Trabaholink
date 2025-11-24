@@ -302,15 +302,25 @@ class ChangePasswordView(FormView):
 # Privacy Settings View
 @method_decorator(login_required, name='dispatch')
 class PrivacySettingsView(UpdateView):
-    model = CustomUser
-    form_class = UserProfileForm 
+    from .models import PrivacySettings
+    model = PrivacySettings
     template_name = "users/privacy_settings.html"
+    fields = ['profile_visibility', 'show_email', 'show_phone', 'show_activity', 'allow_search_engines']
 
     def get_object(self):
-        return self.request.user
+        """Get or create privacy settings for the current user"""
+        from .models import PrivacySettings
+        settings, created = PrivacySettings.objects.get_or_create(user=self.request.user)
+        return settings
 
     def get_success_url(self):
-        return reverse_lazy('profile')
+        messages.success(self.request, 'Your privacy settings have been updated successfully!')
+        return reverse_lazy('privacy_settings')
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['user'] = self.request.user
+        return context
 
 # Profile Detail View
 @method_decorator(login_required, name='dispatch')

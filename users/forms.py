@@ -320,3 +320,32 @@ class VerificationStep3Form(forms.Form):
             'accept': 'image/*'
         })
     )
+
+
+class PrivacySettingsForm(forms.ModelForm):
+    """Form for managing user privacy settings"""
+    
+    class Meta:
+        from .models import PrivacySettings
+        model = PrivacySettings
+        fields = [
+            'profile_visibility',
+            'show_email',
+            'show_phone',
+            'show_activity',
+            'allow_search_engines'
+        ]
+        widgets = {
+            'profile_visibility': forms.RadioSelect(attrs={'class': 'form-check-input'}),
+            'show_email': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'show_phone': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'show_activity': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'allow_search_engines': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+        labels = {
+            'profile_visibility': 'Profile Visibility',
+            'show_email': 'Show my email address on my profile',
+            'show_phone': 'Show my phone number on my profile',
+            'show_activity': 'Show my activity in the public feed',
+            'allow_search_engines': 'Allow search engines to index my profile',
+        }
