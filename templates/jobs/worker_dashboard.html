@@ -444,6 +444,23 @@
 
     .stat-card-icon.red { background: #fee2e2; color: #dc2626; }
 
+    @media (max-width: 1024px) {
+        /* Calendar and deadlines responsive layout */
+        .calendar-deadlines-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1rem !important;
+        }
+        
+        .deadlines-sidebar {
+            order: -1; /* Show deadlines before calendar on tablet/mobile */
+        }
+        
+        #calendar,
+        #calendar-loading {
+            min-height: 500px !important;
+        }
+    }
+    
     @media (max-width: 768px) {
         .stats-grid {
             grid-template-columns: 1fr;
@@ -475,6 +492,22 @@
         .filter-select,
         .search-input {
             width: 100%;
+        }
+        
+        /* Calendar adjustments for mobile */
+        #calendar {
+            padding: 0.5rem !important;
+        }
+        
+        .fc-toolbar {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .fc-toolbar-chunk {
+            width: 100%;
+            display: flex;
+            justify-content: center;
         }
     }
 
@@ -644,9 +677,9 @@
             </h2>
         </div>
         
-        <div style="display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem;">
+        <div class="calendar-deadlines-grid" style="display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem;">
             <!-- Calendar -->
-            <div>
+            <div class="calendar-main">
                 <div id="calendar-loading" style="background: white; border-radius: 8px; padding: 2rem; text-align: center; min-height: 600px; display: flex; align-items: center; justify-content: center;">
                     <div>
                         <div class="spinner-border text-primary" role="status">
@@ -659,7 +692,7 @@
             </div>
             
             <!-- Upcoming Deadlines Sidebar -->
-            <div>
+            <div class="deadlines-sidebar">
                 <div style="background: #f9fafb; border-radius: 8px; padding: 1.25rem; border: 1px solid #e5e7eb;">
                     <h3 style="font-size: 1.125rem; font-weight: 600; color: #111827; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
                         <i class="bi bi-alarm" style="color: #f59e0b;"></i>
