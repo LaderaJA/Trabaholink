@@ -51,8 +51,19 @@ class CVFileValidator:
         Raises:
             ValidationError: If file doesn't meet validation criteria
         """
+        # Skip validation if file doesn't exist (editing profile without changing file)
+        if not file:
+            return
+        
+        # Check if file has size attribute (might be a FieldFile from database)
+        try:
+            file_size = file.size
+        except (AttributeError, FileNotFoundError, OSError):
+            # File doesn't exist or can't be accessed, skip validation
+            return
+        
         # Check file size
-        if file.size > self.max_size:
+        if file_size > self.max_size:
             size_mb = self.max_size / (1024 * 1024)
             raise ValidationError(
                 f'File size must not exceed {size_mb}MB. Your file is {file.size / (1024 * 1024):.2f}MB.'
