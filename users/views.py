@@ -158,6 +158,21 @@ class RegisterView(CreateView):
 class UserLoginView(LoginView):
     template_name = "users/login.html"
     
+    def dispatch(self, request, *args, **kwargs):
+        # If user is already authenticated, redirect to home
+        if request.user.is_authenticated:
+            return redirect(self.get_success_url())
+        
+        response = super().dispatch(request, *args, **kwargs)
+        
+        # Prevent caching of login page
+        if hasattr(response, '__setitem__'):
+            response['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+            response['Pragma'] = 'no-cache'
+            response['Expires'] = '0'
+        
+        return response
+    
     def get_success_url(self):
         """Redirect admins to dashboard, regular users to home"""
         user = self.request.user
@@ -172,6 +187,14 @@ class UserLoginView(LoginView):
 # Logout View
 class UserLogoutView(LogoutView):
     template_name = "users/logout.html"
+    
+    def dispatch(self, request, *args, **kwargs):
+        response = super().dispatch(request, *args, **kwargs)
+        # Prevent caching to avoid back button login issue
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
+        return response
 
 class CustomPasswordResetView(PasswordResetView):
     template_name = "registration/password_reset_form.html"
