@@ -625,11 +625,11 @@ body {
               {% if conversation.user1 == request.user %}
                 {% with other_user=conversation.user2 %}
                   <a href="{% url 'messaging:conversation_detail' conversation.id %}" class="conversation-item">
-                    <div class="conversation-avatar" style="position: relative; {% if other_user.profile_picture %}padding: 0;{% endif %}">
+                    <div class="conversation-avatar" style="position: relative; padding: 0;">
                       {% if other_user.profile_picture %}
                         <img src="{{ other_user.profile_picture.url }}" alt="{{ other_user.username }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
                       {% else %}
-                        {{ other_user.username.0|upper }}
+                        <img src="{% static 'images/default_avatar.svg' %}" alt="{{ other_user.username }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
                       {% endif %}
                       <span class="status-indicator {% if other_user.is_online %}online{% else %}offline{% endif %}"></span>
                     </div>
@@ -658,11 +658,11 @@ body {
               {% else %}
                 {% with other_user=conversation.user1 %}
                   <a href="{% url 'messaging:conversation_detail' conversation.id %}" class="conversation-item">
-                    <div class="conversation-avatar" style="position: relative; {% if other_user.profile_picture %}padding: 0;{% endif %}">
+                    <div class="conversation-avatar" style="position: relative; padding: 0;">
                       {% if other_user.profile_picture %}
                         <img src="{{ other_user.profile_picture.url }}" alt="{{ other_user.username }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
                       {% else %}
-                        {{ other_user.username.0|upper }}
+                        <img src="{% static 'images/default_avatar.svg' %}" alt="{{ other_user.username }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
                       {% endif %}
                       <span class="status-indicator {% if other_user.is_online %}online{% else %}offline{% endif %}"></span>
                     </div>

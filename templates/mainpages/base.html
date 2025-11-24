@@ -5,7 +5,8 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{% block title %}TrabahoLink{% endblock %}</title>
   {% load static %}
-  <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}" />
+  <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}" />
+  <link rel="apple-touch-icon" href="{% static 'images/favicon.png' %}" />
   <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
   <link rel="stylesheet" href="{% static 'css/base.css' %}" />
   <link rel="stylesheet" href="{% static 'css/mobile-fixes.css' %}" />
@@ -1273,7 +1274,7 @@
                   {% if request.user.profile_picture %}
                     <img src="{{ request.user.profile_picture.url }}" alt="{{ request.user.username }}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
                   {% else %}
-                    <i class="bi bi-person-circle"></i>
+                    <img src="{% static 'images/default_avatar.svg' %}" alt="{{ request.user.username }}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
                   {% endif %}
                 </span>
                 <span class="profile-name">{{ request.user.get_short_name|default:request.user.username|title }}</span>

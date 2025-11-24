@@ -123,9 +123,19 @@ class Notification(models.Model):
                     logger.error(f"Error reversing URL '{target}': {e}")
                     return reverse('notifications:notification_list')
             
-            url_name, model_info = target
+            # Handle tuple unpacking safely
+            if len(target) == 2:
+                url_name, model_info = target
+            else:
+                logger.error(f"Invalid target format for notification {self.id}: expected 2 values, got {len(target)}")
+                return reverse('notifications:notification_list')
+            
             if isinstance(model_info, tuple):
-                module_path, model_name = model_info
+                if len(model_info) == 2:
+                    module_path, model_name = model_info
+                else:
+                    logger.error(f"Invalid model_info format: expected 2 values, got {len(model_info)}")
+                    return reverse('notifications:notification_list')
                 try:
                     module = __import__(module_path, fromlist=[model_name])
                     model_cls = getattr(module, model_name)
