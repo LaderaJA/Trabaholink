@@ -596,12 +596,14 @@
   .input-wrapper input,
   .input-wrapper select {
     width: 100%;
+    max-width: 100%;
     padding: 0.875rem 1rem;
     border: 2px solid #e2e8f0;
     border-radius: 10px;
     font-size: 1rem;
     transition: all 0.3s ease;
     background: #f8f9fa;
+    box-sizing: border-box;
   }
   
   .input-wrapper input:focus,
@@ -835,15 +837,26 @@
     .brand-title {
       font-size: 2rem;
     }
+    
+    .input-wrapper input,
+    .input-wrapper select {
+      font-size: 0.95rem;
+      padding: 0.75rem 0.875rem;
+    }
   }
   
   @media (max-width: 575.98px) {
     .auth-page-wrapper {
-      padding: 1rem 0;
+      padding: 1rem;
+    }
+    
+    .auth-card {
+      margin: 0;
+      border-radius: 15px;
     }
     
     .auth-form-section {
-      padding: 1.5rem 1rem;
+      padding: 1.5rem 1.25rem;
     }
     
     .form-title {
@@ -852,6 +865,75 @@
     
     .form-group-modern {
       margin-bottom: 1rem;
+    }
+    
+    .input-wrapper input,
+    .input-wrapper select {
+      font-size: 0.9rem;
+      padding: 0.75rem;
+    }
+    
+    .password-wrapper input {
+      padding-right: 2.75rem;
+    }
+    
+    .password-toggle {
+      right: 0.75rem;
+    }
+    
+    .btn-primary-modern {
+      padding: 0.875rem;
+      font-size: 0.95rem;
+    }
+    
+    .btn-google-modern {
+      padding: 0.75rem 0.875rem;
+      font-size: 0.9rem;
+    }
+    
+    .consent-checkbox-modern {
+      padding: 0.875rem;
+    }
+    
+    .consent-checkbox-modern label {
+      font-size: 0.85rem;
+    }
+  }
+  
+  @media (max-width: 374.98px) {
+    .auth-page-wrapper {
+      padding: 0.75rem;
+    }
+    
+    .auth-form-section {
+      padding: 1.25rem 1rem;
+    }
+    
+    .form-title {
+      font-size: 1.5rem;
+    }
+    
+    .form-subtitle {
+      font-size: 0.875rem;
+    }
+    
+    .input-wrapper input,
+    .input-wrapper select {
+      font-size: 0.875rem;
+      padding: 0.7rem 0.75rem;
+    }
+    
+    .password-wrapper input {
+      padding-right: 2.5rem;
+    }
+    
+    .btn-primary-modern,
+    .btn-google-modern {
+      font-size: 0.875rem;
+    }
+    
+    .consent-checkbox-modern label {
+      font-size: 0.8rem;
     }
   }
 </style>
