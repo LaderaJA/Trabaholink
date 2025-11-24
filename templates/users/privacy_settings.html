@@ -64,14 +64,27 @@
         
         <div class="privacy-option">
           <h5>Profile Visibility</h5>
-          {% for choice in form.profile_visibility %}
-            <div class="form-check">
-              {{ choice.tag }}
-              <label class="form-check-label" for="{{ choice.id_for_label }}">
-                {{ choice.choice_label }}
-              </label>
-            </div>
-          {% endfor %}
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="profile_visibility" id="visibility_public" value="public" 
+                   {% if form.profile_visibility.value == 'public' or not form.profile_visibility.value %}checked{% endif %}>
+            <label class="form-check-label" for="visibility_public">
+              Public - Anyone can view my profile
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="profile_visibility" id="visibility_connections" value="connections"
+                   {% if form.profile_visibility.value == 'connections' %}checked{% endif %}>
+            <label class="form-check-label" for="visibility_connections">
+              Connections Only - Only my connections can view my profile
+            </label>
+          </div>
+          <div class="form-check">
+            <input class="form-check-input" type="radio" name="profile_visibility" id="visibility_private" value="private"
+                   {% if form.profile_visibility.value == 'private' %}checked{% endif %}>
+            <label class="form-check-label" for="visibility_private">
+              Private - Only I can view my profile
+            </label>
+          </div>
           {% if form.profile_visibility.errors %}
             <div class="text-danger mt-2">{{ form.profile_visibility.errors }}</div>
           {% endif %}
