@@ -2494,7 +2494,8 @@ class PrivacyPolicyView(TemplateView):
 @login_required
 def worker_calendar_api(request):
     """
-    API endpoint to return worker's contracts in FullCalendar format
+    API endpoint to return worker's contracts in FullCalendar format.
+    Each contract generates multiple daily events showing actual work hours.
     """
     worker = request.user
     
@@ -2511,12 +2512,17 @@ def worker_calendar_api(request):
     # Get worker's contracts
     contracts = Contract.get_worker_schedule(worker, start_date, end_date)
     
-    # Convert to calendar events
+    # Convert to calendar events (each contract returns a list of daily events)
     events = []
     for contract in contracts:
         event_data = contract.get_calendar_event_data()
         if event_data:
-            events.append(event_data)
+            # event_data is now a list of events (one per day)
+            if isinstance(event_data, list):
+                events.extend(event_data)
+            else:
+                # Backward compatibility if old format
+                events.append(event_data)
     
     return JsonResponse(events, safe=False)
 

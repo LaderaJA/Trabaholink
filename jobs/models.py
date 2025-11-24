@@ -624,34 +624,49 @@ class Contract(models.Model):
         return contracts.order_by('start_date', 'start_time')
     
     def get_calendar_event_data(self):
-        """Return contract data in FullCalendar format"""
+        """
+        Return contract data in FullCalendar format with DAILY recurring events.
+        This creates one event per day showing actual work hours, perfect for week view.
+        """
         if not self.start_date or not self.end_date:
             return None
         
-        # Combine date and time for proper calendar display
-        from datetime import datetime, time as dt_time
+        from datetime import datetime, time as dt_time, timedelta
         
         start_time = self.start_time or dt_time(9, 0)  # Default 9:00 AM
         end_time = self.end_time or dt_time(17, 0)  # Default 5:00 PM
         
-        return {
-            'id': self.pk,
-            'title': self.job_title or self.job.title,
-            'start': f"{self.start_date}T{start_time.strftime('%H:%M:%S')}",
-            'end': f"{self.end_date}T{end_time.strftime('%H:%M:%S')}",
-            'backgroundColor': self._get_status_color(),
-            'borderColor': self._get_status_color(),
-            'extendedProps': {
-                'status': self.status,
-                'client': self.client.get_full_name() or self.client.username,
-                'rate': str(self.agreed_rate) if self.agreed_rate else 'N/A',
-                'description': self.job_description[:100] if self.job_description else '',
-                'contractId': self.pk
-            }
-        }
+        events = []
+        current_date = self.start_date
+        
+        # Generate unique color for this contract based on job ID
+        color = self._get_contract_color()
+        
+        # Create one event per day showing daily work hours
+        while current_date <= self.end_date:
+            events.append({
+                'id': f"{self.pk}_{current_date.strftime('%Y%m%d')}",
+                'title': self.job_title or self.job.title,
+                'start': f"{current_date}T{start_time.strftime('%H:%M:%S')}",
+                'end': f"{current_date}T{end_time.strftime('%H:%M:%S')}",
+                'backgroundColor': color,
+                'borderColor': color,
+                'textColor': '#ffffff',
+                'extendedProps': {
+                    'contractId': self.pk,
+                    'status': self.status,
+                    'client': self.client.get_full_name() or self.client.username,
+                    'rate': str(self.agreed_rate) if self.agreed_rate else 'N/A',
+                    'description': self.job_description[:100] if self.job_description else '',
+                    'workHours': f"{start_time.strftime('%I:%M %p')} - {end_time.strftime('%I:%M %p')}"
+                }
+            })
+            current_date += timedelta(days=1)
+        
+        return events
     
     def _get_status_color(self):
-        """Get color based on contract status"""
+        """Get color based on contract status (kept for backward compatibility)"""
         colors = {
             'Negotiation': '#f59e0b',  # Orange
             'Finalized': '#3b82f6',    # Blue
@@ -661,6 +676,34 @@ class Contract(models.Model):
             'Cancelled': '#ef4444'     # Red
         }
         return colors.get(self.status, '#6b7280')
+    
+    def _get_contract_color(self):
+        """
+        Generate a unique, distinct color for each contract.
+        Uses job ID to ensure same job always gets same color.
+        """
+        # Palette of distinct, professional colors
+        color_palette = [
+            '#3b82f6',  # Blue
+            '#10b981',  # Green
+            '#f59e0b',  # Orange
+            '#8b5cf6',  # Purple
+            '#ef4444',  # Red
+            '#06b6d4',  # Cyan
+            '#ec4899',  # Pink
+            '#f97316',  # Orange-red
+            '#14b8a6',  # Teal
+            '#a855f7',  # Purple-pink
+            '#84cc16',  # Lime
+            '#f43f5e',  # Rose
+            '#6366f1',  # Indigo
+            '#eab308',  # Yellow
+            '#22c55e',  # Green-lime
+        ]
+        
+        # Use job ID to pick color (same job always same color)
+        index = self.job.id % len(color_palette)
+        return color_palette[index]
     
     def __str__(self):
         return f"Contract for {self.job.title} - {self.worker.username}"
