@@ -1703,6 +1703,8 @@ class ContractNegotiationView(LoginRequiredMixin, UpdateView):
         'schedule',
         'start_date',
         'end_date',
+        'start_time',
+        'end_time',
         'notes',
         'terms',
     ]
