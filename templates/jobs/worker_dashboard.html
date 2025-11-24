@@ -1243,12 +1243,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(data => {
                     console.log('Calendar events loaded:', data);
                     console.log('Number of events:', data.length);
-                    if (data.length > 0) {
-                        console.log('First event:', data[0]);
+                    
+                    // Flatten array if nested (API returns array of arrays after daily event changes)
+                    let flattenedData = data;
+                    if (data.length > 0 && Array.isArray(data[0])) {
+                        console.log('Flattening nested array...');
+                        flattenedData = data.flat();
+                        console.log('Flattened to:', flattenedData.length, 'events');
+                    }
+                    
+                    if (flattenedData.length > 0) {
+                        console.log('First event:', flattenedData[0]);
                     } else {
                         console.warn('No events returned from API');
                     }
-                    successCallback(data);
+                    successCallback(flattenedData);
                 })
                 .catch(error => {
                     console.error('Error loading calendar events:', error);
