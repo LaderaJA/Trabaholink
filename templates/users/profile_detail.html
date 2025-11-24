@@ -2460,6 +2460,20 @@ body {
               </div>
             </a>
           </li>
+          
+          {% if is_worker %}
+          <li>
+            <a href="{% url 'jobs:manage_availability' %}" class="action-link-modern highlight">
+              <div class="action-link-icon">
+                <i class="bi bi-calendar-check"></i>
+              </div>
+              <div class="action-link-content">
+                <strong>Manage Availability</strong>
+                <small>Set your working hours</small>
+              </div>
+            </a>
+          </li>
+          {% endif %}
         </ul>
       </div>
       

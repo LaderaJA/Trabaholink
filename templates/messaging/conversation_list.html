@@ -625,13 +625,17 @@ body {
               {% if conversation.user1 == request.user %}
                 {% with other_user=conversation.user2 %}
                   <a href="{% url 'messaging:conversation_detail' conversation.id %}" class="conversation-item">
-                    <div class="conversation-avatar">
-                      {{ other_user.username.0|upper }}
+                    <div class="conversation-avatar" style="position: relative; {% if other_user.profile_picture %}padding: 0;{% endif %}">
+                      {% if other_user.profile_picture %}
+                        <img src="{{ other_user.profile_picture.url }}" alt="{{ other_user.username }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                      {% else %}
+                        {{ other_user.username.0|upper }}
+                      {% endif %}
                       <span class="status-indicator {% if other_user.is_online %}online{% else %}offline{% endif %}"></span>
                     </div>
                     <div class="conversation-info">
                       <div class="conversation-header">
-                        <h3 class="conversation-name">{{ other_user.get_full_name|default:other_user.username }}</h3>
+                        <h3 class="conversation-name">{{ other_user.get_full_name|default:other_user.username|title }}</h3>
                         <span class="conversation-time">
                           {% if conversation.last_message_created_at %}
                             {{ conversation.last_message_created_at|timesince }} ago
@@ -654,13 +658,17 @@ body {
               {% else %}
                 {% with other_user=conversation.user1 %}
                   <a href="{% url 'messaging:conversation_detail' conversation.id %}" class="conversation-item">
-                    <div class="conversation-avatar">
-                      {{ other_user.username.0|upper }}
+                    <div class="conversation-avatar" style="position: relative; {% if other_user.profile_picture %}padding: 0;{% endif %}">
+                      {% if other_user.profile_picture %}
+                        <img src="{{ other_user.profile_picture.url }}" alt="{{ other_user.username }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                      {% else %}
+                        {{ other_user.username.0|upper }}
+                      {% endif %}
                       <span class="status-indicator {% if other_user.is_online %}online{% else %}offline{% endif %}"></span>
                     </div>
                     <div class="conversation-info">
                       <div class="conversation-header">
-                        <h3 class="conversation-name">{{ other_user.get_full_name|default:other_user.username }}</h3>
+                        <h3 class="conversation-name">{{ other_user.get_full_name|default:other_user.username|title }}</h3>
                         <span class="conversation-time">
                           {% if conversation.last_message_created_at %}
                             {{ conversation.last_message_created_at|timesince }} ago

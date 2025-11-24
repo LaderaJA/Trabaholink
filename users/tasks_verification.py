@@ -78,7 +78,8 @@ def verify_id_with_ocr_v2(self, verification_id):
         
         # Compare name
         if 'full_name' in extracted_data:
-            user_name = f"{user.last_name}, {user.first_name} {user.middle_name}".upper()
+            # Build user name from available fields (CustomUser only has first_name and last_name)
+            user_name = f"{user.last_name}, {user.first_name}".upper()
             extracted_name = extracted_data['full_name'].upper()
             
             # Calculate name similarity

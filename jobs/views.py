@@ -1735,6 +1735,25 @@ class ContractNegotiationView(LoginRequiredMixin, UpdateView):
         context['default_contract_terms'] = DEFAULT_CONTRACT_TERMS
         terms_source = contract.terms or DEFAULT_CONTRACT_TERMS
         context['prefilled_terms'] = normalize_contract_terms_text(terms_source) or DEFAULT_CONTRACT_TERMS
+        
+        # Check worker availability conflicts
+        if contract.start_date and contract.end_date and contract.start_time and contract.end_time:
+            from .models import WorkerAvailability
+            availability_result = WorkerAvailability.check_availability_for_contract(
+                worker=contract.worker,
+                start_date=contract.start_date,
+                end_date=contract.end_date,
+                start_time=contract.start_time,
+                end_time=contract.end_time
+            )
+            context['has_availability_conflicts'] = not availability_result['available']
+            context['availability_conflicts'] = availability_result['conflicts'][:10]  # Show first 10 conflicts
+            context['total_conflicts'] = len(availability_result['conflicts'])
+        else:
+            context['has_availability_conflicts'] = False
+            context['availability_conflicts'] = []
+            context['total_conflicts'] = 0
+        
         return context
     
     def get_form(self, form_class=None):

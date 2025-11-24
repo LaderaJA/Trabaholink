@@ -1,0 +1,625 @@
+{% extends 'mainpages/base.html' %}
+{% load static %}
+{% load user_filters %}
+
+{% block title %}Manage Availability - TrabahoLink{% endblock %}
+
+{% block content %}
+<style>
+  .availability-container {
+    max-width: 1200px;
+    margin: 2rem auto;
+    padding: 0 1rem;
+  }
+
+  .availability-header {
+    background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
+    color: white;
+    padding: 2rem;
+    border-radius: 12px;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .availability-header h1 {
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 0.5rem;
+  }
+
+  .availability-header p {
+    font-size: 1rem;
+    opacity: 0.95;
+    margin: 0;
+  }
+
+  .availability-card {
+    background: white;
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 2rem;
+  }
+
+  .day-section {
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.3s ease;
+  }
+
+  .day-section.active {
+    border-color: #1e3a8a;
+    background: #f8fafc;
+  }
+
+  .day-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+
+  .day-name {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #1e293b;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .day-toggle {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .toggle-switch {
+    position: relative;
+    display: inline-block;
+    width: 50px;
+    height: 26px;
+  }
+
+  .toggle-switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+
+  .toggle-slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #cbd5e1;
+    transition: 0.3s;
+    border-radius: 26px;
+  }
+
+  .toggle-slider:before {
+    position: absolute;
+    content: "";
+    height: 20px;
+    width: 20px;
+    left: 3px;
+    bottom: 3px;
+    background-color: white;
+    transition: 0.3s;
+    border-radius: 50%;
+  }
+
+  input:checked + .toggle-slider {
+    background-color: #1e3a8a;
+  }
+
+  input:checked + .toggle-slider:before {
+    transform: translateX(24px);
+  }
+
+  .time-slots {
+    display: grid;
+    gap: 1rem;
+  }
+
+  .time-slot {
+    display: grid;
+    grid-template-columns: 1fr 1fr auto;
+    gap: 1rem;
+    align-items: center;
+    padding: 1rem;
+    background: white;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+  }
+
+  .time-input-group {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .time-input-group label {
+    font-size: 0.875rem;
+    color: #64748b;
+    font-weight: 500;
+  }
+
+  .time-input-group input {
+    padding: 0.75rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 1rem;
+    transition: all 0.2s;
+  }
+
+  .time-input-group input:focus {
+    outline: none;
+    border-color: #1e3a8a;
+    box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1);
+  }
+
+  .btn-remove-slot {
+    background: #ef4444;
+    color: white;
+    border: none;
+    padding: 0.75rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+
+  .btn-remove-slot:hover {
+    background: #dc2626;
+  }
+
+  .btn-add-slot {
+    background: #10b981;
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+  }
+
+  .btn-add-slot:hover {
+    background: #059669;
+  }
+
+  .action-buttons {
+    display: flex;
+    gap: 1rem;
+    justify-content: flex-end;
+    margin-top: 2rem;
+    flex-wrap: wrap;
+  }
+
+  .btn-primary {
+    background: #1e3a8a;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.2s;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+  }
+
+  .btn-primary:hover {
+    background: #1e40af;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(30, 58, 138, 0.3);
+  }
+
+  .btn-secondary {
+    background: #64748b;
+    color: white;
+    border: none;
+    padding: 1rem 2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1rem;
+    font-weight: 600;
+    transition: all 0.2s;
+  }
+
+  .btn-secondary:hover {
+    background: #475569;
+  }
+
+  .alert {
+    padding: 1rem 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .alert-success {
+    background: #d1fae5;
+    color: #065f46;
+    border: 1px solid #6ee7b7;
+  }
+
+  .alert-error {
+    background: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #fca5a5;
+  }
+
+  .alert-info {
+    background: #dbeafe;
+    color: #1e40af;
+    border: 1px solid #93c5fd;
+  }
+
+  .info-box {
+    background: #f8fafc;
+    border-left: 4px solid #fbbf24;
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 2rem;
+  }
+
+  .info-box h3 {
+    color: #1e293b;
+    font-size: 1.125rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+  }
+
+  .info-box ul {
+    margin: 0;
+    padding-left: 1.5rem;
+    color: #475569;
+  }
+
+  .info-box li {
+    margin-bottom: 0.5rem;
+  }
+
+  /* Mobile responsiveness */
+  @media (max-width: 768px) {
+    .availability-container {
+      padding: 0 0.5rem;
+    }
+
+    .availability-header {
+      padding: 1.5rem 1rem;
+    }
+
+    .availability-header h1 {
+      font-size: 1.5rem;
+    }
+
+    .availability-card {
+      padding: 1rem;
+    }
+
+    .day-section {
+      padding: 1rem;
+    }
+
+    .time-slot {
+      grid-template-columns: 1fr;
+      gap: 0.75rem;
+    }
+
+    .action-buttons {
+      flex-direction: column;
+    }
+
+    .btn-primary,
+    .btn-secondary {
+      width: 100%;
+      justify-content: center;
+    }
+
+    .btn-remove-slot {
+      width: 100%;
+    }
+  }
+
+  @media (max-width: 480px) {
+    .availability-header h1 {
+      font-size: 1.25rem;
+    }
+
+    .availability-header p {
+      font-size: 0.875rem;
+    }
+
+    .day-name {
+      font-size: 1rem;
+    }
+
+    .day-header {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+  }
+</style>
+
+<div class="availability-container">
+  <div class="availability-header">
+    <h1>⏰ Manage Your Availability</h1>
+    <p>Set your working hours for each day of the week to help employers know when you're available</p>
+  </div>
+
+  <div id="alertContainer"></div>
+
+  <div class="availability-card">
+    <div class="info-box">
+      <h3>💡 How It Works</h3>
+      <ul>
+        <li>Toggle each day ON/OFF to indicate if you're available</li>
+        <li>Add multiple time slots per day if you have split shifts</li>
+        <li>Employers will see your availability when creating job offers</li>
+        <li>You'll be warned if a contract conflicts with your availability</li>
+      </ul>
+    </div>
+
+    <form id="availabilityForm">
+      {% for day_value, day_name in days_of_week %}
+      <div class="day-section" data-day="{{ day_value }}">
+        <div class="day-header">
+          <span class="day-name">
+            <span style="font-size: 1.5rem;">
+              {% if day_value == 0 %}📅
+              {% elif day_value == 1 %}📘
+              {% elif day_value == 2 %}📗
+              {% elif day_value == 3 %}📙
+              {% elif day_value == 4 %}📕
+              {% elif day_value == 5 %}📔
+              {% else %}📓
+              {% endif %}
+            </span>
+            {{ day_name }}
+          </span>
+          <div class="day-toggle">
+            <span style="font-size: 0.875rem; color: #64748b;">Available</span>
+            <label class="toggle-switch">
+              <input type="checkbox" class="day-enabled" data-day="{{ day_value }}" 
+                     {% if day_value in availability_by_day %}checked{% endif %}>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        <div class="time-slots" id="slots-day-{{ day_value }}">
+          {% with availability_by_day|get_item:day_value as day_slots %}
+          {% if day_slots %}
+            {% for slot in day_slots %}
+            <div class="time-slot">
+              <div class="time-input-group">
+                <label>Start Time</label>
+                <input type="time" class="start-time" value="{{ slot.start_time }}" required>
+              </div>
+              <div class="time-input-group">
+                <label>End Time</label>
+                <input type="time" class="end-time" value="{{ slot.end_time }}" required>
+              </div>
+              <button type="button" class="btn-remove-slot" onclick="removeTimeSlot(this)">
+                🗑️ Remove
+              </button>
+            </div>
+          {% else %}
+            <div class="time-slot">
+              <div class="time-input-group">
+                <label>Start Time</label>
+                <input type="time" class="start-time" value="09:00" required>
+              </div>
+              <div class="time-input-group">
+                <label>End Time</label>
+                <input type="time" class="end-time" value="17:00" required>
+              </div>
+              <button type="button" class="btn-remove-slot" onclick="removeTimeSlot(this)">
+                🗑️ Remove
+              </button>
+            </div>
+          {% endif %}
+          {% endwith %}
+        </div>
+
+        <button type="button" class="btn-add-slot" onclick="addTimeSlot({{ day_value }})">
+          ➕ Add Another Time Slot
+        </button>
+      </div>
+      {% endfor %}
+
+      <div class="action-buttons">
+        <a href="{% url 'users:profile' user.pk %}" class="btn-secondary">Cancel</a>
+        <button type="submit" class="btn-primary">
+          💾 Save Availability
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script>
+function addTimeSlot(dayOfWeek) {
+  const slotsContainer = document.getElementById(`slots-day-${dayOfWeek}`);
+  
+  const newSlot = document.createElement('div');
+  newSlot.className = 'time-slot';
+  newSlot.innerHTML = `
+    <div class="time-input-group">
+      <label>Start Time</label>
+      <input type="time" class="start-time" value="09:00" required>
+    </div>
+    <div class="time-input-group">
+      <label>End Time</label>
+      <input type="time" class="end-time" value="17:00" required>
+    </div>
+    <button type="button" class="btn-remove-slot" onclick="removeTimeSlot(this)">
+      🗑️ Remove
+    </button>
+  `;
+  
+  slotsContainer.appendChild(newSlot);
+}
+
+function removeTimeSlot(button) {
+  const slot = button.closest('.time-slot');
+  const container = slot.parentElement;
+  
+  // Keep at least one slot per day
+  if (container.children.length > 1) {
+    slot.remove();
+  } else {
+    showAlert('You must have at least one time slot per active day', 'error');
+  }
+}
+
+// Handle day toggle
+document.querySelectorAll('.day-enabled').forEach(checkbox => {
+  checkbox.addEventListener('change', function() {
+    const daySection = this.closest('.day-section');
+    const slotsContainer = daySection.querySelector('.time-slots');
+    
+    if (this.checked) {
+      daySection.classList.add('active');
+      slotsContainer.style.display = 'grid';
+    } else {
+      daySection.classList.remove('active');
+      slotsContainer.style.display = 'none';
+    }
+  });
+  
+  // Initialize state
+  if (checkbox.checked) {
+    checkbox.closest('.day-section').classList.add('active');
+  } else {
+    const slotsContainer = checkbox.closest('.day-section').querySelector('.time-slots');
+    slotsContainer.style.display = 'none';
+  }
+});
+
+// Handle form submission
+document.getElementById('availabilityForm').addEventListener('submit', async function(e) {
+  e.preventDefault();
+  
+  const availabilityData = [];
+  
+  // Collect all availability data
+  document.querySelectorAll('.day-section').forEach(section => {
+    const dayOfWeek = parseInt(section.dataset.day);
+    const isEnabled = section.querySelector('.day-enabled').checked;
+    
+    if (isEnabled) {
+      const slots = section.querySelectorAll('.time-slot');
+      
+      slots.forEach(slot => {
+        const startTime = slot.querySelector('.start-time').value;
+        const endTime = slot.querySelector('.end-time').value;
+        
+        if (startTime && endTime) {
+          // Validate time range
+          if (startTime >= endTime) {
+            showAlert(`Invalid time range for ${section.querySelector('.day-name').textContent.trim()}: Start time must be before end time`, 'error');
+            return;
+          }
+          
+          availabilityData.push({
+            day_of_week: dayOfWeek,
+            start_time: startTime,
+            end_time: endTime,
+            is_available: true
+          });
+        }
+      });
+    }
+  });
+  
+  if (availabilityData.length === 0) {
+    showAlert('Please set at least one available time slot', 'error');
+    return;
+  }
+  
+  // Submit to server
+  try {
+    const response = await fetch('{% url "jobs:manage_availability" %}', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': getCookie('csrftoken')
+      },
+      body: JSON.stringify({
+        availability: availabilityData
+      })
+    });
+    
+    const data = await response.json();
+    
+    if (data.success) {
+      showAlert(data.message, 'success');
+      setTimeout(() => {
+        window.location.href = '{% url "users:profile" user.pk %}';
+      }, 1500);
+    } else {
+      showAlert(data.message, 'error');
+    }
+  } catch (error) {
+    showAlert('Error saving availability. Please try again.', 'error');
+    console.error('Error:', error);
+  }
+});
+
+function showAlert(message, type) {
+  const alertContainer = document.getElementById('alertContainer');
+  const alertDiv = document.createElement('div');
+  alertDiv.className = `alert alert-${type}`;
+  alertDiv.innerHTML = `
+    <span style="font-size: 1.25rem;">${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span>
+    <span>${message}</span>
+  `;
+  
+  alertContainer.innerHTML = '';
+  alertContainer.appendChild(alertDiv);
+  
+  // Scroll to top
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  
+  // Auto-remove after 5 seconds
+  setTimeout(() => {
+    alertDiv.remove();
+  }, 5000);
+}
+
+function getCookie(name) {
+  let cookieValue = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let i = 0; i < cookies.length; i++) {
+      const cookie = cookies[i].trim();
+      if (cookie.substring(0, name.length + 1) === (name + '=')) {
+        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return cookieValue;
+}
+</script>
+{% endblock %}

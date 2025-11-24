@@ -101,6 +101,64 @@
             </div>
         </div>
 
+        <!-- Worker Availability Conflict Warning -->
+        {% if has_availability_conflicts %}
+        <div class="bg-yellow-50 border-l-4 border-yellow-400 p-4 mb-8 rounded-lg">
+            <div class="flex">
+                <div class="flex-shrink-0">
+                    <svg class="h-5 w-5 text-yellow-400" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
+                    </svg>
+                </div>
+                <div class="ml-3 flex-1">
+                    <h3 class="text-sm font-medium text-yellow-800">
+                        ⚠️ Schedule Conflict Detected
+                    </h3>
+                    <div class="mt-2 text-sm text-yellow-700">
+                        <p class="mb-2">
+                            The worker's availability settings indicate potential conflicts with the proposed schedule:
+                        </p>
+                        <ul class="list-disc list-inside space-y-1 mb-3">
+                            {% for conflict in availability_conflicts %}
+                            <li>
+                                <strong>{{ conflict.date|date:"D, M d, Y" }}</strong>: {{ conflict.reason }}
+                            </li>
+                            {% endfor %}
+                            {% if total_conflicts > 10 %}
+                            <li class="text-yellow-800 font-medium">
+                                ...and {{ total_conflicts|add:"-10" }} more conflicting day(s)
+                            </li>
+                            {% endif %}
+                        </ul>
+                        {% if is_worker %}
+                        <div class="bg-yellow-100 border border-yellow-200 rounded-md p-3 mt-3">
+                            <p class="text-sm text-yellow-800 mb-2">
+                                <strong>💡 Recommendations for Worker:</strong>
+                            </p>
+                            <ul class="text-xs text-yellow-700 space-y-1 ml-4 list-disc">
+                                <li><a href="{% url 'jobs:manage_availability' %}" class="underline font-medium hover:text-yellow-900">Update your availability settings</a> to match this schedule</li>
+                                <li>Discuss schedule flexibility with the employer</li>
+                                <li>Only accept if you can manage multiple commitments</li>
+                            </ul>
+                        </div>
+                        {% else %}
+                        <div class="bg-yellow-100 border border-yellow-200 rounded-md p-3 mt-3">
+                            <p class="text-sm text-yellow-800 mb-2">
+                                <strong>💡 Recommendations for Employer:</strong>
+                            </p>
+                            <ul class="text-xs text-yellow-700 space-y-1 ml-4 list-disc">
+                                <li>Discuss schedule conflicts with the worker before finalizing</li>
+                                <li>Consider adjusting the work schedule to match their availability</li>
+                                <li>Ask the worker to update their availability settings if the schedule works for them</li>
+                            </ul>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+
         <!-- Contract Form -->
         <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden mb-8">
             <div class="px-6 py-5 border-b border-gray-200">

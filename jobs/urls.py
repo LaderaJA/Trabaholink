@@ -15,6 +15,7 @@ from .views import (
     ContractFeedbackDetailView,
     start_contract_work, employer_applications_view, employer_contracts_view, worker_applications_view, worker_contracts_view
 )
+from .views_availability import manage_availability, get_availability_api, check_availability_conflicts
 
 
 app_name = "jobs"
@@ -85,6 +86,11 @@ urlpatterns = [
     # Calendar and Schedule APIs
     path('api/worker/calendar/', views.worker_calendar_api, name="worker_calendar_api"),
     path('api/schedule/check-conflict/', views.check_contract_conflict, name="api_check_conflict"),
+    
+    # Worker Availability Management
+    path('availability/manage/', manage_availability, name="manage_availability"),
+    path('api/availability/get/', get_availability_api, name="get_availability_api"),
+    path('api/availability/check-conflicts/', check_availability_conflicts, name="check_availability_conflicts"),
     
     # Job Status Toggle
     path('<int:job_id>/toggle-status/', views.toggle_job_status, name="toggle_job_status"),

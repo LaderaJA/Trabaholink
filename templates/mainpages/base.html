@@ -1254,9 +1254,13 @@
             <li class="tl-nav-item tl-profile-menu position-relative">
               <button class="tl-profile-button" id="profileMenuBtn" type="button" aria-expanded="false" aria-haspopup="true">
                 <span class="profile-avatar">
-                  <i class="bi bi-person-circle"></i>
+                  {% if request.user.profile_picture %}
+                    <img src="{{ request.user.profile_picture.url }}" alt="{{ request.user.username }}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                  {% else %}
+                    <i class="bi bi-person-circle"></i>
+                  {% endif %}
                 </span>
-                <span class="profile-name">{{ request.user.get_short_name|default:request.user.username }}</span>
+                <span class="profile-name">{{ request.user.get_short_name|default:request.user.username|title }}</span>
                 <i class="bi bi-caret-down-fill" style="font-size: 0.75rem;"></i>
               </button>
 
