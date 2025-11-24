@@ -2183,11 +2183,13 @@ body {
             <i class="bi bi-geo-alt-fill"></i>
             <span class="meta-value">{{ user.get_location_display }}</span>
           </div>
+          {% if can_view_email or is_own_profile %}
           <div class="meta-item-modern">
             <i class="bi bi-envelope-fill"></i>
             <span class="meta-value">{{ user.email }}</span>
           </div>
-          {% if user.contact_number %}
+          {% endif %}
+          {% if user.contact_number and (can_view_phone or is_own_profile) %}
           <div class="meta-item-modern">
             <i class="bi bi-telephone-fill"></i>
             <span class="meta-value">{{ user.contact_number }}</span>
@@ -2298,7 +2300,11 @@ body {
             </div>
             <div class="contact-details-modern">
               <div class="contact-label-modern">Email</div>
+              {% if can_view_email or is_own_profile %}
               <div class="contact-value-modern">{{ user.email }}</div>
+              {% else %}
+              <div class="contact-value-modern text-muted"><i class="bi bi-lock-fill"></i> Hidden by user</div>
+              {% endif %}
             </div>
           </li>
           
@@ -2308,7 +2314,11 @@ body {
             </div>
             <div class="contact-details-modern">
               <div class="contact-label-modern">Phone</div>
+              {% if can_view_phone or is_own_profile %}
               <div class="contact-value-modern">{{ user.contact_number|default:"Not provided" }}</div>
+              {% else %}
+              <div class="contact-value-modern text-muted"><i class="bi bi-lock-fill"></i> Hidden by user</div>
+              {% endif %}
             </div>
           </li>
           

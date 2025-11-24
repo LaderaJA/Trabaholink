@@ -331,10 +331,60 @@ class UserProfileDetailView(DetailView):
 
     def get_object(self):
         return get_object_or_404(CustomUser, pk=self.kwargs['pk'])
+    
+    def dispatch(self, request, *args, **kwargs):
+        """Check privacy settings before allowing access"""
+        profile_user = self.get_object()
+        current_user = request.user
+        
+        # Owner can always view their own profile
+        if profile_user == current_user:
+            return super().dispatch(request, *args, **kwargs)
+        
+        # Admin/staff can view all profiles
+        if current_user.is_staff or current_user.is_superuser:
+            return super().dispatch(request, *args, **kwargs)
+        
+        # Check privacy settings
+        try:
+            from .models import PrivacySettings
+            privacy_settings = PrivacySettings.objects.filter(user=profile_user).first()
+            
+            if privacy_settings:
+                visibility = privacy_settings.profile_visibility
+                
+                if visibility == 'private':
+                    # Private profile - only owner can view
+                    messages.error(request, 'This profile is private and cannot be viewed.')
+                    return redirect('jobs:home')
+                
+                elif visibility == 'connections':
+                    # TODO: Check if users are connected (implement connections feature later)
+                    # For now, treat as public
+                    pass
+            
+            # If no privacy settings or visibility is public, allow access
+            return super().dispatch(request, *args, **kwargs)
+            
+        except Exception as e:
+            logger.error(f"Error checking privacy settings: {e}")
+            # On error, allow access (fail open for better UX)
+            return super().dispatch(request, *args, **kwargs)
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         user = self.get_object()
+        current_user = self.request.user
+        
+        # Get privacy settings
+        from .models import PrivacySettings
+        privacy_settings = PrivacySettings.objects.filter(user=user).first()
+        
+        # Add privacy settings to context
+        context['privacy_settings'] = privacy_settings
+        context['can_view_email'] = privacy_settings.show_email if privacy_settings else True
+        context['can_view_phone'] = privacy_settings.show_phone if privacy_settings else True
+        context['is_own_profile'] = user == current_user
         
         # Determine user type
         context["is_worker"] = user.role == 'worker'
