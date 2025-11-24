@@ -4,7 +4,7 @@ from django.urls import reverse
 
 class NoCacheMiddleware:
     """
-    Middleware to prevent caching of authenticated pages.
+    Middleware to prevent caching of all pages (authenticated or not).
     This prevents the back button from showing cached authenticated content after logout.
     """
     
@@ -14,11 +14,11 @@ class NoCacheMiddleware:
     def __call__(self, request):
         response = self.get_response(request)
         
-        # Add no-cache headers to all authenticated pages
-        if request.user.is_authenticated:
-            response['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
-            response['Pragma'] = 'no-cache'
-            response['Expires'] = '0'
+        # Add no-cache headers to all pages to prevent back button issues
+        # This is especially important for authenticated pages and logout
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0, private'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
         
         return response
 

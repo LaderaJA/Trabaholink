@@ -2201,6 +2201,26 @@
         }, 5000); // 5 seconds
       });
     });
+    
+    // Prevent back button from showing cached authenticated pages after logout
+    (function() {
+      // Detect if page was loaded via back button
+      window.addEventListener('pageshow', function(event) {
+        // If page is from cache (back/forward button)
+        if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+          // Force reload from server
+          window.location.reload();
+        }
+      });
+      
+      // Additional protection - prevent browser from caching
+      window.onload = function() {
+        // Check if page was accessed via back button
+        if (performance.navigation.type === performance.navigation.TYPE_BACK_FORWARD) {
+          window.location.reload();
+        }
+      };
+    })();
   </script>
 </body>
 </html>
