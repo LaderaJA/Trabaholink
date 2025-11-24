@@ -1285,13 +1285,25 @@
                   <i class="bi bi-person"></i>
                   <span>View Profile</span>
                 </a>
-                {% if user.profile.role == 'worker' %}
+                {% if user.profile and user.profile.role == 'worker' %}
                 <a href="{% url 'jobs:worker_dashboard' %}" class="dropdown-item" role="menuitem">
                   <i class="bi bi-speedometer2"></i>
                   <span>Worker Dashboard</span>
                 </a>
                 {% endif %}
-                {% if user.profile.role == 'client' %}
+                {% if user.profile and user.profile.role == 'client' %}
+                <a href="{% url 'jobs:employer_dashboard' %}" class="dropdown-item" role="menuitem">
+                  <i class="bi bi-briefcase"></i>
+                  <span>Employer Dashboard</span>
+                </a>
+                {% endif %}
+                {% if has_job_applications and not user.profile.role %}
+                <a href="{% url 'jobs:worker_dashboard' %}" class="dropdown-item" role="menuitem">
+                  <i class="bi bi-speedometer2"></i>
+                  <span>Worker Dashboard</span>
+                </a>
+                {% endif %}
+                {% if has_job_postings and not user.profile.role %}
                 <a href="{% url 'jobs:employer_dashboard' %}" class="dropdown-item" role="menuitem">
                   <i class="bi bi-briefcase"></i>
                   <span>Employer Dashboard</span>
