@@ -2140,7 +2140,7 @@ body {
         {% if user.profile_picture %}
           <img src="{{ user.profile_picture.url }}" class="profile-picture-modern clickable-image" alt="Profile Picture">
         {% else %}
-          <img src="{% static 'images/default_profile.png' %}" class="profile-picture-modern" alt="Default Profile">
+          <img src="{% static 'images/default_avatar.svg' %}" class="profile-picture-modern" alt="Default Profile">
         {% endif %}
         {% if user.pk == request.user.pk %}
         <a href="{% url 'profile_edit' request.user.pk %}" class="profile-picture-edit-modern" onclick="event.stopPropagation();">
