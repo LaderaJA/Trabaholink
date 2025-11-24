@@ -2,6 +2,12 @@
 {% load static %}
 {% load user_filters %}
 
+{% block extra_head %}
+  {% if privacy_settings and not privacy_settings.allow_search_engines %}
+    <meta name="robots" content="noindex, nofollow">
+  {% endif %}
+{% endblock %}
+
 {% block css %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
