@@ -879,6 +879,58 @@
               </div>
             {% endif %}
           </div>
+          
+          <!-- Start Time -->
+          <div class="form-group">
+            <label for="{{ form.start_time.id_for_label }}" class="form-label">
+              <i class="fas fa-clock"></i> Daily Start Time
+              <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" title="What time does work begin each day?"></i>
+            </label>
+            {{ form.start_time }}
+            
+            <div class="input-guide">
+              <h6><i class="fas fa-lightbulb"></i> Start Time Tips:</h6>
+              <ul>
+                <li><strong>Worker availability:</strong> Check worker's available hours</li>
+                <li><strong>Standard hours:</strong> Consider typical work hours (e.g., 8 AM - 6 PM)</li>
+                <li><strong>Time zones:</strong> Ensure both parties are in agreement</li>
+                <li><strong>Flexibility:</strong> Allow some flexibility for unexpected delays</li>
+              </ul>
+            </div>
+            
+            {% if form.start_time.errors %}
+              <div class="text-danger">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ form.start_time.errors }}
+              </div>
+            {% endif %}
+          </div>
+          
+          <!-- End Time -->
+          <div class="form-group">
+            <label for="{{ form.end_time.id_for_label }}" class="form-label">
+              <i class="fas fa-clock"></i> Daily End Time
+              <i class="fas fa-info-circle tooltip-icon" data-bs-toggle="tooltip" title="What time does work end each day?"></i>
+            </label>
+            {{ form.end_time }}
+            
+            <div class="input-guide">
+              <h6><i class="fas fa-lightbulb"></i> End Time Considerations:</h6>
+              <ul>
+                <li><strong>Reasonable hours:</strong> Avoid excessively long work days</li>
+                <li><strong>Break time:</strong> Account for meal and rest breaks</li>
+                <li><strong>Overtime:</strong> Clarify if work beyond end time requires extra pay</li>
+                <li><strong>Consistency:</strong> Try to maintain consistent daily hours</li>
+              </ul>
+            </div>
+            
+            {% if form.end_time.errors %}
+              <div class="text-danger">
+                <i class="fas fa-exclamation-circle"></i>
+                {{ form.end_time.errors }}
+              </div>
+            {% endif %}
+          </div>
         </div>
 
         <div class="action-section">
