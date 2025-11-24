@@ -1828,6 +1828,8 @@ def accept_contract_terms(request, pk):
             worker_id=request.user.id,
             start_date=contract.start_date,
             end_date=contract.end_date,
+            start_time=contract.start_time,
+            end_time=contract.end_time,
             exclude_contract_id=contract.id
         )
         
@@ -2348,10 +2350,18 @@ def check_contract_conflict(request):
         start_date = datetime.fromisoformat(start_date_str).date()
         end_date = datetime.fromisoformat(end_date_str).date() if end_date_str else None
         
+        # Get start_time and end_time if provided
+        start_time_str = data.get('start_time')
+        end_time_str = data.get('end_time')
+        start_time = datetime.strptime(start_time_str, '%H:%M').time() if start_time_str else None
+        end_time = datetime.strptime(end_time_str, '%H:%M').time() if end_time_str else None
+        
         has_conflict, conflicting_contracts, warning_message = check_schedule_conflicts(
             worker_id=request.user.id,
             start_date=start_date,
             end_date=end_date,
+            start_time=start_time,
+            end_time=end_time,
             exclude_contract_id=contract_id
         )
         
