@@ -301,7 +301,7 @@
   /* Mobile responsiveness */
   @media (max-width: 768px) {
     .availability-container {
-      padding: 0 0.5rem;
+      padding: 0 1rem;
     }
 
     .availability-header {
@@ -313,40 +313,67 @@
     }
 
     .availability-card {
-      padding: 1rem;
+      padding: 1.5rem;
     }
 
     .day-section {
-      padding: 1rem;
+      padding: 1.25rem;
     }
 
     .time-slot {
       grid-template-columns: 1fr;
       gap: 0.75rem;
     }
+    
+    .time-slot input[type="time"] {
+      font-size: 16px;
+      min-height: 44px;
+      padding: 0.75rem;
+    }
 
     .action-buttons {
       flex-direction: column;
+      gap: 0.5rem;
     }
 
     .btn-primary,
     .btn-secondary {
       width: 100%;
       justify-content: center;
+      min-height: 44px;
+      padding: 0.75rem 1rem;
     }
 
     .btn-remove-slot {
       width: 100%;
+      min-height: 44px;
+      padding: 0.5rem 1rem;
     }
   }
 
   @media (max-width: 480px) {
+    .availability-container {
+      padding: 0 0.75rem;
+    }
+    
+    .availability-header {
+      padding: 1.25rem 1rem;
+    }
+    
     .availability-header h1 {
       font-size: 1.25rem;
     }
 
     .availability-header p {
       font-size: 0.875rem;
+    }
+    
+    .availability-card {
+      padding: 1.25rem;
+    }
+
+    .day-section {
+      padding: 1rem;
     }
 
     .day-name {
@@ -356,6 +383,25 @@
     .day-header {
       flex-direction: column;
       align-items: flex-start;
+      gap: 0.75rem;
+    }
+    
+    .toggle-switch {
+      width: 56px;
+      height: 30px;
+    }
+    
+    .time-slot input[type="time"] {
+      font-size: 16px;
+      min-height: 48px;
+      padding: 0.875rem;
+    }
+    
+    .btn-primary,
+    .btn-secondary,
+    .btn-remove-slot {
+      min-height: 48px;
+      font-size: 0.9rem;
     }
   }
 </style>
