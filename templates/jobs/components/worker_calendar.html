@@ -741,7 +741,8 @@ function createDayCell(day, isOtherMonth, year, month, isToday = false) {
   const dayEvents = allEvents.filter(event => {
     const eventStart = event.start.split('T')[0];
     const eventEnd = event.end.split('T')[0];
-    return dateStr >= eventStart && dateStr <= eventEnd;
+    // Match if date equals event date (for daily events) OR falls within event range (for old format)
+    return dateStr === eventStart || (dateStr >= eventStart && dateStr <= eventEnd);
   });
   
   if (dayEvents.length > 0) {
