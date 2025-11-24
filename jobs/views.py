@@ -2497,6 +2497,9 @@ def worker_calendar_api(request):
     API endpoint to return worker's contracts in FullCalendar format.
     Each contract generates multiple daily events showing actual work hours.
     """
+    import logging
+    logger = logging.getLogger(__name__)
+    
     worker = request.user
     
     # Get date range from query params (optional)
@@ -2512,17 +2515,27 @@ def worker_calendar_api(request):
     # Get worker's contracts
     contracts = Contract.get_worker_schedule(worker, start_date, end_date)
     
+    logger.info(f"Calendar API: Found {contracts.count()} contracts for {worker.username}")
+    
     # Convert to calendar events (each contract returns a list of daily events)
     events = []
     for contract in contracts:
+        logger.info(f"Processing contract {contract.id}: {contract.job_title}, Status: {contract.status}, Dates: {contract.start_date} to {contract.end_date}, Times: {contract.start_time} - {contract.end_time}")
+        
         event_data = contract.get_calendar_event_data()
         if event_data:
             # event_data is now a list of events (one per day)
             if isinstance(event_data, list):
+                logger.info(f"Contract {contract.id} generated {len(event_data)} daily events")
                 events.extend(event_data)
             else:
                 # Backward compatibility if old format
+                logger.info(f"Contract {contract.id} generated 1 event (old format)")
                 events.append(event_data)
+        else:
+            logger.warning(f"Contract {contract.id} returned no events (missing dates?)")
+    
+    logger.info(f"Calendar API: Returning {len(events)} total events")
     
     return JsonResponse(events, safe=False)
 
