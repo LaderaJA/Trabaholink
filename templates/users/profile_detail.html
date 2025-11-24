@@ -2195,11 +2195,13 @@ body {
             <span class="meta-value">{{ user.email }}</span>
           </div>
           {% endif %}
-          {% if user.contact_number and (can_view_phone or is_own_profile) %}
-          <div class="meta-item-modern">
-            <i class="bi bi-telephone-fill"></i>
-            <span class="meta-value">{{ user.contact_number }}</span>
-          </div>
+          {% if user.contact_number %}
+            {% if can_view_phone or is_own_profile %}
+            <div class="meta-item-modern">
+              <i class="bi bi-telephone-fill"></i>
+              <span class="meta-value">{{ user.contact_number }}</span>
+            </div>
+            {% endif %}
           {% endif %}
         </div>
 
