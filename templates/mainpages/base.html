@@ -1282,7 +1282,7 @@
               </button>
 
               <div class="tl-profile-dropdown" id="profileDropdown" role="menu" aria-label="Profile options">
-                <a href="{% url 'profile' user.pk %}" class="dropdown-item" role="menuitem">
+                <a href="{% url 'profile' request.user.pk %}" class="dropdown-item" role="menuitem">
                   <i class="bi bi-person"></i>
                   <span>View Profile</span>
                 </a>
