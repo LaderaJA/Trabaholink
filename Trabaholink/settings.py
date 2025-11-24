@@ -60,6 +60,7 @@ MIDDLEWARE = [
     'django.middleware.csrf.CsrfViewMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'users.middleware.NoCacheMiddleware',  # ✅ Prevent caching of authenticated pages
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
