@@ -556,6 +556,22 @@
         </div>
     </div>
 
+    <!-- Quick Actions -->
+    <div class="quick-actions" style="margin-bottom: 2rem;">
+        <a href="{% url 'jobs:manage_availability' %}" class="action-btn action-btn-primary">
+            <i class="bi bi-calendar-check"></i>
+            Manage My Availability
+        </a>
+        <a href="{% url 'jobs:home' %}" class="action-btn action-btn-secondary">
+            <i class="bi bi-search"></i>
+            Browse Jobs
+        </a>
+        <a href="{% url 'profile' user.id %}" class="action-btn action-btn-secondary">
+            <i class="bi bi-person-circle"></i>
+            View My Profile
+        </a>
+    </div>
+
     <!-- PROMINENT ACTIVE CONTRACTS TRACKING SECTION -->
     {% if active_contracts_list %}
     <div class="content-section" style="margin-bottom: 2rem; border: 2px solid #059669;">
