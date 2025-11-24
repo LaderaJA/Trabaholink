@@ -347,11 +347,6 @@ body {
         margin-right: -10px;
     }
     
-    .row > [class*="col-"] {
-        padding-left: 10px;
-        padding-right: 10px;
-    }
-    
     /* Section spacing */
     section {
         padding-top: 2rem !important;
