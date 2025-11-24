@@ -440,12 +440,14 @@
   
   .input-wrapper input {
     width: 100%;
+    max-width: 100%;
     padding: 0.875rem 1rem;
     border: 2px solid #e2e8f0;
     border-radius: 10px;
     font-size: 1rem;
     transition: all 0.3s ease;
     background: #f8f9fa;
+    box-sizing: border-box;
   }
   
   .input-wrapper input:focus {
@@ -648,11 +650,20 @@
     .brand-title {
       font-size: 2rem;
     }
+    
+    .input-wrapper input {
+      font-size: 0.95rem;
+      padding: 0.75rem 0.875rem;
+    }
   }
   
   @media (max-width: 575.98px) {
     .auth-page-wrapper {
-      padding: 1rem 0;
+      padding: 1rem 0.5rem;
+    }
+    
+    .auth-card {
+      margin: 0 0.5rem;
     }
     
     .auth-form-section {
@@ -661,6 +672,16 @@
     
     .form-title {
       font-size: 1.75rem;
+    }
+    
+    .input-wrapper input {
+      font-size: 0.9rem;
+      padding: 0.75rem;
+    }
+    
+    .btn-primary-modern {
+      padding: 0.875rem;
+      font-size: 0.95rem;
     }
   }
 </style>

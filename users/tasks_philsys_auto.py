@@ -119,6 +119,26 @@ def auto_verify_philsys(self, verification_id: int) -> Dict[str, Any]:
         
         id_back_path = verification.id_image_back.path
         
+        # Check file size
+        import os
+        if os.path.exists(id_back_path):
+            file_size = os.path.getsize(id_back_path)
+            file_size_mb = file_size / (1024 * 1024)
+            logger.info(f"ID back image path: {id_back_path}, size: {file_size_mb:.2f} MB")
+            
+            # If file is too large (>10MB), log warning
+            if file_size_mb > 10:
+                logger.warning(f"Large file size ({file_size_mb:.2f} MB) may cause upload timeout")
+        else:
+            logger.error(f"ID back image file not found: {id_back_path}")
+            return {
+                'success': False,
+                'verified': False,
+                'data': {},
+                'retry_later': False,
+                'error': 'ID back image file not found'
+            }
+        
         # Attempt PhilSys portal verification
         philsys_result = verify_with_philsys_portal(id_back_path, user.id)
         
@@ -355,15 +375,26 @@ def verify_with_philsys_portal(id_back_path: str, user_id: int) -> Dict[str, Any
             
             # Upload file
             try:
+                logger.info(f"Looking for file upload input...")
                 upload_input = page.locator('#reader__filescan_input')
                 if upload_input.count() == 0:
                     upload_input = page.locator('input[type="file"][accept="image/*"]')
-                upload_input.set_input_files(id_back_path)
+                
+                logger.info(f"Uploading file: {id_back_path}")
+                # Increase timeout to 60 seconds for slow uploads
+                upload_input.set_input_files(id_back_path, timeout=60000)
+                logger.info(f"File uploaded, waiting for processing...")
                 page.wait_for_timeout(5000)
             except Exception as e:
                 logger.error(f"Failed to upload file: {e}")
+                # Take screenshot for debugging
+                try:
+                    page.screenshot(path=f'/tmp/philsys_upload_error_{user_id}.png', full_page=True)
+                    logger.info(f"Error screenshot saved to /tmp/philsys_upload_error_{user_id}.png")
+                except:
+                    pass
                 browser.close()
-                result['error'] = 'File upload failed'
+                result['error'] = f'File upload failed: {str(e)}'
                 return result
             
             # Wait for result to load

@@ -105,7 +105,7 @@ RUN groupadd -r appuser && useradd -r -g appuser appuser
 # Copy Python packages from python-deps stage
 COPY --from=python-deps /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=python-deps /usr/local/bin /usr/local/bin
-COPY --from=python-deps /root/.cache/ms-playwright /root/.cache/ms-playwright
+COPY --from=python-deps /root/.cache/ms-playwright /home/appuser/.cache/ms-playwright
 
 WORKDIR /app
 
@@ -114,7 +114,8 @@ COPY --chown=appuser:appuser . .
 
 # Create necessary directories with proper permissions
 RUN mkdir -p /app/staticfiles /app/media /app/mediafiles /app/logs && \
-    chown -R appuser:appuser /app
+    chown -R appuser:appuser /app && \
+    chown -R appuser:appuser /home/appuser/.cache
 
 # Copy entrypoint script
 COPY entrypoint.sh /entrypoint.sh

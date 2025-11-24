@@ -10,10 +10,11 @@
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
       max-width: 100%;
       overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
     }
     
     .calendar-wrapper {
-      min-width: 320px;
+      min-width: 100%;
       width: 100%;
     }
 
@@ -80,13 +81,13 @@
 
     .calendar-grid {
       display: grid;
-      grid-template-columns: repeat(7, 1fr);
+      grid-template-columns: repeat(7, minmax(40px, 1fr));
       gap: 1px;
       background: #e2e8f0;
       border: 1px solid #e2e8f0;
       border-radius: 8px;
       overflow: hidden;
-      min-width: 280px;
+      min-width: 100%;
     }
 
     .calendar-day-header {
@@ -368,8 +369,15 @@
     @media (max-width: 768px) {
       .calendar-container {
         padding: 0.75rem;
+        margin: 0 -1rem;
+        border-radius: 0;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
+      }
+      
+      .calendar-wrapper {
+        min-width: 600px;
+        padding: 0 1rem;
       }
 
       .calendar-header {
@@ -409,8 +417,8 @@
 
       .calendar-grid {
         gap: 0;
-        min-width: 280px;
-        width: 100%;
+        min-width: 100%;
+        grid-template-columns: repeat(7, minmax(80px, 1fr));
       }
 
       .calendar-day {
@@ -475,14 +483,21 @@
 
     @media (max-width: 480px) {
       .calendar-container {
-        padding: 0.5rem;
-        border-radius: 8px;
+        padding: 0.75rem 0.5rem;
+        margin: 0 -0.5rem;
+        border-radius: 0;
         overflow-x: auto;
         -webkit-overflow-scrolling: touch;
       }
       
+      .calendar-wrapper {
+        min-width: 560px;
+        padding: 0 0.5rem;
+      }
+      
       .calendar-grid {
-        min-width: 300px;
+        min-width: 100%;
+        grid-template-columns: repeat(7, minmax(75px, 1fr));
       }
 
       .calendar-header {
