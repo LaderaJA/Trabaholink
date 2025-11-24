@@ -1,5 +1,11 @@
 {% extends 'mainpages/base.html' %}
 
+{% block extra_head %}
+<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+{% endblock %}
+
 {% block content %}
 <div class="auth-page-wrapper">
   <!-- Floating Shapes Background -->
@@ -739,6 +745,21 @@
 </style>
 
 <script>
+  // Prevent back button cache issue after logout
+  window.onload = function() {
+    // Prevent caching
+    if (window.performance && window.performance.navigation.type === 2) {
+      // Page accessed from back/forward button - reload from server
+      window.location.reload();
+    }
+  };
+  
+  // Prevent going back to cached authenticated pages
+  history.pushState(null, null, location.href);
+  window.onpopstate = function () {
+    history.pushState(null, null, location.href);
+  };
+  
   function togglePassword(inputId) {
     const input = document.getElementById(inputId);
     const icon = document.getElementById('toggleIcon-' + inputId);
