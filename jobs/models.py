@@ -811,6 +811,7 @@ class WorkerAvailability(models.Model):
     def check_availability_for_contract(worker, start_date, end_date, start_time, end_time):
         """
         Check if worker is available for the proposed contract schedule.
+        Priority: Check TIME conflicts first (most important), then availability slots.
         Returns a dict with 'available' (bool) and 'conflicts' (list of conflicting days).
         """
         from datetime import timedelta
@@ -818,10 +819,37 @@ class WorkerAvailability(models.Model):
         conflicts = []
         current_date = start_date
         
+        # Get all active contracts for this worker
+        existing_contracts = Contract.objects.filter(
+            worker=worker,
+            status__in=['Finalized', 'In Progress', 'Awaiting Review']
+        ).exclude(start_date__isnull=True).exclude(end_date__isnull=True)
+        
         while current_date <= end_date:
             day_of_week = current_date.weekday()  # 0=Monday, 6=Sunday
             
-            # Check if worker has availability set for this day
+            # PRIORITY 1: Check for time conflicts with existing contracts on this date
+            has_time_conflict = False
+            for contract in existing_contracts:
+                # Check if this contract overlaps with current_date
+                if contract.start_date <= current_date <= contract.end_date:
+                    # Check if times conflict (same date, overlapping times)
+                    if contract.start_time and contract.end_time:
+                        # Time ranges overlap if: start_time < other.end_time AND end_time > other.start_time
+                        if start_time < contract.end_time and end_time > contract.start_time:
+                            has_time_conflict = True
+                            conflicts.append({
+                                'date': current_date,
+                                'reason': f'Time conflict with "{contract.job_title or contract.job.title}" ({contract.start_time.strftime("%I:%M %p")} - {contract.end_time.strftime("%I:%M %p")})'
+                            })
+                            break  # One conflict per day is enough
+            
+            # Skip further checks if time conflict found (most important)
+            if has_time_conflict:
+                current_date += timedelta(days=1)
+                continue
+            
+            # PRIORITY 2: Check worker's availability settings for this day
             day_availability = WorkerAvailability.objects.filter(
                 worker=worker,
                 day_of_week=day_of_week,
@@ -831,20 +859,24 @@ class WorkerAvailability(models.Model):
             if not day_availability.exists():
                 conflicts.append({
                     'date': current_date,
-                    'reason': 'No availability set for this day'
+                    'reason': 'Worker not available on this day of week'
                 })
             else:
                 # Check if requested time falls within any availability slot
                 has_matching_slot = False
                 for slot in day_availability:
+                    # Time must be fully within the slot
                     if start_time >= slot.start_time and end_time <= slot.end_time:
                         has_matching_slot = True
                         break
                 
                 if not has_matching_slot:
+                    # Show available times for this day
+                    available_times = [f"{slot.start_time.strftime('%I:%M %p')}-{slot.end_time.strftime('%I:%M %p')}" 
+                                      for slot in day_availability]
                     conflicts.append({
                         'date': current_date,
-                        'reason': f'Requested time {start_time.strftime("%I:%M %p")} - {end_time.strftime("%I:%M %p")} not available'
+                        'reason': f'Time {start_time.strftime("%I:%M %p")}-{end_time.strftime("%I:%M %p")} not in available slots: {", ".join(available_times)}'
                     })
             
             current_date += timedelta(days=1)
