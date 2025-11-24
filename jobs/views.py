@@ -2017,11 +2017,12 @@ def end_job(request, pk):
     contract.status = "Completed"
     contract.save()
     
-    # Automatically archive the job posting when completed
+    # Only deactivate job if all vacancies are filled (no more positions available)
     job = contract.job
-    if job.is_active:
+    if job.is_active and job.vacancies == 0:
         job.is_active = False
         job.save()
+        messages.info(request, "All positions for this job have been filled. The job posting has been automatically deactivated.")
     
     # Notify worker
     Notification.objects.create(
