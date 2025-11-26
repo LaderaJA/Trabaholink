@@ -1,0 +1,433 @@
+// Trabaholink Database Schema
+// Generated for dbdiagram.io
+// Copy and paste this into https://dbdiagram.io/
+
+// ========== USERS APP ==========
+
+Table users_customuser {
+  id bigint [pk, increment]
+  username varchar(150) [unique, not null]
+  email varchar(254) [unique, not null]
+  password varchar(128) [not null]
+  first_name varchar(150)
+  last_name varchar(150)
+  role varchar(10) [not null, note: 'worker, client, admin']
+  bio text
+  contact_number varchar(15)
+  address text
+  municipality varchar(100)
+  barangay varchar(100)
+  job_coverage varchar(100)
+  location geometry [note: 'PostGIS Point field']
+  notification_location geometry
+  profile_picture varchar(100)
+  cover_photo varchar(100)
+  cv_file varchar(100)
+  is_verified boolean [default: false]
+  is_worker boolean [default: false]
+  is_active boolean [default: true]
+  is_staff boolean [default: false]
+  date_joined timestamp
+  last_login timestamp
+}
+
+Table users_skill {
+  id bigint [pk, increment]
+  user_id bigint [not null]
+  name varchar(100) [not null]
+  proficiency varchar(20) [note: 'Beginner, Intermediate, Advanced, Expert']
+  years_of_experience int
+  created_at timestamp
+}
+
+Table users_education {
+  id bigint [pk, increment]
+  user_id bigint [not null]
+  institution varchar(255) [not null]
+  degree varchar(100)
+  field_of_study varchar(100)
+  start_date date
+  end_date date
+  is_current boolean [default: false]
+}
+
+Table users_experience {
+  id bigint [pk, increment]
+  user_id bigint [not null]
+  job_title varchar(100) [not null]
+  company varchar(200)
+  description text
+  start_date date
+  end_date date
+  is_current boolean [default: false]
+}
+
+Table users_accountverification {
+  id bigint [pk, increment]
+  user_id bigint [unique, not null]
+  identity_document varchar(100)
+  verification_status varchar(20) [note: 'pending, approved, rejected']
+  submitted_at timestamp
+  reviewed_at timestamp
+}
+
+Table users_philsysverification {
+  id bigint [pk, increment]
+  user_id bigint [unique, not null]
+  philsys_number varchar(12) [unique]
+  verification_status varchar(20)
+  submitted_at timestamp
+  verified_at timestamp
+}
+
+Table users_emailotp {
+  id bigint [pk, increment]
+  user_id bigint [not null]
+  otp_code varchar(6) [not null]
+  created_at timestamp
+  expires_at timestamp
+  is_used boolean [default: false]
+}
+
+// ========== JOBS APP ==========
+
+Table jobs_jobcategory {
+  id bigint [pk, increment]
+  name varchar(255) [unique, not null]
+}
+
+Table jobs_job {
+  id bigint [pk, increment]
+  owner_id bigint [not null, note: 'Employer/Client']
+  title varchar(255) [not null]
+  description text
+  category_id bigint
+  budget decimal(10,2) [not null]
+  municipality varchar(100) [not null]
+  barangay varchar(100) [not null]
+  subdivision varchar(100)
+  street varchar(255)
+  house_number varchar(50)
+  latitude float
+  longitude float
+  location geometry [note: 'PostGIS Point']
+  job_picture varchar(100)
+  tasks text
+  duration varchar(100)
+  schedule varchar(255)
+  start_datetime timestamp
+  tools_provided boolean [default: false]
+  materials_provided boolean [default: false]
+  required_skills text
+  payment_method varchar(50) [default: 'Cash']
+  payment_schedule varchar(100)
+  urgency varchar(50) [note: 'Flexible, Urgent, Specific Date']
+  number_of_workers int [default: 1]
+  vacancies int [default: 1, note: 'Auto-decrements on contract finalization']
+  is_active boolean [default: true]
+  posting_duration_days int [default: 7]
+  expires_at timestamp
+  report_count int [default: 0]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table jobs_jobimage {
+  id bigint [pk, increment]
+  job_id bigint [not null]
+  image varchar(100) [not null]
+}
+
+Table jobs_jobapplication {
+  id bigint [pk, increment]
+  job_id bigint [not null]
+  worker_id bigint [not null]
+  message text
+  cover_letter text
+  proposed_rate varchar(100)
+  available_start_date date
+  expected_duration varchar(100)
+  experience text
+  Other_link varchar(200)
+  certifications text
+  additional_notes text
+  attach_profile_cv boolean [default: false]
+  status varchar(20) [not null, note: 'Pending, Accepted, Rejected, Withdrawn, Negotiation']
+  applied_at timestamp
+  updated_at timestamp
+  is_shortlisted boolean [default: false]
+  employer_notes text
+  is_viewed boolean [default: false]
+  viewed_at timestamp
+}
+
+Table jobs_joboffer {
+  id bigint [pk, increment]
+  application_id bigint [unique, not null]
+  job_id bigint [not null]
+  employer_id bigint [not null]
+  worker_id bigint [not null]
+  offered_rate decimal(10,2) [not null]
+  proposed_start_date date [not null]
+  proposed_end_date date
+  work_schedule varchar(255)
+  message text [not null]
+  terms_and_conditions text
+  status varchar(20) [default: 'Pending', note: 'Pending, Accepted, Rejected, Expired, Withdrawn']
+  created_at timestamp
+  updated_at timestamp
+  expires_at timestamp
+  responded_at timestamp
+  rejection_reason text
+  counter_offer_rate decimal(10,2)
+  counter_offer_message text
+}
+
+Table jobs_contract {
+  id bigint [pk, increment]
+  job_id bigint [not null]
+  worker_id bigint [not null]
+  client_id bigint [not null]
+  application_id bigint [unique, note: '1:1 with JobApplication']
+  status varchar(30) [not null, note: 'Negotiation, Finalized, In Progress, Awaiting Review, Completed, Cancelled']
+  payment_status varchar(20) [default: 'Pending', note: 'Pending, In Escrow, Released']
+  is_revision_requested boolean [default: false]
+  rate_type varchar(20) [default: 'fixed', note: 'hourly, fixed']
+  job_title varchar(255)
+  job_description text
+  agreed_rate decimal(10,2)
+  payment_schedule varchar(30)
+  duration varchar(100)
+  schedule varchar(255)
+  start_date date
+  end_date date
+  start_time time [note: 'Daily start time']
+  end_time time [note: 'Daily end time']
+  notes text
+  terms text
+  scope_of_work text
+  payment_terms text
+  deliverables text
+  feedback_by_client text
+  rating_by_client int
+  feedback_by_worker text
+  rating_by_worker int
+  created_at timestamp
+  updated_at timestamp
+  started_at timestamp
+  completed_at timestamp
+  termination_requested_by_id bigint
+  termination_reason text
+  termination_requested_at timestamp
+  finalized_by_worker boolean [default: false]
+  finalized_by_employer boolean [default: false]
+  worker_accepted boolean [default: false]
+  client_accepted boolean [default: false]
+  is_finalized boolean [default: false]
+  is_draft boolean [default: false]
+}
+
+Table jobs_jobprogress {
+  id bigint [pk, increment]
+  contract_id bigint [not null]
+  update_text text [not null]
+  image varchar(100)
+  created_at timestamp
+  updated_by_id bigint
+}
+
+Table jobs_progresslog {
+  id bigint [pk, increment]
+  contract_id bigint [not null]
+  status varchar(50) [not null]
+  message text
+  updated_by_id bigint
+  timestamp timestamp
+}
+
+Table jobs_feedback {
+  id bigint [pk, increment]
+  contract_id bigint [not null]
+  giver_id bigint [not null]
+  receiver_id bigint [not null]
+  rating int [not null, note: '1 to 5']
+  message text [not null]
+  created_at timestamp
+}
+
+Table jobs_workeravailability {
+  id bigint [pk, increment]
+  worker_id bigint [not null]
+  day_of_week int [not null, note: '0=Monday, 6=Sunday']
+  start_time time [not null]
+  end_time time [not null]
+  is_available boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+}
+
+// ========== MESSAGING APP ==========
+
+Table messaging_conversation {
+  id bigint [pk, increment]
+  user1_id bigint [not null]
+  user2_id bigint [not null]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table messaging_message {
+  id bigint [pk, increment]
+  conversation_id bigint [not null]
+  sender_id bigint [not null]
+  content text [not null]
+  attachment varchar(100)
+  timestamp timestamp
+  is_read boolean [default: false]
+  read_at timestamp
+}
+
+// ========== ANNOUNCEMENTS APP ==========
+
+Table announcements_announcement {
+  id bigint [pk, increment]
+  title varchar(200) [not null]
+  content text [not null]
+  image varchar(100)
+  is_active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+}
+
+// ========== SERVICES APP ==========
+
+Table services_servicecategory {
+  id bigint [pk, increment]
+  name varchar(100) [unique, not null]
+  description text
+}
+
+Table services_service {
+  id bigint [pk, increment]
+  provider_id bigint [not null]
+  category_id bigint
+  title varchar(200) [not null]
+  description text [not null]
+  price decimal(10,2)
+  location varchar(255)
+  is_active boolean [default: true]
+  created_at timestamp
+  updated_at timestamp
+}
+
+Table services_serviceimage {
+  id bigint [pk, increment]
+  service_id bigint [not null]
+  image varchar(100) [not null]
+}
+
+Table services_servicereview {
+  id bigint [pk, increment]
+  service_id bigint [not null]
+  reviewer_id bigint [not null]
+  rating int [not null, note: '1 to 5']
+  comment text
+  created_at timestamp
+}
+
+// ========== NOTIFICATIONS APP ==========
+
+Table notifications_notification {
+  id bigint [pk, increment]
+  user_id bigint [not null]
+  notif_type varchar(50) [not null, note: 'announcement, message, job_post, application, contract, etc.']
+  object_id int
+  message text [not null]
+  is_read boolean [default: false]
+  created_at timestamp
+}
+
+Table notifications_notificationsettings {
+  id bigint [pk, increment]
+  user_id bigint [unique, not null]
+  email_notifications boolean [default: true]
+  push_notifications boolean [default: true]
+  job_alerts boolean [default: true]
+  message_alerts boolean [default: true]
+}
+
+// ========== REPORTS APP ==========
+
+Table reports_report {
+  id bigint [pk, increment]
+  reporter_id bigint [not null]
+  reported_user_id bigint
+  reported_job_id bigint
+  reported_service_id bigint
+  report_type varchar(50) [not null, note: 'user, job, service, post']
+  reason varchar(100) [not null]
+  description text
+  status varchar(20) [default: 'pending', note: 'pending, reviewed, resolved, rejected']
+  created_at timestamp
+  reviewed_at timestamp
+  reviewed_by_id bigint
+}
+
+// ========== RELATIONSHIPS ==========
+
+// Users relationships
+Ref: users_skill.user_id > users_customuser.id [delete: cascade]
+Ref: users_education.user_id > users_customuser.id [delete: cascade]
+Ref: users_experience.user_id > users_customuser.id [delete: cascade]
+Ref: users_accountverification.user_id - users_customuser.id [delete: cascade]
+Ref: users_philsysverification.user_id - users_customuser.id [delete: cascade]
+Ref: users_emailotp.user_id > users_customuser.id [delete: cascade]
+
+// Jobs relationships
+Ref: jobs_job.owner_id > users_customuser.id [delete: cascade]
+Ref: jobs_job.category_id > jobs_jobcategory.id [delete: set null]
+Ref: jobs_jobimage.job_id > jobs_job.id [delete: cascade]
+Ref: jobs_jobapplication.job_id > jobs_job.id [delete: cascade]
+Ref: jobs_jobapplication.worker_id > users_customuser.id [delete: cascade]
+Ref: jobs_joboffer.application_id - jobs_jobapplication.id [delete: cascade]
+Ref: jobs_joboffer.job_id > jobs_job.id [delete: cascade]
+Ref: jobs_joboffer.employer_id > users_customuser.id [delete: cascade]
+Ref: jobs_joboffer.worker_id > users_customuser.id [delete: cascade]
+Ref: jobs_contract.job_id > jobs_job.id [delete: cascade]
+Ref: jobs_contract.worker_id > users_customuser.id [delete: cascade]
+Ref: jobs_contract.client_id > users_customuser.id [delete: cascade]
+Ref: jobs_contract.application_id - jobs_jobapplication.id [delete: set null]
+Ref: jobs_contract.termination_requested_by_id > users_customuser.id [delete: set null]
+Ref: jobs_jobprogress.contract_id > jobs_contract.id [delete: cascade]
+Ref: jobs_jobprogress.updated_by_id > users_customuser.id [delete: set null]
+Ref: jobs_progresslog.contract_id > jobs_contract.id [delete: cascade]
+Ref: jobs_progresslog.updated_by_id > users_customuser.id [delete: set null]
+Ref: jobs_feedback.contract_id > jobs_contract.id [delete: cascade]
+Ref: jobs_feedback.giver_id > users_customuser.id [delete: cascade]
+Ref: jobs_feedback.receiver_id > users_customuser.id [delete: cascade]
+Ref: jobs_workeravailability.worker_id > users_customuser.id [delete: cascade]
+
+// Messaging relationships
+Ref: messaging_conversation.user1_id > users_customuser.id [delete: cascade]
+Ref: messaging_conversation.user2_id > users_customuser.id [delete: cascade]
+Ref: messaging_message.conversation_id > messaging_conversation.id [delete: cascade]
+Ref: messaging_message.sender_id > users_customuser.id [delete: cascade]
+
+// Services relationships
+Ref: services_service.provider_id > users_customuser.id [delete: cascade]
+Ref: services_service.category_id > services_servicecategory.id [delete: set null]
+Ref: services_serviceimage.service_id > services_service.id [delete: cascade]
+Ref: services_servicereview.service_id > services_service.id [delete: cascade]
+Ref: services_servicereview.reviewer_id > users_customuser.id [delete: cascade]
+
+// Notifications relationships
+Ref: notifications_notification.user_id > users_customuser.id [delete: cascade]
+Ref: notifications_notificationsettings.user_id - users_customuser.id [delete: cascade]
+
+// Reports relationships
+Ref: reports_report.reporter_id > users_customuser.id [delete: cascade]
+Ref: reports_report.reported_user_id > users_customuser.id [delete: set null]
+Ref: reports_report.reported_job_id > jobs_job.id [delete: set null]
+Ref: reports_report.reported_service_id > services_service.id [delete: set null]
+Ref: reports_report.reviewed_by_id > users_customuser.id [delete: set null]
+
