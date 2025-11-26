@@ -15,10 +15,10 @@ load_dotenv(BASE_DIR / '.env')
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = os.environ.get('SECRET_KEY')
 if not SECRET_KEY:
-    if not DEBUG:
-        raise ValueError("SECRET_KEY environment variable must be set in production!")
-    # Only use insecure key in development
-    SECRET_KEY = 'django-insecure-j%%kku167m+le-25a0+o-0qvl64osod4=tf!ab$*9h!y$^9viy'
+    raise ValueError(
+        "SECRET_KEY environment variable is required! "
+        "Add it to your .env file or .env.production"
+    )
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = os.environ.get('DEBUG', 'False') == 'True'
