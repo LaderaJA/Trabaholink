@@ -91,3 +91,4 @@ pyOpenSSL==25.0.0
 pyasn1==0.6.1
 pyasn1_modules==0.4.1
 service-identity==24.2.0
+django-csp==3.8
