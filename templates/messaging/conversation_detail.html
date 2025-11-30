@@ -1235,6 +1235,53 @@
   transform: scale(1.1);
 }
 
+/* Messenger-style Image Preview Before Sending */
+#imagePreviewContainer {
+  display: none;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.image-preview-wrapper {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+#imagePreviewThumb {
+  max-width: 250px;
+  max-height: 250px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 3px solid var(--trabaholink-blue);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: block;
+}
+
+.image-preview-close {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: white;
+  border: 3px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.125rem;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.image-preview-close:hover {
+  background: #dc2626;
+  transform: scale(1.15);
+}
+
 /* Message File Attachment Display */
 .message-attachments {
   margin-top: 0.5rem;
@@ -1679,6 +1726,17 @@
     </div>
     
     <!-- File Preview Area -->
+    <!-- Image Preview (Messenger-style) -->
+    <div id="imagePreviewContainer" style="display: none;">
+      <div class="image-preview-wrapper">
+        <img id="imagePreviewThumb" src="" alt="Preview">
+        <button type="button" onclick="removeFile()" class="image-preview-close">
+          <i class="bi bi-x"></i>
+        </button>
+      </div>
+    </div>
+    
+    <!-- File Preview (for non-images) -->
     <div id="filePreview" class="file-preview" style="display: none;">
       <div class="file-preview-content">
         <span id="fileName"></span>
@@ -1870,7 +1928,23 @@ function initializeEmojiPicker() {
   document.getElementById('fileInput').addEventListener('change', function(e) {
     if (e.target.files.length > 0) {
       selectedFile = e.target.files[0];
-      showFilePreview(selectedFile.name);
+      
+      // Check if it's an image
+      const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(selectedFile.name);
+      
+      if (isImage) {
+        // Show image preview with thumbnail (Messenger-style)
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          document.getElementById('imagePreviewThumb').src = event.target.result;
+          document.getElementById('imagePreviewContainer').style.display = 'block';
+          document.getElementById('filePreview').style.display = 'none';
+        };
+        reader.readAsDataURL(selectedFile);
+      } else {
+        // Show file name preview for non-images
+        showFilePreview(selectedFile.name);
+      }
     }
   });
   
@@ -1928,6 +2002,8 @@ function removeFile() {
   selectedFile = null;
   document.getElementById('fileInput').value = '';
   document.getElementById('filePreview').style.display = 'none';
+  document.getElementById('imagePreviewContainer').style.display = 'none';
+  document.getElementById('imagePreviewThumb').src = '';
 }
 
 // Sidebar Functions
