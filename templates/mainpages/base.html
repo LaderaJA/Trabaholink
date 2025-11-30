@@ -26,6 +26,11 @@
       padding-top: 85px !important;
     }
     
+    /* CSS Variables */
+    :root {
+      --navbar-height: 80px;
+    }
+    
     /* Navbar container - Modern & Beautiful */
     .tl-navbar,
     nav.tl-navbar {
@@ -38,6 +43,7 @@
       box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
       padding: 0 !important;
       border-bottom: 1px solid #e5e7eb !important;
+      min-height: var(--navbar-height);
     }
     
     /* Top accent stripe - Bacoor colors */
@@ -1224,7 +1230,7 @@
   </style>
   {% block css %}{% endblock %}
 </head>
-<body class="d-flex flex-column min-vh-100" style="padding-top: 80px !important;">
+<body class="d-flex flex-column min-vh-100" style="padding-top: var(--navbar-height) !important;">
   <nav class="tl-navbar">
     <div class="container">
       <div class="tl-navbar-content">
