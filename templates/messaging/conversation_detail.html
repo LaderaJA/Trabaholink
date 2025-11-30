@@ -2049,8 +2049,10 @@ document.getElementById('messageForm').addEventListener('submit', async function
     
     // Scroll to bottom with delay to ensure message is rendered
     setTimeout(() => {
-      // Force scroll to absolute bottom (beyond scrollHeight)
-      const scrollAmount = messagesContainer.scrollHeight + 200;
+      // Mobile: Add 250px offset to ensure message is fully visible above input
+      // Desktop: Scroll normally
+      const offset = window.innerWidth <= 768 ? 250 : 0;
+      const scrollAmount = messagesContainer.scrollHeight + offset;
       messagesContainer.scrollTop = scrollAmount;
       console.log('Scrolled to:', scrollAmount, 'ScrollHeight:', messagesContainer.scrollHeight);
     }, 200);
@@ -2094,7 +2096,10 @@ document.addEventListener('DOMContentLoaded', function() {
   if (messagesContainer) {
     // Delay scroll to ensure all content is loaded
     setTimeout(() => {
-      const scrollAmount = messagesContainer.scrollHeight + 200;
+      // Mobile: Add 250px offset to ensure message is fully visible above input
+      // Desktop: Scroll normally
+      const offset = window.innerWidth <= 768 ? 250 : 0;
+      const scrollAmount = messagesContainer.scrollHeight + offset;
       messagesContainer.scrollTop = scrollAmount;
     }, 300);
   }
@@ -2106,7 +2111,10 @@ document.addEventListener('DOMContentLoaded', function() {
   window.addEventListener('load', function() {
     if (messagesContainer) {
       setTimeout(() => {
-        const scrollAmount = messagesContainer.scrollHeight + 200;
+        // Mobile: Add 250px offset to ensure message is fully visible above input
+        // Desktop: Scroll normally
+        const offset = window.innerWidth <= 768 ? 250 : 0;
+        const scrollAmount = messagesContainer.scrollHeight + offset;
         messagesContainer.scrollTop = scrollAmount;
       }, 400);
     }
