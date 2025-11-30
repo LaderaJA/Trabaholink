@@ -1393,23 +1393,19 @@
       
       <div class="chat-user-info">
         <div class="chat-user-avatar">
-          {% with other_user=conversation.user2 %}
-            {% if other_user == request.user %}
-              {{ conversation.user1.username.0|upper }}
-            {% else %}
-              {{ other_user.username.0|upper }}
-            {% endif %}
-          {% endwith %}
+          {% if conversation.user1 == request.user %}
+            {{ conversation.user2.username.0|upper }}
+          {% else %}
+            {{ conversation.user1.username.0|upper }}
+          {% endif %}
         </div>
         <div class="chat-user-details">
           <h2 id="chatUserName">
-            {% with other_user=conversation.user2 %}
-              {% if other_user == request.user %}
-                {{ conversation.user1.get_full_name|default:conversation.user1.username }}
-              {% else %}
-                {{ other_user.get_full_name|default:other_user.username }}
-              {% endif %}
-            {% endwith %}
+            {% if conversation.user1 == request.user %}
+              {{ conversation.user2.get_full_name|default:conversation.user2.username }}
+            {% else %}
+              {{ conversation.user1.get_full_name|default:conversation.user1.username }}
+            {% endif %}
           </h2>
           <p class="chat-user-status">
             <span class="status-dot" id="userStatusDot"></span>
