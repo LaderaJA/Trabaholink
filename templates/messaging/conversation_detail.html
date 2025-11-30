@@ -1193,6 +1193,7 @@
   max-width: 300px;
   cursor: pointer;
   transition: all 0.2s ease;
+  background: white;
 }
 
 .message-image:hover {
@@ -1205,7 +1206,8 @@
   height: auto;
   display: block;
   max-height: 400px;
-  object-fit: cover;
+  object-fit: contain;
+  background: white;
 }
 
 .outgoing .message-image {
@@ -1214,6 +1216,26 @@
 
 .incoming .message-image {
   border: 2px solid var(--border-color);
+}
+
+@media (max-width: 768px) {
+  .message-image {
+    max-width: 250px;
+  }
+  
+  .message-image img {
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .message-image {
+    max-width: 200px;
+  }
+  
+  .message-image img {
+    max-height: 250px;
+  }
 }
 
 /* Image Lightbox */
@@ -1416,32 +1438,32 @@
               
               {% if message.file %}
                 <div class="message-attachments">
-                  {% if message.file.name|slice:"-4:" == ".jpg" or message.file.name|slice:"-4:" == ".png" or message.file.name|slice:"-4:" == ".gif" or message.file.name|slice:"-5:" == ".jpeg" or message.file.name|slice:"-5:" == ".webp" %}
+                  {% if message.file.name|slice:"-4:" == ".jpg" or message.file.name|slice:"-4:" == ".png" or message.file.name|slice:"-4:" == ".gif" or message.file.name|slice:"-5:" == ".jpeg" or message.file.name|slice:"-5:" == ".webp" or message.file.name|slice:"-4:" == ".JPG" or message.file.name|slice:"-4:" == ".PNG" or message.file.name|slice:"-4:" == ".GIF" or message.file.name|slice:"-5:" == ".JPEG" or message.file.name|slice:"-5:" == ".WEBP" %}
                     <!-- Image Preview -->
                     <div class="message-image" onclick="openLightbox('{{ message.file.url }}')">
-                      <img src="{{ message.file.url }}" alt="Image attachment" loading="lazy" class="img-fluid">
+                      <img src="{{ message.file.url }}" alt="Image attachment" loading="lazy">
                     </div>
                   {% else %}
                     <!-- File Attachment -->
                     <div class="message-file">
-                      <a href="{{ message.file.url }}" target="_blank" download>
+                      <a href="{{ message.file.url }}" download="{{ message.file.name }}" rel="noopener noreferrer">
                         <span class="file-icon">
-                          {% if message.file.name|slice:"-4:" == ".pdf" %}
+                          {% if message.file.name|slice:"-4:" == ".pdf" or message.file.name|slice:"-4:" == ".PDF" %}
                             📄
-                          {% elif message.file.name|slice:"-4:" == ".doc" or message.file.name|slice:"-5:" == ".docx" %}
+                          {% elif message.file.name|slice:"-4:" == ".doc" or message.file.name|slice:"-5:" == ".docx" or message.file.name|slice:"-4:" == ".DOC" or message.file.name|slice:"-5:" == ".DOCX" %}
                             📝
-                          {% elif message.file.name|slice:"-4:" == ".zip" or message.file.name|slice:"-4:" == ".rar" %}
+                          {% elif message.file.name|slice:"-4:" == ".zip" or message.file.name|slice:"-4:" == ".rar" or message.file.name|slice:"-4:" == ".ZIP" or message.file.name|slice:"-4:" == ".RAR" %}
                             📦
-                          {% elif message.file.name|slice:"-4:" == ".mp4" or message.file.name|slice:"-4:" == ".mov" %}
+                          {% elif message.file.name|slice:"-4:" == ".mp4" or message.file.name|slice:"-4:" == ".mov" or message.file.name|slice:"-4:" == ".MP4" or message.file.name|slice:"-4:" == ".MOV" %}
                             🎥
-                          {% elif message.file.name|slice:"-4:" == ".mp3" or message.file.name|slice:"-4:" == ".wav" %}
+                          {% elif message.file.name|slice:"-4:" == ".mp3" or message.file.name|slice:"-4:" == ".wav" or message.file.name|slice:"-4:" == ".MP3" or message.file.name|slice:"-4:" == ".WAV" %}
                             🎵
                           {% else %}
                             📎
                           {% endif %}
                         </span>
                         <div class="file-info">
-                          <span class="file-name">{{ message.file.name|slice:"11:" }}</span>
+                          <span class="file-name">{{ message.file.name }}</span>
                           <span class="file-size">Click to download</span>
                         </div>
                       </a>
@@ -1591,7 +1613,7 @@ document.getElementById('messageForm').addEventListener('submit', async function
         // Image preview
         messageHtml += `
           <div class="message-image" onclick="openLightbox('${fileUrl}')">
-            <img src="${fileUrl}" alt="Image attachment" loading="lazy">
+            <img src="${fileUrl}" alt="Image attachment" loading="lazy" onerror="this.onerror=null; this.src='/static/images/image-error.png';">
           </div>
         `;
       } else {
@@ -1599,7 +1621,7 @@ document.getElementById('messageForm').addEventListener('submit', async function
         const fileIcon = getFileIcon(fileName);
         messageHtml += `
           <div class="message-file">
-            <a href="${fileUrl}" target="_blank" download>
+            <a href="${fileUrl}" download="${fileName}" rel="noopener noreferrer">
               <span class="file-icon">${fileIcon}</span>
               <div class="file-info">
                 <span class="file-name">${fileName}</span>
