@@ -123,7 +123,7 @@ if not DEBUG:
     CSP_SCRIPT_SRC = ("'self'", "'unsafe-inline'", "'unsafe-eval'", "https://cdn.jsdelivr.net", "https://code.jquery.com", "https://cdnjs.cloudflare.com", "https://unpkg.com", "https://cdn.tailwindcss.com")
     CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "https://unpkg.com")
     CSP_FONT_SRC = ("'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "data:")
-    CSP_IMG_SRC = ("'self'", "data:", "https:", "http:")
+    CSP_IMG_SRC = ("'self'", "data:", "blob:", "https:", "http:")
     CSP_CONNECT_SRC = ("'self'", "wss:", "https:")
     CSP_FRAME_ANCESTORS = ("'self'",)
     CSP_BASE_URI = ("'self'",)
