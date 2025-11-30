@@ -1475,7 +1475,8 @@
   display: block;
   margin-top: 0.5rem;
   color: #666;
-  word-break: break-all;
+  word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 /* Message File Attachment Display */
@@ -2048,11 +2049,12 @@ document.getElementById('messageForm').addEventListener('submit', async function
     
     // Scroll to bottom with delay to ensure message is rendered
     setTimeout(() => {
+      // Add extra padding to ensure message is visible above fixed input
       messagesContainer.scrollTo({
-        top: messagesContainer.scrollHeight,
+        top: messagesContainer.scrollHeight + 100,
         behavior: 'smooth'
       });
-    }, 100);
+    }, 150);
     
   } catch (error) {
     console.error('Error sending message:', error);
@@ -2102,6 +2104,18 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Initialize emoji picker
   initializeEmojiPicker();
+  
+  // Re-scroll after images load
+  window.addEventListener('load', function() {
+    if (messagesContainer) {
+      setTimeout(() => {
+        messagesContainer.scrollTo({
+          top: messagesContainer.scrollHeight + 100,
+          behavior: 'smooth'
+        });
+      }, 300);
+    }
+  });
 });
 
 // ===== EMOJI PICKER FUNCTIONALITY =====
