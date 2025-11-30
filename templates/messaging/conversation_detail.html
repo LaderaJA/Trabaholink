@@ -1095,24 +1095,40 @@
   .input-area {
     padding: 0.5rem 0.75rem;
     gap: 0.5rem;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid var(--border-color);
+    z-index: 100;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .chat-messages {
+    padding-bottom: 70px;
   }
   
   .input-wrapper {
-    height: 48px;
-    min-height: 48px;
-    padding: 0.5rem 0.75rem;
+    height: 38px;
+    min-height: 38px;
+    padding: 0.3rem 0.55rem;
+    border-radius: 19px;
   }
   
   .message-input {
     font-size: 0.85rem;
     padding: 0;
+    line-height: 1.3;
+    vertical-align: middle;
   }
   
   .send-btn,
   .attach-btn,
   .emoji-btn {
-    width: 35px;
-    height: 35px;
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
     font-size: 0.9rem;
   }
   
