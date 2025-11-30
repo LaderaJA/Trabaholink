@@ -31,21 +31,18 @@
 /* ===== ISOLATED NAVBAR STYLES - DOES NOT AFFECT CHAT INTERFACE ===== */
 /* Scoped to navbar only, chat interface remains independent */
 @media (min-width: 769px) {
-  /* Add margins specifically to navbar-content */
+  /* Navbar content with margins and layout - SINGLE RULE */
   body nav.tl-navbar .tl-navbar-content {
-    margin-left: 3rem !important;
-    margin-right: 3rem !important;
-    padding-left: 0 !important;
-    padding-right: 0 !important;
-  }
-
-  body .tl-navbar .tl-navbar-content {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
     width: 100% !important;
     gap: 2rem !important;
     box-sizing: border-box !important;
+    margin-left: 3rem !important;
+    margin-right: 3rem !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
   body .tl-navbar .tl-navbar-brand {
