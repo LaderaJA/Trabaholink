@@ -28,32 +28,38 @@
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
-/* Override navbar styles to match landing page - PC View Priority */
+/* ===== ISOLATED NAVBAR STYLES - DOES NOT AFFECT CHAT INTERFACE ===== */
+/* Scoped to navbar only, chat interface remains independent */
 @media (min-width: 769px) {
-  /* Navbar container with left/right margins */
-  .tl-navbar .container {
+  /* Force navbar to have proper container margins (isolated from chat) */
+  body .tl-navbar .container {
     max-width: 1320px !important;
+    width: 100% !important;
     margin-left: auto !important;
     margin-right: auto !important;
-    padding-left: 1rem !important;
-    padding-right: 1rem !important;
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
     padding-top: 0.875rem !important;
     padding-bottom: 0.875rem !important;
+    box-sizing: border-box !important;
   }
 
-  .tl-navbar-content {
+  body .tl-navbar .tl-navbar-content {
     display: flex !important;
     align-items: center !important;
     justify-content: space-between !important;
     width: 100% !important;
     gap: 2rem !important;
+    box-sizing: border-box !important;
   }
 
-  .tl-navbar-brand {
+  body .tl-navbar .tl-navbar-brand {
     flex-shrink: 0 !important;
+    font-size: 1.625rem !important;
+    font-weight: 800 !important;
   }
 
-  .tl-navbar-nav {
+  body .tl-navbar .tl-navbar-nav {
     display: flex !important;
     flex-direction: row !important;
     align-items: center !important;
@@ -65,12 +71,13 @@
     justify-content: flex-end !important;
   }
 
-  .tl-nav-item {
+  body .tl-navbar .tl-nav-item {
     display: inline-flex !important;
     align-items: center !important;
+    margin: 0 !important;
   }
 
-  .tl-nav-link {
+  body .tl-navbar .tl-nav-link {
     color: #1f2937 !important;
     text-decoration: none !important;
     font-weight: 600 !important;
@@ -83,27 +90,36 @@
     gap: 0.5rem !important;
     white-space: nowrap !important;
     cursor: pointer !important;
+    background: transparent !important;
   }
 
-  .tl-nav-link:hover {
+  body .tl-navbar .tl-nav-link:hover {
     color: #1e40af !important;
     background: #eff6ff !important;
   }
 
-  .tl-nav-link.active {
+  body .tl-navbar .tl-nav-link.active {
     color: #FFFFFF !important;
     background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%) !important;
     box-shadow: 0 2px 8px rgba(30, 64, 175, 0.3) !important;
   }
 
-  .nav-icon {
+  body .tl-navbar .nav-icon {
     display: none !important;
   }
 
-  .nav-text {
+  body .tl-navbar .nav-text {
     color: inherit !important;
+    display: inline !important;
+  }
+
+  body .tl-navbar .notification-bell-btn,
+  body .tl-navbar .tl-profile-button {
+    background: transparent !important;
   }
 }
+
+/* ===== CHAT INTERFACE - COMPLETELY SEPARATE FROM NAVBAR ===== */
 
 /* Main Chat Interface */
 .chat-interface {
