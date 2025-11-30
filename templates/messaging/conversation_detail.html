@@ -2045,7 +2045,14 @@ document.getElementById('messageForm').addEventListener('submit', async function
     messageInput.value = '';
     messageInput.style.height = 'auto';
     removeFile(); // Clear file attachment
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    // Scroll to bottom with delay to ensure message is rendered
+    setTimeout(() => {
+      messagesContainer.scrollTo({
+        top: messagesContainer.scrollHeight,
+        behavior: 'smooth'
+      });
+    }, 100);
     
   } catch (error) {
     console.error('Error sending message:', error);
@@ -2084,7 +2091,13 @@ messageInput.addEventListener('keydown', function(e) {
 document.addEventListener('DOMContentLoaded', function() {
   const messagesContainer = document.getElementById('messagesContainer');
   if (messagesContainer) {
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    // Delay scroll to ensure all content is loaded
+    setTimeout(() => {
+      messagesContainer.scrollTo({
+        top: messagesContainer.scrollHeight,
+        behavior: 'smooth'
+      });
+    }, 200);
   }
   
   // Initialize emoji picker
