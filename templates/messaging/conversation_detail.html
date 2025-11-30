@@ -1282,6 +1282,24 @@
   transform: scale(1.15);
 }
 
+/* Image load error display */
+.image-load-error {
+  background: #fee;
+  border: 2px dashed #f00;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  color: #c00;
+  font-size: 0.875rem;
+}
+
+.image-load-error small {
+  display: block;
+  margin-top: 0.5rem;
+  color: #666;
+  word-break: break-all;
+}
+
 /* Message File Attachment Display */
 .message-attachments {
   margin-top: 0.5rem;
@@ -1623,7 +1641,10 @@
                   {% if message.file.name|slice:"-4:" == ".jpg" or message.file.name|slice:"-4:" == ".png" or message.file.name|slice:"-4:" == ".gif" or message.file.name|slice:"-5:" == ".jpeg" or message.file.name|slice:"-5:" == ".webp" or message.file.name|slice:"-4:" == ".JPG" or message.file.name|slice:"-4:" == ".PNG" or message.file.name|slice:"-4:" == ".GIF" or message.file.name|slice:"-5:" == ".JPEG" or message.file.name|slice:"-5:" == ".WEBP" %}
                     <!-- Image Preview -->
                     <div class="message-image" onclick="openLightbox('{{ message.file.url }}')">
-                      <img src="{{ message.file.url }}" alt="Image attachment" loading="lazy">
+                      <img src="{{ message.file.url }}" 
+                           alt="Image attachment" 
+                           loading="lazy"
+                           onerror="console.error('Failed to load image:', this.src); this.style.display='none'; this.parentElement.innerHTML='<div class=\'image-load-error\'>❌ Image failed to load<br><small>{{ message.file.url }}</small></div>';">
                     </div>
                   {% else %}
                     <!-- File Attachment -->
