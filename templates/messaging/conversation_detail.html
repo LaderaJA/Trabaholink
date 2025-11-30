@@ -28,6 +28,63 @@
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
+/* Ensure navbar elements maintain proper styling on this page */
+.tl-navbar,
+.tl-navbar .container,
+.tl-navbar-content,
+.tl-navbar-nav,
+.tl-nav-item,
+.tl-nav-link {
+  all: unset;
+}
+
+/* Re-apply navbar base styles from base.html */
+.tl-navbar .container {
+  position: relative !important;
+  padding: 0.875rem 0 !important;
+}
+
+.tl-navbar-content {
+  display: flex !important;
+  align-items: center !important;
+  justify-content: space-between !important;
+  width: 100% !important;
+  gap: 2rem !important;
+}
+
+.tl-navbar-nav {
+  display: flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  list-style: none !important;
+  margin: 0 !important;
+  padding: 0 !important;
+  gap: 0.5rem !important;
+  flex: 1 !important;
+  justify-content: flex-end !important;
+}
+
+.tl-nav-item {
+  display: inline-flex !important;
+  align-items: center !important;
+}
+
+.tl-nav-link {
+  color: #1f2937 !important;
+  text-decoration: none !important;
+  font-weight: 600 !important;
+  font-size: 0.9375rem !important;
+  padding: 0.625rem 1rem !important;
+  border-radius: 8px !important;
+  transition: all 0.2s ease !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  gap: 0.5rem !important;
+  position: relative !important;
+  white-space: nowrap !important;
+  cursor: pointer !important;
+}
+
 /* Main Chat Interface */
 .chat-interface {
   display: flex;
