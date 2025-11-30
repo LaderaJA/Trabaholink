@@ -1,6 +1,7 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
 {% load moderation_filters %}
+{% load messaging_filters %}
 
 {% block css %}
 <style>
@@ -1638,7 +1639,7 @@
               
               {% if message.file %}
                 <div class="message-attachments">
-                  {% if message.file.name|slice:"-4:" == ".jpg" or message.file.name|slice:"-4:" == ".png" or message.file.name|slice:"-4:" == ".gif" or message.file.name|slice:"-5:" == ".jpeg" or message.file.name|slice:"-5:" == ".webp" or message.file.name|slice:"-4:" == ".JPG" or message.file.name|slice:"-4:" == ".PNG" or message.file.name|slice:"-4:" == ".GIF" or message.file.name|slice:"-5:" == ".JPEG" or message.file.name|slice:"-5:" == ".WEBP" %}
+                  {% if message.file.name|is_image %}
                     <!-- Image Preview -->
                     <div class="message-image" onclick="openLightbox('{{ message.file.url }}')">
                       <img src="{{ message.file.url }}" 
