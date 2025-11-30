@@ -2049,12 +2049,12 @@ document.getElementById('messageForm').addEventListener('submit', async function
     
     // Scroll to bottom with delay to ensure message is rendered
     setTimeout(() => {
-      // Mobile: Add 250px offset to ensure message is fully visible above input
-      // Desktop: Scroll normally
+      // Mobile: Subtract 250px offset to keep message visible above input area
+      // Desktop: Scroll to absolute bottom
       const offset = window.innerWidth <= 768 ? 250 : 0;
-      const scrollAmount = messagesContainer.scrollHeight + offset;
+      const scrollAmount = messagesContainer.scrollHeight - offset;
       messagesContainer.scrollTop = scrollAmount;
-      console.log('Scrolled to:', scrollAmount, 'ScrollHeight:', messagesContainer.scrollHeight);
+      console.log('Scrolled to:', scrollAmount, 'ScrollHeight:', messagesContainer.scrollHeight, 'Offset:', offset);
     }, 200);
     
   } catch (error) {
@@ -2096,10 +2096,10 @@ document.addEventListener('DOMContentLoaded', function() {
   if (messagesContainer) {
     // Delay scroll to ensure all content is loaded
     setTimeout(() => {
-      // Mobile: Add 250px offset to ensure message is fully visible above input
-      // Desktop: Scroll normally
+      // Mobile: Subtract 250px offset to keep message visible above input area
+      // Desktop: Scroll to absolute bottom
       const offset = window.innerWidth <= 768 ? 250 : 0;
-      const scrollAmount = messagesContainer.scrollHeight + offset;
+      const scrollAmount = messagesContainer.scrollHeight - offset;
       messagesContainer.scrollTop = scrollAmount;
     }, 300);
   }
@@ -2111,10 +2111,10 @@ document.addEventListener('DOMContentLoaded', function() {
   window.addEventListener('load', function() {
     if (messagesContainer) {
       setTimeout(() => {
-        // Mobile: Add 250px offset to ensure message is fully visible above input
-        // Desktop: Scroll normally
+        // Mobile: Subtract 250px offset to keep message visible above input area
+        // Desktop: Scroll to absolute bottom
         const offset = window.innerWidth <= 768 ? 250 : 0;
-        const scrollAmount = messagesContainer.scrollHeight + offset;
+        const scrollAmount = messagesContainer.scrollHeight - offset;
         messagesContainer.scrollTop = scrollAmount;
       }, 400);
     }
