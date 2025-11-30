@@ -677,6 +677,28 @@
         }
     }
 
+    /* FullCalendar Mobile Responsive Fixes */
+    @media (max-width: 768px) {
+        /* Fix week view day names overlapping */
+        .fc-col-header-cell {
+            font-size: 0.75rem !important;
+            padding: 0.25rem !important;
+        }
+        
+        .fc-col-header-cell-cushion {
+            padding: 0.25rem 0.125rem !important;
+        }
+        
+        .fc-daygrid-day-number {
+            font-size: 0.8rem !important;
+            padding: 0.25rem !important;
+        }
+        
+        .fc-event {
+            font-size: 0.7rem !important;
+        }
+    }
+    
     @media (max-width: 480px) {
         .contract-tracking-card {
             padding: 0.875rem;
@@ -730,6 +752,37 @@
 
         .contract-card-btn-secondary i {
             font-size: 0.875rem;
+        }
+        
+        /* Calendar mobile optimizations */
+        .fc-col-header-cell {
+            font-size: 0.625rem !important;
+            padding: 0.2rem 0 !important;
+        }
+        
+        .fc-col-header-cell-cushion {
+            padding: 0.2rem 0.1rem !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .fc-daygrid-day-number {
+            font-size: 0.7rem !important;
+            padding: 0.2rem !important;
+        }
+        
+        .fc-event-title {
+            font-size: 0.65rem !important;
+        }
+        
+        .fc-toolbar-chunk {
+            font-size: 0.75rem !important;
+        }
+        
+        .fc-button {
+            padding: 0.25rem 0.5rem !important;
+            font-size: 0.75rem !important;
         }
     }
 </style>
