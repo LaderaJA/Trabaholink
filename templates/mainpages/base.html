@@ -73,6 +73,8 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
+      width: 100%;
+      gap: 2rem;
     }
     
     /* Brand logo - Modern & Clean */
@@ -87,6 +89,7 @@
       padding: 0;
       transition: all 0.2s ease;
       letter-spacing: -0.02em;
+      flex-shrink: 0;
     }
     
     @media (max-width: 768px) {
@@ -179,35 +182,40 @@
       list-style: none;
       margin: 0;
       padding: 0;
-      gap: 0.25rem;
+      gap: 0.5rem;
+      flex: 1;
+      justify-content: flex-end;
     }
     
     .tl-nav-item {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
     }
     
     .tl-nav-link {
-      color: #4b5563 !important;
+      color: #4b5563;
       text-decoration: none;
       font-weight: 600;
       font-size: 0.9375rem;
       padding: 0.625rem 1rem;
       border-radius: 8px;
       transition: all 0.2s ease;
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
       position: relative;
+      white-space: nowrap;
     }
     
     .tl-nav-link:hover {
-      color: #1e40af !important;
+      color: #1e40af;
       background: #eff6ff;
     }
     
     .tl-nav-link.active {
-      color: #FFFFFF !important;
+      color: #FFFFFF;
       background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
       box-shadow: 0 2px 8px rgba(30, 64, 175, 0.3);
-      position: relative;
     }
     
     .tl-nav-link.active::after {
