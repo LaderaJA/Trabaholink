@@ -158,6 +158,14 @@
   box-shadow: var(--shadow-sm);
   text-transform: uppercase;
   line-height: 1;
+  overflow: hidden;
+}
+
+.conv-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .conv-status {
@@ -276,6 +284,14 @@
   flex-shrink: 0;
   text-transform: uppercase;
   line-height: 1;
+  overflow: hidden;
+}
+
+.chat-user-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .chat-user-details h2 {
@@ -438,6 +454,15 @@
   align-self: flex-end;
   border: 2px solid white;
   box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  text-transform: uppercase;
+}
+
+.message-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  border-radius: 50%;
 }
 
 .message-content {
@@ -1327,7 +1352,11 @@
                  data-conv-id="{{ conv.id }}"
                  data-conv-name="{{ other_user.get_full_name|default:other_user.username }}">
               <div class="conv-avatar">
-                {{ other_user.username.0|upper }}
+                {% if other_user.profile_picture %}
+                  <img src="{{ other_user.get_profile_picture_url }}" alt="{{ other_user.username }}">
+                {% else %}
+                  {{ other_user.username.0|upper }}
+                {% endif %}
                 <span class="conv-status {% if other_user.is_online %}online{% else %}offline{% endif %}"></span>
               </div>
               <div class="conv-info">
@@ -1358,7 +1387,11 @@
                  data-conv-id="{{ conv.id }}"
                  data-conv-name="{{ other_user.get_full_name|default:other_user.username }}">
               <div class="conv-avatar">
-                {{ other_user.username.0|upper }}
+                {% if other_user.profile_picture %}
+                  <img src="{{ other_user.get_profile_picture_url }}" alt="{{ other_user.username }}">
+                {% else %}
+                  {{ other_user.username.0|upper }}
+                {% endif %}
                 <span class="conv-status {% if other_user.is_online %}online{% else %}offline{% endif %}"></span>
               </div>
               <div class="conv-info">
@@ -1399,9 +1432,17 @@
       <div class="chat-user-info">
         <div class="chat-user-avatar">
           {% if conversation.user1 == request.user %}
-            {{ conversation.user2.username.0|upper }}
+            {% if conversation.user2.profile_picture %}
+              <img src="{{ conversation.user2.get_profile_picture_url }}" alt="{{ conversation.user2.username }}">
+            {% else %}
+              {{ conversation.user2.username.0|upper }}
+            {% endif %}
           {% else %}
-            {{ conversation.user1.username.0|upper }}
+            {% if conversation.user1.profile_picture %}
+              <img src="{{ conversation.user1.get_profile_picture_url }}" alt="{{ conversation.user1.username }}">
+            {% else %}
+              {{ conversation.user1.username.0|upper }}
+            {% endif %}
           {% endif %}
         </div>
         <div class="chat-user-details">
@@ -1427,7 +1468,11 @@
           <div class="message-wrapper {% if message.sender == request.user %}outgoing{% else %}incoming{% endif %}">
             {% if message.sender != request.user %}
               <div class="message-avatar">
-                {{ message.sender.username.0|upper }}
+                {% if message.sender.profile_picture %}
+                  <img src="{{ message.sender.get_profile_picture_url }}" alt="{{ message.sender.username }}">
+                {% else %}
+                  {{ message.sender.username.0|upper }}
+                {% endif %}
               </div>
             {% endif %}
             <div class="message-content">
