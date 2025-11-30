@@ -60,7 +60,7 @@
     
     .tl-navbar .container {
       position: relative;
-      padding: 1rem 0;
+      padding: 0.875rem 0;
     }
     
     .tl-navbar-content {
@@ -84,21 +84,30 @@
     }
     
     @media (max-width: 768px) {
-      .tl-navbar-brand {
-        font-size: 1.875rem;
-        margin-left: 0;
-        padding: 0.25rem 0;
+      .tl-navbar .container {
+        padding: 0.75rem 1rem;
       }
       
-      .tl-navbar {
-        padding-left: 0.5rem !important;
-        padding-right: 0.5rem !important;
+      .tl-navbar-brand {
+        font-size: 2.25rem;
+        margin-left: 0;
+        padding: 0;
+      }
+      
+      .tl-navbar-content {
+        gap: 1rem;
       }
     }
     
     @media (max-width: 480px) {
+      .tl-navbar .container {
+        padding: 0.625rem 0.875rem;
+      }
+      
       .tl-navbar-brand {
-        font-size: 1.75rem;
+        font-size: 2rem;
+        margin-left: 0;
+        gap: 0.1rem;
       }
     }
     
