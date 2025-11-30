@@ -1638,6 +1638,7 @@
               {% endif %}
               
               {% if message.file %}
+                <!-- DEBUG: File: {{ message.file.name }} | Ext: {{ message.file.name|get_extension }} | IsImage: {{ message.file.name|is_image }} -->
                 <div class="message-attachments">
                   {% if message.file.name|is_image %}
                     <!-- Image Preview -->
