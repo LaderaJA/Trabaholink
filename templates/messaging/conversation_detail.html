@@ -2049,12 +2049,11 @@ document.getElementById('messageForm').addEventListener('submit', async function
     
     // Scroll to bottom with delay to ensure message is rendered
     setTimeout(() => {
-      // Add extra padding to ensure message is visible above fixed input
-      messagesContainer.scrollTo({
-        top: messagesContainer.scrollHeight + 100,
-        behavior: 'smooth'
-      });
-    }, 150);
+      // Force scroll to absolute bottom (beyond scrollHeight)
+      const scrollAmount = messagesContainer.scrollHeight + 200;
+      messagesContainer.scrollTop = scrollAmount;
+      console.log('Scrolled to:', scrollAmount, 'ScrollHeight:', messagesContainer.scrollHeight);
+    }, 200);
     
   } catch (error) {
     console.error('Error sending message:', error);
@@ -2095,11 +2094,9 @@ document.addEventListener('DOMContentLoaded', function() {
   if (messagesContainer) {
     // Delay scroll to ensure all content is loaded
     setTimeout(() => {
-      messagesContainer.scrollTo({
-        top: messagesContainer.scrollHeight,
-        behavior: 'smooth'
-      });
-    }, 200);
+      const scrollAmount = messagesContainer.scrollHeight + 200;
+      messagesContainer.scrollTop = scrollAmount;
+    }, 300);
   }
   
   // Initialize emoji picker
@@ -2109,11 +2106,9 @@ document.addEventListener('DOMContentLoaded', function() {
   window.addEventListener('load', function() {
     if (messagesContainer) {
       setTimeout(() => {
-        messagesContainer.scrollTo({
-          top: messagesContainer.scrollHeight + 100,
-          behavior: 'smooth'
-        });
-      }, 300);
+        const scrollAmount = messagesContainer.scrollHeight + 200;
+        messagesContainer.scrollTop = scrollAmount;
+      }, 400);
     }
   });
 });
