@@ -759,7 +759,9 @@
   align-items: center;
   gap: 0.5rem;
   transition: all 0.3s ease;
-  min-height: 42px;
+  min-height: 48px;
+  height: 48px;
+  box-sizing: border-box;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
@@ -775,15 +777,17 @@
   flex: 1;
   border: none;
   background: transparent;
-  padding: 0.25rem 0.5rem;
+  padding: 0;
   font-size: 0.95rem;
   font-weight: 400;
   resize: none;
   outline: none;
   font-family: inherit;
-  line-height: 1.4;
-  max-height: 120px;
+  line-height: 1.5;
+  height: 100%;
+  max-height: 100%;
   color: #1e293b;
+  overflow-y: auto;
 }
 
 .message-input::placeholder {
@@ -938,9 +942,15 @@
     gap: 0.5rem;
   }
   
+  .input-wrapper {
+    height: 48px;
+    min-height: 48px;
+    padding: 0.5rem 0.75rem;
+  }
+  
   .message-input {
     font-size: 0.9rem;
-    padding: 0.75rem;
+    padding: 0;
   }
   
   .send-btn,
@@ -1031,9 +1041,15 @@
     gap: 0.5rem;
   }
   
+  .input-wrapper {
+    height: 48px;
+    min-height: 48px;
+    padding: 0.5rem 0.75rem;
+  }
+  
   .message-input {
     font-size: 0.85rem;
-    padding: 0.65rem;
+    padding: 0;
   }
   
   .send-btn,
