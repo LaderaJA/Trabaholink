@@ -1468,7 +1468,15 @@ document.getElementById('messageForm').addEventListener('submit', async function
     messageInput.value = '';
     messageInput.style.height = 'auto';
     removeFile(); // Clear file attachment
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    
+    // Scroll with offset for mobile to prevent input area from covering message
+    if (window.innerWidth <= 768) {
+      // Mobile: Add 250px offset to ensure message is fully visible above input
+      // Calculation: Fixed input (~48px) + padding (~16px) + safety margin (~186px) = 250px
+      messagesContainer.scrollTop = messagesContainer.scrollHeight - 250;
+    } else {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
     
   } catch (error) {
     console.error('Error sending message:', error);
@@ -1507,7 +1515,14 @@ messageInput.addEventListener('keydown', function(e) {
 document.addEventListener('DOMContentLoaded', function() {
   const messagesContainer = document.getElementById('messagesContainer');
   if (messagesContainer) {
-    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    // Scroll with offset for mobile to prevent input area from covering message
+    if (window.innerWidth <= 768) {
+      // Mobile: Add 250px offset to ensure message is fully visible above input
+      // Calculation: Fixed input (~48px) + padding (~16px) + safety margin (~186px) = 250px
+      messagesContainer.scrollTop = messagesContainer.scrollHeight - 250;
+    } else {
+      messagesContainer.scrollTop = messagesContainer.scrollHeight;
+    }
   }
   
   // Initialize emoji picker
