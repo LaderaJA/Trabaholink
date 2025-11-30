@@ -31,10 +31,12 @@
 /* ===== ISOLATED NAVBAR STYLES - DOES NOT AFFECT CHAT INTERFACE ===== */
 /* Scoped to navbar only, chat interface remains independent */
 @media (min-width: 769px) {
-  /* Simple fix: Just add margins to navbar content */
-  body nav.tl-navbar {
-    padding-left: 3rem !important;
-    padding-right: 3rem !important;
+  /* Add margins specifically to navbar-content */
+  body nav.tl-navbar .tl-navbar-content {
+    margin-left: 3rem !important;
+    margin-right: 3rem !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
   }
 
   body .tl-navbar .tl-navbar-content {
