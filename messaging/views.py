@@ -110,9 +110,9 @@ def conversation_detail(request, conversation_id):
         is_read=False
     ).update(is_read=True)
 
-    return render(request, "messaging/conversation_detail_new.html", {
+    return render(request, "messaging/conversation_detail.html", {
         "conversation": conversation,
-        "messages": messages,
+        "chat_messages": messages,  # Changed from 'messages' to 'chat_messages' to match template
         "receiver_id": receiver_id,
         "conversations": conversations,
         "banned_words_json": banned_words_json,
