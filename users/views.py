@@ -473,7 +473,14 @@ class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
         experience_formset = context['experience_formset']
         
         if education_formset.is_valid() and experience_formset.is_valid():
-            self.object = form.save()
+            self.object = form.save(commit=False)
+            
+            # Mark profile as completed when saving during onboarding
+            if self.request.GET.get('onboarding') == 'true':
+                self.object.profile_completed = True
+            
+            self.object.save()
+            
             education_formset.instance = self.object
             education_formset.save()
             experience_formset.instance = self.object
@@ -485,11 +492,18 @@ class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
             else:
                 messages.success(self.request, 'Your profile has been updated successfully!')
             
+            # If this was onboarding, show a welcome message
+            if self.request.GET.get('onboarding') == 'true':
+                messages.success(self.request, 'Welcome! Your profile setup is complete. You can now explore TrabahoLink!')
+            
             return super().form_valid(form)
         else:
             return self.render_to_response(self.get_context_data(form=form))
 
     def get_success_url(self):
+        # If coming from onboarding, redirect to home instead of profile view
+        if self.request.GET.get('onboarding') == 'true':
+            return reverse_lazy('jobs:home')
         return reverse_lazy('profile', kwargs={'pk': self.object.pk})
 
 # Skill Verification View
