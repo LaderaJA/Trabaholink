@@ -21,6 +21,7 @@ class ProfileSetupMiddleware:
             '/users/change-password/',
             '/users/skip-profile-setup/',
             '/users/select-role/',  # Allow role selection before profile setup
+            '/users/guide/',  # User guide API endpoints must be accessible during onboarding
             '/static/',
             '/media/',
             '/admin/',
