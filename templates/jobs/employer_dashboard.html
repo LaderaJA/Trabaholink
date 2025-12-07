@@ -1306,3 +1306,34 @@ function filterJobs() {
 </script>
 
 {% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "employer_dashboard",
+    "title": "Employer Dashboard Guide",
+    "steps": [
+        {
+            "title": "Welcome to Your Employer Dashboard! \ud83d\udcbc",
+            "content": "<h3>Manage Your Hiring</h3><p>This is your central hub for managing job postings, reviewing applications, and tracking your hired workers.</p><div class='guide-tip'><strong>\ud83d\udca1 Quick Tip:</strong> Post clear, detailed job descriptions to attract qualified candidates.</div>"
+        },
+        {
+            "title": "Your Job Postings \ud83d\udce2",
+            "content": "<h3>Active Job Listings</h3><p>View and manage all your job postings:</p><ul><li><strong>Active:</strong> Currently accepting applications</li><li><strong>Expired:</strong> Past deadline or filled</li><li><strong>Vacancies:</strong> Available positions remaining</li></ul><p>Click 'Post New Job' to create listings anytime.</p>"
+        },
+        {
+            "title": "Review Applications \ud83d\udc65",
+            "content": "<h3>Find the Right Worker</h3><p>When you receive applications:</p><ol><li>Review worker profiles and experience</li><li>Check ratings and past work</li><li>Send job offers to qualified candidates</li><li>Negotiate contract terms</li></ol><div class='guide-warning'><strong>\u26a0\ufe0f Important:</strong> Respond to applications promptly to secure top talent.</div>"
+        },
+        {
+            "title": "Manage Contracts \ud83d\udccb",
+            "content": "<h3>Track Your Hires</h3><p>Monitor all your active contracts:</p><ul><li>View worker progress updates</li><li>Communicate with hired workers</li><li>Review completed work</li><li>Provide feedback and ratings</li></ul><p>Good communication leads to better results!</p>"
+        },
+        {
+            "title": "Success Tips! \ud83c\udfaf",
+            "content": "<h3>Best Practices for Employers</h3><ul><li>Write clear job descriptions</li><li>Offer competitive rates</li><li>Communicate expectations clearly</li><li>Provide timely feedback</li><li>Rate workers fairly</li></ul><p>Ready to hire great workers? Let's go! \ud83d\ude80</p>"
+        }
+    ]
+}
+{% endblock %}

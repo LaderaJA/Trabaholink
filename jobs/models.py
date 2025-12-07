@@ -767,10 +767,11 @@ def notify_users_about_new_job(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Job)
 def notify_workers_about_new_job(sender, instance, created, **kwargs):
     if created and instance.location:
-        # Filter workers whose notification_location is set and within 5 km
+        # Filter users whose notification_location is set and within 5 km
         # Exclude the job owner from notifications
+        # Note: We check for workers by role, not is_worker field
         nearby_workers = CustomUser.objects.filter(
-            is_worker=True,
+            role='worker',  # Use role field instead of is_worker
             notification_location__isnull=False,
             notification_location__distance_lte=(instance.location, D(km=5))
         ).exclude(id=instance.owner.id).annotate(distance=Distance("notification_location", instance.location)).order_by("distance")

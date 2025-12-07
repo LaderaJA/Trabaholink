@@ -564,3 +564,26 @@ function confirmReject() {
 }
 </script>
 {% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "job_offer_detail",
+    "title": "Job Offer Guide",
+    "steps": [
+        {
+            "title": "You Have a Job Offer! \ud83c\udf8a",
+            "content": "<h3>Employer Wants to Hire You</h3><p>An employer has reviewed your application and wants to offer you this job!</p>"
+        },
+        {
+            "title": "Review the Offer \ud83d\udccb",
+            "content": "<h3>Check All Details</h3><p>Carefully review:</p><ul><li>Job description</li><li>Pay rate</li><li>Work schedule</li><li>Duration</li><li>Location</li><li>Requirements</li></ul>"
+        },
+        {
+            "title": "Accept or Decline \u2705\u274c",
+            "content": "<h3>Make Your Decision</h3><p><strong>Accept:</strong> Move to contract negotiation</p><p><strong>Decline:</strong> Politely reject the offer</p><p><strong>Negotiate:</strong> Propose different terms</p><div class='guide-tip'><strong>\ud83d\udca1 Tip:</strong> Respond quickly - employers appreciate prompt communication!</div>"
+        }
+    ]
+}
+{% endblock %}

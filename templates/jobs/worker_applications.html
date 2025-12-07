@@ -278,3 +278,26 @@
     {% endif %}
 </div>
 {% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "worker_applications",
+    "title": "My Applications Guide",
+    "steps": [
+        {
+            "title": "Track Your Applications \ud83d\udccb",
+            "content": "<h3>All Your Job Applications</h3><p>View and manage all jobs you've applied to in one place.</p>"
+        },
+        {
+            "title": "Application Status \ud83d\udd04",
+            "content": "<h3>Understanding Status</h3><ul><li><strong>Pending:</strong> Waiting for employer</li><li><strong>Viewed:</strong> Employer checking your profile</li><li><strong>Accepted:</strong> Job offer received!</li><li><strong>Rejected:</strong> Not selected</li></ul>"
+        },
+        {
+            "title": "Stay Organized \ud83d\udcca",
+            "content": "<h3>Best Practices</h3><ul><li>Check status regularly</li><li>Respond to offers quickly</li><li>Keep applying to multiple jobs</li><li>Update your profile</li></ul>"
+        }
+    ]
+}
+{% endblock %}

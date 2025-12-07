@@ -3512,3 +3512,30 @@ function toggleJobStatus(jobId, jobTitle, toggleUrl) {
 </div>
 
 {% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "profile_detail",
+    "title": "Profile Guide",
+    "steps": [
+        {
+            "title": "Your Profile Overview \ud83d\udc64",
+            "content": "<h3>Your Professional Identity</h3><p>Your profile is how others see you on Trabaholink. A complete, professional profile attracts better job opportunities.</p><div class='guide-tip'><strong>\ud83d\udca1 Important:</strong> Keep your profile updated for best results!</div>"
+        },
+        {
+            "title": "Profile Sections \ud83d\udccb",
+            "content": "<h3>What's in Your Profile</h3><ul><li><strong>Basic Info:</strong> Name, contact, location</li><li><strong>Skills:</strong> Your verified skills and certifications</li><li><strong>Experience:</strong> Past work history</li><li><strong>Portfolio:</strong> Photos of completed work</li><li><strong>Reviews:</strong> Ratings from past clients</li></ul>"
+        },
+        {
+            "title": "Edit Your Profile \u270f\ufe0f",
+            "content": "<h3>Keeping Information Current</h3><p>Click the 'Edit Profile' button to:</p><ul><li>Update your bio and job title</li><li>Add new skills</li><li>Upload work samples</li><li>Update availability</li><li>Change privacy settings</li></ul>"
+        },
+        {
+            "title": "Build Credibility \ud83c\udf1f",
+            "content": "<h3>Stand Out to Employers</h3><p>Increase your visibility by:</p><ul><li>Completing identity verification</li><li>Getting skills verified</li><li>Requesting reviews from past clients</li><li>Uploading portfolio photos</li><li>Keeping your profile active</li></ul><p>A complete profile gets 3x more job offers!</p>"
+        }
+    ]
+}
+{% endblock %}

@@ -66,6 +66,7 @@ class CustomUser(AbstractUser):
 
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='client')
     role_selected = models.BooleanField(default=False, help_text="Has user explicitly selected their role?")
+    profile_completed = models.BooleanField(default=False, help_text="Has user completed initial profile setup?")
     contact_number = models.CharField(max_length=15, blank=True)
     bio = models.TextField(blank=True)
     address = models.CharField(max_length=255, blank=True)  # new field
@@ -572,3 +573,148 @@ class PrivacySettings(models.Model):
             }
         )
         return settings
+
+
+class UserGuideStatus(models.Model):
+    """
+    Tracks user guide status and preferences across the platform.
+    
+    This model stores:
+    - Whether auto-popup is enabled for the user
+    - Last page where guide was viewed
+    - Last step completed on that page
+    - Timestamp of last interaction
+    """
+    
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='guide_status',
+        verbose_name='User',
+        help_text='The user this guide status belongs to'
+    )
+    
+    auto_popup_enabled = models.BooleanField(
+        default=True,
+        verbose_name='Auto-popup Enabled',
+        help_text='If True, guide will automatically appear on page load'
+    )
+    
+    last_page_viewed = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name='Last Page Viewed',
+        help_text='URL name of the last page where guide was opened'
+    )
+    
+    last_step_completed = models.IntegerField(
+        default=0,
+        verbose_name='Last Step Completed',
+        help_text='Last step number completed on the last viewed page'
+    )
+    
+    pages_completed = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name='Pages Completed',
+        help_text='Dict of {page_name: {completed: bool, last_step: int, timestamp: str}}'
+    )
+    
+    total_guides_viewed = models.IntegerField(
+        default=0,
+        verbose_name='Total Guides Viewed',
+        help_text='Count of how many times user has opened any guide'
+    )
+    
+    last_interaction = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Last Interaction',
+        help_text='Timestamp of last guide interaction'
+    )
+    
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Created At'
+    )
+    
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Updated At'
+    )
+    
+    class Meta:
+        verbose_name = 'User Guide Status'
+        verbose_name_plural = 'User Guide Statuses'
+        db_table = 'users_user_guide_status'
+        indexes = [
+            models.Index(fields=['user'], name='idx_guide_user'),
+            models.Index(fields=['auto_popup_enabled'], name='idx_guide_auto_popup'),
+            models.Index(fields=['last_interaction'], name='idx_guide_last_interaction'),
+        ]
+    
+    def __str__(self):
+        return f"Guide Status: {self.user.username} (Auto-popup: {self.auto_popup_enabled})"
+    
+    def mark_page_completed(self, page_name, last_step=None):
+        """Mark a specific page's guide as completed."""
+        from django.utils import timezone
+        if not self.pages_completed:
+            self.pages_completed = {}
+        
+        self.pages_completed[page_name] = {
+            'completed': True,
+            'last_step': last_step or 0,
+            'timestamp': timezone.now().isoformat()
+        }
+        self.last_page_viewed = page_name
+        if last_step is not None:
+            self.last_step_completed = last_step
+        self.save()
+    
+    def update_progress(self, page_name, step):
+        """Update progress for a specific page without marking complete."""
+        from django.utils import timezone
+        if not self.pages_completed:
+            self.pages_completed = {}
+        
+        if page_name not in self.pages_completed:
+            self.pages_completed[page_name] = {
+                'completed': False,
+                'last_step': step,
+                'timestamp': timezone.now().isoformat()
+            }
+        else:
+            self.pages_completed[page_name]['last_step'] = step
+            self.pages_completed[page_name]['timestamp'] = timezone.now().isoformat()
+        
+        self.last_page_viewed = page_name
+        self.last_step_completed = step
+        self.save()
+    
+    def is_page_completed(self, page_name):
+        """Check if a specific page's guide has been completed."""
+        if not self.pages_completed:
+            return False
+        return self.pages_completed.get(page_name, {}).get('completed', False)
+    
+    def get_page_last_step(self, page_name):
+        """Get the last step viewed for a specific page."""
+        if not self.pages_completed:
+            return 0
+        return self.pages_completed.get(page_name, {}).get('last_step', 0)
+    
+    def increment_view_count(self):
+        """Increment the total guides viewed counter."""
+        self.total_guides_viewed += 1
+        self.save(update_fields=['total_guides_viewed', 'updated_at'])
+    
+    def disable_auto_popup(self):
+        """Disable auto-popup for this user."""
+        self.auto_popup_enabled = False
+        self.save(update_fields=['auto_popup_enabled', 'updated_at'])
+    
+    def enable_auto_popup(self):
+        """Re-enable auto-popup for this user."""
+        self.auto_popup_enabled = True
+        self.save(update_fields=['auto_popup_enabled', 'updated_at'])

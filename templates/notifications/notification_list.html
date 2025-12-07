@@ -790,3 +790,26 @@ function showBrokenLinkMessage(notificationId, message) {
 }
 </script>
 {% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "notifications",
+    "title": "Notifications Guide",
+    "steps": [
+        {
+            "title": "Stay Updated! \ud83d\udd14",
+            "content": "<h3>Your Notification Center</h3><p>Get real-time updates about your jobs, applications, and messages.</p>"
+        },
+        {
+            "title": "Notification Types \ud83d\udcec",
+            "content": "<h3>What You'll See Here</h3><ul><li><strong>Job Alerts:</strong> New jobs near you</li><li><strong>Application Updates:</strong> Employer responses</li><li><strong>Contract Updates:</strong> Work status changes</li><li><strong>Messages:</strong> New chat messages</li></ul>"
+        },
+        {
+            "title": "Manage Notifications \u2699\ufe0f",
+            "content": "<h3>Stay in Control</h3><ul><li>Click to view details</li><li>Mark as read</li><li>Customize notification settings</li><li>Enable/disable by type</li></ul><p>Never miss important updates! \ud83c\udfaf</p>"
+        }
+    ]
+}
+{% endblock %}

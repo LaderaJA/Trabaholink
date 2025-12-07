@@ -21,7 +21,14 @@ class MultipleFileField(forms.FileField):
 class JobForm(forms.ModelForm):
     municipality = forms.CharField(
         required=True,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'municipality-input'})
+        initial='Bacoor',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'id': 'municipality-input',
+            'value': 'Bacoor',
+            'readonly': 'readonly',
+            'style': 'background-color: #e9ecef; cursor: not-allowed;'
+        })
     )
     barangay = forms.CharField(
         required=True,
@@ -47,6 +54,15 @@ class JobForm(forms.ModelForm):
         required=False,
         widget=forms.FileInput(attrs={'class': 'form-control'})
     )
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Always set municipality to Bacoor and make it readonly
+        self.fields['municipality'].initial = 'Bacoor'
+        if 'municipality' in self.data:
+            # Override any attempt to change municipality
+            self.data = self.data.copy()
+            self.data['municipality'] = 'Bacoor'
 
     class Meta:
         model = Job

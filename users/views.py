@@ -19,8 +19,10 @@ from django.db import models
 from django.db.models import Q
 from django.core.files.storage import default_storage
 from django.core.files.base import File
+from django.views.decorators.http import require_http_methods
 import uuid
 import os
+import json
 import logging
 
 from .models import (
@@ -741,21 +743,19 @@ class UserLocationUpdateView(LoginRequiredMixin, UpdateView):
     def form_valid(self, form):
         user = form.save(commit=False)
         loc = form.cleaned_data.get('location')
-        print("DEBUG: Posted location is:", loc)  # Debugging output in console
         
         if loc:
             try:
                 # The form field already handles the WKT to GEOS conversion
                 user.location = loc
-                print("DEBUG: Parsed location:", user.location.wkt if user.location else "None")
+                # Also set notification_location for job notifications
+                user.notification_location = loc
             except Exception as e:
-                print("DEBUG: Error parsing location:", e)
                 form.add_error('location', "Invalid location format.")
                 return self.form_invalid(form)
                 
         user.save()
-        print("DEBUG: User saved with location:", user.location.wkt if user.location else "None")
-        messages.success(self.request, 'Your location has been updated successfully!')
+        messages.success(self.request, 'Your location has been updated successfully! You will now receive notifications for nearby jobs.')
         return redirect(self.get_success_url())
 
     def get_success_url(self):
@@ -1378,6 +1378,11 @@ def select_role_view(request):
     View for new social account users to select their role.
     This is shown after Google OAuth signup.
     """
+    # If user already has role_selected, redirect them away
+    if request.user.role_selected:
+        messages.info(request, 'You have already selected your role.')
+        return redirect('jobs:home')
+    
     # Clear the session flag
     needs_selection = request.session.pop('needs_role_selection', False)
     
@@ -1390,10 +1395,193 @@ def select_role_view(request):
             request.user.save()
             
             messages.success(request, f'Welcome! You have joined as a {role.title()}.')
-            return redirect('profile', pk=request.user.pk)
+            return redirect('jobs:home')
         else:
             messages.error(request, 'Please select a valid role.')
     
     return render(request, 'users/select_role.html', {
         'needs_selection': needs_selection
     })
+
+
+# ============================================================================
+# USER GUIDE MANAGEMENT VIEWS
+# ============================================================================
+
+@login_required
+@require_http_methods(["POST"])
+def disable_guide_auto_popup(request):
+    """
+    Disable auto-popup for the current user.
+    
+    AJAX endpoint called when user clicks "Don't show this again"
+    
+    Returns:
+        JSON: {success: bool, message: str}
+    """
+    try:
+        guide_status = request.user.guide_status
+        guide_status.disable_auto_popup()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Auto-popup disabled successfully. You can still access guides using the help button.',
+            'auto_popup_enabled': False
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error disabling auto-popup: {str(e)}',
+            'auto_popup_enabled': guide_status.auto_popup_enabled if hasattr(request.user, 'guide_status') else True
+        }, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def enable_guide_auto_popup(request):
+    """
+    Re-enable auto-popup for the current user.
+    
+    AJAX endpoint for users who want to turn auto-popup back on.
+    
+    Returns:
+        JSON: {success: bool, message: str}
+    """
+    try:
+        guide_status = request.user.guide_status
+        guide_status.enable_auto_popup()
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Auto-popup enabled successfully.',
+            'auto_popup_enabled': True
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error enabling auto-popup: {str(e)}',
+            'auto_popup_enabled': guide_status.auto_popup_enabled if hasattr(request.user, 'guide_status') else True
+        }, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def update_guide_progress(request):
+    """
+    Update user's guide progress for a specific page.
+    
+    Expected POST data:
+        {
+            "page_name": "job_list",
+            "step": 2,
+            "completed": false
+        }
+    
+    Returns:
+        JSON: {success: bool, message: str}
+    """
+    try:
+        data = json.loads(request.body)
+        page_name = data.get('page_name')
+        step = data.get('step', 0)
+        completed = data.get('completed', False)
+        
+        if not page_name:
+            return JsonResponse({
+                'success': False,
+                'message': 'page_name is required'
+            }, status=400)
+        
+        guide_status = request.user.guide_status
+        
+        if completed:
+            guide_status.mark_page_completed(page_name, step)
+        else:
+            guide_status.update_progress(page_name, step)
+        
+        return JsonResponse({
+            'success': True,
+            'message': 'Progress updated successfully',
+            'page_name': page_name,
+            'step': step,
+            'completed': completed
+        })
+    except json.JSONDecodeError:
+        return JsonResponse({
+            'success': False,
+            'message': 'Invalid JSON data'
+        }, status=400)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error updating progress: {str(e)}'
+        }, status=500)
+
+
+@login_required
+@require_http_methods(["GET"])
+def get_guide_status(request):
+    """
+    Get current guide status for the user.
+    
+    Returns:
+        JSON: Complete guide status information
+    """
+    try:
+        guide_status = request.user.guide_status
+        
+        return JsonResponse({
+            'success': True,
+            'data': {
+                'auto_popup_enabled': guide_status.auto_popup_enabled,
+                'last_page_viewed': guide_status.last_page_viewed,
+                'last_step_completed': guide_status.last_step_completed,
+                'pages_completed': guide_status.pages_completed,
+                'total_guides_viewed': guide_status.total_guides_viewed,
+            }
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error fetching guide status: {str(e)}'
+        }, status=500)
+
+
+@login_required
+@require_http_methods(["POST"])
+def increment_guide_view_count(request):
+    """
+    Increment the total guide view counter.
+    
+    Called each time user opens a guide.
+    
+    Returns:
+        JSON: {success: bool, total_views: int}
+    """
+    try:
+        guide_status = request.user.guide_status
+        guide_status.increment_view_count()
+        
+        return JsonResponse({
+            'success': True,
+            'total_views': guide_status.total_guides_viewed
+        })
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'message': f'Error incrementing view count: {str(e)}'
+        }, status=500)
+
+@login_required
+def skip_profile_setup(request):
+    """
+    Allow users to skip initial profile setup.
+    Marks profile as completed even if not fully filled.
+    """
+    if request.method == 'POST':
+        request.user.profile_completed = True
+        request.user.save(update_fields=['profile_completed'])
+        messages.success(request, 'You can complete your profile anytime from your account settings.')
+        return redirect('home')
+    
+    return redirect('profile_edit')

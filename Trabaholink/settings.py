@@ -71,6 +71,7 @@ MIDDLEWARE = [
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'allauth.account.middleware.AccountMiddleware',
     'users.middleware.RoleSelectionMiddleware',  # ✅ Force role selection for new social users
+    'users.onboarding_middleware.ProfileSetupMiddleware',  # ✅ Profile setup onboarding
     'notifications.middleware.NotificationMiddleware',
     'jobs.middleware.ExpiredJobsMiddleware',  # Auto-deactivate expired jobs
 ]
@@ -146,6 +147,7 @@ TEMPLATES = [
                 'notifications.context_processors.unread_notifications',
                 'admin_dashboard.context_processors.admin_notifications',
                 'jobs.context_processors.user_dashboard_access',
+                'users.context_processors.user_guide_context',  # User guide system
             ],
         },
     },

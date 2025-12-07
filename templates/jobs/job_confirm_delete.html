@@ -161,3 +161,25 @@
   </form>
 </div>
 {% endblock %}
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "job_delete",
+    "title": "Delete Job Posting",
+    "steps": [
+        {
+            "title": "Delete Job Posting \u26a0\ufe0f",
+            "content": "<h3>Permanent Deletion</h3><p>You're about to permanently delete this job posting.</p>"
+        },
+        {
+            "title": "What Will Happen \ud83d\udd04",
+            "content": "<h3>Consequences</h3><ul><li>Job listing will be removed</li><li>All applications will be cancelled</li><li>Workers will be notified</li><li>This cannot be undone</li></ul><div class='guide-warning'><strong>\u26a0\ufe0f Warning:</strong> Make sure you want to do this!</div>"
+        },
+        {
+            "title": "Alternatives \ud83d\udca1",
+            "content": "<h3>Consider These Options</h3><p>Instead of deleting:</p><ul><li>Mark job as filled</li><li>Edit to update details</li><li>Pause accepting applications</li><li>Set earlier deadline</li></ul>"
+        }
+    ]
+}
+{% endblock %}

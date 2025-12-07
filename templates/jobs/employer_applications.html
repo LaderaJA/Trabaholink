@@ -434,3 +434,26 @@
     {% endif %}
 </div>
 {% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "employer_applications",
+    "title": "Review Applications Guide",
+    "steps": [
+        {
+            "title": "Review Worker Applications \ud83d\udc65",
+            "content": "<h3>Find the Right Worker</h3><p>Review all applications received for your job postings.</p>"
+        },
+        {
+            "title": "Evaluate Applications \ud83d\udd0d",
+            "content": "<h3>What to Look For</h3><ul><li>Relevant skills and experience</li><li>Worker ratings and reviews</li><li>Availability match</li><li>Proposed rate (if negotiable)</li><li>Application message quality</li></ul>"
+        },
+        {
+            "title": "Take Action \u2705",
+            "content": "<h3>Response Options</h3><p>For each application you can:</p><ol><li>Accept and send job offer</li><li>Reject with optional feedback</li><li>Message to ask questions</li><li>Review worker profile</li></ol><div class='guide-tip'><strong>\ud83d\udca1 Tip:</strong> Respond promptly to secure top candidates!</div>"
+        }
+    ]
+}
+{% endblock %}

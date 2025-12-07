@@ -255,3 +255,26 @@
     });
 </script>
 {% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "feedback_form",
+    "title": "Submit Feedback Guide",
+    "steps": [
+        {
+            "title": "Rate Your Experience \u2b50",
+            "content": "<h3>Provide Feedback</h3><p>Share your experience working with this user. Your feedback helps build trust in the community.</p>"
+        },
+        {
+            "title": "Be Fair and Honest \ud83d\udcaf",
+            "content": "<h3>Rating Guidelines</h3><ul><li>\u2b50\u2b50\u2b50\u2b50\u2b50 Excellent work</li><li>\u2b50\u2b50\u2b50\u2b50 Good, minor issues</li><li>\u2b50\u2b50\u2b50 Okay, some problems</li><li>\u2b50\u2b50 Poor quality</li><li>\u2b50 Unacceptable</li></ul>"
+        },
+        {
+            "title": "Written Review \ud83d\udcdd",
+            "content": "<h3>Add Details</h3><p>Write a brief review explaining:</p><ul><li>What went well</li><li>Any issues encountered</li><li>Overall experience</li><li>Would you work together again?</li></ul><div class='guide-tip'><strong>\ud83d\udca1 Tip:</strong> Constructive feedback helps everyone improve!</div>"
+        }
+    ]
+}
+{% endblock %}

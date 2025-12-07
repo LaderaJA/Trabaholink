@@ -5,6 +5,10 @@
 
 {% block css %}
 <style>
+/* Hide guide toggle button on messaging page */
+#guideToggleBtn {
+    display: none !important;
+}
 /* Ensure CSS variables from base.html are available */
 :root {
   --navbar-height: 80px;
@@ -515,7 +519,7 @@
 
 .message-wrapper {
   display: flex;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
   animation: messageSlideIn 0.3s ease;
 }
 
@@ -524,7 +528,7 @@
 }
 
 .message-wrapper.grouped {
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.75rem;
 }
 
 .message-avatar {
@@ -556,7 +560,7 @@
 }
 
 .message-content {
-  max-width: 65%;
+  max-width: 70%;
   display: flex;
   flex-direction: column;
 }
@@ -581,13 +585,12 @@
   word-wrap: break-word;
   white-space: pre-wrap;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-  transition: all 0.2s ease;
   position: relative;
   overflow-wrap: break-word;
+  word-break: break-word;
   font-weight: 400;
-  max-width: 70%;
+  max-width: 100%;
   display: inline-block;
-  width: auto;
 }
 
 .message-bubble:hover {
@@ -716,11 +719,18 @@
   background: linear-gradient(180deg, #f8fafc 0%, white 100%);
   border-top: 2px solid #1A94D5;
   display: flex;
-  align-items: flex-end;
-  gap: 0.75rem;
+  flex-direction: column;
+  gap: 0.5rem;
   flex-shrink: 0;
   box-shadow: 0 -4px 20px rgba(26, 148, 213, 0.15), 0 -2px 8px rgba(0, 0, 0, 0.1);
   position: relative;
+}
+
+.input-controls-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  width: 100%;
 }
 
 .input-btn {
@@ -1566,12 +1576,12 @@
 }
 
 .message-image img {
-  width: 100%;
-  height: auto;
+  width: 200px;
+  height: 200px;
   display: block;
-  max-height: 400px;
-  object-fit: contain;
+  object-fit: cover;
   background: white;
+  border-radius: 8px;
 }
 
 .outgoing .message-image {
@@ -1882,31 +1892,55 @@
 
     <!-- Input Area -->
     <div class="input-area">
-      <!-- Emoji Picker Button -->
-      <button class="input-btn" id="emojiBtn" title="Add emoji" type="button">
-        <i class="bi bi-emoji-smile"></i>
-      </button>
-      
-      <!-- File Attachment Button -->
-      <button class="input-btn" id="attachBtn" title="Attach file" type="button">
-        <i class="bi bi-paperclip"></i>
-      </button>
-      <input type="file" id="fileInput" style="display: none;" accept="image/*,application/pdf,.doc,.docx">
-      
-      <form method="post" action="{% url 'messaging:send_message' conversation.id %}" id="messageForm" style="display: flex; flex: 1; gap: 0.75rem; align-items: flex-end;">
-        {% csrf_token %}
-        <div class="input-wrapper" style="flex: 1;">
-          <textarea 
-            name="content"
-            id="messageInput"
-            placeholder="Type a message..."
-            class="message-input"></textarea>
+      <!-- File Preview Area (above input) -->
+      <!-- Image Preview (Messenger-style) -->
+      <div id="imagePreviewContainer" style="display: none; padding: 0.5rem 1rem;">
+        <div class="image-preview-wrapper">
+          <img id="imagePreviewThumb" src="" alt="Preview">
+          <button type="button" onclick="removeFile()" class="image-preview-close">
+            <i class="bi bi-x"></i>
+          </button>
         </div>
-        
-        <button type="submit" class="input-btn send-btn" id="sendBtn">
-          <i class="bi bi-send-fill"></i>
+      </div>
+      
+      <!-- File Preview (for non-images) -->
+      <div id="filePreview" class="file-preview" style="display: none;">
+        <div class="file-preview-content">
+          <span id="fileName"></span>
+          <button type="button" onclick="removeFile()" class="file-remove">
+            <i class="bi bi-x-circle-fill"></i>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Input controls row -->
+      <div class="input-controls-row">
+        <!-- Emoji Picker Button -->
+        <button class="input-btn" id="emojiBtn" title="Add emoji" type="button">
+          <i class="bi bi-emoji-smile"></i>
         </button>
-      </form>
+        
+        <!-- File Attachment Button -->
+        <button class="input-btn" id="attachBtn" title="Attach file" type="button">
+          <i class="bi bi-paperclip"></i>
+        </button>
+        <input type="file" id="fileInput" style="display: none;" accept="image/*,application/pdf,.doc,.docx">
+        
+        <form method="post" action="{% url 'messaging:send_message' conversation.id %}" id="messageForm" style="display: flex; flex: 1; gap: 0.75rem; align-items: flex-end;">
+          {% csrf_token %}
+          <div class="input-wrapper" style="flex: 1;">
+            <textarea 
+              name="content"
+              id="messageInput"
+              placeholder="Type a message..."
+              class="message-input"></textarea>
+          </div>
+          
+          <button type="submit" class="input-btn send-btn" id="sendBtn">
+            <i class="bi bi-send-fill"></i>
+          </button>
+        </form>
+      </div>
     </div>
     
     <!-- Emoji Picker Popup -->
@@ -1925,27 +1959,6 @@
       </div>
       <div class="emoji-grid" id="emojiGrid">
         <!-- Emojis will be populated here -->
-      </div>
-    </div>
-    
-    <!-- File Preview Area -->
-    <!-- Image Preview (Messenger-style) -->
-    <div id="imagePreviewContainer" style="display: none;">
-      <div class="image-preview-wrapper">
-        <img id="imagePreviewThumb" src="" alt="Preview">
-        <button type="button" onclick="removeFile()" class="image-preview-close">
-          <i class="bi bi-x"></i>
-        </button>
-      </div>
-    </div>
-    
-    <!-- File Preview (for non-images) -->
-    <div id="filePreview" class="file-preview" style="display: none;">
-      <div class="file-preview-content">
-        <span id="fileName"></span>
-        <button type="button" onclick="removeFile()" class="file-remove">
-          <i class="bi bi-x-circle-fill"></i>
-        </button>
       </div>
     </div>
   </div>
@@ -2307,4 +2320,15 @@ document.getElementById('imageLightbox')?.addEventListener('click', function(e) 
   </div>
 </div>
 
+{% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": false,
+    "page_name": "conversation_detail",
+    "title": "Messaging Guide",
+
+    "steps": []
+}
 {% endblock %}

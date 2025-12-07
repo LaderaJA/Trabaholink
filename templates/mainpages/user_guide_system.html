@@ -1,0 +1,792 @@
+{% load static %}
+<!-- User Guide System -->
+<div id="userGuideSystem">
+    <!-- Hidden CSRF token for AJAX requests -->
+    {% csrf_token %}
+    <!-- Persistent Toggle Button (Always Visible) -->
+    <button 
+        id="guideToggleBtn" 
+        class="guide-toggle-btn" 
+        aria-label="Open User Guide"
+        title="Need help? Click for a quick guide!"
+    >
+        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+            <line x1="12" y1="17" x2="12.01" y2="17"></line>
+        </svg>
+        <span class="guide-btn-text">Help</span>
+    </button>
+    
+    <!-- Guide Overlay Modal -->
+    <div id="guideOverlay" class="guide-overlay" style="display: none;" role="dialog" aria-modal="true" aria-labelledby="guideTitle">
+        <div class="guide-modal">
+            <!-- Header -->
+            <div class="guide-header">
+                <h2 id="guideTitle" class="guide-title">Page Guide</h2>
+                <button 
+                    id="guideCloseBtn" 
+                    class="guide-close-btn" 
+                    aria-label="Close guide"
+                    title="Close"
+                >
+                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Content Area -->
+            <div class="guide-content">
+                <div id="guideStepContent" class="guide-step-content">
+                    <!-- Dynamic content loaded here -->
+                </div>
+            </div>
+            
+            <!-- Footer Controls -->
+            <div class="guide-footer">
+                <div class="guide-footer-left">
+                    <label class="guide-checkbox-label">
+                        <input 
+                            type="checkbox" 
+                            id="guideDontShowAgain" 
+                            class="guide-checkbox"
+                        >
+                        <span>Don't show this automatically anymore</span>
+                    </label>
+                </div>
+                <div class="guide-footer-right">
+                    <button id="guidePrevBtn" class="guide-btn guide-btn-secondary" style="display: none;">
+                        Previous
+                    </button>
+                    <button id="guideNextBtn" class="guide-btn guide-btn-primary">
+                        Next
+                    </button>
+                    <button id="guideFinishBtn" class="guide-btn guide-btn-success" style="display: none;">
+                        Got it!
+                    </button>
+                    <button id="guideSkipBtn" class="guide-btn guide-btn-text">
+                        Skip
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Progress Indicator (for multi-step guides) -->
+            <div id="guideProgressBar" class="guide-progress-bar" style="display: none;">
+                <div class="guide-progress-fill"></div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- User Guide CSS -->
+<style>
+    /* ==================== GUIDE TOGGLE BUTTON ==================== */
+    .guide-toggle-btn {
+        position: fixed;
+        bottom: 30px;
+        right: 30px;
+        z-index: 9998;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 12px 20px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        transition: all 0.3s ease;
+        font-size: 14px;
+        font-weight: 600;
+        font-family: inherit;
+    }
+    
+    .guide-toggle-btn:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+    }
+    
+    .guide-toggle-btn:active {
+        transform: translateY(0);
+    }
+    
+    .guide-toggle-btn svg {
+        width: 20px;
+        height: 20px;
+    }
+    
+    .guide-btn-text {
+        display: inline;
+    }
+    
+    /* Mobile: Hide text, show only icon */
+    @media (max-width: 768px) {
+        .guide-toggle-btn {
+            padding: 14px;
+            border-radius: 50%;
+            width: 56px;
+            height: 56px;
+            justify-content: center;
+        }
+        
+        .guide-btn-text {
+            display: none;
+        }
+    }
+    
+    /* ==================== GUIDE OVERLAY ==================== */
+    .guide-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(4px);
+        z-index: 9999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 20px;
+        animation: fadeIn 0.3s ease;
+    }
+    
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+        }
+        to {
+            opacity: 1;
+        }
+    }
+    
+    /* ==================== GUIDE MODAL ==================== */
+    .guide-modal {
+        background: white;
+        border-radius: 16px;
+        max-width: 600px;
+        width: 100%;
+        max-height: 90vh;
+        display: flex;
+        flex-direction: column;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease;
+        position: relative;
+    }
+    
+    @keyframes slideUp {
+        from {
+            transform: translateY(50px);
+            opacity: 0;
+        }
+        to {
+            transform: translateY(0);
+            opacity: 1;
+        }
+    }
+    
+    /* ==================== GUIDE HEADER ==================== */
+    .guide-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 24px;
+        border-bottom: 1px solid #e5e7eb;
+    }
+    
+    .guide-title {
+        margin: 0;
+        font-size: 24px;
+        font-weight: 700;
+        color: #1f2937;
+    }
+    
+    .guide-close-btn {
+        background: transparent;
+        border: none;
+        cursor: pointer;
+        padding: 8px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #6b7280;
+        transition: all 0.2s ease;
+    }
+    
+    .guide-close-btn:hover {
+        background: #f3f4f6;
+        color: #1f2937;
+    }
+    
+    /* ==================== GUIDE CONTENT ==================== */
+    .guide-content {
+        flex: 1;
+        overflow-y: auto;
+        padding: 24px;
+    }
+    
+    .guide-step-content h3 {
+        margin: 0 0 16px 0;
+        font-size: 20px;
+        font-weight: 600;
+        color: #1f2937;
+    }
+    
+    .guide-step-content p {
+        margin: 0 0 16px 0;
+        line-height: 1.6;
+        color: #4b5563;
+    }
+    
+    .guide-step-content ul,
+    .guide-step-content ol {
+        margin: 0 0 16px 0;
+        padding-left: 24px;
+        color: #4b5563;
+    }
+    
+    .guide-step-content li {
+        margin-bottom: 8px;
+        line-height: 1.6;
+    }
+    
+    .guide-step-content img {
+        max-width: 100%;
+        height: auto;
+        border-radius: 8px;
+        margin: 16px 0;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    }
+    
+    .guide-step-content code {
+        background: #f3f4f6;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+        font-size: 14px;
+        color: #dc2626;
+    }
+    
+    .guide-step-content .guide-tip {
+        background: #eff6ff;
+        border-left: 4px solid #3b82f6;
+        padding: 12px 16px;
+        border-radius: 4px;
+        margin: 16px 0;
+    }
+    
+    .guide-step-content .guide-warning {
+        background: #fef3c7;
+        border-left: 4px solid #f59e0b;
+        padding: 12px 16px;
+        border-radius: 4px;
+        margin: 16px 0;
+    }
+    
+    /* ==================== GUIDE FOOTER ==================== */
+    .guide-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 20px 24px;
+        border-top: 1px solid #e5e7eb;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+    
+    .guide-footer-left {
+        flex: 1;
+        min-width: 200px;
+    }
+    
+    .guide-footer-right {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
+    
+    /* Checkbox styling */
+    .guide-checkbox-label {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        font-size: 14px;
+        color: #6b7280;
+        user-select: none;
+    }
+    
+    .guide-checkbox {
+        width: 18px;
+        height: 18px;
+        cursor: pointer;
+    }
+    
+    /* ==================== GUIDE BUTTONS ==================== */
+    .guide-btn {
+        padding: 10px 20px;
+        border: none;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-family: inherit;
+    }
+    
+    .guide-btn-primary {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+    }
+    
+    .guide-btn-primary:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(102, 126, 234, 0.3);
+    }
+    
+    .guide-btn-success {
+        background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+        color: white;
+    }
+    
+    .guide-btn-success:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+    }
+    
+    .guide-btn-secondary {
+        background: #f3f4f6;
+        color: #4b5563;
+    }
+    
+    .guide-btn-secondary:hover {
+        background: #e5e7eb;
+    }
+    
+    .guide-btn-text {
+        background: transparent;
+        color: #6b7280;
+    }
+    
+    .guide-btn-text:hover {
+        color: #1f2937;
+        background: #f3f4f6;
+    }
+    
+    .guide-btn:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+    
+    /* ==================== PROGRESS BAR ==================== */
+    .guide-progress-bar {
+        height: 4px;
+        background: #e5e7eb;
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        border-radius: 0 0 16px 16px;
+        overflow: hidden;
+    }
+    
+    .guide-progress-fill {
+        height: 100%;
+        background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        transition: width 0.3s ease;
+        width: 0%;
+    }
+    
+    /* ==================== MOBILE RESPONSIVE ==================== */
+    @media (max-width: 768px) {
+        .guide-modal {
+            max-width: 100%;
+            margin: 0;
+            border-radius: 16px 16px 0 0;
+            max-height: 85vh;
+        }
+        
+        .guide-overlay {
+            align-items: flex-end;
+            padding: 0;
+        }
+        
+        .guide-header {
+            padding: 20px;
+        }
+        
+        .guide-title {
+            font-size: 20px;
+        }
+        
+        .guide-content {
+            padding: 20px;
+        }
+        
+        .guide-footer {
+            flex-direction: column;
+            align-items: stretch;
+            padding: 16px 20px;
+        }
+        
+        .guide-footer-left {
+            width: 100%;
+        }
+        
+        .guide-footer-right {
+            width: 100%;
+            justify-content: flex-end;
+        }
+        
+        .guide-btn {
+            padding: 12px 16px;
+        }
+    }
+    
+    /* ==================== ACCESSIBILITY ==================== */
+    .guide-overlay:focus-within {
+        outline: 2px solid #667eea;
+        outline-offset: -2px;
+    }
+    
+    .guide-btn:focus,
+    .guide-close-btn:focus,
+    .guide-toggle-btn:focus {
+        outline: 2px solid #667eea;
+        outline-offset: 2px;
+    }
+    
+    /* Reduced motion support */
+    @media (prefers-reduced-motion: reduce) {
+        .guide-overlay,
+        .guide-modal,
+        .guide-toggle-btn,
+        .guide-btn,
+        .guide-progress-fill {
+            animation: none !important;
+            transition: none !important;
+        }
+    }
+</style>
+
+<!-- User Guide JavaScript -->
+<script>
+(function() {
+    'use strict';
+    
+    // ============================================================================
+    // CONFIGURATION & STATE
+    // ============================================================================
+    
+    const CONFIG = {
+        endpoints: {
+            disableAutoPopup: '/users/guide/disable-auto-popup/',
+            enableAutoPopup: '/users/guide/enable-auto-popup/',
+            updateProgress: '/users/guide/update-progress/',
+            getStatus: '/users/guide/status/',
+            incrementView: '/users/guide/increment-view/'
+        }
+    };
+    
+    const STATE = {
+        currentStep: 0,
+        totalSteps: 0,
+        pageData: null,
+        autoPopupEnabled: {{ user_guide.auto_popup_enabled|lower }},
+        isOpen: false
+    };
+    
+    // ============================================================================
+    // DOM ELEMENTS
+    // ============================================================================
+    
+    const ELEMENTS = {
+        overlay: document.getElementById('guideOverlay'),
+        toggleBtn: document.getElementById('guideToggleBtn'),
+        closeBtn: document.getElementById('guideCloseBtn'),
+        title: document.getElementById('guideTitle'),
+        content: document.getElementById('guideStepContent'),
+        prevBtn: document.getElementById('guidePrevBtn'),
+        nextBtn: document.getElementById('guideNextBtn'),
+        finishBtn: document.getElementById('guideFinishBtn'),
+        skipBtn: document.getElementById('guideSkipBtn'),
+        dontShowAgain: document.getElementById('guideDontShowAgain'),
+        progressBar: document.getElementById('guideProgressBar'),
+        progressFill: document.querySelector('.guide-progress-fill')
+    };
+    
+    // ============================================================================
+    // UTILITY FUNCTIONS
+    // ============================================================================
+    
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+    
+    async function makeRequest(url, options = {}) {
+        const csrftoken = getCookie('csrftoken');
+        
+        if (!csrftoken) {
+            console.error('CSRF token not found!');
+            // Try to get from input
+            const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+            if (csrfInput) {
+                console.log('Found CSRF in input field');
+            }
+        }
+        
+        const defaultOptions = {
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': csrftoken
+            },
+            credentials: 'same-origin'
+        };
+        
+        try {
+            const response = await fetch(url, { ...defaultOptions, ...options });
+            if (!response.ok) {
+                console.error(`HTTP ${response.status}: ${response.statusText} for ${url}`);
+                return { success: false, message: `HTTP ${response.status}` };
+            }
+            const data = await response.json();
+            return data;
+        } catch (error) {
+            console.error('Request failed:', error);
+            return { success: false, message: error.message };
+        }
+    }
+    
+    function loadPageData() {
+        try {
+            const dataElement = document.getElementById('guidePageData');
+            if (!dataElement) {
+                console.warn('Guide page data element not found');
+                return null;
+            }
+            
+            const data = JSON.parse(dataElement.textContent);
+            STATE.pageData = data;
+            STATE.totalSteps = data.steps ? data.steps.length : 0;
+            
+            return data;
+        } catch (error) {
+            console.error('Failed to load page data:', error);
+            return null;
+        }
+    }
+    
+    // ============================================================================
+    // GUIDE DISPLAY FUNCTIONS
+    // ============================================================================
+    
+    function renderStep(stepIndex) {
+        if (!STATE.pageData || !STATE.pageData.steps || stepIndex >= STATE.pageData.steps.length) {
+            return;
+        }
+        
+        const step = STATE.pageData.steps[stepIndex];
+        STATE.currentStep = stepIndex;
+        
+        // Update title
+        ELEMENTS.title.textContent = step.title || STATE.pageData.title;
+        
+        // Update content
+        ELEMENTS.content.innerHTML = step.content || '<p>No content available for this step.</p>';
+        
+        // Update button visibility
+        ELEMENTS.prevBtn.style.display = stepIndex > 0 ? 'inline-block' : 'none';
+        ELEMENTS.nextBtn.style.display = stepIndex < STATE.totalSteps - 1 ? 'inline-block' : 'none';
+        ELEMENTS.finishBtn.style.display = stepIndex === STATE.totalSteps - 1 ? 'inline-block' : 'none';
+        
+        // Update progress bar
+        if (STATE.totalSteps > 1) {
+            ELEMENTS.progressBar.style.display = 'block';
+            const progress = ((stepIndex + 1) / STATE.totalSteps) * 100;
+            ELEMENTS.progressFill.style.width = progress + '%';
+        } else {
+            ELEMENTS.progressBar.style.display = 'none';
+        }
+        
+        // Update progress on server
+        updateProgressOnServer(stepIndex, false);
+    }
+    
+    function openGuide() {
+        if (!STATE.pageData || !STATE.pageData.enabled) {
+            console.log('Guide not enabled for this page');
+            return;
+        }
+        
+        if (STATE.pageData.steps.length === 0) {
+            console.log('No guide steps defined for this page');
+            return;
+        }
+        
+        STATE.isOpen = true;
+        ELEMENTS.overlay.style.display = 'flex';
+        renderStep(0);
+        
+        // Increment view count
+        makeRequest(CONFIG.endpoints.incrementView, { method: 'POST' });
+        
+        // Trap focus within modal
+        ELEMENTS.overlay.focus();
+    }
+    
+    function closeGuide() {
+        STATE.isOpen = false;
+        ELEMENTS.overlay.style.display = 'none';
+        ELEMENTS.dontShowAgain.checked = false;
+    }
+    
+    // ============================================================================
+    // SERVER INTERACTION FUNCTIONS
+    // ============================================================================
+    
+    async function updateProgressOnServer(step, completed = false) {
+        if (!STATE.pageData || !STATE.pageData.page_name) return;
+        
+        await makeRequest(CONFIG.endpoints.updateProgress, {
+            method: 'POST',
+            body: JSON.stringify({
+                page_name: STATE.pageData.page_name,
+                step: step,
+                completed: completed
+            })
+        });
+    }
+    
+    async function disableAutoPopup() {
+        const result = await makeRequest(CONFIG.endpoints.disableAutoPopup, {
+            method: 'POST'
+        });
+        
+        if (result.success) {
+            STATE.autoPopupEnabled = false;
+            console.log('Auto-popup disabled');
+        }
+    }
+    
+    // ============================================================================
+    // EVENT HANDLERS
+    // ============================================================================
+    
+    function handleToggleClick() {
+        if (STATE.isOpen) {
+            closeGuide();
+        } else {
+            openGuide();
+        }
+    }
+    
+    function handleCloseClick() {
+        closeGuide();
+    }
+    
+    function handlePrevClick() {
+        if (STATE.currentStep > 0) {
+            renderStep(STATE.currentStep - 1);
+        }
+    }
+    
+    function handleNextClick() {
+        if (STATE.currentStep < STATE.totalSteps - 1) {
+            renderStep(STATE.currentStep + 1);
+        }
+    }
+    
+    async function handleFinishClick() {
+        // Mark as completed on server
+        await updateProgressOnServer(STATE.currentStep, true);
+        
+        // Check if user wants to disable auto-popup
+        if (ELEMENTS.dontShowAgain.checked) {
+            await disableAutoPopup();
+        }
+        
+        closeGuide();
+    }
+    
+    async function handleSkipClick() {
+        // Check if user wants to disable auto-popup
+        if (ELEMENTS.dontShowAgain.checked) {
+            await disableAutoPopup();
+        }
+        
+        closeGuide();
+    }
+    
+    function handleOverlayClick(e) {
+        // Close if clicking outside modal
+        if (e.target === ELEMENTS.overlay) {
+            closeGuide();
+        }
+    }
+    
+    function handleEscapeKey(e) {
+        if (e.key === 'Escape' && STATE.isOpen) {
+            closeGuide();
+        }
+    }
+    
+    // ============================================================================
+    // INITIALIZATION
+    // ============================================================================
+    
+    function init() {
+        // Load page-specific data
+        loadPageData();
+        
+        // Attach event listeners
+        ELEMENTS.toggleBtn?.addEventListener('click', handleToggleClick);
+        ELEMENTS.closeBtn?.addEventListener('click', handleCloseClick);
+        ELEMENTS.prevBtn?.addEventListener('click', handlePrevClick);
+        ELEMENTS.nextBtn?.addEventListener('click', handleNextClick);
+        ELEMENTS.finishBtn?.addEventListener('click', handleFinishClick);
+        ELEMENTS.skipBtn?.addEventListener('click', handleSkipClick);
+        ELEMENTS.overlay?.addEventListener('click', handleOverlayClick);
+        document.addEventListener('keydown', handleEscapeKey);
+        
+        // Auto-popup on page load if enabled
+        if (STATE.autoPopupEnabled && STATE.pageData && STATE.pageData.enabled) {
+            // Check if this page has been completed
+            const isCompleted = STATE.pageData.page_name && 
+                               {{ user_guide.pages_completed|safe }}.hasOwnProperty(STATE.pageData.page_name) &&
+                               {{ user_guide.pages_completed|safe }}[STATE.pageData.page_name].completed;
+            
+            if (!isCompleted) {
+                // Auto-open after a short delay
+                setTimeout(() => {
+                    openGuide();
+                }, 1000);
+            }
+        }
+        
+        console.log('User Guide System initialized');
+    }
+    
+    // Run initialization when DOM is ready
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+    } else {
+        init();
+    }
+    
+})();
+</script>

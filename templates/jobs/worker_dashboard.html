@@ -1568,3 +1568,38 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "worker_dashboard",
+    "title": "Worker Dashboard Guide",
+    "steps": [
+        {
+            "title": "Welcome to Your Dashboard! 👷",
+            "content": "<h3>Your Command Center</h3><p>This is your personal dashboard where you can manage all your job activities, track applications, and view your work schedule.</p><div class=\"guide-tip\"><strong>💡 Quick Tip:</strong> Check your dashboard daily to stay updated on new opportunities and contract statuses.</div>"
+        },
+        {
+            "title": "Applications Overview 📋",
+            "content": "<h3>Track Your Job Applications</h3><p>The applications section shows:</p><ul><li><strong>Pending:</strong> Applications awaiting employer review</li><li><strong>Accepted:</strong> Jobs you have been selected for</li><li><strong>In Negotiation:</strong> Contract terms being discussed</li><li><strong>Rejected:</strong> Applications not successful</li></ul><p>Click on any application to view details and take action.</p>"
+        },
+        {
+            "title": "Active Contracts 📝",
+            "content": "<h3>Manage Your Work</h3><p>Your active contracts section displays:</p><ul><li><strong>Negotiation:</strong> Finalize contract terms</li><li><strong>In Progress:</strong> Currently working jobs</li><li><strong>Awaiting Review:</strong> Work submitted for approval</li><li><strong>Completed:</strong> Finished jobs</li></ul><div class=\"guide-warning\"><strong>⚠️ Important:</strong> Update your progress regularly to keep employers informed.</div>"
+        },
+        {
+            "title": "Work Schedule Calendar 📅",
+            "content": "<h3>Visual Schedule Management</h3><p>The calendar shows all your contracted work times:</p><ul><li>Each contract appears as a colored block</li><li>Different colors = different jobs</li><li>Hover over events for details</li><li>Click events to view full contract</li></ul><p>Use this to avoid double-booking and plan your time effectively.</p>"
+        },
+        {
+            "title": "Quick Actions ⚡",
+            "content": "<h3>Common Tasks</h3><p>From your dashboard, you can:</p><ol><li>View and respond to job offers</li><li>Update contract progress</li><li>Manage your availability schedule</li><li>Browse new job postings</li><li>Communicate with employers</li></ol><p>All your important actions are just one click away!</p>"
+        },
+        {
+            "title": "Stay Organized! 🎯",
+            "content": "<h3>Dashboard Best Practices</h3><p>To make the most of your dashboard:</p><ul><li>Check notifications regularly</li><li>Respond promptly to job offers</li><li>Keep your availability calendar updated</li><li>Submit progress updates on time</li><li>Maintain good communication</li></ul><div class=\"guide-tip\"><strong>💡 Pro Tip:</strong> A well-maintained dashboard leads to better ratings and more job opportunities!</div><p>Ready to manage your work? Let's get started! 🚀</p>"
+        }
+    ]
+}
+{% endblock %}

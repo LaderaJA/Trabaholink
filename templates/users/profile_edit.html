@@ -1203,3 +1203,30 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "profile_edit",
+    "title": "Edit Profile Guide",
+    "steps": [
+        {
+            "title": "Update Your Profile \u270f\ufe0f",
+            "content": "<h3>Keep Your Information Current</h3><p>Your profile is your professional identity. Keep it updated to attract better opportunities!</p>"
+        },
+        {
+            "title": "Basic Information \ud83d\udccb",
+            "content": "<h3>Personal Details</h3><p>Update:</p><ul><li>Profile picture</li><li>Bio/About me</li><li>Job title</li><li>Contact information</li><li>Location</li></ul><p>Make a great first impression!</p>"
+        },
+        {
+            "title": "Skills & Experience \ud83d\udee0\ufe0f",
+            "content": "<h3>Showcase Your Abilities</h3><ul><li>Add new skills</li><li>Update work experience</li><li>Add certifications</li><li>Upload portfolio photos</li></ul><div class='guide-tip'><strong>\ud83d\udca1 Tip:</strong> Verified skills get more attention!</div>"
+        },
+        {
+            "title": "Save Changes \u2705",
+            "content": "<h3>Update Your Profile</h3><p>After making changes:</p><ol><li>Review all edits</li><li>Make sure everything is accurate</li><li>Click 'Save Changes'</li></ol><p>Your updated profile is now live! \ud83c\udf89</p>"
+        }
+    ]
+}
+{% endblock %}

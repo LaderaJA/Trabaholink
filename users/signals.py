@@ -11,6 +11,44 @@ CustomUser = get_user_model()
 
 
 @receiver(post_save, sender=CustomUser)
+def create_user_guide_status(sender, instance, created, **kwargs):
+    """
+    Automatically create a UserGuideStatus record when a new user is created.
+    
+    This ensures every user has guide preferences from the moment they register.
+    Auto-popup is enabled by default for new users.
+    """
+    if created:
+        from .models import UserGuideStatus
+        UserGuideStatus.objects.get_or_create(
+            user=instance,
+            defaults={
+                'auto_popup_enabled': True,
+                'pages_completed': {},
+                'total_guides_viewed': 0,
+            }
+        )
+
+
+@receiver(post_save, sender=CustomUser)
+def save_user_guide_status(sender, instance, **kwargs):
+    """
+    Ensure guide status exists when user is saved.
+    Handles edge cases where signal might have been missed.
+    """
+    if not hasattr(instance, 'guide_status'):
+        from .models import UserGuideStatus
+        UserGuideStatus.objects.get_or_create(
+            user=instance,
+            defaults={
+                'auto_popup_enabled': True,
+                'pages_completed': {},
+                'total_guides_viewed': 0,
+            }
+        )
+
+
+@receiver(post_save, sender=CustomUser)
 def log_profile_update(sender, instance, created, **kwargs):
     """Log when a user updates their profile"""
     if not created and hasattr(instance, '_profile_updated'):

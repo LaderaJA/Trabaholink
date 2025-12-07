@@ -517,3 +517,26 @@
 {% endif %}
 </script>
 {% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "contract_sign",
+    "title": "Contract Signing Guide",
+    "steps": [
+        {
+            "title": "Sign Your Contract \u270d\ufe0f",
+            "content": "<h3>Finalize the Agreement</h3><p>Review and digitally sign the contract to officially start the job.</p><div class='guide-warning'><strong>\u26a0\ufe0f Important:</strong> Read all terms carefully before signing!</div>"
+        },
+        {
+            "title": "Digital Signature \ud83d\udd8a\ufe0f",
+            "content": "<h3>How to Sign</h3><ol><li>Review all contract terms</li><li>Check rate and compensation</li><li>Verify schedule and requirements</li><li>Click 'Sign Contract'</li></ol>"
+        },
+        {
+            "title": "After Signing \u2705",
+            "content": "<h3>What Happens Next</h3><p>Once both parties sign:</p><ul><li>Contract becomes legally binding</li><li>Work can begin on agreed date</li><li>Contract terms are active</li><li>You can start tracking progress</li></ul>"
+        }
+    ]
+}
+{% endblock %}

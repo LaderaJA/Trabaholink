@@ -95,10 +95,29 @@ document.addEventListener('DOMContentLoaded', function() {
     console.log("DEBUG: No existing location, using default.");
   }
   
+  // Luzon bounds (allow viewing all of Luzon)
+  const luzonBounds = [
+    [12.0, 119.5],   // Southwest - southern Luzon
+    [19.0, 123.0]    // Northeast - northern Luzon
+  ];
+  
+  // Bacoor boundary polygon coordinates
+  const bacoorPolygon = [
+    [120.9450, 14.4800], [121.0200, 14.4800], [121.0200, 14.4500],
+    [121.0150, 14.4300], [121.0100, 14.4100], [121.0000, 14.3900],
+    [120.9900, 14.3850], [120.9700, 14.3850], [120.9550, 14.3900],
+    [120.9450, 14.4000], [120.9450, 14.4200], [120.9450, 14.4500],
+    [120.9450, 14.4800]
+  ];
+  
   // Initialize the map with better error handling
   const map = L.map('map', {
     center: [currentLat, currentLng],
     zoom: zoomLevel,
+    minZoom: 7,       // Allow zooming out to see all Luzon
+    maxZoom: 19,
+    maxBounds: luzonBounds,
+    maxBoundsViscosity: 0.8,
     zoomControl: false
   });
 
@@ -131,26 +150,115 @@ document.addEventListener('DOMContentLoaded', function() {
   
   L.control.layers(baseLayers).addTo(map);
   
+  // Add Bacoor boundary to map
+  const bacoorLatLngs = bacoorPolygon.map(coord => [coord[1], coord[0]]);
+  const bacoorLayer = L.polygon(bacoorLatLngs, {
+    color: '#10b981',
+    weight: 2,
+    fillColor: '#10b981',
+    fillOpacity: 0.1,
+    interactive: false
+  }).addTo(map);
+  
   // Add a draggable marker
   const marker = L.marker([currentLat, currentLng], {
     draggable: true,
     autoPan: true
   }).addTo(map);
   
+  // Function to check if point is in Bacoor
+  function isPointInBacoor(lat, lng) {
+    let inside = false;
+    for (let i = 0, j = bacoorLatLngs.length - 1; i < bacoorLatLngs.length; j = i++) {
+      const xi = bacoorLatLngs[i][1], yi = bacoorLatLngs[i][0];
+      const xj = bacoorLatLngs[j][1], yj = bacoorLatLngs[j][0];
+      
+      const intersect = ((yi > lng) !== (yj > lng))
+        && (lat < (xj - xi) * (lng - yi) / (yj - yi) + xi);
+      if (intersect) inside = !inside;
+    }
+    return inside;
+  }
+  
+  // Function to show warning if location is outside Bacoor
+  function showLocationWarning(lat, lng) {
+    const inBacoor = isPointInBacoor(lat, lng);
+    
+    // Always remove existing warning first
+    const existingWarning = document.getElementById('bacoor-warning');
+    if (existingWarning) existingWarning.remove();
+    
+    // Always remove existing success message
+    const existingSuccess = document.querySelector('[data-location-success]');
+    if (existingSuccess) existingSuccess.remove();
+    
+    if (!inBacoor) {
+      // Create warning message
+      const warning = document.createElement('div');
+      warning.id = 'bacoor-warning';
+      warning.style.cssText = `
+        position: fixed;
+        top: 80px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #fef3c7;
+        border: 2px solid #f59e0b;
+        color: #92400e;
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        font-weight: 600;
+        max-width: 90%;
+        text-align: center;
+        animation: slideDown 0.3s ease;
+      `;
+      warning.innerHTML = `
+        <span>⚠️ Warning: Selected location is outside Bacoor area. Services are only available in Bacoor, Cavite.</span>
+        <button onclick="this.parentElement.remove()" style="background: none; border: none; cursor: pointer; font-size: 20px; color: #92400e; margin-left: 10px; vertical-align: middle;">×</button>
+      `;
+      
+      // Add slide animation
+      if (!document.getElementById('slideDownAnimation')) {
+        const style = document.createElement('style');
+        style.id = 'slideDownAnimation';
+        style.textContent = '@keyframes slideDown { from { transform: translateX(-50%) translateY(-100%); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }';
+        document.head.appendChild(style);
+      }
+      
+      document.body.appendChild(warning);
+      
+      // Highlight Bacoor boundary
+      bacoorLayer.setStyle({
+        color: '#ef4444',
+        weight: 3,
+        fillOpacity: 0.15
+      });
+      
+      // Restore normal style after 2 seconds
+      setTimeout(() => {
+        bacoorLayer.setStyle({
+          color: '#10b981',
+          weight: 2,
+          fillOpacity: 0.1
+        });
+      }, 2000);
+    }
+  }
+  
   // Update the hidden field when marker is dragged
   marker.on('dragend', function(e) {
     const newLat = marker.getLatLng().lat;
     const newLng = marker.getLatLng().lng;
     updateLocationField(newLat, newLng);
-    
-    // Optional: Reverse geocode to get address
-    // reverseGeocode(newLat, newLng);
+    showLocationWarning(newLat, newLng);
   });
   
   // Update location when map is clicked
   map.on('click', function(e) {
     marker.setLatLng(e.latlng);
     updateLocationField(e.latlng.lat, e.latlng.lng);
+    showLocationWarning(e.latlng.lat, e.latlng.lng);
   });
   
   // Function to update the hidden field with the new location

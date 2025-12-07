@@ -942,3 +942,34 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "job_application_form",
+    "title": "Job Application Guide",
+    "steps": [
+        {
+            "title": "Apply for This Job \ud83d\udcdd",
+            "content": "<h3>Submit Your Application</h3><p>Complete this form to apply for the job. A strong application increases your chances of getting hired!</p><div class='guide-tip'><strong>\ud83d\udca1 Tip:</strong> Personalize your application for each job.</div>"
+        },
+        {
+            "title": "Your Message \u2709\ufe0f",
+            "content": "<h3>Introduce Yourself</h3><p>Write a brief message explaining:</p><ul><li>Why you're interested in this job</li><li>Your relevant experience</li><li>What makes you a good fit</li><li>Your availability</li></ul><p>Keep it professional but personable!</p>"
+        },
+        {
+            "title": "Skills & Experience \ud83d\udee0\ufe0f",
+            "content": "<h3>Highlight Your Qualifications</h3><ul><li><strong>Experience:</strong> Relevant past work</li><li><strong>Certifications:</strong> Any credentials</li><li><strong>Portfolio:</strong> Link to your work</li></ul><div class='guide-warning'><strong>\u26a0\ufe0f Important:</strong> Only apply if you meet the requirements.</div>"
+        },
+        {
+            "title": "Proposed Terms \ud83d\udcb0",
+            "content": "<h3>Rate & Availability</h3><p>Specify:</p><ul><li>Your proposed rate (if negotiable)</li><li>When you can start</li><li>Expected duration to complete</li></ul><p>Be realistic and competitive with your offer.</p>"
+        },
+        {
+            "title": "Submit Application! \ud83d\ude80",
+            "content": "<h3>Final Review</h3><p>Before submitting:</p><ol><li>Proofread your message</li><li>Check all information is accurate</li><li>Make sure your profile is complete</li><li>Click 'Submit Application'</li></ol><p>The employer will be notified immediately. Good luck! \ud83c\udf89</p>"
+        }
+    ]
+}
+{% endblock %}

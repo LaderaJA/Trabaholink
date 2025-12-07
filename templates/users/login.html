@@ -776,3 +776,26 @@
   }
 </script>
 {% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "login",
+    "title": "Login Guide",
+    "steps": [
+        {
+            "title": "Welcome to Trabaholink! \ud83d\udc4b",
+            "content": "<h3>Access Your Account</h3><p>Login to manage your jobs, applications, and profile.</p><div class='guide-tip'><strong>\ud83d\udca1 New here?</strong> Click 'Register' to create a free account!</div>"
+        },
+        {
+            "title": "Login Methods \ud83d\udd10",
+            "content": "<h3>Choose How to Login</h3><p>You can sign in using:</p><ul><li><strong>Email/Username:</strong> Your registered credentials</li><li><strong>Google:</strong> Quick sign-in with your Google account</li></ul><p>Both methods are secure and easy!</p>"
+        },
+        {
+            "title": "Forgot Password? \ud83d\udd11",
+            "content": "<h3>Reset Your Password</h3><p>If you can't remember your password:</p><ol><li>Click 'Forgot Password?'</li><li>Enter your email address</li><li>Check your email for reset link</li><li>Create a new password</li></ol>"
+        }
+    ]
+}
+{% endblock %}

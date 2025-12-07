@@ -640,3 +640,26 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 {% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "job_application_detail",
+    "title": "Application Details Guide",
+    "steps": [
+        {
+            "title": "Your Application \ud83d\udcdd",
+            "content": "<h3>Application Status</h3><p>View the status and details of your job application.</p>"
+        },
+        {
+            "title": "Application Status \ud83d\udd04",
+            "content": "<h3>What Each Status Means</h3><ul><li><strong>Pending:</strong> Waiting for employer review</li><li><strong>Viewed:</strong> Employer has seen your application</li><li><strong>Accepted:</strong> You got the job offer!</li><li><strong>Rejected:</strong> Not selected this time</li></ul>"
+        },
+        {
+            "title": "Next Steps \u23ed\ufe0f",
+            "content": "<h3>What To Do</h3><p><strong>If Pending:</strong> Wait patiently, keep profile updated</p><p><strong>If Accepted:</strong> Review and respond to job offer</p><p><strong>If Rejected:</strong> Apply to other jobs, improve your profile</p>"
+        }
+    ]
+}
+{% endblock %}

@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic import TemplateView
 from . import views
 from .views import (
     JobListView, JobDetailView, JobCreateView, JobUpdateView, JobDeleteView, 
@@ -94,5 +95,7 @@ urlpatterns = [
     
     # Job Status Toggle
     path('<int:job_id>/toggle-status/', views.toggle_job_status, name="toggle_job_status"),
+    
+    # Map demo
+    path('map-demo/', TemplateView.as_view(template_name='jobs/map_bacoor_only.html'), name='map_demo'),
 ]
-
