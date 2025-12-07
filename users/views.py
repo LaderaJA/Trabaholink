@@ -20,6 +20,7 @@ from django.db.models import Q
 from django.core.files.storage import default_storage
 from django.core.files.base import File
 from django.views.decorators.http import require_http_methods
+from django.views.decorators.csrf import csrf_exempt
 import uuid
 import os
 import json
@@ -1409,6 +1410,7 @@ def select_role_view(request):
 # ============================================================================
 
 @login_required
+@csrf_exempt
 @require_http_methods(["POST"])
 def disable_guide_auto_popup(request):
     """
@@ -1437,6 +1439,7 @@ def disable_guide_auto_popup(request):
 
 
 @login_required
+@csrf_exempt
 @require_http_methods(["POST"])
 def enable_guide_auto_popup(request):
     """
@@ -1465,6 +1468,7 @@ def enable_guide_auto_popup(request):
 
 
 @login_required
+@csrf_exempt
 @require_http_methods(["POST"])
 def update_guide_progress(request):
     """
@@ -1519,6 +1523,7 @@ def update_guide_progress(request):
 
 
 @login_required
+@csrf_exempt
 @require_http_methods(["GET"])
 def get_guide_status(request):
     """
@@ -1548,6 +1553,7 @@ def get_guide_status(request):
 
 
 @login_required
+@csrf_exempt
 @require_http_methods(["POST"])
 def increment_guide_view_count(request):
     """
