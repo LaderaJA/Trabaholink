@@ -1421,8 +1421,16 @@ def disable_guide_auto_popup(request):
     Returns:
         JSON: {success: bool, message: str}
     """
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'message': 'Authentication required'
+        }, status=401)
+    
     try:
-        guide_status = request.user.guide_status
+        # Get or create guide status
+        from .models import UserGuideStatus
+        guide_status, created = UserGuideStatus.objects.get_or_create(user=request.user)
         guide_status.disable_auto_popup()
         
         return JsonResponse({
@@ -1431,10 +1439,10 @@ def disable_guide_auto_popup(request):
             'auto_popup_enabled': False
         })
     except Exception as e:
+        logger.error(f"Error disabling guide auto-popup for user {request.user.id}: {str(e)}")
         return JsonResponse({
             'success': False,
-            'message': f'Error disabling auto-popup: {str(e)}',
-            'auto_popup_enabled': guide_status.auto_popup_enabled if hasattr(request.user, 'guide_status') else True
+            'message': f'Error disabling auto-popup: {str(e)}'
         }, status=500)
 
 
@@ -1450,8 +1458,16 @@ def enable_guide_auto_popup(request):
     Returns:
         JSON: {success: bool, message: str}
     """
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'message': 'Authentication required'
+        }, status=401)
+    
     try:
-        guide_status = request.user.guide_status
+        # Get or create guide status
+        from .models import UserGuideStatus
+        guide_status, created = UserGuideStatus.objects.get_or_create(user=request.user)
         guide_status.enable_auto_popup()
         
         return JsonResponse({
@@ -1460,10 +1476,10 @@ def enable_guide_auto_popup(request):
             'auto_popup_enabled': True
         })
     except Exception as e:
+        logger.error(f"Error enabling guide auto-popup for user {request.user.id}: {str(e)}")
         return JsonResponse({
             'success': False,
-            'message': f'Error enabling auto-popup: {str(e)}',
-            'auto_popup_enabled': guide_status.auto_popup_enabled if hasattr(request.user, 'guide_status') else True
+            'message': f'Error enabling auto-popup: {str(e)}'
         }, status=500)
 
 
@@ -1484,6 +1500,12 @@ def update_guide_progress(request):
     Returns:
         JSON: {success: bool, message: str}
     """
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'message': 'Authentication required'
+        }, status=401)
+    
     try:
         data = json.loads(request.body)
         page_name = data.get('page_name')
@@ -1496,7 +1518,9 @@ def update_guide_progress(request):
                 'message': 'page_name is required'
             }, status=400)
         
-        guide_status = request.user.guide_status
+        # Get or create guide status
+        from .models import UserGuideStatus
+        guide_status, created = UserGuideStatus.objects.get_or_create(user=request.user)
         
         if completed:
             guide_status.mark_page_completed(page_name, step)
@@ -1511,11 +1535,13 @@ def update_guide_progress(request):
             'completed': completed
         })
     except json.JSONDecodeError:
+        logger.error(f"Invalid JSON in update_guide_progress for user {request.user.id}")
         return JsonResponse({
             'success': False,
             'message': 'Invalid JSON data'
         }, status=400)
     except Exception as e:
+        logger.error(f"Error updating guide progress for user {request.user.id}: {str(e)}")
         return JsonResponse({
             'success': False,
             'message': f'Error updating progress: {str(e)}'
@@ -1532,8 +1558,16 @@ def get_guide_status(request):
     Returns:
         JSON: Complete guide status information
     """
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'message': 'Authentication required'
+        }, status=401)
+    
     try:
-        guide_status = request.user.guide_status
+        # Get or create guide status
+        from .models import UserGuideStatus
+        guide_status, created = UserGuideStatus.objects.get_or_create(user=request.user)
         
         return JsonResponse({
             'success': True,
@@ -1546,6 +1580,7 @@ def get_guide_status(request):
             }
         })
     except Exception as e:
+        logger.error(f"Error fetching guide status for user {request.user.id}: {str(e)}")
         return JsonResponse({
             'success': False,
             'message': f'Error fetching guide status: {str(e)}'
@@ -1564,8 +1599,16 @@ def increment_guide_view_count(request):
     Returns:
         JSON: {success: bool, total_views: int}
     """
+    if not request.user.is_authenticated:
+        return JsonResponse({
+            'success': False,
+            'message': 'Authentication required'
+        }, status=401)
+    
     try:
-        guide_status = request.user.guide_status
+        # Get or create guide status
+        from .models import UserGuideStatus
+        guide_status, created = UserGuideStatus.objects.get_or_create(user=request.user)
         guide_status.increment_view_count()
         
         return JsonResponse({
@@ -1573,6 +1616,7 @@ def increment_guide_view_count(request):
             'total_views': guide_status.total_guides_viewed
         })
     except Exception as e:
+        logger.error(f"Error incrementing guide view count for user {request.user.id}: {str(e)}")
         return JsonResponse({
             'success': False,
             'message': f'Error incrementing view count: {str(e)}'
