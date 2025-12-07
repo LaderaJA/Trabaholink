@@ -468,6 +468,9 @@ class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
         return context
 
     def form_valid(self, form):
+        import logging
+        logger = logging.getLogger(__name__)
+        
         context = self.get_context_data()
         education_formset = context['education_formset']
         experience_formset = context['experience_formset']
@@ -486,8 +489,10 @@ class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
             # Mark profile as completed when saving during onboarding
             # This must be done AFTER form.save() to ensure it persists
             if self.request.GET.get('onboarding') == 'true':
+                logger.info(f"[ONBOARDING] User {self.object.pk} completing profile setup")
                 self.object.profile_completed = True
                 self.object.save(update_fields=['profile_completed'])
+                logger.info(f"[ONBOARDING] User {self.object.pk} profile_completed set to: {self.object.profile_completed}")
                 messages.success(self.request, 'Welcome! Your profile setup is complete. You can now explore TrabahoLink!')
             else:
                 # Check if CV was uploaded
@@ -498,6 +503,9 @@ class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
             
             return super().form_valid(form)
         else:
+            logger.warning(f"[ONBOARDING] Form validation failed for user {self.request.user.pk}")
+            logger.warning(f"Education formset errors: {education_formset.errors}")
+            logger.warning(f"Experience formset errors: {experience_formset.errors}")
             return self.render_to_response(self.get_context_data(form=form))
 
     def get_success_url(self):

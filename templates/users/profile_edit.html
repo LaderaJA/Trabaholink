@@ -1082,13 +1082,20 @@ textarea.form-control-edit {
       
       <!-- Submit Section -->
       <div class="submit-section">
+        {% if request.GET.onboarding == 'true' %}
+        <a href="{% url 'skip_profile_setup' %}" class="btn-cancel-edit">
+          <i class="bi bi-skip-forward"></i>
+          <span>Skip for now</span>
+        </a>
+        {% else %}
         <a href="{% url 'profile' user.pk %}" class="btn-cancel-edit">
           <i class="bi bi-x-circle"></i>
           <span>Cancel</span>
         </a>
+        {% endif %}
         <button type="submit" class="btn-submit-edit">
           <i class="bi bi-check-circle"></i>
-          <span>Update Profile</span>
+          <span>{% if request.GET.onboarding == 'true' %}Complete Setup{% else %}Update Profile{% endif %}</span>
         </button>
       </div>
     </div>
