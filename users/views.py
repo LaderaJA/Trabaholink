@@ -473,28 +473,28 @@ class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
         experience_formset = context['experience_formset']
         
         if education_formset.is_valid() and experience_formset.is_valid():
+            # Save the user profile first
             self.object = form.save(commit=False)
-            
-            # Mark profile as completed when saving during onboarding
-            if self.request.GET.get('onboarding') == 'true':
-                self.object.profile_completed = True
-            
             self.object.save()
             
+            # Save the formsets
             education_formset.instance = self.object
             education_formset.save()
             experience_formset.instance = self.object
             experience_formset.save()
             
-            # Check if CV was uploaded
-            if form.cleaned_data.get('cv_file'):
-                messages.success(self.request, 'Your profile and CV have been updated successfully!')
-            else:
-                messages.success(self.request, 'Your profile has been updated successfully!')
-            
-            # If this was onboarding, show a welcome message
+            # Mark profile as completed when saving during onboarding
+            # This must be done AFTER form.save() to ensure it persists
             if self.request.GET.get('onboarding') == 'true':
+                self.object.profile_completed = True
+                self.object.save(update_fields=['profile_completed'])
                 messages.success(self.request, 'Welcome! Your profile setup is complete. You can now explore TrabahoLink!')
+            else:
+                # Check if CV was uploaded
+                if form.cleaned_data.get('cv_file'):
+                    messages.success(self.request, 'Your profile and CV have been updated successfully!')
+                else:
+                    messages.success(self.request, 'Your profile has been updated successfully!')
             
             return super().form_valid(form)
         else:
