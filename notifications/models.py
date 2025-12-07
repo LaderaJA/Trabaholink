@@ -65,9 +65,9 @@ class Notification(models.Model):
             from jobs.models import Contract, Job, JobApplication, Feedback
 
             type_map = {
-                'announcement': ('announcements:announcement_detail', 'announcements.models', 'Announcement'),
+                'announcement': ('announcements:announcement_detail', ('announcements.models', 'Announcement')),
                 'job_post': ('jobs:job_detail', Job),
-                'message': ('messaging:conversation_detail', 'messaging.models', 'Conversation'),
+                'message': ('messaging:conversation_detail', ('messaging.models', 'Conversation')),
                 # Dashboard-directed notifications
                 'new_application_received': 'jobs:employer_dashboard',  # Employer gets notified -> employer dashboard
                 'application_submitted': 'jobs:worker_dashboard',  # Worker confirmation -> worker dashboard
