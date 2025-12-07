@@ -318,3 +318,26 @@
     {% endif %}
 </div>
 {% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "employer_contracts",
+    "title": "Manage Contracts Guide",
+    "steps": [
+        {
+            "title": "Your Active Contracts \ud83d\udccb",
+            "content": "<h3>Manage Hired Workers</h3><p>View and manage all contracts with workers you've hired.</p>"
+        },
+        {
+            "title": "Contract Status \ud83d\udd04",
+            "content": "<h3>Track Progress</h3><ul><li><strong>Negotiation:</strong> Finalizing terms</li><li><strong>In Progress:</strong> Work is ongoing</li><li><strong>Awaiting Review:</strong> Work submitted</li><li><strong>Completed:</strong> Job finished</li></ul>"
+        },
+        {
+            "title": "Monitor Work \ud83d\udcca",
+            "content": "<h3>Stay Updated</h3><p>Workers will submit progress updates. Review them regularly and provide feedback to ensure quality work.</p>"
+        }
+    ]
+}
+{% endblock %}

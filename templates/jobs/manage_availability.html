@@ -670,3 +670,30 @@ function getCookie(name) {
 }
 </script>
 {% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "manage_availability",
+    "title": "Availability Management Guide",
+    "steps": [
+        {
+            "title": "Set Your Availability \ud83d\udcc5",
+            "content": "<h3>Manage Your Schedule</h3><p>Tell employers when you're available to work. This helps prevent double-booking and scheduling conflicts.</p>"
+        },
+        {
+            "title": "Weekly Schedule \u23f0",
+            "content": "<h3>Set Your Hours</h3><p>For each day of the week:</p><ul><li>Choose if you're available</li><li>Set start and end times</li><li>Add multiple time slots per day</li><li>Update as needed</li></ul>"
+        },
+        {
+            "title": "Avoid Conflicts \ud83d\udeab",
+            "content": "<h3>Smart Scheduling</h3><p>The system checks your availability when:</p><ul><li>Employers send job offers</li><li>You negotiate contracts</li><li>New jobs are posted</li></ul><div class='guide-tip'><strong>\ud83d\udca1 Tip:</strong> Keep your availability updated to avoid scheduling issues!</div>"
+        },
+        {
+            "title": "Save Your Schedule \u2705",
+            "content": "<h3>Update Anytime</h3><p>Your availability can be changed whenever you need. Click 'Save' after making updates.</p>"
+        }
+    ]
+}
+{% endblock %}

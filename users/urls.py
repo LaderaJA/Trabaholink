@@ -62,4 +62,15 @@ urlpatterns = [
     
     # Social Account Role Selection
     path('select-role/', views.select_role_view, name='select_role'),
+    
+    # User Guide endpoints
+    path('guide/disable-auto-popup/', views.disable_guide_auto_popup, name='disable_guide_auto_popup'),
+    path('guide/enable-auto-popup/', views.enable_guide_auto_popup, name='enable_guide_auto_popup'),
+    path('guide/update-progress/', views.update_guide_progress, name='update_guide_progress'),
+    path('guide/status/', views.get_guide_status, name='get_guide_status'),
+    path('guide/increment-view/', views.increment_guide_view_count, name='increment_guide_view'),
+    
+    # Profile setup
+    path('skip-profile-setup/', views.skip_profile_setup, name='skip_profile_setup'),
 ]
+

@@ -1102,3 +1102,26 @@ function confirmStartWork() {
 }
 </script>
 {% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "contract_detail",
+    "title": "Contract Details Guide",
+    "steps": [
+        {
+            "title": "Your Contract Overview \ud83d\udcc4",
+            "content": "<h3>Contract Information</h3><p>View all details of your work contract including terms, schedule, payment, and status.</p>"
+        },
+        {
+            "title": "Contract Status \ud83d\udd04",
+            "content": "<h3>Track Your Progress</h3><ul><li><strong>Negotiation:</strong> Terms being finalized</li><li><strong>In Progress:</strong> Work is active</li><li><strong>Completed:</strong> Job finished</li><li><strong>Cancelled:</strong> Contract terminated</li></ul>"
+        },
+        {
+            "title": "Update Progress \ud83d\udcca",
+            "content": "<h3>Keep Everyone Informed</h3><p>Regularly update your work progress so employers can track completion. Click 'Update Progress' to submit updates.</p>"
+        }
+    ]
+}
+{% endblock %}

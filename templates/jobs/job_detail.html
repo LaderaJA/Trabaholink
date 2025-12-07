@@ -2008,3 +2008,30 @@
     {% endif %}
 </script>
 {% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "job_detail",
+    "title": "Job Details Guide",
+    "steps": [
+        {
+            "title": "Job Information \ud83d\udccb",
+            "content": "<h3>Understanding the Job</h3><p>This page shows complete job details:</p><ul><li><strong>Description:</strong> What work is needed</li><li><strong>Requirements:</strong> Skills and qualifications</li><li><strong>Pay Rate:</strong> Compensation details</li><li><strong>Location:</strong> Where the work is</li><li><strong>Schedule:</strong> When you'll work</li></ul>"
+        },
+        {
+            "title": "How to Apply \u2705",
+            "content": "<h3>Submit Your Application</h3><ol><li>Read all job requirements carefully</li><li>Make sure you're qualified</li><li>Click the 'Apply Now' button</li><li>Fill out the application form</li><li>Submit and wait for response</li></ol><div class='guide-tip'><strong>\ud83d\udca1 Tip:</strong> Highlight relevant experience in your application!</div>"
+        },
+        {
+            "title": "Employer Information \ud83d\udc64",
+            "content": "<h3>Know Your Potential Employer</h3><p>Check the employer's profile:</p><ul><li>View their ratings and reviews</li><li>See past jobs posted</li><li>Check verification status</li></ul><p>This helps you make informed decisions.</p>"
+        },
+        {
+            "title": "Ready to Apply? \ud83d\ude80",
+            "content": "<h3>Next Steps</h3><p>If this job interests you:</p><ol><li>Review all details one more time</li><li>Ensure you can commit to the schedule</li><li>Click 'Apply Now' to proceed</li></ol><p>Good luck with your application! \ud83c\udf89</p>"
+        }
+    ]
+}
+{% endblock %}

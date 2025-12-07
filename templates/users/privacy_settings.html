@@ -141,3 +141,26 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 {% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "privacy_settings",
+    "title": "Privacy Settings Guide",
+    "steps": [
+        {
+            "title": "Control Your Privacy \ud83d\udd12",
+            "content": "<h3>Manage Visibility</h3><p>Control who can see your profile information and activity on the platform.</p>"
+        },
+        {
+            "title": "Privacy Options \u2699\ufe0f",
+            "content": "<h3>What You Can Control</h3><ul><li>Profile visibility</li><li>Contact information display</li><li>Activity feed visibility</li><li>Search engine indexing</li></ul>"
+        },
+        {
+            "title": "Stay Safe \ud83d\udee1\ufe0f",
+            "content": "<h3>Privacy Tips</h3><ul><li>Share only necessary info</li><li>Review settings regularly</li><li>Be cautious with personal data</li><li>Report suspicious activity</li></ul>"
+        }
+    ]
+}
+{% endblock %}

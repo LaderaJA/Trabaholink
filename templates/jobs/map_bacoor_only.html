@@ -1,0 +1,225 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bacoor-Only Map</title>
+    
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: Arial, sans-serif;
+        }
+        
+        #map {
+            width: 100%;
+            height: 100vh;
+        }
+        
+        .map-info {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 1000;
+            max-width: 250px;
+        }
+        
+        .map-info h3 {
+            margin: 0 0 10px 0;
+            color: #1A94D5;
+            font-size: 18px;
+        }
+        
+        .map-info p {
+            margin: 5px 0;
+            font-size: 14px;
+            color: #333;
+        }
+        
+        /* Bacoor boundary styling */
+        .bacoor-boundary {
+            fill: transparent;
+            stroke: #1A94D5;
+            stroke-width: 3;
+            stroke-opacity: 1;
+        }
+        
+        /* Outside mask styling */
+        .outside-mask {
+            fill: #000000;
+            fill-opacity: 0.6;
+            stroke: none;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+    <div id="map"></div>
+    
+    <div class="map-info">
+        <h3>📍 Bacoor, Cavite</h3>
+        <p><strong>Service Area:</strong> Bacoor City Only</p>
+        <p>Map restricted to Bacoor boundaries</p>
+    </div>
+    
+    <!-- Leaflet JavaScript -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // ============================================================================
+        // BACOOR-ONLY MAP WITH DARKENED OUTSIDE AREA
+        // ============================================================================
+        
+        let map, bacoorLayer, maskLayer, marker;
+        
+        // Bacoor GeoJSON data
+        const bacoorGeoJSON = {
+            "type": "FeatureCollection",
+            "features": [
+                {
+                    "type": "Feature",
+                    "properties": {
+                        "name": "Bacoor",
+                        "city": "Bacoor City",
+                        "province": "Cavite"
+                    },
+                    "geometry": {
+                        "type": "Polygon",
+                        "coordinates": [
+                            [
+                                [120.9450, 14.4800],
+                                [121.0200, 14.4800],
+                                [121.0200, 14.4500],
+                                [121.0150, 14.4300],
+                                [121.0100, 14.4100],
+                                [121.0000, 14.3900],
+                                [120.9900, 14.3850],
+                                [120.9700, 14.3850],
+                                [120.9550, 14.3900],
+                                [120.9450, 14.4000],
+                                [120.9450, 14.4200],
+                                [120.9450, 14.4500],
+                                [120.9450, 14.4800]
+                            ]
+                        ]
+                    }
+                }
+            ]
+        };
+        
+        function initMap() {
+            // Bacoor center coordinates
+            const bacoorCenter = [14.4167, 120.9833];
+            
+            // Bacoor bounds (slightly larger than the polygon)
+            const bacoorBounds = [
+                [14.38, 120.94],  // Southwest
+                [14.48, 121.02]   // Northeast
+            ];
+            
+            // Create map centered on Bacoor
+            map = L.map('map', {
+                center: bacoorCenter,
+                zoom: 14,
+                minZoom: 13,
+                maxZoom: 18,
+                maxBounds: bacoorBounds,
+                maxBoundsViscosity: 1.0,  // Hard boundary
+                zoomControl: true
+            });
+            
+            // Add tile layer
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '© OpenStreetMap contributors',
+                maxZoom: 18
+            }).addTo(map);
+            
+            // Create inverse mask (everything EXCEPT Bacoor)
+            createInverseMask();
+            
+            // Add Bacoor boundary outline
+            bacoorLayer = L.geoJSON(bacoorGeoJSON, {
+                style: {
+                    color: '#1A94D5',
+                    weight: 3,
+                    opacity: 1,
+                    fillColor: 'transparent',
+                    fillOpacity: 0
+                }
+            }).addTo(map);
+            
+            // Add a draggable marker (example usage)
+            marker = L.marker(bacoorCenter, {
+                draggable: true,
+                title: 'Drag to set location'
+            }).addTo(map);
+            
+            // Update coordinates on marker drag
+            marker.on('dragend', function() {
+                const pos = marker.getLatLng();
+                console.log('Marker position:', pos.lat, pos.lng);
+                // You can update form fields here
+            });
+            
+            // Add click handler to move marker
+            map.on('click', function(e) {
+                marker.setLatLng(e.latlng);
+                console.log('Clicked position:', e.latlng.lat, e.latlng.lng);
+            });
+            
+            console.log('✅ Bacoor-only map initialized!');
+        }
+        
+        function createInverseMask() {
+            // Create a large rectangle covering a huge area
+            const worldBounds = [
+                [14.30, 120.85],  // Southwest - far outside Bacoor
+                [14.55, 121.10]   // Northeast - far outside Bacoor
+            ];
+            
+            // Get Bacoor polygon coordinates
+            const bacoorCoords = bacoorGeoJSON.features[0].geometry.coordinates[0];
+            
+            // Convert to Leaflet LatLng format (Leaflet uses [lat, lng], GeoJSON uses [lng, lat])
+            const bacoorLatLngs = bacoorCoords.map(coord => [coord[1], coord[0]]);
+            
+            // Create the world rectangle with a hole (Bacoor)
+            // This is done by creating a polygon with outer ring (world) and inner ring (Bacoor hole)
+            const maskCoordinates = [
+                // Outer ring (world rectangle) - clockwise
+                [
+                    [worldBounds[0][0], worldBounds[0][1]],  // SW
+                    [worldBounds[1][0], worldBounds[0][1]],  // SE
+                    [worldBounds[1][0], worldBounds[1][1]],  // NE
+                    [worldBounds[0][0], worldBounds[1][1]],  // NW
+                    [worldBounds[0][0], worldBounds[0][1]]   // Close
+                ],
+                // Inner ring (Bacoor hole) - counter-clockwise
+                bacoorLatLngs.reverse()
+            ];
+            
+            // Create the mask polygon
+            maskLayer = L.polygon(maskCoordinates, {
+                color: 'transparent',
+                fillColor: '#000000',
+                fillOpacity: 0.6,
+                interactive: false  // Don't block interactions
+            }).addTo(map);
+            
+            console.log('✅ Mask layer created - areas outside Bacoor are darkened');
+        }
+        
+        // Initialize map when page loads
+        document.addEventListener('DOMContentLoaded', initMap);
+    </script>
+</body>
+</html>

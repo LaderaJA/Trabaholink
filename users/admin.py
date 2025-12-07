@@ -3,7 +3,7 @@ from django.utils.html import format_html
 from django.urls import reverse, path
 from django.utils import timezone
 from django.shortcuts import render
-from .models import CustomUser, Skill, AccountVerification, EmailOTP, PhilSysVerification, ActivityLog
+from .models import CustomUser, Skill, AccountVerification, EmailOTP, PhilSysVerification, ActivityLog, UserGuideStatus
 
 
 @admin.register(CustomUser)
@@ -500,4 +500,61 @@ class ActivityLogAdmin(admin.ModelAdmin):
         return False
     
     def has_change_permission(self, request, obj=None):
+        return False
+
+
+@admin.register(UserGuideStatus)
+class UserGuideStatusAdmin(admin.ModelAdmin):
+    """Admin interface for User Guide Status."""
+    
+    list_display = [
+        'user',
+        'auto_popup_enabled',
+        'last_page_viewed',
+        'last_step_completed',
+        'total_guides_viewed',
+        'last_interaction',
+    ]
+    
+    list_filter = [
+        'auto_popup_enabled',
+        'last_interaction',
+        'created_at',
+    ]
+    
+    search_fields = [
+        'user__username',
+        'user__email',
+        'last_page_viewed',
+    ]
+    
+    readonly_fields = [
+        'created_at',
+        'updated_at',
+        'last_interaction',
+    ]
+    
+    fieldsets = (
+        ('User Information', {
+            'fields': ('user',)
+        }),
+        ('Guide Settings', {
+            'fields': ('auto_popup_enabled',)
+        }),
+        ('Progress Tracking', {
+            'fields': (
+                'last_page_viewed',
+                'last_step_completed',
+                'pages_completed',
+                'total_guides_viewed',
+            )
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at', 'last_interaction'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def has_add_permission(self, request):
+        """Prevent manual creation - should be auto-created via signals."""
         return False

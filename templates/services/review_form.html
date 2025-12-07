@@ -299,3 +299,26 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 {% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "review_form",
+    "title": "Write a Review",
+    "steps": [
+        {
+            "title": "Review This Service \u2b50",
+            "content": "<h3>Share Your Experience</h3><p>Help others by reviewing the service you received.</p>"
+        },
+        {
+            "title": "Be Detailed \ud83d\udcdd",
+            "content": "<h3>What to Include</h3><ul><li>Quality of work</li><li>Professionalism</li><li>Value for money</li><li>Communication</li><li>Timeliness</li></ul>"
+        },
+        {
+            "title": "Be Fair \u2696\ufe0f",
+            "content": "<h3>Honest Reviews</h3><p>Your review impacts the provider's reputation. Be honest but constructive. Focus on facts, not emotions.</p>"
+        }
+    ]
+}
+{% endblock %}

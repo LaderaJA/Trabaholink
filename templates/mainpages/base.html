@@ -2262,5 +2262,25 @@
       };
     })();
   </script>
+
+  {% if user.is_authenticated and user_guide_enabled %}
+  <!-- ============================================================================ -->
+  <!-- USER GUIDE SYSTEM -->
+  <!-- ============================================================================ -->
+  {% include 'mainpages/user_guide_system.html' %}
+  
+  <!-- Page-Specific Guide Data (Must be in base.html for block override to work) -->
+  <script type="application/json" id="guidePageData">
+  {% block guide_data %}
+  {
+      "enabled": false,
+      "page_name": "default",
+      "title": "Welcome!",
+      "steps": []
+  }
+  {% endblock %}
+  </script>
+  {% endif %}
+
 </body>
 </html>

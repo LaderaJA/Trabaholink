@@ -964,3 +964,34 @@
 <!-- Bootstrap JS (required for the modal to function) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
 {% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "register",
+    "title": "Registration Guide",
+    "steps": [
+        {
+            "title": "Join Trabaholink! \ud83c\udf89",
+            "content": "<h3>Create Your Free Account</h3><p>Register to start finding work or hiring workers in your area!</p><div class='guide-tip'><strong>\ud83d\udca1 Quick & Easy:</strong> Registration takes less than 2 minutes!</div>"
+        },
+        {
+            "title": "Choose Your Role \ud83d\udc64",
+            "content": "<h3>Worker or Employer?</h3><ul><li><strong>Worker:</strong> Find and apply for jobs</li><li><strong>Client:</strong> Post jobs and hire workers</li></ul><p>You can switch roles anytime later.</p>"
+        },
+        {
+            "title": "Your Information \ud83d\udccb",
+            "content": "<h3>Required Details</h3><p>We'll need:</p><ul><li>Username (unique)</li><li>Email address (for verification)</li><li>Secure password</li><li>Basic contact information</li></ul><p>All information is kept secure and private.</p>"
+        },
+        {
+            "title": "Email Verification \u2709\ufe0f",
+            "content": "<h3>Confirm Your Email</h3><p>After registering:</p><ol><li>Check your email inbox</li><li>Look for verification code</li><li>Enter the code</li><li>Account activated!</li></ol><div class='guide-warning'><strong>\u26a0\ufe0f Important:</strong> Check spam folder if you don't see the email.</div>"
+        },
+        {
+            "title": "Complete Your Profile \ud83c\udf1f",
+            "content": "<h3>Get Started</h3><p>After verification:</p><ul><li>Set your location</li><li>Add skills (for workers)</li><li>Upload profile picture</li><li>Start browsing or posting jobs!</li></ul><p>Welcome to Trabaholink! \ud83d\ude80</p>"
+        }
+    ]
+}
+{% endblock %}
