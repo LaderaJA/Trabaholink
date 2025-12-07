@@ -1409,7 +1409,6 @@ def select_role_view(request):
 # USER GUIDE MANAGEMENT VIEWS
 # ============================================================================
 
-@login_required
 @csrf_exempt
 @require_http_methods(["POST"])
 def disable_guide_auto_popup(request):
@@ -1446,7 +1445,6 @@ def disable_guide_auto_popup(request):
         }, status=500)
 
 
-@login_required
 @csrf_exempt
 @require_http_methods(["POST"])
 def enable_guide_auto_popup(request):
@@ -1483,7 +1481,6 @@ def enable_guide_auto_popup(request):
         }, status=500)
 
 
-@login_required
 @csrf_exempt
 @require_http_methods(["POST"])
 def update_guide_progress(request):
@@ -1548,7 +1545,6 @@ def update_guide_progress(request):
         }, status=500)
 
 
-@login_required
 @csrf_exempt
 @require_http_methods(["GET"])
 def get_guide_status(request):
@@ -1587,7 +1583,6 @@ def get_guide_status(request):
         }, status=500)
 
 
-@login_required
 @csrf_exempt
 @require_http_methods(["POST"])
 def increment_guide_view_count(request):

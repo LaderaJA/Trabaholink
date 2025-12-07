@@ -569,8 +569,19 @@
             const response = await fetch(url, { ...defaultOptions, ...options });
             if (!response.ok) {
                 console.error(`HTTP ${response.status}: ${response.statusText} for ${url}`);
+                const responseText = await response.text();
+                console.error('Response body:', responseText.substring(0, 500));
                 return { success: false, message: `HTTP ${response.status}` };
             }
+            
+            const contentType = response.headers.get('content-type');
+            if (!contentType || !contentType.includes('application/json')) {
+                const responseText = await response.text();
+                console.error('Expected JSON but got:', contentType);
+                console.error('Response body:', responseText.substring(0, 500));
+                return { success: false, message: 'Invalid response type: expected JSON' };
+            }
+            
             const data = await response.json();
             return data;
         } catch (error) {
