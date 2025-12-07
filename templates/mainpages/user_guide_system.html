@@ -539,24 +539,31 @@
     }
     
     async function makeRequest(url, options = {}) {
-        const csrftoken = getCookie('csrftoken');
+        // Try to get CSRF token from cookie first
+        let csrftoken = getCookie('csrftoken');
         
+        // If not in cookie, try to get from input field
         if (!csrftoken) {
-            console.error('CSRF token not found!');
-            // Try to get from input
             const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
             if (csrfInput) {
-                console.log('Found CSRF in input field');
+                csrftoken = csrfInput.value;
+                console.log('Using CSRF token from input field');
+            } else {
+                console.warn('CSRF token not found in cookie or input field');
             }
         }
         
         const defaultOptions = {
             headers: {
                 'Content-Type': 'application/json',
-                'X-CSRFToken': csrftoken
             },
             credentials: 'same-origin'
         };
+        
+        // Only add CSRF token header if we have one
+        if (csrftoken) {
+            defaultOptions.headers['X-CSRFToken'] = csrftoken;
+        }
         
         try {
             const response = await fetch(url, { ...defaultOptions, ...options });
