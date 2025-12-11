@@ -133,6 +133,7 @@ services:
       - static_volume:/app/staticfiles:ro
       - media_volume:/app/media:ro
       - ./certbot/www:/var/www/certbot:ro
+      - ./certbot/conf:/etc/letsencrypt:ro
       - nginx_logs:/var/log/nginx
     ports:
       - "80:80"
