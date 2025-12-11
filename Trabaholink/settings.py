@@ -268,7 +268,7 @@ OTP_LENGTH = 6  # 6-digit OTP code
 GDAL_LIBRARY_PATH = os.getenv('GDAL_LIBRARY_PATH', '/usr/lib/libgdal.so')
 
 # Django Allauth Configuration
-SITE_ID = 1
+SITE_ID = int(os.environ.get('SITE_ID', 2))  # Changed default to 2 for trabaholink.com
 
 # Allauth settings
 SOCIALACCOUNT_LOGIN_ON_GET = True
