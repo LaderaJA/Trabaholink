@@ -474,6 +474,7 @@
 </style>
 
 <!-- User Guide JavaScript -->
+{{ user_guide.pages_completed|json_script:"pages-completed" }}
 <script>
 (function() {
     'use strict';
@@ -784,9 +785,10 @@
         // Auto-popup on page load if enabled
         if (STATE.autoPopupEnabled && STATE.pageData && STATE.pageData.enabled) {
             // Check if this page has been completed
+            const pagesCompleted = JSON.parse(document.getElementById('pages-completed').textContent);
             const isCompleted = STATE.pageData.page_name && 
-                               {{ user_guide.pages_completed|safe }}.hasOwnProperty(STATE.pageData.page_name) &&
-                               {{ user_guide.pages_completed|safe }}[STATE.pageData.page_name].completed;
+                               pagesCompleted.hasOwnProperty(STATE.pageData.page_name) &&
+                               pagesCompleted[STATE.pageData.page_name].completed;
             
             if (!isCompleted) {
                 // Auto-open after a short delay
@@ -799,11 +801,19 @@
         console.log('User Guide System initialized');
     }
     
-    // Run initialization when DOM is ready
+    // Schedule initialization to avoid blocking first paint
+    const scheduleInit = () => {
+        if (window.requestIdleCallback) {
+            requestIdleCallback(init, { timeout: 1000 });
+        } else {
+            setTimeout(() => requestAnimationFrame(init), 0);
+        }
+    };
+
     if (document.readyState === 'loading') {
-        document.addEventListener('DOMContentLoaded', init);
+        document.addEventListener('DOMContentLoaded', scheduleInit, { once: true });
     } else {
-        init();
+        scheduleInit();
     }
     
 })();
