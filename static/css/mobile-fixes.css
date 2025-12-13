@@ -50,7 +50,7 @@ body {
     }
     
     /* Improve text readability */
-    p, li, span {
+    p, li, span:not(.tl-brand-text):not(.tl-brand-highlight) {
         font-size: 0.95rem;
         line-height: 1.6;
     }
