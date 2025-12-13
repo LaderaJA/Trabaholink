@@ -25,7 +25,7 @@ urlpatterns = [
     path('health/', health_check, name='health_check'),
     path('health/detailed/', health_check_detailed, name='health_check_detailed'),
     # Favicon
-    path('favicon.ico', RedirectView.as_view(url='/static/images/favicon.png', permanent=True)),
+    path('favicon.ico', RedirectView.as_view(url='/static/images/favicon.ico', permanent=True)),
 ]
 
 # Serve static files in development
