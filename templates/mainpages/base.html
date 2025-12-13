@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{% block title %}TrabahoLink{% endblock %}</title>
   {% load static %}
-  <link rel="icon" type="image/png" href="{% static 'images/favicon.ico' %}" />
+  <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}" />
   <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
   <link rel="stylesheet" href="{% static 'css/base.css' %}" />
   <link rel="stylesheet" href="{% static 'css/mobile-fixes.css' %}" />
@@ -124,7 +124,8 @@
       opacity: 0.85;
     }
 
-    .tl-brand-img {
+    /* removed .tl-brand-img image rules */
+    /* .tl-brand-img {
       height: clamp(24px, 2.8vw, 40px);
       width: auto;
       max-width: 60vw;
@@ -1255,7 +1256,8 @@
     <div class="container">
       <div class="tl-navbar-content">
         <a class="tl-navbar-brand" href="{% url 'jobs:home' %}">
-          <img src="{% static 'images/logobrand.png' %}" alt="TrabahoLink" class="tl-brand-img" />
+          <span class="tl-brand-text">Trabaho</span>
+          <span class="tl-brand-text tl-brand-highlight">Link</span>
         </a>
         
         <button class="tl-navbar-toggler" id="navbarToggler" type="button">
