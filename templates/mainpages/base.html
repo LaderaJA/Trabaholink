@@ -79,7 +79,7 @@
     
     /* Brand logo - Modern & Clean */
     .tl-navbar-brand {
-      font-size: 1.625rem;
+      font-size: clamp(20px, 2.4vw, 28px); line-height: 1.05;
       font-weight: 800;
       text-decoration: none;
       z-index: 1031;
@@ -123,6 +123,20 @@
     .tl-navbar-brand:hover {
       opacity: 0.85;
     }
+
+    /* Brand colors */
+    .tl-brand-text {
+      color: #4169E1 !important; /* Royal Blue */
+      font-weight: 900;
+      transition: color 0.2s ease;
+    }
+    .tl-brand-highlight {
+      color: #FFD60A !important; /* Yellow */
+      font-weight: 900;
+      transition: color 0.2s ease;
+    }
+    .tl-navbar-brand:hover .tl-brand-text { color: #3157c7 !important; }
+    .tl-navbar-brand:hover .tl-brand-highlight { color: #e6c200 !important; }
 
     /* removed .tl-brand-img image rules */
     /* .tl-brand-img {
