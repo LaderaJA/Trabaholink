@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{% block title %}TrabahoLink{% endblock %}</title>
   {% load static %}
-  <link rel="icon" type="image/png" href="{% static 'images/favicon.png' %}" />
+  <link rel="icon" type="image/png" href="{% static 'images/favicon.ico' %}" />
   <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
   <link rel="stylesheet" href="{% static 'css/base.css' %}" />
   <link rel="stylesheet" href="{% static 'css/mobile-fixes.css' %}" />
@@ -122,6 +122,16 @@
     
     .tl-navbar-brand:hover {
       opacity: 0.85;
+    }
+
+    .tl-brand-img {
+      height: 32px;
+      width: auto;
+      display: block;
+    }
+
+    @media (max-width: 768px) {
+      .tl-brand-img { height: 28px; }
     }
     
     .tl-brand-text {
