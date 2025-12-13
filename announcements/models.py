@@ -17,6 +17,7 @@ class Announcement(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     posted_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     content = models.TextField(blank=True, null=True, default="")
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.title

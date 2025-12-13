@@ -214,7 +214,7 @@
     function toggleAnnouncementStatus(announcementId, isActive) {
         const action = isActive ? 'deactivate' : 'activate';
         if (confirm(`Are you sure you want to ${action} this announcement?`)) {
-            fetch(`/admin/announcements/${announcementId}/toggle/`, {
+            fetch(`/admin_dashboard/announcements/${announcementId}/toggle/`, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': '{{ csrf_token }}',
