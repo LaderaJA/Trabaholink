@@ -125,13 +125,11 @@
     }
 
     .tl-brand-img {
-      height: 32px;
+      height: clamp(24px, 2.8vw, 40px);
       width: auto;
+      max-width: 60vw;
       display: block;
-    }
-
-    @media (max-width: 768px) {
-      .tl-brand-img { height: 28px; }
+      object-fit: contain;
     }
     
     .tl-brand-text {
