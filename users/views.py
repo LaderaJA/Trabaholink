@@ -1328,12 +1328,9 @@ class VerifyOTPView(View):
             ).first()
             
             if existing_user:
-                # Log them in instead
-                backend = get_backends()[0]
-                existing_user.backend = f"{backend.__module__}.{backend.__class__.__name__}"
-                login(request, existing_user)
-                messages.success(request, 'Welcome back! You have been logged in.')
-                return redirect('jobs:home')
+                # User already exists and email is already verified
+                messages.info(request, 'This email is already registered. Please login instead.')
+                return redirect('login')
             
             # Create the user account
             try:
