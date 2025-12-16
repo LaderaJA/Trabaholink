@@ -82,6 +82,8 @@ services:
       
       # Email (optional - configure as needed)
       EMAIL_BACKEND: ${EMAIL_BACKEND:-django.core.mail.backends.console.EmailBackend}
+      DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-trabaholinka@gmail.com}
+      SENDGRID_API_KEY: ${SENDGRID_API_KEY:-}
       EMAIL_HOST: ${EMAIL_HOST:-}
       EMAIL_PORT: ${EMAIL_PORT:-587}
       EMAIL_USE_TLS: ${EMAIL_USE_TLS:-True}
@@ -138,6 +140,16 @@ services:
       CELERY_BROKER_URL: ${REDIS_PASSWORD:+redis://:${REDIS_PASSWORD}@redis:6379/0}${REDIS_PASSWORD:-redis://redis:6379/0}
       CELERY_RESULT_BACKEND: ${REDIS_PASSWORD:+redis://:${REDIS_PASSWORD}@redis:6379/0}${REDIS_PASSWORD:-redis://redis:6379/0}
       
+      # Email configuration for celery tasks
+      EMAIL_BACKEND: ${EMAIL_BACKEND:-django.core.mail.backends.console.EmailBackend}
+      DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-trabaholinka@gmail.com}
+      SENDGRID_API_KEY: ${SENDGRID_API_KEY:-}
+      EMAIL_HOST: ${EMAIL_HOST:-}
+      EMAIL_PORT: ${EMAIL_PORT:-587}
+      EMAIL_USE_TLS: ${EMAIL_USE_TLS:-True}
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER:-}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD:-}
+      
       # Skip migrations for workers
       RUN_MIGRATIONS: "false"
       COLLECT_STATIC: "false"
@@ -185,6 +197,16 @@ services:
       # Celery
       CELERY_BROKER_URL: ${REDIS_PASSWORD:+redis://:${REDIS_PASSWORD}@redis:6379/0}${REDIS_PASSWORD:-redis://redis:6379/0}
       CELERY_RESULT_BACKEND: ${REDIS_PASSWORD:+redis://:${REDIS_PASSWORD}@redis:6379/0}${REDIS_PASSWORD:-redis://redis:6379/0}
+      
+      # Email configuration for celery tasks
+      EMAIL_BACKEND: ${EMAIL_BACKEND:-django.core.mail.backends.console.EmailBackend}
+      DEFAULT_FROM_EMAIL: ${DEFAULT_FROM_EMAIL:-trabaholinka@gmail.com}
+      SENDGRID_API_KEY: ${SENDGRID_API_KEY:-}
+      EMAIL_HOST: ${EMAIL_HOST:-}
+      EMAIL_PORT: ${EMAIL_PORT:-587}
+      EMAIL_USE_TLS: ${EMAIL_USE_TLS:-True}
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER:-}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD:-}
       
       # Skip migrations for beat
       RUN_MIGRATIONS: "false"
