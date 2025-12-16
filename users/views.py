@@ -13,7 +13,7 @@ from django.forms import inlineformset_factory, DateInput
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.core.exceptions import PermissionDenied, SuspiciousFileOperation
-from django.contrib.gis.geos import GEOSGeometry
+from utils_gis import GEOSGeometry, USE_GIS
 from django.http import JsonResponse
 from django.db import models
 from django.db.models import Q
@@ -1645,10 +1645,12 @@ def skip_profile_setup(request):
     Allow users to skip initial profile setup.
     Marks profile as completed even if not fully filled.
     """
-    if request.method == 'POST':
+    # Allow both GET and POST for better UX
+    if request.method in ['POST', 'GET']:
         request.user.profile_completed = True
         request.user.save(update_fields=['profile_completed'])
         messages.success(request, 'You can complete your profile anytime from your account settings.')
-        return redirect('home')
+        return redirect('jobs:home')
     
-    return redirect('profile_edit')
+    # Fallback redirect
+    return redirect('jobs:home')
