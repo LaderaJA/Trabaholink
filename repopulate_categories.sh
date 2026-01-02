@@ -20,11 +20,19 @@ echo ""
 echo "Step 1: Clearing existing job categories..."
 $PYTHON_CMD shell << PYTHON_EOF
 from jobs.models import JobCategory
+from django.db import connection
+
 count = JobCategory.objects.count()
 print(f"Current categories in database: {count}")
+
 if count > 0:
     JobCategory.objects.all().delete()
     print("✓ All existing categories deleted")
+    
+    # Reset the auto-increment sequence to avoid conflicts
+    with connection.cursor() as cursor:
+        cursor.execute("SELECT setval(pg_get_serial_sequence('jobs_jobcategory', 'id'), 1, false);")
+    print("✓ Database sequence reset")
 else:
     print("✓ No existing categories to delete")
 PYTHON_EOF
