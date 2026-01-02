@@ -67,8 +67,10 @@ class Command(BaseCommand):
             "Massage Therapy",
             "Beauty Services",
             "Nail Services",
+            "Makeup Artist",
             "Tailoring & Sewing",
             "Shoe Repair",
+            "Laundry & Ironing",
             "Catering",
             "Event Planning",
             "Photography",
@@ -91,28 +93,39 @@ class Command(BaseCommand):
             # Delivery & Transportation
             "Delivery Services",
             "Courier Services",
+            "Food Delivery",
+            "Grocery Delivery",
+            "Errand Services",
             "Driver Services",
             "Tricycle Driver",
             "Pedicab Driver",
             "Trucking Services",
+            "Pabili Services",
             
             # Professional Services
             "Accounting",
             "Legal Services",
             "Graphic Design",
             "Web Development",
+            "Social Media Management",
             "Content Writing",
             "Translation Services",
             "Virtual Assistant",
             "Data Entry",
+            "Transcription Services",
+            "Online Selling Assistant",
             
             # Care Services
             "Childcare",
+            "Babysitting",
             "Elderly Care",
             "Pet Care",
             "Pet Grooming",
+            "Pet Walking",
+            "Pet Sitting",
             "Housekeeping",
             "Nanny Services",
+            "Companion Care",
             
             # Maintenance & Repair
             "General Maintenance",
@@ -145,8 +158,23 @@ class Command(BaseCommand):
             "Pool Maintenance",
             "Elevator Maintenance",
             
+            # Side Hustles & Gig Economy
+            "Party Host/Entertainer",
+            "Event Staff",
+            "Promotional Model",
+            "Product Assembly",
+            "Gift Wrapping",
+            "Reselling/Buy & Sell",
+            "Online Shop Assistant",
+            "Car Washing",
+            "Bike Repair",
+            "Queue Services (Pila)",
+            "Bill Payment Services",
+            "Document Processing",
+            "Printing Services",
+            
             # Other
-            "Others",
+            "Other",
         ]
         
         created_count = 0
