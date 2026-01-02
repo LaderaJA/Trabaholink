@@ -1,5 +1,6 @@
 {% extends "mainpages/base.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Worker Dashboard - TrabahoLink{% endblock %}
 
@@ -800,7 +801,7 @@
 
     <!-- Dashboard Header -->
     <div class="dashboard-header">
-        <h1><i class="bi bi-person-workspace"></i> Worker Dashboard</h1>
+        <h1><i class="bi bi-person-workspace"></i> {% trans "Worker Dashboard" %}</h1>
         <p>Track your applications, offers, and contracts</p>
     </div>
 
@@ -1102,8 +1103,7 @@
                     </div>
                     <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
                         <a href="{% url 'jobs:job_application_detail' application.pk %}" class="btn-action btn-primary-custom">
-                            <i class="bi bi-eye"></i> View Details
-                        </a>
+                            <i class="bi bi-eye"></i>{% trans "View Details" %}</a>
                         {% if application.status|lower == 'negotiation' %}
                             {% with negotiation_contract=application.current_contract %}
                                 {% if negotiation_contract and negotiation_contract.worker_id == application.worker_id %}
@@ -1209,8 +1209,7 @@
                     </div>
                     <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
                         <a href="{% url 'jobs:contract_detail' contract.pk %}" class="btn-action btn-secondary">
-                            <i class="bi bi-eye"></i> View Details
-                        </a>
+                            <i class="bi bi-eye"></i>{% trans "View Details" %}</a>
                     </div>
                 </div>
                 {% empty %}

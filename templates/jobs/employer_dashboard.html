@@ -1,5 +1,6 @@
 {% extends "mainpages/base.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Employer Dashboard - TrabahoLink{% endblock %}
 
@@ -693,7 +694,7 @@
 
     <!-- Dashboard Header -->
     <div class="dashboard-header">
-        <h1><i class="bi bi-briefcase-fill"></i> Employer Dashboard</h1>
+        <h1><i class="bi bi-briefcase-fill"></i> {% trans "Employer Dashboard" %}</h1>
         <p>Manage your job postings, applications, and contracts</p>
     </div>
 
@@ -1187,8 +1188,7 @@
                             <i class="bi bi-eye"></i> View Job
                         </a>
                         <a href="{% url 'jobs:job_edit' job.pk %}" class="btn-action action-btn-secondary">
-                            <i class="bi bi-pencil"></i> Edit
-                        </a>
+                            <i class="bi bi-pencil"></i>{% trans "Edit" %}</a>
                     </div>
                 </div>
                 {% empty %}

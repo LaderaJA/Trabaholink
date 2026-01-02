@@ -1,5 +1,6 @@
 
 {% extends "mainpages/base.html" %}
+{% load i18n %}
 {% block content %}
 <div class="container mt-5">
   <h2>Delete Skill Verification</h2>
@@ -9,7 +10,7 @@
   <form method="POST">
     {% csrf_token %}
     <button submittype="" class="btn btn-danger">Yes, Delete</button>
-    <a href="{% url 'profile' request.user.pk %}" class="btn btn-secondary ms-2">Cancel</a>
+    <a href="{% url 'profile' request.user.pk %}" class="btn btn-secondary ms-2">{% trans "Cancel" %}</a>
   </form>
 </div>
 {% endblock %}

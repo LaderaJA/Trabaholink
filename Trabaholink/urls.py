@@ -21,6 +21,8 @@ urlpatterns = [
     path('api/jobs/', include('jobs.api_urls', namespace='jobs_api')),
     # Allauth URLs
     path('accounts/', include('allauth.urls')),
+    # Internationalization
+    path('i18n/', include('django.conf.urls.i18n')),
     # Health check endpoints for Docker
     path('health/', health_check, name='health_check'),
     path('health/detailed/', health_check_detailed, name='health_check_detailed'),

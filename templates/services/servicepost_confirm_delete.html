@@ -1,4 +1,5 @@
 {% extends 'mainpages/base.html' %}
+{% load i18n %}
 
 {% block content %}
 <style>
@@ -105,8 +106,7 @@
     {% csrf_token %}
     <div class="delete-actions">
       <a href="{% url 'services:servicepost_detail' object.slug %}" class="btn-cancel">
-        <i class="fa fa-times"></i> Cancel
-      </a>
+        <i class="fa fa-times"></i>{% trans "Cancel" %}</a>
       <button type="submit" class="btn-delete">
         <i class="fa fa-trash"></i> Yes, Delete
       </button>

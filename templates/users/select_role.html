@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Select Your Role - TrabahoLink{% endblock %}
 
@@ -195,8 +196,7 @@
             </label>
 
             <button type="submit" class="submit-btn">
-                <i class="bi bi-check-circle me-2"></i>Continue
-            </button>
+                <i class="bi bi-check-circle me-2"></i>{% trans "Continue" %}</button>
         </form>
     </div>
 </div>

@@ -1,5 +1,6 @@
 {% extends 'admin_dashboard/dashboard_base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Verification Details - {{ verification.full_name }}{% endblock %}
 {% block page_title %}Identity Verification Details{% endblock %}
@@ -372,9 +373,7 @@
                   placeholder="Enter reason for rejection..."></textarea>
         <div class="flex gap-3 justify-end">
             <button onclick="closeRejectModal()" 
-                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">
-                Cancel
-            </button>
+                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">{% trans "Cancel" %}</button>
             <button onclick="submitRejection()" 
                     class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700">
                 Reject

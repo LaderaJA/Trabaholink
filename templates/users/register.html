@@ -1,4 +1,5 @@
 {% extends 'mainpages/base.html' %}
+{% load i18n %}
 
 {% block content %}
 <div class="auth-page-wrapper">
@@ -19,29 +20,29 @@
                   <h1 class="brand-title">
                     <span class="brand-text">Trabaho</span><span class="brand-highlight">Link</span>
                   </h1>
-                  <p class="brand-tagline">Your gateway to endless opportunities</p>
+                  <p class="brand-tagline">{% trans "Your gateway to endless opportunities" %}</p>
                 </div>
                 
                 <div class="auth-illustration">
                   <div class="illustration-wrapper">
                     <i class="bi bi-person-plus-fill illustration-icon"></i>
                   </div>
-                  <h3 class="illustration-title">Join Us Today!</h3>
-                  <p class="illustration-text">Create your account and start your journey to success</p>
+                  <h3 class="illustration-title">{% trans "Join Us Today!" %}</h3>
+                  <p class="illustration-text">{% trans "Create your account and start your journey to success" %}</p>
                 </div>
                 
                 <div class="auth-features">
                   <div class="feature-item">
                     <i class="bi bi-check-circle-fill"></i>
-                    <span>Free Registration</span>
+                    <span>{% trans "Free Registration" %}</span>
                   </div>
                   <div class="feature-item">
                     <i class="bi bi-check-circle-fill"></i>
-                    <span>Access to Opportunities</span>
+                    <span>{% trans "Access to Opportunities" %}</span>
                   </div>
                   <div class="feature-item">
                     <i class="bi bi-check-circle-fill"></i>
-                    <span>Build Your Network</span>
+                    <span>{% trans "Build Your Network" %}</span>
                   </div>
                 </div>
               </div>
@@ -51,8 +52,8 @@
             <div class="col-lg-7 auth-form-section">
               <div class="auth-form-wrapper">
                 <div class="auth-form-header">
-                  <h2 class="form-title">Create Account</h2>
-                  <p class="form-subtitle">Fill in your details to get started</p>
+                  <h2 class="form-title">{% trans "Create Account" %}</h2>
+                  <p class="form-subtitle">{% trans "Fill in your details to get started" %}</p>
                 </div>
                 
                 <form method="post" class="auth-form">
@@ -72,7 +73,7 @@
                   
                   <div class="form-group-modern">
                     <label for="{{ form.email.id_for_label }}" class="form-label-modern">
-                      <i class="bi bi-envelope-fill me-2"></i>Email Address
+                      <i class="bi bi-envelope-fill me-2"></i>{% trans "Email Address" %}
                     </label>
                     <div class="input-wrapper">
                       {{ form.email }}
@@ -102,7 +103,7 @@
                   
                   <div class="form-group-modern">
                     <label for="{{ form.password2.id_for_label }}" class="form-label-modern">
-                      <i class="bi bi-shield-lock-fill me-2"></i>Confirm Password
+                      <i class="bi bi-shield-lock-fill me-2"></i>{% trans "Confirm Password" %}
                     </label>
                     <div class="input-wrapper password-wrapper">
                       {{ form.password2 }}
@@ -117,7 +118,7 @@
                   
                   <div class="form-group-modern">
                     <label for="{{ form.role.id_for_label }}" class="form-label-modern">
-                      <i class="bi bi-briefcase-fill me-2"></i>I am a:
+                      <i class="bi bi-briefcase-fill me-2"></i>{% trans "I am a:" %}
                     </label>
                     <div class="input-wrapper">
                       {{ form.role }}
@@ -132,20 +133,20 @@
                     <input type="checkbox" name="consent" id="consent" required>
                     <label for="consent">
                       I agree to the
-                      <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a>
+                      <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">{% trans "Terms and Conditions" %}</a>
                       and the
-                      <a href="#" data-bs-toggle="modal" data-bs-target="#privacyConsentModal">Privacy Consent Agreement</a>.
+                      <a href="#" data-bs-toggle="modal" data-bs-target="#privacyConsentModal">{% trans "Privacy Consent Agreement" %}</a>.
                     </label>
                   </div>
                   
                   <button type="submit" class="btn btn-primary-modern btn-block-modern">
-                    <span>Create Account</span>
+                    <span>{% trans "Create Account" %}</span>
                     <i class="bi bi-arrow-right-circle ms-2"></i>
                   </button>
                 </form>
                 
                 <div class="divider-modern">
-                  <span>OR CONTINUE WITH</span>
+                  <span>{% trans "OR CONTINUE WITH" %}</span>
                 </div>
                 
                 <div class="social-auth">
@@ -157,12 +158,12 @@
                       <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/>
                       <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
                     </svg>
-                    <span>Sign up with Google</span>
+                    <span>{% trans "Sign up with Google" %}</span>
                   </a>
                 </div>
                 
                 <div class="auth-switch">
-                  <p>Already have an account? <a href="{% url 'login' %}" class="switch-link">Sign In</a></p>
+                  <p>{% trans "Already have an account?" %} <a href="{% url 'login' %}" class="switch-link">{% trans "Sign In" %}</a></p>
                 </div>
               </div>
             </div>
@@ -228,7 +229,7 @@
 
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
         </div>
       </div>
     </div>
@@ -239,7 +240,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="privacyConsentModalLabel">Privacy Consent Agreement</h5>
+          <h5 class="modal-title" id="privacyConsentModalLabel">{% trans "Privacy Consent Agreement" %}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -297,7 +298,7 @@
           <p>By continuing to use Trabaholink and submitting your personal data, you affirm that you have read, understood, and voluntarily consented to the terms of this Privacy Consent Agreement. You may withdraw your consent at any time by submitting a written request to [Insert Contact Email].</p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
         </div>
       </div>
     </div>

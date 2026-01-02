@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load i18n %}
 {% load user_filters %}
 
 {% block extra_head %}
@@ -2959,8 +2960,7 @@ body {
                       <i class="bi bi-pencil"></i> Edit
                     </a>
                     <a href="{% url 'jobs:job_delete' job.id %}" class="btn-modern btn-outline-modern btn-sm-modern" style="color: var(--danger-color); border-color: var(--danger-color);">
-                      <i class="bi bi-trash"></i> Delete
-                    </a>
+                      <i class="bi bi-trash"></i>{% trans "Delete" %}</a>
                   </div>
                   {% endif %}
                 </li>
@@ -3066,8 +3066,7 @@ body {
                       <i class="bi bi-pencil"></i> Edit
                     </a>
                     <a href="{% url 'skill_delete' skill.id %}" class="btn-modern btn-outline-modern btn-sm-modern" style="color: var(--danger-color); border-color: var(--danger-color);">
-                      <i class="bi bi-trash"></i> Delete
-                    </a>
+                      <i class="bi bi-trash"></i>{% trans "Delete" %}</a>
                   </div>
                   {% endif %}
                 </li>
@@ -3148,8 +3147,7 @@ body {
                       <i class="bi bi-pencil"></i> Edit
                     </a>
                     <a href="{% url 'services:servicepost_delete' service.slug %}" class="btn-modern btn-outline-modern btn-sm-modern" style="color: var(--danger-color); border-color: var(--danger-color);">
-                      <i class="bi bi-trash"></i> Delete
-                    </a>
+                      <i class="bi bi-trash"></i>{% trans "Delete" %}</a>
                   </div>
                   {% endif %}
                 </li>

@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}
   {% if form.status.value == 'Submitted for Review' %}
@@ -414,8 +415,7 @@
             <!-- Action Buttons -->
             <div class="action-buttons">
                 <a href="{% url 'jobs:contract_detail' object.pk %}" class="btn-cancel">
-                    <i class="bi bi-x-circle"></i> Cancel
-                </a>
+                    <i class="bi bi-x-circle"></i>{% trans "Cancel" %}</a>
                 <button type="submit" class="btn-submit" onclick="return confirmSubmission()">
                     <i class="bi bi-send-check"></i> Submit Work for Review
                 </button>

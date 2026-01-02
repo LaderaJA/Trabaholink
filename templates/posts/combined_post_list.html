@@ -1,4 +1,5 @@
 {% extends "mainpages/base.html" %}
+{% load i18n %}
 {% block content %}
 <!-- Hero Banner -->
 <div class="posts-hero">
@@ -52,7 +53,7 @@
           </h5>
           <p class="card-text">{{ post.description|truncatechars:100 }}</p>
           <p class="card-text"><small class="text-muted">Posted on {{ post.created_at|date:"M d, Y" }}</small></p>
-          <a href="{{ post.get_absolute_url }}" class="btn btn-primary">View Details</a>
+          <a href="{{ post.get_absolute_url }}" class="btn btn-primary">{% trans "View Details" %}</a>
         </div>
       </div>
     </div>

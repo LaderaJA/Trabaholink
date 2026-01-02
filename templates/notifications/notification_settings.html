@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block css %}
 <style>
@@ -587,7 +588,7 @@ input:checked + .slider:before {
       <div class="submit-section">
         <a href="{% url 'notifications:notification_list' %}" class="btn-cancel">
           <i class="bi bi-x-circle"></i>
-          <span>Cancel</span>
+          <span>{% trans "Cancel" %}</span>
         </a>
         <button type="submit" class="btn-save">
           <i class="bi bi-check-circle"></i>

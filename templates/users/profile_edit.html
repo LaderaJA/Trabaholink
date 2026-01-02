@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load i18n %}
 {% load user_filters %}
 
 {% block css %}
@@ -1090,7 +1091,7 @@ textarea.form-control-edit {
         {% else %}
         <a href="{% url 'profile' user.pk %}" class="btn-cancel-edit">
           <i class="bi bi-x-circle"></i>
-          <span>Cancel</span>
+          <span>{% trans "Cancel" %}</span>
         </a>
         {% endif %}
         <button type="submit" class="btn-submit-edit">

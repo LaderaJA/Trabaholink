@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Sign Contract - {{ contract.job.title }} - TrabahoLink{% endblock %}
 
@@ -400,8 +401,7 @@
             </form>
             {% endif %}
             <a href="javascript:history.back()" class="btn-action btn-cancel">
-                <i class="bi bi-arrow-left"></i> Back
-            </a>
+                <i class="bi bi-arrow-left"></i>{% trans "Back" %}</a>
         </div>
     </div>
 </div>

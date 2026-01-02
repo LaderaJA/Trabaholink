@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Negotiate Contract - {{ object.job.title }} - TrabahoLink{% endblock %}
 
@@ -1030,8 +1031,7 @@
       </div>
       <div class="modal-footer">
         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
-          <i class="fas fa-times"></i> Cancel
-        </button>
+          <i class="fas fa-times"></i>{% trans "Cancel" %}</button>
         <form method="post" action="{% url 'jobs:finalize_contract' object.pk %}" style="display:inline;">
           {% csrf_token %}
           <button type="submit" class="btn btn-success">

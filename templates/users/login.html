@@ -1,4 +1,5 @@
 {% extends 'mainpages/base.html' %}
+{% load i18n %}
 
 {% block extra_head %}
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -25,29 +26,29 @@
                   <h1 class="brand-title">
                     <span class="brand-text">Trabaho</span><span class="brand-highlight">Link</span>
                   </h1>
-                  <p class="brand-tagline">Your gateway to endless opportunities</p>
+                  <p class="brand-tagline">{% trans "Your gateway to endless opportunities" %}</p>
                 </div>
                 
                 <div class="auth-illustration">
                   <div class="illustration-wrapper">
                     <i class="bi bi-briefcase-fill illustration-icon"></i>
                   </div>
-                  <h3 class="illustration-title">Welcome Back!</h3>
-                  <p class="illustration-text">Sign in to continue your journey to success</p>
+                  <h3 class="illustration-title">{% trans "Welcome Back!" %}</h3>
+                  <p class="illustration-text">{% trans "Sign in to continue your journey to success" %}</p>
                 </div>
                 
                 <div class="auth-features">
                   <div class="feature-item">
                     <i class="bi bi-check-circle-fill"></i>
-                    <span>Secure & Trusted Platform</span>
+                    <span>{% trans "Secure & Trusted Platform" %}</span>
                   </div>
                   <div class="feature-item">
                     <i class="bi bi-check-circle-fill"></i>
-                    <span>Connect with Opportunities</span>
+                    <span>{% trans "Connect with Opportunities" %}</span>
                   </div>
                   <div class="feature-item">
                     <i class="bi bi-check-circle-fill"></i>
-                    <span>Build Your Career</span>
+                    <span>{% trans "Build Your Career" %}</span>
                   </div>
                 </div>
               </div>
@@ -57,14 +58,14 @@
             <div class="col-lg-7 auth-form-section">
               <div class="auth-form-wrapper">
                 <div class="auth-form-header">
-                  <h2 class="form-title">Sign In</h2>
-                  <p class="form-subtitle">Enter your credentials to access your account</p>
+                  <h2 class="form-title">{% trans "Sign In" %}</h2>
+                  <p class="form-subtitle">{% trans "Enter your credentials to access your account" %}</p>
                 </div>
                 
                 {% if form.errors %}
                 <div class="alert alert-danger alert-modern">
                   <i class="bi bi-exclamation-triangle-fill me-2"></i>
-                  <span>Your username and password didn't match. Please try again.</span>
+                  <span>{% trans "Your username and password didn't match. Please try again." %}</span>
                 </div>
                 {% endif %}
                 
@@ -73,7 +74,7 @@
                   
                   <div class="form-group-modern">
                     <label for="{{ form.username.id_for_label }}" class="form-label-modern">
-                      <i class="bi bi-person-fill me-2"></i>Username
+                      <i class="bi bi-person-fill me-2"></i>{% trans "Username" %}
                     </label>
                     <div class="input-wrapper">
                       {{ form.username }}
@@ -82,7 +83,7 @@
                   
                   <div class="form-group-modern">
                     <label for="{{ form.password.id_for_label }}" class="form-label-modern">
-                      <i class="bi bi-lock-fill me-2"></i>Password
+                      <i class="bi bi-lock-fill me-2"></i>{% trans "Password" %}
                     </label>
                     <div class="input-wrapper password-wrapper">
                       {{ form.password }}
@@ -94,22 +95,23 @@
                   
                   <div class="form-footer-links">
                     <a href="{% url 'password_reset' %}" class="forgot-link">
-                      <i class="bi bi-question-circle me-1"></i>Forgot password?
+                      <i class="bi bi-question-circle me-1"></i>{% trans "Forgot password?" %}
                     </a>
                   </div>
                   
                   <button type="submit" class="btn btn-primary-modern btn-block-modern">
-                    <span>Sign In</span>
+                    <span>{% trans "Sign In" %}</span>
                     <i class="bi bi-arrow-right-circle ms-2"></i>
                   </button>
                 </form>
                 
                 <div class="divider-modern">
-                  <span>OR CONTINUE WITH</span>
+                  <span>{% trans "OR CONTINUE WITH" %}</span>
                 </div>
                 
                 <div class="social-auth">
                   {% load socialaccount %}
+  {% load i18n %}
                   <a href="{% provider_login_url 'google' %}" class="btn btn-google-modern">
                     <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 48 48">
                       <path fill="#FFC107" d="M43.611,20.083H42V20H24v8h11.303c-1.649,4.657-6.08,8-11.303,8c-6.627,0-12-5.373-12-12c0-6.627,5.373-12,12-12c3.059,0,5.842,1.154,7.961,3.039l5.657-5.657C34.046,6.053,29.268,4,24,4C12.955,4,4,12.955,4,24c0,11.045,8.955,20,20,20c11.045,0,20-8.955,20-20C44,22.659,43.862,21.35,43.611,20.083z"/>
@@ -117,12 +119,12 @@
                       <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/>
                       <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
                     </svg>
-                    <span>Continue with Google</span>
+                    <span>{% trans "Continue with Google" %}</span>
                   </a>
                 </div>
                 
                 <div class="auth-switch">
-                  <p>Don't have an account? <a href="{% url 'register' %}" class="switch-link">Create Account</a></p>
+                  <p>{% trans "Don't have an account?" %} <a href="{% url 'register' %}" class="switch-link">{% trans "Create Account" %}</a></p>
                 </div>
               </div>
             </div>

@@ -1,4 +1,5 @@
 {% load static %}
+{% load i18n %}
 <!-- User Guide System -->
 <div id="userGuideSystem">
     <!-- Hidden CSRF token for AJAX requests -->
@@ -60,9 +61,7 @@
                     <button id="guidePrevBtn" class="guide-btn guide-btn-secondary" style="display: none;">
                         Previous
                     </button>
-                    <button id="guideNextBtn" class="guide-btn guide-btn-primary">
-                        Next
-                    </button>
+                    <button id="guideNextBtn" class="guide-btn guide-btn-primary">{% trans "Next" %}</button>
                     <button id="guideFinishBtn" class="guide-btn guide-btn-success" style="display: none;">
                         Got it!
                     </button>

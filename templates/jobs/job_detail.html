@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+  {% load i18n %}
 
 {% block title %}{{ job.title }} - TrabahoLink{% endblock %}
 
@@ -1482,8 +1483,7 @@
                         </form>
                     {% endif %}
                     <a href="javascript:history.back()" class="btn-action btn-secondary">
-                        <i class="bi bi-arrow-left"></i> Back
-                    </a>
+                        <i class="bi bi-arrow-left"></i>{% trans "Back" %}</a>
                 {% else %}
                     <a href="{% url 'login' %}?next={{ request.path }}" class="btn-action btn-primary">
                         <i class="bi bi-box-arrow-in-right"></i> Login to Apply

@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block content %}
 <style>
@@ -226,9 +227,7 @@
     </div>
 
     <div class="form-actions">
-      <a href="{% url 'services:servicepost_detail' slug=service_post.slug %}" class="btn btn-secondary">
-        Cancel
-      </a>
+      <a href="{% url 'services:servicepost_detail' slug=service_post.slug %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
       <button type="submit" class="btn btn-primary">
         {% if is_edit %}💾 Update Review{% else %}📤 Submit Review{% endif %}
       </button>

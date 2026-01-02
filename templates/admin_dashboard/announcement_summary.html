@@ -1,5 +1,6 @@
 {% extends 'admin_dashboard/base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block content %}
 <h2>Announcement Summary</h2>
@@ -24,7 +25,7 @@
             <td>{{ announcement.created_at|date:"M d, Y H:i" }}</td>
             <td>
                 <a href="{% url 'admin_dashboard:admin_announcement_edit' announcement.pk %}" class="btn btn-sm btn-primary">Edit</a>
-                <a href="{% url 'admin_dashboard:admin_announcement_delete' announcement.pk %}" class="btn btn-sm btn-danger">Delete</a>
+                <a href="{% url 'admin_dashboard:admin_announcement_delete' announcement.pk %}" class="btn btn-sm btn-danger">{% trans "Delete" %}</a>
             </td>
         </tr>
         {% empty %}

@@ -6,7 +6,9 @@ from dotenv import load_dotenv
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
+# Load .env first, then .env.local (for local overrides that won't be committed)
 load_dotenv(BASE_DIR / '.env')
+load_dotenv(BASE_DIR / '.env.local', override=True)
 
 
 # Quick-start development settings - unsuitable for production
@@ -29,6 +31,7 @@ ALLOWED_HOSTS = os.environ.get('ALLOWED_HOSTS', 'localhost,127.0.0.1').split(','
 
 INSTALLED_APPS = [
     'daphne',
+    'modeltranslation',  # Must be before django.contrib.admin
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -62,6 +65,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'csp.middleware.CSPMiddleware',  # Content Security Policy
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',  # Language selection middleware
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'simple_history.middleware.HistoryRequestMiddleware',
@@ -142,6 +146,7 @@ TEMPLATES = [
             'context_processors': [
                 'django.template.context_processors.debug',
                 'django.template.context_processors.request',
+                'django.template.context_processors.i18n',  # Internationalization
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
                 'notifications.context_processors.unread_notifications',
@@ -214,10 +219,43 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+# ============================================================================
+# INTERNATIONALIZATION (i18n) CONFIGURATION
+# ============================================================================
+
+LANGUAGE_CODE = 'en'  # Default language
+
+# Supported languages
+LANGUAGES = [
+    ('en', 'English'),
+    ('tl', 'Tagalog'),
+]
+
+# Path to translation files
+LOCALE_PATHS = [
+    BASE_DIR / 'locale',
+]
+
+USE_I18N = True  # Enable internationalization
 
 TIME_ZONE = "Asia/Manila"  # or your desired timezone
 USE_TZ = True
+
+# ============================================================================
+# MODELTRANSLATION CONFIGURATION
+# ============================================================================
+
+# Default language for modeltranslation
+MODELTRANSLATION_DEFAULT_LANGUAGE = 'en'
+
+# Available languages for modeltranslation
+MODELTRANSLATION_LANGUAGES = ('en', 'tl')
+
+# Prepopulate translations from default language
+MODELTRANSLATION_PREPOPULATE = True
+
+# Auto-register models
+MODELTRANSLATION_AUTO_POPULATE = True
 
 
 # Static files (CSS, JavaScript, Images)

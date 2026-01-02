@@ -1,4 +1,5 @@
 {% extends 'admin_dashboard/dashboard_base.html' %}
+{% load i18n %}
 
 {% block title %}Report Details #{{ report.pk }}{% endblock %}
 {% block page_title %}Report Details{% endblock %}
@@ -292,9 +293,7 @@
         </div>
         <div class="p-6 border-t border-gray-200 flex gap-3 justify-end">
             <button onclick="closeWarningModal()" 
-                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
-                Cancel
-            </button>
+                    class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">{% trans "Cancel" %}</button>
             <button onclick="sendWarning()" 
                     class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition">
                 Send Warning

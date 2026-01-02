@@ -1,5 +1,6 @@
 {% extends "mainpages/base.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Step 1: Personal Information - TrabahoLink{% endblock %}
 
@@ -249,8 +250,7 @@
 
             <div class="action-buttons">
                 <a href="{% url 'ekyc_start' %}" class="btn btn-secondary">
-                    <i class="bi bi-x-circle"></i> Cancel
-                </a>
+                    <i class="bi bi-x-circle"></i>{% trans "Cancel" %}</a>
                 <button type="submit" class="btn btn-primary">
                     Next <i class="bi bi-arrow-right"></i>
                 </button>

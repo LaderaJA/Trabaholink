@@ -1,5 +1,6 @@
 {% extends "mainpages/base.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block css %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.3/dist/leaflet.css" crossorigin=""/>
@@ -850,9 +851,7 @@ select.form-control {
             Previous
           </button>
           <div style="flex: 1;"></div>
-          <button type="button" class="btn btn-primary" id="nextBtn" onclick="changeStep(1)">
-            Next
-            <i class="bi bi-arrow-right"></i>
+          <button type="button" class="btn btn-primary" id="nextBtn" onclick="changeStep(1)">{% trans "Next" %}<i class="bi bi-arrow-right"></i>
           </button>
           <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">
             <i class="bi bi-check-circle"></i>

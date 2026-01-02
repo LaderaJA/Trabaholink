@@ -1,4 +1,5 @@
 {% extends 'admin_dashboard/dashboard_base.html' %}
+{% load i18n %}
 
 {% block title %}Job Management{% endblock %}
 {% block page_title %}Job Post Management{% endblock %}
@@ -146,9 +147,7 @@
                         
                         <button type="button" data-job-id="{{ job.pk }}" onclick="deleteJob(this)" 
                                 class="inline-flex items-center gap-2 px-3 py-1.5 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>
-                            Delete
-                        </button>
+                            <i data-lucide="trash-2" class="w-4 h-4"></i>{% trans "Delete" %}</button>
                     </div>
                 </div>
             </div>

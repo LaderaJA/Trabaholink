@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+  {% load i18n %}
 
 {% block content %}
 <style>
@@ -807,17 +808,17 @@
   <div class="container">
     <div class="hero-header">
       <div class="hero-title-section">
-        <h1 id="heroTitle"><i class="bi bi-briefcase-fill"></i> Job Opportunities</h1>
-        <p id="heroSubtitle">Find your next opportunity from {{ jobs_count }} available positions</p>
+        <h1 id="heroTitle"><i class="bi bi-briefcase-fill"></i> {% trans "Job Opportunities" %}</h1>
+        <p id="heroSubtitle">{% blocktrans with count=jobs_count %}Find your next opportunity from {{ count }} available positions{% endblocktrans %}</p>
       </div>
       <div class="hero-stats">
         <div class="stat-item">
           <span class="stat-number" id="statNumber">{{ jobs_count }}</span>
-          <span class="stat-label" id="statLabel">Active Jobs</span>
+          <span class="stat-label" id="statLabel">{% trans "Active Jobs" %}</span>
         </div>
         <div class="stat-item">
           <span class="stat-number">{{ categories.count }}</span>
-          <span class="stat-label">Categories</span>
+          <span class="stat-label">{% trans "Categories" %}</span>
         </div>
       </div>
     </div>
@@ -830,16 +831,16 @@
           type="text" 
           name="q" 
           value="{{ request.GET.q|default:'' }}" 
-          placeholder="Search by job title, skills, or location..." 
+          placeholder="{% trans 'Search by job title, skills, or location...' %}" 
           class="search-input-compact"
         >
         <button type="button" class="filter-toggle-btn" id="filterToggle">
           <i class="bi bi-funnel"></i>
-          <span>Filters</span>
+          <span>{% trans "Filters" %}</span>
           <i class="bi bi-chevron-down" id="filterChevron"></i>
         </button>
         <button type="submit" class="search-btn-compact">
-          <i class="bi bi-search"></i> Search
+          <i class="bi bi-search"></i> {% trans "Search" %}
         </button>
       </div>
       
@@ -847,9 +848,9 @@
       <div class="filters-panel" id="filtersPanel">
         <div class="filter-row">
           <div class="filter-group">
-            <label><i class="bi bi-tag"></i> Category</label>
+            <label><i class="bi bi-tag"></i> {% trans "Category" %}</label>
             <select name="category" class="form-select">
-              <option value="">All Categories</option>
+              <option value="">{% trans "All Categories" %}</option>
               {% for category in categories %}
               <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"i" %}selected{% endif %}>
                 {{ category.name }}
@@ -858,38 +859,38 @@
             </select>
           </div>
           <div class="filter-group">
-            <label><i class="bi bi-geo-alt"></i> Municipality</label>
-            <input type="text" name="municipality" value="{{ request.GET.municipality|default:'' }}" placeholder="Enter municipality">
+            <label><i class="bi bi-geo-alt"></i> {% trans "Municipality" %}</label>
+            <input type="text" name="municipality" value="{{ request.GET.municipality|default:'' }}" placeholder="{% trans 'Enter municipality' %}">
           </div>
           <div class="filter-group">
-            <label><i class="bi bi-map"></i> Barangay</label>
-            <input type="text" name="barangay" value="{{ request.GET.barangay|default:'' }}" placeholder="Enter barangay">
+            <label><i class="bi bi-map"></i> {% trans "Barangay" %}</label>
+            <input type="text" name="barangay" value="{{ request.GET.barangay|default:'' }}" placeholder="{% trans 'Enter barangay' %}">
           </div>
         </div>
         <div class="filter-row">
           <div class="filter-group">
-            <label><i class="bi bi-cash"></i> Min Budget (₱)</label>
+            <label><i class="bi bi-cash"></i> {% trans "Min Budget" %} (₱)</label>
             <input type="number" name="min_budget" value="{{ request.GET.min_budget|default:'' }}" placeholder="0">
           </div>
           <div class="filter-group">
-            <label><i class="bi bi-cash-stack"></i> Max Budget (₱)</label>
+            <label><i class="bi bi-cash-stack"></i> {% trans "Max Budget" %} (₱)</label>
             <input type="number" name="max_budget" value="{{ request.GET.max_budget|default:'' }}" placeholder="No limit">
           </div>
           <div class="filter-group">
-            <label><i class="bi bi-toggle-on"></i> Status</label>
+            <label><i class="bi bi-toggle-on"></i> {% trans "Status" %}</label>
             <select name="status">
-              <option value="">All Status</option>
-              <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Hiring</option>
-              <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>Closed</option>
+              <option value="">{% trans "All Status" %}</option>
+              <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>{% trans "Hiring" %}</option>
+              <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>{% trans "Closed" %}</option>
             </select>
           </div>
         </div>
         <div class="filter-actions">
           <a href="{% url 'jobs:job_list' %}" class="btn-primary-custom" style="background: var(--text-light);">
-            <i class="bi bi-x-circle"></i> Clear Filters
+            <i class="bi bi-x-circle"></i> {% trans "Clear Filters" %}
           </a>
           <button type="submit" class="btn-primary-custom">
-            <i class="bi bi-check-circle"></i> Apply Filters
+            <i class="bi bi-check-circle"></i> {% trans "Apply Filters" %}
           </button>
         </div>
       </div>
@@ -1832,7 +1833,7 @@ function showCachedLocationInfo() {
         <div id="locationStatus" style="margin-top: 1rem; display: none;"></div>
       </div>
       <div class="modal-footer" style="border: none; padding: 1rem 2rem;">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px;">Cancel</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px;">{% trans "Cancel" %}</button>
         <button type="button" class="btn btn-primary" onclick="applyManualLocation()" style="background: var(--gradient-primary); border: none; border-radius: 8px;">Apply Location</button>
       </div>
     </div>

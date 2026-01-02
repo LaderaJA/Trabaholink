@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load i18n %}
 {% load user_filters %}
 
 {% block title %}Manage Availability - TrabahoLink{% endblock %}
@@ -495,7 +496,7 @@
       {% endfor %}
 
       <div class="action-buttons">
-        <a href="{% url 'profile' user.pk %}" class="btn-secondary">Cancel</a>
+        <a href="{% url 'profile' user.pk %}" class="btn-secondary">{% trans "Cancel" %}</a>
         <button type="submit" class="btn-primary">
           💾 Save Availability
         </button>

@@ -93,3 +93,15 @@ pyasn1==0.6.1
 pyasn1_modules==0.4.1
 service-identity==24.2.0
 django-csp==3.8
+django-modeltranslation==0.19.10
+
+# Testing Dependencies
+pytest==9.0.2
+pytest-django==4.11.1
+pytest-cov==7.0.0
+pytest-html==4.1.1
+pytest-metadata==3.1.1
+pytest-xdist==3.6.1
+faker==39.0.0
+factory-boy==3.3.3
+coverage==7.6.10

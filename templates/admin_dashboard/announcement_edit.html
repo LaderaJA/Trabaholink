@@ -1,4 +1,5 @@
 {% extends 'admin_dashboard/dashboard_base.html' %}
+{% load i18n %}
 
 {% block title %}Edit Announcement{% endblock %}
 {% block page_title %}Edit Announcement{% endblock %}
@@ -98,9 +99,7 @@
             <!-- Form Actions -->
             <div class="flex items-center justify-end gap-4 pt-6 border-t border-gray-200">
                 <a href="{% url 'admin_dashboard:admin_announcement_list' %}" 
-                   class="px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition">
-                    Cancel
-                </a>
+                   class="px-6 py-2.5 border border-gray-300 rounded-lg text-gray-700 font-medium hover:bg-gray-50 transition">{% trans "Cancel" %}</a>
                 <button type="submit" 
                         class="px-6 py-2.5 bg-trabaholink-blue text-white rounded-lg font-medium hover:bg-trabaholink-dark-blue transition inline-flex items-center gap-2">
                     <i data-lucide="save" class="w-4 h-4"></i>

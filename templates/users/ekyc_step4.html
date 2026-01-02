@@ -1,5 +1,6 @@
 {% extends "mainpages/base.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Step 4: Review & Submit - TrabahoLink{% endblock %}
 
@@ -331,8 +332,7 @@
 
             <div class="action-buttons">
                 <a href="{% url 'ekyc_step3' %}" class="btn btn-secondary">
-                    <i class="bi bi-arrow-left"></i> Back
-                </a>
+                    <i class="bi bi-arrow-left"></i>{% trans "Back" %}</a>
                 <button type="submit" class="btn btn-primary" id="submit-btn" disabled>
                     <i class="bi bi-send"></i> Submit Verification
                 </button>

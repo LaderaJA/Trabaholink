@@ -1,5 +1,6 @@
 {% extends "mainpages/base.html" %}
 {% load static %}
+  {% load i18n %}
 
 {% block css %}
 <style>
@@ -640,9 +641,9 @@
   <div class="container position-relative">
     <div class="row align-items-center">
       <div class="col-lg-6 mb-5 mb-lg-0">
-        <h1 class="hero-title">Connect. Collaborate. Succeed.</h1>
+        <h1 class="hero-title">{% trans "Connect. Collaborate. Succeed." %}</h1>
         <p class="hero-subtitle">
-          Your gateway to endless opportunities. Find the perfect job or discover talented professionals ready to bring your vision to life.
+          {% trans "Your gateway to endless opportunities. Find the perfect job or discover talented professionals ready to bring your vision to life." %}
         </p>
         <div class="d-flex flex-wrap gap-3">
           {% if user.is_authenticated %}
@@ -652,16 +653,16 @@
             </a>
             <a href="{% url 'jobs:job_list' %}?tab=services" class="btn btn-outline-light btn-lg px-4">
               <i class="bi bi-tools me-2"></i>
-              Find Services
+              {% trans "Find Services" %}
             </a>
           {% else %}
             <a href="{% url 'jobs:job_list' %}" class="btn btn-light btn-lg px-4">
               <i class="bi bi-briefcase me-2"></i>
-              Find Jobs
+              {% trans "Find Jobs" %}
             </a>
             <a href="{% url 'register' %}" class="btn btn-outline-light btn-lg px-4">
               <i class="bi bi-person-plus me-2"></i>
-              Join Now
+              {% trans "Join Now" %}
             </a>
           {% endif %}
         </div>
@@ -687,7 +688,7 @@
                       <div class="announcement-overlay">
                         <h3 class="announcement-title">{{ announcement.title }}</h3>
                         <small class="text-white-50 d-block mt-2">
-                          <i class="bi bi-arrow-right-circle me-1"></i>Click to read more
+                          <i class="bi bi-arrow-right-circle me-1"></i>{% trans "Click to read more" %}
                         </small>
                       </div>
                     </div>
@@ -699,7 +700,7 @@
                       <h3 class="h4 mb-3">{{ announcement.title }}</h3>
                       <p class="text-muted mb-0">{{ announcement.content|truncatewords:20 }}</p>
                       <small class="text-primary mt-2 d-block">
-                        <i class="bi bi-arrow-right-circle me-1"></i>Read more
+                        <i class="bi bi-arrow-right-circle me-1"></i>{% trans "Read more" %}
                       </small>
                     </div>
                   </a>
@@ -710,8 +711,8 @@
               <div class="carousel-item active">
                 <div class="announcement-slide">
                   <i class="bi bi-megaphone announcement-icon"></i>
-                  <h3 class="h4 mb-3">Welcome to TrabahoLink!</h3>
-                  <p class="text-muted mb-0">Join thousands of professionals finding their dream opportunities</p>
+                  <h3 class="h4 mb-3">{% trans "Welcome to TrabahoLink!" %}</h3>
+                  <p class="text-muted mb-0">{% trans "Join thousands of professionals finding their dream opportunities" %}</p>
                 </div>
               </div>
             {% endif %}
@@ -736,19 +737,19 @@
       <div class="col-md-4 col-6">
         <div class="stat-card">
           <span class="stat-number" data-count="{{ active_jobs }}">0</span>
-          <span class="stat-label">Active Jobs</span>
+          <span class="stat-label">{% trans "Active Jobs" %}</span>
         </div>
       </div>
       <div class="col-md-4 col-6">
         <div class="stat-card">
           <span class="stat-number" data-count="{{ total_users }}">0</span>
-          <span class="stat-label">Users</span>
+          <span class="stat-label">{% trans "Users" %}</span>
         </div>
       </div>
       <div class="col-md-4 col-6">
         <div class="stat-card">
           <span class="stat-number" data-count="{{ total_jobs }}">0</span>
-          <span class="stat-label">Total Jobs</span>
+          <span class="stat-label">{% trans "Total Jobs" %}</span>
         </div>
       </div>
     </div>
@@ -759,8 +760,8 @@
 <section class="py-5 bg-light">
   <div class="container py-5">
     <div class="text-center mb-5">
-      <h2 class="display-5 fw-bold mb-3">Latest Opportunities</h2>
-      <p class="text-muted lead">Discover the newest job postings</p>
+      <h2 class="display-5 fw-bold mb-3">{% trans "Latest Opportunities" %}</h2>
+      <p class="text-muted lead">{% trans "Discover the newest job postings" %}</p>
     </div>
 
     <div class="row g-4">
@@ -822,7 +823,7 @@
       {% empty %}
       <div class="col-12 text-center py-5">
         <i class="bi bi-inbox display-1 text-muted mb-3"></i>
-        <p class="text-muted">No jobs available at the moment. Check back soon!</p>
+        <p class="text-muted">{% trans "No jobs available at the moment. Check back soon!" %}</p>
       </div>
       {% endfor %}
     </div>
@@ -839,8 +840,8 @@
 <section class="py-5 bg-white">
   <div class="container py-5">
     <div class="text-center mb-5">
-      <h2 class="display-5 fw-bold mb-3">How It Works</h2>
-      <p class="text-muted lead">Get started in three simple steps</p>
+      <h2 class="display-5 fw-bold mb-3">{% trans "How It Works" %}</h2>
+      <p class="text-muted lead">{% trans "Get started in three simple steps" %}</p>
     </div>
 
     <div class="row justify-content-center">
@@ -852,8 +853,8 @@
             </div>
             <div class="card border-0 shadow-sm">
               <div class="card-body p-4">
-                <h4 class="h5 mb-3">1. Create Your Profile</h4>
-                <p class="text-muted mb-0">Sign up for free and build your professional profile. Showcase your skills, experience, and portfolio to stand out.</p>
+                <h4 class="h5 mb-3">{% trans "1. Create Your Profile" %}</h4>
+                <p class="text-muted mb-0">{% trans "Sign up for free and build your professional profile. Showcase your skills, experience, and portfolio to stand out." %}</p>
               </div>
             </div>
           </div>
@@ -864,8 +865,8 @@
             </div>
             <div class="card border-0 shadow-sm">
               <div class="card-body p-4">
-                <h4 class="h5 mb-3">2. Browse & Connect</h4>
-                <p class="text-muted mb-0">Explore thousands of job listings or find talented professionals. Use our advanced filters to find the perfect match.</p>
+                <h4 class="h5 mb-3">{% trans "2. Browse & Connect" %}</h4>
+                <p class="text-muted mb-0">{% trans "Explore thousands of job listings or find talented professionals. Use our advanced filters to find the perfect match." %}</p>
               </div>
             </div>
           </div>
@@ -876,8 +877,8 @@
             </div>
             <div class="card border-0 shadow-sm">
               <div class="card-body p-4">
-                <h4 class="h5 mb-3">3. Start Working</h4>
-                <p class="text-muted mb-0">Get hired or hire the right talent. Communicate securely, track progress, and build lasting professional relationships.</p>
+                <h4 class="h5 mb-3">{% trans "3. Start Working" %}</h4>
+                <p class="text-muted mb-0">{% trans "Get hired or hire the right talent. Communicate securely, track progress, and build lasting professional relationships." %}</p>
               </div>
             </div>
           </div>
@@ -891,8 +892,8 @@
 <section class="py-5 bg-light">
   <div class="container py-5">
     <div class="text-center mb-5">
-      <h2 class="display-5 fw-bold mb-3">Why Choose TrabahoLink?</h2>
-      <p class="text-muted lead">Everything you need to succeed</p>
+      <h2 class="display-5 fw-bold mb-3">{% trans "Why Choose TrabahoLink?" %}</h2>
+      <p class="text-muted lead">{% trans "Everything you need to succeed" %}</p>
     </div>
     
     <div class="row g-4">
@@ -902,8 +903,8 @@
             <div class="mb-4">
               <i class="bi bi-shield-check" style="font-size: 3rem; color: var(--primary-color);"></i>
             </div>
-            <h4 class="h5 mb-3">Secure & Trusted</h4>
-            <p class="text-muted mb-0">Your safety and privacy are our top priorities. All users are verified.</p>
+            <h4 class="h5 mb-3">{% trans "Secure & Trusted" %}</h4>
+            <p class="text-muted mb-0">{% trans "Your safety and privacy are our top priorities. All users are verified." %}</p>
           </div>
         </div>
       </div>
@@ -914,8 +915,8 @@
             <div class="mb-4">
               <i class="bi bi-people" style="font-size: 3rem; color: var(--primary-color);"></i>
             </div>
-            <h4 class="h5 mb-3">Wide Network</h4>
-            <p class="text-muted mb-0">Connect with professionals and companies across various industries.</p>
+            <h4 class="h5 mb-3">{% trans "Wide Network" %}</h4>
+            <p class="text-muted mb-0">{% trans "Connect with professionals and companies across various industries." %}</p>
           </div>
         </div>
       </div>
@@ -926,8 +927,8 @@
             <div class="mb-4">
               <i class="bi bi-lightning-charge" style="font-size: 3rem; color: var(--primary-color);"></i>
             </div>
-            <h4 class="h5 mb-3">Fast & Easy</h4>
-            <p class="text-muted mb-0">Get started in minutes with our simple and intuitive platform.</p>
+            <h4 class="h5 mb-3">{% trans "Fast & Easy" %}</h4>
+            <p class="text-muted mb-0">{% trans "Get started in minutes with our simple and intuitive platform." %}</p>
           </div>
         </div>
       </div>
@@ -942,9 +943,9 @@
     <div class="row justify-content-center text-center">
       <div class="col-lg-8">
         {% if user.is_authenticated %}
-          <h2 class="text-white display-4 fw-bold mb-4">Welcome Back!</h2>
+          <h2 class="text-white display-4 fw-bold mb-4">{% trans "Welcome Back!" %}</h2>
           <p class="text-white lead mb-5 opacity-75">
-            Ready to explore new opportunities or manage your profile?
+            {% trans "Ready to explore new opportunities or manage your profile?" %}
           </p>
           <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
             <a href="{% url 'jobs:job_list' %}" class="btn btn-light btn-lg px-5">
@@ -953,22 +954,22 @@
             </a>
             <a href="{% url 'profile' user.pk %}" class="btn btn-outline-light btn-lg px-5">
               <i class="bi bi-person me-2"></i>
-              My Profile
+              {% trans "My Profile" %}
             </a>
           </div>
         {% else %}
-          <h2 class="text-white display-4 fw-bold mb-4">Ready to Get Started?</h2>
+          <h2 class="text-white display-4 fw-bold mb-4">{% trans "Ready to Get Started?" %}</h2>
           <p class="text-white lead mb-5 opacity-75">
-            Join our community today and unlock endless opportunities for growth and success.
+            {% trans "Join our community today and unlock endless opportunities for growth and success." %}
           </p>
           <div class="d-flex flex-column flex-sm-row justify-content-center gap-3">
             <a href="{% url 'register' %}" class="btn btn-light btn-lg px-5">
               <i class="bi bi-rocket-takeoff me-2"></i>
-              Sign Up Free
+              {% trans "Sign Up Free" %}
             </a>
             <a href="{% url 'jobs:job_list' %}" class="btn btn-outline-light btn-lg px-5">
               <i class="bi bi-search me-2"></i>
-              Explore Jobs
+              {% trans "Explore Jobs" %}
             </a>
           </div>
         {% endif %}

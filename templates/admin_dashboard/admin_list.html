@@ -1,5 +1,6 @@
 {% extends 'admin_dashboard/dashboard_base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Admin Management - Trabaholink Admin{% endblock %}
 
@@ -406,7 +407,7 @@
 
                         {% if page_obj.has_next %}
                         <li class="page-item">
-                            <a class="page-link" href="?page={{ page_obj.next_page_number }}" style="border-radius: 8px; margin: 0 4px;">Next</a>
+                            <a class="page-link" href="?page={{ page_obj.next_page_number }}" style="border-radius: 8px; margin: 0 4px;">{% trans "Next" %}</a>
                         </li>
                         <li class="page-item">
                             <a class="page-link" href="?page={{ page_obj.paginator.num_pages }}" style="border-radius: 8px; margin: 0 4px;">Last</a>

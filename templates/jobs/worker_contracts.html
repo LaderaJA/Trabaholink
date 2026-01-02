@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}My Contracts - TrabahoLink{% endblock %}
 
@@ -271,8 +272,7 @@
                       onsubmit="return confirm('Are you sure you want to cancel this contract?');">
                     {% csrf_token %}
                     <button type="submit" class="btn btn-danger">
-                        <i class="bi bi-x-circle"></i> Cancel
-                    </button>
+                        <i class="bi bi-x-circle"></i>{% trans "Cancel" %}</button>
                 </form>
                 {% endif %}
             </div>

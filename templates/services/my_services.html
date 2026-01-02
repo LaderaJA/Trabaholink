@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}My Services - Trabaholink{% endblock %}
 
@@ -373,8 +374,7 @@
                 <i class="fa fa-edit"></i> Edit
               </a>
               <a href="{% url 'services:servicepost_delete' service.slug %}" class="btn btn-outline-danger btn-sm flex-fill">
-                <i class="fa fa-trash"></i> Delete
-              </a>
+                <i class="fa fa-trash"></i>{% trans "Delete" %}</a>
             </div>
           </div>
         </div>

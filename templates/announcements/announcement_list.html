@@ -1,4 +1,5 @@
 {% extends "mainpages/base.html" %}
+{% load i18n %}
 
 {% block content %}
 <!-- Hero Section -->
@@ -7,14 +8,14 @@
         <div class="hero-content">
             <div>
                 <h1 class="hero-title">
-                    <i class="bi bi-megaphone-fill"></i> Announcements
+                    <i class="bi bi-megaphone-fill"></i> {% trans "Announcements" %}
                 </h1>
-                <p class="hero-subtitle">Stay updated with the latest news and updates from TrabahoLink</p>
+                <p class="hero-subtitle">{% trans "Stay updated with the latest news and updates from TrabahoLink" %}</p>
             </div>
             {% if user.is_staff %}
                 <a href="{% url 'announcements:announcement_create' %}" class="btn-create-announcement">
                     <i class="bi bi-plus-circle-fill"></i>
-                    <span>Create Announcement</span>
+                    <span>{% trans "Create Announcement" %}</span>
                 </a>
             {% endif %}
         </div>
@@ -33,15 +34,14 @@
                             <img src="{{ announcement.image.url }}" alt="{{ announcement.title }}">
                             <div class="image-overlay">
                                 <span class="overlay-text">
-                                    <i class="bi bi-eye-fill"></i> View Details
-                                </span>
+                                    <i class="bi bi-eye-fill"></i>{% trans "View Details" %}</span>
                             </div>
                         </div>
                     </a>
                 {% endif %}
                 <div class="announcement-content">
                     <div class="announcement-badge">
-                        <i class="bi bi-bell-fill"></i> Announcement
+                        <i class="bi bi-bell-fill"></i> {% trans "Announcement" %}
                     </div>
                     <h3 class="announcement-title">
                         <a href="{% url 'announcements:announcement_detail' announcement.pk %}">{{ announcement.title }}</a>

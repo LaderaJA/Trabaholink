@@ -1,4 +1,5 @@
 {% extends 'admin_dashboard/base.html' %}
+{% load i18n %}
 
 {% block content %}
 <h2>Delete Word</h2>
@@ -7,6 +8,6 @@
 <form method="post">
     {% csrf_token %}
     <button type="submit" class="btn btn-danger">Confirm</button>
-    <a href="{% url 'admin_dashboard:moderated_word_list' %}" class="btn btn-secondary">Cancel</a>
+    <a href="{% url 'admin_dashboard:moderated_word_list' %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
 </form>
 {% endblock %}

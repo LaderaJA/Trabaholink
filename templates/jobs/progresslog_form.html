@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Add Progress Update - TrabahoLink{% endblock %}
 
@@ -348,8 +349,7 @@
                     <i class="bi bi-check-circle"></i> Submit Progress Update
                 </button>
                 <a href="{% url 'jobs:contract_detail' contract_pk %}" class="btn-action btn-secondary">
-                    <i class="bi bi-x-circle"></i> Cancel
-                </a>
+                    <i class="bi bi-x-circle"></i>{% trans "Cancel" %}</a>
             </div>
         </form>
     </div>

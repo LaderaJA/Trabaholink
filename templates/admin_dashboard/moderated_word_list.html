@@ -1,4 +1,5 @@
 {% extends 'admin_dashboard/base.html' %}
+{% load i18n %}
 
 {% block content %}
 <h2>Moderated Words</h2>
@@ -18,7 +19,7 @@
             <td>{{ word.word }}</td>
             <td>
                 <a href="{% url 'admin_dashboard:moderated_word_update' word.id %}" class="btn btn-warning btn-sm">Edit</a>
-                <a href="{% url 'admin_dashboard:moderated_word_delete' word.id %}" class="btn btn-danger btn-sm">Delete</a>
+                <a href="{% url 'admin_dashboard:moderated_word_delete' word.id %}" class="btn btn-danger btn-sm">{% trans "Delete" %}</a>
             </td>
         </tr>
         {% empty %}
