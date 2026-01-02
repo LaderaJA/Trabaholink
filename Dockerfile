@@ -65,6 +65,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     wget \
     curl \
+    # Gettext for i18n translation compilation
+    gettext \
     && rm -rf /var/lib/apt/lists/*
 
 # Set GDAL environment variables
