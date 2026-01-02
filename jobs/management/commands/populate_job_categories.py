@@ -12,7 +12,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         """Populate the JobCategory table"""
         
-        # List of job categories
+        # List of job categories - Focused on skilled blue-collar and service jobs
         categories = [
             # Construction & Trades
             "Carpentry",
@@ -25,6 +25,9 @@ class Command(BaseCommand):
             "Tiling",
             "Concrete Work",
             "Construction Labor",
+            "Steel Fabrication",
+            "Scaffolding",
+            "Finishing Work",
             
             # Home Services
             "House Cleaning",
@@ -36,6 +39,7 @@ class Command(BaseCommand):
             "Furniture Assembly",
             "Moving & Hauling",
             "Junk Removal",
+            "Window Cleaning",
             
             # Technical Services
             "Computer Repair",
@@ -44,33 +48,51 @@ class Command(BaseCommand):
             "CCTV Installation",
             "Aircon Cleaning & Repair",
             "Appliance Installation",
+            "Solar Panel Installation",
+            "Generator Repair",
             
-            # Automotive
+            # Automotive & Motorcycles
             "Auto Repair",
             "Auto Detailing",
             "Tire Services",
             "Motorcycle Repair",
+            "Auto Body Work",
+            "Auto Painting",
+            "Auto Electrical",
             
             # Personal Services
             "Hair Cutting",
+            "Barbering",
             "Massage Therapy",
             "Beauty Services",
+            "Nail Services",
             "Tailoring & Sewing",
+            "Shoe Repair",
             "Catering",
             "Event Planning",
             "Photography",
             "Videography",
+            
+            # Food Services
+            "Cook",
+            "Baker",
+            "Food Vendor",
+            "Bartender",
+            "Waiter/Waitress",
             
             # Tutoring & Education
             "Academic Tutoring",
             "Music Lessons",
             "Language Lessons",
             "Skills Training",
+            "Driving Instructor",
             
             # Delivery & Transportation
             "Delivery Services",
             "Courier Services",
             "Driver Services",
+            "Tricycle Driver",
+            "Pedicab Driver",
             "Trucking Services",
             
             # Professional Services
@@ -81,25 +103,46 @@ class Command(BaseCommand):
             "Content Writing",
             "Translation Services",
             "Virtual Assistant",
+            "Data Entry",
             
             # Care Services
             "Childcare",
             "Elderly Care",
             "Pet Care",
             "Pet Grooming",
+            "Housekeeping",
+            "Nanny Services",
             
             # Maintenance & Repair
             "General Maintenance",
             "Door & Window Repair",
             "Furniture Repair",
             "Lock & Key Services",
+            "Refrigeration Repair",
+            "Pump Repair",
+            
+            # Manufacturing & Industrial
+            "Factory Work",
+            "Warehouse Work",
+            "Packaging Services",
+            "Quality Control",
+            "Machine Operation",
+            "Assembly Line Work",
+            
+            # Agriculture & Farming
+            "Farm Labor",
+            "Crop Harvesting",
+            "Livestock Care",
+            "Fishing Services",
+            "Agricultural Equipment Operation",
             
             # Specialized Services
             "Security Services",
             "Janitorial Services",
-            "Warehouse Work",
-            "Factory Work",
-            "Farm Labor",
+            "Septic Tank Cleaning",
+            "Waterproofing",
+            "Pool Maintenance",
+            "Elevator Maintenance",
             
             # Other
             "Others",
