@@ -3100,10 +3100,12 @@ body {
                 <i class="bi bi-list-ul"></i>
                 <span>Manage All</span>
               </a>
+              {% if user.role == 'worker' %}
               <a href="{% url 'services:servicepost_create' %}" class="btn-modern btn-primary-modern btn-sm-modern">
                 <i class="bi bi-plus-circle"></i>
                 <span>New Service</span>
               </a>
+              {% endif %}
             </div>
             {% endif %}
           </div>
@@ -3159,7 +3161,7 @@ body {
             <div class="empty-state-modern" style="padding: 2rem;">
               <i class="bi bi-wrench empty-icon-modern" style="font-size: 3rem;"></i>
               <p class="empty-text-modern">No services offered yet.</p>
-              {% if user.pk == request.user.pk %}
+              {% if user.pk == request.user.pk and user.role == 'worker' %}
               <a href="{% url 'services:servicepost_create' %}" class="btn-modern btn-primary-modern btn-sm-modern" style="margin-top: 1rem;">
                 <i class="bi bi-plus-circle"></i>
                 <span>Create Service</span>

@@ -1239,7 +1239,7 @@
         </div>
         
         <div class="content-actions">
-          {% if user.is_authenticated %}
+          {% if user.is_authenticated and user.role == 'worker' %}
           <a href="{% url 'services:servicepost_create' %}" class="btn-primary-custom">
             <i class="bi bi-plus-circle"></i> Post a Service
           </a>
