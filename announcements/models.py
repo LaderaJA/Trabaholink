@@ -23,14 +23,16 @@ class Announcement(models.Model):
         return self.title
     
     def save(self, *args, **kwargs):
-        banned_words = load_banned_words()
+        # Only apply profanity filtering if content exists
+        if self.content:
+            banned_words = load_banned_words()
 
-        profanity.load_censor_words([word for word in banned_words if ' ' not in word])
-        self.content = profanity.censor(self.content)
+            profanity.load_censor_words([word for word in banned_words if ' ' not in word])
+            self.content = profanity.censor(self.content)
 
-        for phrase in banned_words:
-            if ' ' in phrase:  
-                self.content = self.content.replace(phrase, '*' * len(phrase))
+            for phrase in banned_words:
+                if ' ' in phrase:  
+                    self.content = self.content.replace(phrase, '*' * len(phrase))
 
         super().save(*args, **kwargs)
 
