@@ -819,36 +819,40 @@ def notify_users_about_new_job(sender, instance, created, **kwargs):
 def notify_workers_about_new_job(sender, instance, created, **kwargs):
     """
     Send notifications to WORKERS based on their notification preferences.
-    Checks location, radius, and preferred job categories.
+    OPTIMIZATION: Checks category FIRST (cheap), then distance (expensive).
     Only workers (role='worker') receive job notifications.
     """
     if created and instance.location:
         from users.models import NotificationPreference
+        
+        # Get job's general category once
+        job_general_category = instance.category.general_category if instance.category else None
         
         # Get all active notification preferences with location set (WORKERS ONLY)
         preferences = NotificationPreference.objects.filter(
             is_active=True,
             notification_location__isnull=False,
             user__role='worker'  # Only notify workers
-        ).exclude(user=instance.owner).select_related('user')
+        ).exclude(user=instance.owner).select_related('user').prefetch_related('preferred_categories')
         
         for pref in preferences:
-            # Check if worker is within the specified radius
+            # STEP 1: Check category FIRST (fast database lookup, no calculations)
+            if pref.preferred_categories.exists():
+                # Worker has category preferences - check if job matches
+                if not job_general_category:
+                    continue  # Job has no category, skip this worker
+                
+                if not pref.preferred_categories.filter(id=job_general_category.id).exists():
+                    continue  # Job category doesn't match worker's preferences, skip
+            
+            # STEP 2: Only calculate distance if category matches (or worker accepts all categories)
+            # This is expensive (GIS calculation), so we do it last
             distance_km = pref.notification_radius_km if pref.notification_radius_km else 5.0
             
             # Calculate distance between job and worker's notification location
             if instance.location.distance(pref.notification_location) <= D(km=float(distance_km)):
-                # Check if job category matches worker's preferred categories
-                if pref.preferred_categories.exists():
-                    # If worker has category preferences, check if job matches
-                    job_general_category = instance.category.general_category if instance.category else None
-                    
-                    if job_general_category and pref.preferred_categories.filter(id=job_general_category.id).exists():
-                        # Job matches location AND category preferences
-                        send_job_notification(pref.user, instance, distance_km)
-                else:
-                    # Worker has no category filter, send for all jobs in radius
-                    send_job_notification(pref.user, instance, distance_km)
+                # Job matches category AND is within radius - send notification
+                send_job_notification(pref.user, instance, distance_km)
 
 
 def send_job_notification(worker, job, radius_km):
