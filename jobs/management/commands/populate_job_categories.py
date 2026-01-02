@@ -3,6 +3,7 @@ Management command to populate JobCategory table with common job categories.
 Usage: python manage.py populate_job_categories
 """
 from django.core.management.base import BaseCommand
+from django.db import transaction
 from jobs.models import JobCategory
 
 
@@ -150,27 +151,47 @@ class Command(BaseCommand):
         
         created_count = 0
         existing_count = 0
+        error_count = 0
         
         self.stdout.write(self.style.MIGRATE_HEADING('Populating Job Categories...'))
         
-        for category_name in categories:
-            category, created = JobCategory.objects.get_or_create(name=category_name)
-            
-            if created:
-                created_count += 1
-                self.stdout.write(
-                    self.style.SUCCESS(f'  ✓ Created: {category_name}')
-                )
-            else:
-                existing_count += 1
-                self.stdout.write(
-                    self.style.WARNING(f'  - Already exists: {category_name}')
-                )
+        # Use atomic transaction to ensure all-or-nothing
+        with transaction.atomic():
+            for category_name in categories:
+                try:
+                    # Check if exists first (works better with modeltranslation)
+                    exists = JobCategory.objects.filter(name=category_name).exists()
+                    
+                    if not exists:
+                        # Create new category
+                        category = JobCategory.objects.create(name=category_name)
+                        created_count += 1
+                        self.stdout.write(
+                            self.style.SUCCESS(f'  ✓ Created: {category_name}')
+                        )
+                    else:
+                        existing_count += 1
+                        self.stdout.write(
+                            self.style.WARNING(f'  - Already exists: {category_name}')
+                        )
+                except Exception as e:
+                    error_count += 1
+                    self.stdout.write(
+                        self.style.ERROR(f'  ✗ Error with {category_name}: {str(e)}')
+                    )
+                    # Continue with other categories
+                    continue
         
         self.stdout.write('')
         self.stdout.write(self.style.SUCCESS(f'Summary:'))
         self.stdout.write(self.style.SUCCESS(f'  Created: {created_count} categories'))
         self.stdout.write(self.style.WARNING(f'  Existing: {existing_count} categories'))
+        if error_count > 0:
+            self.stdout.write(self.style.ERROR(f'  Errors: {error_count} categories'))
         self.stdout.write(self.style.SUCCESS(f'  Total: {created_count + existing_count} categories'))
         self.stdout.write('')
-        self.stdout.write(self.style.SUCCESS('Job categories populated successfully!'))
+        
+        if error_count > 0:
+            self.stdout.write(self.style.WARNING('Job categories populated with some errors.'))
+        else:
+            self.stdout.write(self.style.SUCCESS('Job categories populated successfully!'))
