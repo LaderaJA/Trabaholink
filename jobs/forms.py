@@ -57,6 +57,20 @@ class JobForm(forms.ModelForm):
     
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
+        
+        # Filter out unnamed/empty categories from dropdown
+        from jobs.models import JobCategory
+        from django.db.models import Q
+        
+        valid_categories = JobCategory.objects.exclude(
+            Q(name__isnull=True) | Q(name='') | Q(name__iexact='unnamed category')
+        ).exclude(
+            Q(name_en__isnull=True, name_tl__isnull=True) | 
+            Q(name_en='', name_tl='')
+        ).order_by('name')
+        
+        self.fields['category'].queryset = valid_categories
+        
         # Always set municipality to Bacoor and make it readonly
         self.fields['municipality'].initial = 'Bacoor'
         if 'municipality' in self.data:
