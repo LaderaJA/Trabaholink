@@ -859,29 +859,16 @@
             </select>
           </div>
           <div class="filter-group">
-            <label><i class="bi bi-geo-alt"></i> {% trans "Municipality" %}</label>
-            <input type="text" name="municipality" value="{{ request.GET.municipality|default:'' }}" placeholder="{% trans 'Enter municipality' %}">
-          </div>
-          <div class="filter-group">
             <label><i class="bi bi-map"></i> {% trans "Barangay" %}</label>
             <input type="text" name="barangay" value="{{ request.GET.barangay|default:'' }}" placeholder="{% trans 'Enter barangay' %}">
           </div>
-        </div>
-        <div class="filter-row">
           <div class="filter-group">
-            <label><i class="bi bi-cash"></i> {% trans "Min Budget" %} (₱)</label>
-            <input type="number" name="min_budget" value="{{ request.GET.min_budget|default:'' }}" placeholder="0">
-          </div>
-          <div class="filter-group">
-            <label><i class="bi bi-cash-stack"></i> {% trans "Max Budget" %} (₱)</label>
-            <input type="number" name="max_budget" value="{{ request.GET.max_budget|default:'' }}" placeholder="No limit">
-          </div>
-          <div class="filter-group">
-            <label><i class="bi bi-toggle-on"></i> {% trans "Status" %}</label>
-            <select name="status">
-              <option value="">{% trans "All Status" %}</option>
-              <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>{% trans "Hiring" %}</option>
-              <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>{% trans "Closed" %}</option>
+            <label><i class="bi bi-exclamation-triangle"></i> {% trans "Urgency" %}</label>
+            <select name="urgency">
+              <option value="">{% trans "All Urgency Levels" %}</option>
+              <option value="low" {% if request.GET.urgency == 'low' %}selected{% endif %}>{% trans "Low - Flexible timing" %}</option>
+              <option value="medium" {% if request.GET.urgency == 'medium' %}selected{% endif %}>{% trans "Medium - Within a week" %}</option>
+              <option value="high" {% if request.GET.urgency == 'high' %}selected{% endif %}>{% trans "High - ASAP" %}</option>
             </select>
           </div>
         </div>
