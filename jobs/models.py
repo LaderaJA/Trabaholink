@@ -817,23 +817,64 @@ def notify_users_about_new_job(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Job)
 def notify_workers_about_new_job(sender, instance, created, **kwargs):
+    """
+    Send notifications to workers based on their notification preferences.
+    Checks location, radius, and preferred job categories.
+    """
     if created and instance.location:
-        # Filter users whose notification_location is set and within 5 km
-        # Exclude the job owner from notifications
-        # Note: We check for workers by role, not is_worker field
-        nearby_workers = CustomUser.objects.filter(
-            role='worker',  # Use role field instead of is_worker
-            notification_location__isnull=False,
-            notification_location__distance_lte=(instance.location, D(km=5))
-        ).exclude(id=instance.owner.id).annotate(distance=Distance("notification_location", instance.location)).order_by("distance")
+        from users.models import NotificationPreference
         
-        for worker in nearby_workers:
+        # Get all active notification preferences with location set
+        preferences = NotificationPreference.objects.filter(
+            is_active=True,
+            notification_location__isnull=False
+        ).exclude(user=instance.owner).select_related('user')
+        
+        for pref in preferences:
+            # Check if worker is within the specified radius
+            distance_km = pref.notification_radius_km if pref.notification_radius_km else 5.0
+            
+            # Calculate distance between job and worker's notification location
+            if instance.location.distance(pref.notification_location) <= D(km=float(distance_km)):
+                # Check if job category matches worker's preferred categories
+                if pref.preferred_categories.exists():
+                    # If worker has category preferences, check if job matches
+                    job_general_category = instance.category.general_category if instance.category else None
+                    
+                    if job_general_category and pref.preferred_categories.filter(id=job_general_category.id).exists():
+                        # Job matches location AND category preferences
+                        send_job_notification(pref.user, instance, distance_km)
+                else:
+                    # Worker has no category filter, send for all jobs in radius
+                    send_job_notification(pref.user, instance, distance_km)
+
+
+def send_job_notification(worker, job, radius_km):
+    """Helper function to create job notification"""
+    # Calculate actual distance for display
+    from django.contrib.gis.measure import D
+    from users.models import NotificationPreference
+    
+    try:
+        pref = NotificationPreference.objects.get(user=worker)
+        if pref.notification_location and job.location:
+            distance_m = job.location.distance(pref.notification_location)
+            distance_km = distance_m / 1000  # Convert to km
+            
             Notification.objects.create(
                 user=worker,
-                message=f"A new job '{instance.title}' has been posted near you. Click to view details.",
+                message=f"🎯 New job: '{job.title}' posted {distance_km:.1f}km from your location! {job.category.name if job.category else ''}",
                 notif_type="job_post",
-                object_id=instance.pk,
+                object_id=job.pk,
             )
+    except Exception as e:
+        # Fallback notification without distance
+        Notification.objects.create(
+            user=worker,
+            message=f"🎯 New job: '{job.title}' has been posted near you. Click to view details.",
+            notif_type="job_post",
+            object_id=job.pk,
+        )
 
 
 class WorkerAvailability(models.Model):

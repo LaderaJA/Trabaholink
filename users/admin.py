@@ -3,7 +3,7 @@ from django.utils.html import format_html
 from django.urls import reverse, path
 from django.utils import timezone
 from django.shortcuts import render
-from .models import CustomUser, Skill, AccountVerification, EmailOTP, PhilSysVerification, ActivityLog, UserGuideStatus
+from .models import CustomUser, Skill, AccountVerification, EmailOTP, PhilSysVerification, ActivityLog, UserGuideStatus, NotificationPreference
 
 
 @admin.register(CustomUser)
@@ -558,3 +558,58 @@ class UserGuideStatusAdmin(admin.ModelAdmin):
     def has_add_permission(self, request):
         """Prevent manual creation - should be auto-created via signals."""
         return False
+
+@admin.register(NotificationPreference)
+class NotificationPreferenceAdmin(admin.ModelAdmin):
+    """Admin interface for NotificationPreference"""
+    list_display = [
+        'user', 
+        'is_active', 
+        'notification_radius_km', 
+        'has_location', 
+        'category_count',
+        'updated_at'
+    ]
+    list_filter = ['is_active', 'notification_radius_km', 'preferred_categories']
+    search_fields = ['user__username', 'user__email', 'user__first_name', 'user__last_name']
+    filter_horizontal = ['preferred_categories']
+    readonly_fields = ['created_at', 'updated_at']
+    
+    fieldsets = (
+        ('User', {
+            'fields': ('user',)
+        }),
+        ('Notification Settings', {
+            'fields': ('is_active', 'notification_radius_km')
+        }),
+        ('Location', {
+            'fields': ('notification_location',),
+            'description': 'Geographic location for job notifications (Point field)'
+        }),
+        ('Category Preferences', {
+            'fields': ('preferred_categories',),
+            'description': 'Select job categories the user wants to be notified about'
+        }),
+        ('Timestamps', {
+            'fields': ('created_at', 'updated_at'),
+            'classes': ('collapse',)
+        }),
+    )
+    
+    def has_location(self, obj):
+        """Check if notification location is set"""
+        return format_html(
+            '<span style="color: {};">{}</span>',
+            'green' if obj.notification_location else 'red',
+            '✓' if obj.notification_location else '✗'
+        )
+    has_location.short_description = 'Location Set'
+    has_location.boolean = True
+    
+    def category_count(self, obj):
+        """Count of preferred categories"""
+        count = obj.preferred_categories.count()
+        if count == 0:
+            return format_html('<span style="color: orange;">All categories</span>')
+        return format_html('{} categories', count)
+    category_count.short_description = 'Categories'
