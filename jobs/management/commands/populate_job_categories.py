@@ -155,10 +155,11 @@ class Command(BaseCommand):
         
         self.stdout.write(self.style.MIGRATE_HEADING('Populating Job Categories...'))
         
-        # Use atomic transaction to ensure all-or-nothing
-        with transaction.atomic():
-            for category_name in categories:
-                try:
+        # Process each category individually with its own transaction
+        for category_name in categories:
+            try:
+                # Use individual atomic blocks for each category
+                with transaction.atomic():
                     # Check if exists first (works better with modeltranslation)
                     exists = JobCategory.objects.filter(name=category_name).exists()
                     
@@ -174,13 +175,13 @@ class Command(BaseCommand):
                         self.stdout.write(
                             self.style.WARNING(f'  - Already exists: {category_name}')
                         )
-                except Exception as e:
-                    error_count += 1
-                    self.stdout.write(
-                        self.style.ERROR(f'  ✗ Error with {category_name}: {str(e)}')
-                    )
-                    # Continue with other categories
-                    continue
+            except Exception as e:
+                error_count += 1
+                self.stdout.write(
+                    self.style.ERROR(f'  ✗ Error with {category_name}: {str(e)}')
+                )
+                # Continue with other categories
+                continue
         
         self.stdout.write('')
         self.stdout.write(self.style.SUCCESS(f'Summary:'))
