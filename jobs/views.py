@@ -133,14 +133,23 @@ class JobListView(ListView):
         keyword = request.GET.get("q")
         user_lat = request.GET.get("lat")
         user_lng = request.GET.get("lng")
-        min_budget = request.GET.get("min_budget")
-        max_budget = request.GET.get("max_budget")
-        municipality = request.GET.get("municipality")
+        urgency = request.GET.get("urgency")
         barangay = request.GET.get("barangay")
         sort = request.GET.get("sort", "date_desc")  # Default: newest first
 
         if category_id:
             queryset = queryset.filter(category_id=category_id)
+        
+        # Urgency filter - map from template values to model values
+        if urgency:
+            urgency_mapping = {
+                'low': 'Flexible',
+                'medium': 'Specific Date',
+                'high': 'Urgent'
+            }
+            model_urgency = urgency_mapping.get(urgency)
+            if model_urgency:
+                queryset = queryset.filter(urgency=model_urgency)
         
         # Comprehensive keyword search across multiple fields
         if keyword:
@@ -157,10 +166,7 @@ class JobListView(ListView):
                 Q(owner__last_name__icontains=keyword)
             ).distinct()
         
-        if min_budget:
-            queryset = queryset.filter(budget__gte=min_budget)
-        if max_budget:
-            queryset = queryset.filter(budget__lte=max_budget)
+        # Removed min_budget and max_budget filters (simplified UI)
         # Don't filter by location fields from the location modal
         # The modal sets municipality parameter only for distance calculation
         # Search form uses 'q' parameter which is already handled above
