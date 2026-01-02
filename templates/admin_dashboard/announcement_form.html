@@ -83,6 +83,17 @@
                     {% endif %}
                 </div>
 
+                <!-- Status -->
+                <div>
+                    <label for="{{ form.is_active.id_for_label }}" class="flex items-center gap-2 cursor-pointer">
+                        {{ form.is_active }}
+                        <span class="text-sm font-semibold text-gray-700">Active (visible to users)</span>
+                    </label>
+                    {% if form.is_active.errors %}
+                        <p class="mt-1 text-sm text-red-600">{{ form.is_active.errors.0 }}</p>
+                    {% endif %}
+                </div>
+
                 <!-- Form Actions -->
                 <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
                     <a href="{% url 'admin_dashboard:admin_announcement_list' %}" 
