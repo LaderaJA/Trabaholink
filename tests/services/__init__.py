@@ -1,1 +1,0 @@
-# Services app tests

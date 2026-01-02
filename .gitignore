@@ -119,3 +119,4 @@ helm/*/.helmignore
 
 # Documentation
 /documentation/
+tests/
