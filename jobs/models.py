@@ -21,7 +21,30 @@ class JobCategory(models.Model):
     name = models.CharField(max_length=255, unique=True)
 
     def __str__(self):
-        return self.name
+        # Handle modeltranslation - return the first non-empty name field
+        # Try: current language translation -> English -> Tagalog -> base name
+        from django.utils.translation import get_language
+        
+        current_lang = get_language()
+        
+        # Try current language first
+        if current_lang:
+            lang_field = f"name_{current_lang[:2]}"  # Get first 2 chars (e.g., 'en' from 'en-us')
+            if hasattr(self, lang_field):
+                value = getattr(self, lang_field)
+                if value and value.strip():
+                    return value
+        
+        # Fallback to English
+        if hasattr(self, 'name_en') and self.name_en and self.name_en.strip():
+            return self.name_en
+        
+        # Fallback to Tagalog
+        if hasattr(self, 'name_tl') and self.name_tl and self.name_tl.strip():
+            return self.name_tl
+        
+        # Final fallback to base name field
+        return self.name if self.name else "Unnamed Category"
 
 class Job(models.Model):
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="posted_jobs")
