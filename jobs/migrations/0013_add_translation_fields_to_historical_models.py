@@ -5,7 +5,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('jobs', '0012_contract_job_description_en_and_more'),
+        ('jobs', '0011_contract_end_time_contract_start_time_and_more'),
     ]
 
     operations = [
