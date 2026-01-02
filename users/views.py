@@ -754,35 +754,63 @@ class CompletedJobGalleryDeleteView(LoginRequiredMixin, UserPassesTestMixin, Del
     def get_success_url(self):
         return reverse_lazy('profile', kwargs={'pk': self.request.user.pk})
 
-# User Location Update View
+# Job Notification Settings View (formerly User Location Update)
 class UserLocationUpdateView(LoginRequiredMixin, UpdateView):
-    model = CustomUser
-    form_class = UserLocationForm
-    template_name = "users/set_location.html"
-
+    """
+    View for managing job notification preferences
+    Users can set location, radius, and job categories for notifications
+    """
+    template_name = "users/notification_settings.html"
+    
     def get_object(self):
-        return self.request.user
+        # Get or create notification preference for user
+        from .models import NotificationPreference
+        pref, created = NotificationPreference.objects.get_or_create(user=self.request.user)
+        return pref
+    
+    def get_form_class(self):
+        from .forms import NotificationPreferenceForm
+        return NotificationPreferenceForm
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        from jobs.models import GeneralCategory
+        
+        # Get all general categories for display
+        context['general_categories'] = GeneralCategory.objects.all().order_by('name')
+        context['user'] = self.request.user
+        
+        # Get current preferences
+        pref = self.get_object()
+        context['current_radius'] = pref.notification_radius_km
+        context['current_location'] = pref.notification_location
+        context['selected_categories'] = pref.preferred_categories.all()
+        
+        return context
     
     def form_valid(self, form):
-        user = form.save(commit=False)
-        loc = form.cleaned_data.get('location')
+        preference = form.save(commit=False)
+        loc = form.cleaned_data.get('notification_location')
         
         if loc:
             try:
                 # The form field already handles the WKT to GEOS conversion
-                user.location = loc
-                # Also set notification_location for job notifications
-                user.notification_location = loc
+                preference.notification_location = loc
             except Exception as e:
-                form.add_error('location', "Invalid location format.")
+                form.add_error('notification_location', "Invalid location format.")
                 return self.form_invalid(form)
-                
-        user.save()
-        messages.success(self.request, 'Your location has been updated successfully! You will now receive notifications for nearby jobs.')
+        
+        preference.save()
+        form.save_m2m()  # Save many-to-many relationships (preferred_categories)
+        
+        messages.success(
+            self.request, 
+            f'Your notification settings have been updated! You will receive alerts for jobs within {preference.notification_radius_km} km of your set location.'
+        )
         return redirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse_lazy('profile', kwargs={'pk': self.request.user.pk})
+        return reverse_lazy('set_location')  # Redirect back to settings page
 
 # Identity Verification View
 class IdentityVerificationView(LoginRequiredMixin, UpdateView):

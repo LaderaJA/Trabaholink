@@ -1,0 +1,413 @@
+{% extends "mainpages/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Job Notification Settings - TrabahoLink{% endblock %}
+
+{% block extra_css %}
+<style>
+    .settings-container {
+        max-width: 900px;
+        margin: 2rem auto;
+        padding: 2rem;
+    }
+    
+    .settings-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        padding: 2rem;
+        margin-bottom: 2rem;
+    }
+    
+    .settings-header {
+        border-bottom: 2px solid #f0f0f0;
+        padding-bottom: 1rem;
+        margin-bottom: 2rem;
+    }
+    
+    .settings-header h2 {
+        color: #333;
+        margin-bottom: 0.5rem;
+    }
+    
+    .settings-header p {
+        color: #666;
+        margin: 0;
+    }
+    
+    .setting-group {
+        margin-bottom: 2.5rem;
+    }
+    
+    .setting-group h4 {
+        color: #444;
+        margin-bottom: 1rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .setting-group h4 i {
+        color: #6366f1;
+    }
+    
+    .map-container {
+        height: 400px;
+        border-radius: 8px;
+        border: 2px solid #e5e7eb;
+        margin-bottom: 1rem;
+    }
+    
+    .radius-display {
+        background: #f3f4f6;
+        padding: 1rem;
+        border-radius: 8px;
+        margin-top: 1rem;
+    }
+    
+    .category-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+    
+    .category-item {
+        background: #f9fafb;
+        border: 2px solid #e5e7eb;
+        border-radius: 8px;
+        padding: 1rem;
+        transition: all 0.2s;
+    }
+    
+    .category-item:hover {
+        background: #f3f4f6;
+        border-color: #6366f1;
+    }
+    
+    .category-item.selected {
+        background: #eef2ff;
+        border-color: #6366f1;
+    }
+    
+    .category-checkbox {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .category-checkbox input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        cursor: pointer;
+    }
+    
+    .category-checkbox label {
+        margin: 0;
+        cursor: pointer;
+        font-weight: 500;
+        flex: 1;
+    }
+    
+    .toggle-switch {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+        padding: 1.5rem;
+        background: #f9fafb;
+        border-radius: 8px;
+        margin-bottom: 1rem;
+    }
+    
+    .toggle-switch input[type="checkbox"] {
+        width: 50px;
+        height: 26px;
+    }
+    
+    .btn-save {
+        background: #6366f1;
+        color: white;
+        padding: 0.75rem 2rem;
+        border: none;
+        border-radius: 8px;
+        font-size: 1rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background 0.2s;
+    }
+    
+    .btn-save:hover {
+        background: #4f46e5;
+    }
+    
+    .info-box {
+        background: #eff6ff;
+        border-left: 4px solid #3b82f6;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 1.5rem;
+    }
+    
+    .info-box i {
+        color: #3b82f6;
+        margin-right: 0.5rem;
+    }
+    
+    .current-location-display {
+        background: #f0fdf4;
+        border-left: 4px solid #22c55e;
+        padding: 1rem;
+        border-radius: 4px;
+        margin-bottom: 1rem;
+    }
+    
+    .select-all-categories {
+        margin-bottom: 1rem;
+        padding: 0.5rem 1rem;
+        background: #f3f4f6;
+        border: 1px solid #d1d5db;
+        border-radius: 6px;
+        cursor: pointer;
+        display: inline-block;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="settings-container">
+    <div class="settings-card">
+        <div class="settings-header">
+            <h2><i class="fas fa-bell"></i> Job Notification Settings</h2>
+            <p>Set your location and preferences to receive alerts when new jobs matching your criteria are posted nearby</p>
+        </div>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+                    {{ message }}
+                    <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                </div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="post" id="notificationSettingsForm">
+            {% csrf_token %}
+            
+            <!-- Enable/Disable Notifications -->
+            <div class="setting-group">
+                <div class="toggle-switch">
+                    <input type="checkbox" name="is_active" id="id_is_active" 
+                           {% if form.instance.is_active %}checked{% endif %}
+                           class="form-check-input">
+                    <div>
+                        <strong>Enable Job Notifications</strong>
+                        <p class="text-muted mb-0">Receive alerts when new jobs matching your preferences are posted</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Location Setting -->
+            <div class="setting-group">
+                <h4><i class="fas fa-map-marker-alt"></i> Set Your Notification Location</h4>
+                <div class="info-box">
+                    <i class="fas fa-info-circle"></i>
+                    <strong>Click on the map to set your preferred location for job notifications.</strong>
+                    This can be different from your profile location.
+                </div>
+                
+                {% if current_location %}
+                <div class="current-location-display">
+                    <i class="fas fa-check-circle"></i>
+                    <strong>Current notification location is set</strong>
+                </div>
+                {% endif %}
+
+                <div id="map" class="map-container"></div>
+                {{ form.notification_location }}
+                
+                <div class="radius-display">
+                    <label for="id_notification_radius_km"><strong>Notification Radius:</strong></label>
+                    {{ form.notification_radius_km }}
+                    <p class="text-muted mt-2 mb-0">
+                        <i class="fas fa-circle-info"></i>
+                        You'll be notified about jobs posted within this distance from your set location
+                    </p>
+                </div>
+            </div>
+
+            <!-- Job Categories -->
+            <div class="setting-group">
+                <h4><i class="fas fa-briefcase"></i> Job Categories You Want to Receive</h4>
+                <p class="text-muted mb-3">Select the types of jobs you're interested in. You'll only receive notifications for jobs in these categories.</p>
+                
+                <button type="button" class="select-all-categories" onclick="toggleAllCategories()">
+                    <i class="fas fa-check-double"></i> Select All / Deselect All
+                </button>
+
+                <div class="category-grid" id="categoryGrid">
+                    {% for category in general_categories %}
+                    <div class="category-item {% if category in selected_categories %}selected{% endif %}" data-category-id="{{ category.id }}">
+                        <div class="category-checkbox">
+                            <input type="checkbox" 
+                                   name="preferred_categories" 
+                                   value="{{ category.id }}" 
+                                   id="category_{{ category.id }}"
+                                   {% if category in selected_categories %}checked{% endif %}
+                                   onchange="updateCategorySelection(this)">
+                            <label for="category_{{ category.id }}">
+                                {% if category.icon %}
+                                    <i class="{{ category.icon }}"></i>
+                                {% endif %}
+                                {{ category.name }}
+                            </label>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p class="text-muted">No categories available. Please contact administrator.</p>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <!-- Save Button -->
+            <div class="text-end">
+                <a href="{% url 'profile' user.pk %}" class="btn btn-secondary me-2">
+                    <i class="fas fa-times"></i> Cancel
+                </a>
+                <button type="submit" class="btn-save">
+                    <i class="fas fa-save"></i> Save Notification Settings
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<!-- Leaflet for map -->
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+<script>
+    let map;
+    let marker;
+    let circle;
+    
+    function initMap() {
+        // Default center (Bacoor, Cavite)
+        const defaultLat = 14.4626;
+        const defaultLng = 120.9614;
+        
+        // Get current location if set
+        {% if current_location %}
+            const currentLat = {{ current_location.y }};
+            const currentLng = {{ current_location.x }};
+            map = L.map('map').setView([currentLat, currentLng], 15);
+        {% else %}
+            map = L.map('map').setView([defaultLat, defaultLng], 13);
+        {% endif %}
+        
+        // Add tile layer
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            attribution: '© OpenStreetMap contributors',
+            maxZoom: 19
+        }).addTo(map);
+        
+        // Add marker if location exists
+        {% if current_location %}
+            marker = L.marker([currentLat, currentLng], {
+                draggable: true
+            }).addTo(map);
+            
+            // Add radius circle
+            const radiusInMeters = {{ current_radius }} * 1000;
+            circle = L.circle([currentLat, currentLng], {
+                radius: radiusInMeters,
+                color: '#6366f1',
+                fillColor: '#6366f1',
+                fillOpacity: 0.1
+            }).addTo(map);
+            
+            // Update location when marker is dragged
+            marker.on('dragend', function(e) {
+                const pos = marker.getLatLng();
+                updateLocation(pos.lat, pos.lng);
+                updateCircle(pos.lat, pos.lng);
+            });
+        {% endif %}
+        
+        // Click on map to set location
+        map.on('click', function(e) {
+            updateLocation(e.latlng.lat, e.latlng.lng);
+            
+            if (marker) {
+                marker.setLatLng(e.latlng);
+            } else {
+                marker = L.marker(e.latlng, {
+                    draggable: true
+                }).addTo(map);
+                
+                marker.on('dragend', function(e) {
+                    const pos = marker.getLatLng();
+                    updateLocation(pos.lat, pos.lng);
+                    updateCircle(pos.lat, pos.lng);
+                });
+            }
+            
+            updateCircle(e.latlng.lat, e.latlng.lng);
+        });
+        
+        // Update circle when radius changes
+        document.getElementById('id_notification_radius_km').addEventListener('change', function() {
+            if (marker) {
+                const pos = marker.getLatLng();
+                updateCircle(pos.lat, pos.lng);
+            }
+        });
+    }
+    
+    function updateLocation(lat, lng) {
+        const wkt = `POINT(${lng} ${lat})`;
+        document.getElementById('id_notification_location').value = wkt;
+    }
+    
+    function updateCircle(lat, lng) {
+        const radius = parseFloat(document.getElementById('id_notification_radius_km').value) * 1000;
+        
+        if (circle) {
+            map.removeLayer(circle);
+        }
+        
+        circle = L.circle([lat, lng], {
+            radius: radius,
+            color: '#6366f1',
+            fillColor: '#6366f1',
+            fillOpacity: 0.1
+        }).addTo(map);
+    }
+    
+    function updateCategorySelection(checkbox) {
+        const categoryItem = checkbox.closest('.category-item');
+        if (checkbox.checked) {
+            categoryItem.classList.add('selected');
+        } else {
+            categoryItem.classList.remove('selected');
+        }
+    }
+    
+    function toggleAllCategories() {
+        const checkboxes = document.querySelectorAll('input[name="preferred_categories"]');
+        const allChecked = Array.from(checkboxes).every(cb => cb.checked);
+        
+        checkboxes.forEach(checkbox => {
+            checkbox.checked = !allChecked;
+            updateCategorySelection(checkbox);
+        });
+    }
+    
+    // Initialize map when page loads
+    document.addEventListener('DOMContentLoaded', function() {
+        initMap();
+    });
+</script>
+{% endblock %}

@@ -718,3 +718,57 @@ class UserGuideStatus(models.Model):
         """Re-enable auto-popup for this user."""
         self.auto_popup_enabled = True
         self.save(update_fields=['auto_popup_enabled', 'updated_at'])
+
+
+class NotificationPreference(models.Model):
+    """
+    User preferences for job notification alerts
+    Users can set location, distance radius, and job categories they want to be notified about
+    """
+    user = models.OneToOneField(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='notification_preference'
+    )
+    
+    # Location settings
+    notification_location = gis_models.PointField(
+        null=True,
+        blank=True,
+        help_text="Location for job notifications (can be different from profile location)"
+    )
+    notification_radius_km = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=1.0,
+        help_text="Radius in kilometers to search for jobs (e.g., 1.0, 5.0, 10.0)"
+    )
+    
+    # Category preferences (many-to-many with GeneralCategory)
+    preferred_categories = models.ManyToManyField(
+        'jobs.GeneralCategory',
+        blank=True,
+        related_name='subscribed_users',
+        help_text="General job categories user wants to receive notifications for"
+    )
+    
+    # Notification toggle
+    is_active = models.BooleanField(
+        default=True,
+        help_text="Enable/disable job notifications"
+    )
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Notification Preference"
+        verbose_name_plural = "Notification Preferences"
+    
+    def __str__(self):
+        return f"Notification Preferences for {self.user.username}"
+    
+    def get_radius_display(self):
+        """Get human-readable radius display"""
+        return f"{self.notification_radius_km} km"

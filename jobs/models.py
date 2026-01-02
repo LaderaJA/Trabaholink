@@ -17,8 +17,36 @@ from notifications.models import Notification
 
 CustomUser = get_user_model()
 
+class GeneralCategory(models.Model):
+    """
+    Broad job categories for notification filtering
+    Examples: Construction, Delivery, Education, etc.
+    """
+    slug = models.SlugField(max_length=100, unique=True)
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    icon = models.CharField(max_length=50, blank=True, help_text="Font Awesome icon class")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = "General Category"
+        verbose_name_plural = "General Categories"
+        ordering = ['name']
+    
+    def __str__(self):
+        return self.name
+
+
 class JobCategory(models.Model):
     name = models.CharField(max_length=255, unique=True)
+    general_category = models.ForeignKey(
+        GeneralCategory,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='job_categories',
+        help_text="Broad category this job belongs to"
+    )
 
     def __str__(self):
         # Handle modeltranslation - return the first non-empty name field

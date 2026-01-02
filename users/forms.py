@@ -349,3 +349,62 @@ class PrivacySettingsForm(forms.ModelForm):
             'show_activity': 'Show my activity in the public feed',
             'allow_search_engines': 'Allow search engines to index my profile',
         }
+
+
+class NotificationPreferenceForm(forms.ModelForm):
+    """Form for job notification settings"""
+    
+    notification_radius_km = forms.DecimalField(
+        label='Notification Radius',
+        max_digits=5,
+        decimal_places=2,
+        initial=1.0,
+        min_value=0.5,
+        max_value=100.0,
+        widget=forms.Select(
+            choices=[
+                (1.0, '1 km'),
+                (2.0, '2 km'),
+                (5.0, '5 km'),
+                (10.0, '10 km'),
+                (20.0, '20 km'),
+                (50.0, '50 km'),
+            ],
+            attrs={'class': 'form-control'}
+        ),
+        help_text='Jobs within this distance from your set location will trigger notifications'
+    )
+    
+    preferred_categories = forms.ModelMultipleChoiceField(
+        queryset=None,  # Will be set in __init__
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+        required=False,
+        label='Job Categories',
+        help_text='Select the types of jobs you want to be notified about'
+    )
+    
+    is_active = forms.BooleanField(
+        required=False,
+        label='Enable Job Notifications',
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        help_text='Turn on/off all job notifications'
+    )
+    
+    class Meta:
+        from .models import NotificationPreference
+        model = NotificationPreference
+        fields = ['notification_location', 'notification_radius_km', 'preferred_categories', 'is_active']
+        widgets = {
+            'notification_location': forms.HiddenInput(attrs={'id': 'id_notification_location'})
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Set queryset for preferred_categories
+        from jobs.models import GeneralCategory
+        self.fields['preferred_categories'].queryset = GeneralCategory.objects.all().order_by('name')
+        
+        # Set initial location value if exists
+        if self.instance and self.instance.notification_location:
+            self.fields['notification_location'].initial = self.instance.notification_location.wkt
