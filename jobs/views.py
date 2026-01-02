@@ -181,95 +181,9 @@ class JobListView(ListView):
             except (ValueError, TypeError):
                 self.user_location = None
         
-        # Handle manual location entry - geocode municipality/barangay to GPS coordinates
-        elif municipality:
-            try:
-                # Comprehensive Philippines location coordinates database (6 decimal places)
-                philippines_coords = {
-                    # Metro Manila
-                    'manila': (14.599512, 120.984222),
-                    'quezon city': (14.676041, 121.043700),
-                    'makati': (14.554729, 121.024445),
-                    'pasig': (14.576417, 121.085098),
-                    'taguig': (14.517637, 121.050935),
-                    'pasay': (14.537840, 120.989639),
-                    'paranaque': (14.479322, 121.019817),
-                    'las pinas': (14.449910, 120.976158),
-                    'muntinlupa': (14.383240, 121.040863),
-                    'marikina': (14.650703, 121.102905),
-                    'valenzuela': (14.700024, 120.983299),
-                    'caloocan': (14.648813, 120.966835),
-                    'malabon': (14.658348, 120.956726),
-                    'navotas': (14.669125, 120.947189),
-                    'san juan': (14.601909, 121.035538),
-                    'mandaluyong': (14.579399, 121.035905),
-                    
-                    # Cavite
-                    'bacoor': (14.431095, 120.968096),
-                    'imus': (14.429741, 120.937028),
-                    'dasmarinas': (14.400415, 120.985887),
-                    'dasmariñas': (14.400415, 120.985887),
-                    'cavite city': (14.479142, 120.897897),
-                    'general trias': (14.386906, 120.881014),
-                    'trece martires': (14.281448, 120.867188),
-                    'tagaytay': (14.115912, 120.960219),
-                    'silang': (14.231042, 120.976951),
-                    
-                    # Rizal
-                    'antipolo': (14.593069, 121.180027),
-                    'cainta': (14.578293, 121.122215),
-                    'taytay': (14.557601, 121.132437),
-                    'binangonan': (14.464722, 121.192502),
-                    'rodriguez': (14.713628, 121.107524),
-                    'montalban': (14.713628, 121.107524),
-                    'san mateo': (14.696908, 121.121895),
-                    
-                    # Laguna
-                    'calamba': (14.211651, 121.165314),
-                    'biñan': (14.337783, 121.080849),
-                    'santa rosa': (14.312336, 121.111376),
-                    'cabuyao': (14.278415, 121.124573),
-                    'san pedro': (14.355304, 121.017847),
-                    'los baños': (14.169908, 121.220631),
-                    
-                    # Bulacan
-                    'malolos': (14.843252, 120.811399),
-                    'meycauayan': (14.735024, 120.953308),
-                    'san jose del monte': (14.813612, 121.045301),
-                    'santa maria': (14.816917, 120.956701),
-                }
-                
-                # Enhanced barangay-level coordinates for Bacoor (6 decimal places)
-                bacoor_barangays = {
-                    'molino': (14.423512, 120.982478),
-                    'queens row': (14.440013, 120.974982),
-                    'salawag': (14.417528, 120.954983),
-                    'springville': (14.429045, 120.991987),
-                    'panapaan': (14.452013, 120.968041),
-                    'tabing dagat': (14.462015, 120.959028),
-                    'mabolo': (14.414987, 120.969964),
-                    'niog': (14.420019, 120.960047),
-                }
-                
-                location_key = municipality.lower().strip()
-                
-                # Check if barangay is provided for more precise location
-                if barangay:
-                    barangay_key = barangay.lower().strip()
-                    # Try municipality-specific barangay lookup (currently only Bacoor)
-                    if location_key == 'bacoor' and barangay_key in bacoor_barangays:
-                        lat, lng = bacoor_barangays[barangay_key]
-                        self.user_location = Point(lng, lat, srid=4326)
-                        queryset = queryset.annotate(distance=Distance("location", self.user_location))
-                        return queryset
-                
-                # Fallback to municipality-level coordinates
-                if location_key in philippines_coords:
-                    lat, lng = philippines_coords[location_key]
-                    self.user_location = Point(lng, lat, srid=4326)
-                    queryset = queryset.annotate(distance=Distance("location", self.user_location))
-            except Exception:
-                self.user_location = None
+        # Barangay filter (simple text search)
+        if barangay:
+            queryset = queryset.filter(barangay__icontains=barangay)
 
         # Sorting
         if sort == "budget_asc":
