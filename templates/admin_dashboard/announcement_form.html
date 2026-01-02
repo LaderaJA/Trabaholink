@@ -83,17 +83,6 @@
                     {% endif %}
                 </div>
 
-                <!-- Status -->
-                <div>
-                    <label for="{{ form.status.id_for_label }}" class="block text-sm font-semibold text-gray-700 mb-2">
-                        Status
-                    </label>
-                    {{ form.status }}
-                    {% if form.status.errors %}
-                        <p class="mt-1 text-sm text-red-600">{{ form.status.errors.0 }}</p>
-                    {% endif %}
-                </div>
-
                 <!-- Form Actions -->
                 <div class="flex items-center justify-end space-x-4 pt-6 border-t border-gray-200">
                     <a href="{% url 'admin_dashboard:admin_announcement_list' %}" 
