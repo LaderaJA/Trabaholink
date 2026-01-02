@@ -403,7 +403,12 @@ class NotificationPreferenceForm(forms.ModelForm):
         
         # Set queryset for preferred_categories
         from jobs.models import GeneralCategory
-        self.fields['preferred_categories'].queryset = GeneralCategory.objects.all().order_by('name')
+        all_categories = GeneralCategory.objects.all().order_by('name')
+        self.fields['preferred_categories'].queryset = all_categories
+        
+        # Set all categories as initial/default selection for new preferences
+        if not self.instance.pk or not self.instance.preferred_categories.exists():
+            self.fields['preferred_categories'].initial = all_categories
         
         # Set initial location value if exists
         if self.instance and self.instance.notification_location:

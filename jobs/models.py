@@ -818,16 +818,18 @@ def notify_users_about_new_job(sender, instance, created, **kwargs):
 @receiver(post_save, sender=Job)
 def notify_workers_about_new_job(sender, instance, created, **kwargs):
     """
-    Send notifications to workers based on their notification preferences.
+    Send notifications to WORKERS based on their notification preferences.
     Checks location, radius, and preferred job categories.
+    Only workers (role='worker') receive job notifications.
     """
     if created and instance.location:
         from users.models import NotificationPreference
         
-        # Get all active notification preferences with location set
+        # Get all active notification preferences with location set (WORKERS ONLY)
         preferences = NotificationPreference.objects.filter(
             is_active=True,
-            notification_location__isnull=False
+            notification_location__isnull=False,
+            user__role='worker'  # Only notify workers
         ).exclude(user=instance.owner).select_related('user')
         
         for pref in preferences:

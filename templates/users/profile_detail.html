@@ -2603,6 +2603,7 @@ body {
               </div>
             </a>
           </li>
+          {% if user.role == 'worker' %}
           <li>
             <a href="{% url 'set_location' %}" class="action-link-modern">
               <div class="action-link-icon">
@@ -2614,6 +2615,7 @@ body {
               </div>
             </a>
           </li>
+          {% endif %}
           
           {% if is_worker %}
           <li>

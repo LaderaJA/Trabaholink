@@ -758,9 +758,16 @@ class CompletedJobGalleryDeleteView(LoginRequiredMixin, UserPassesTestMixin, Del
 class UserLocationUpdateView(LoginRequiredMixin, UpdateView):
     """
     View for managing job notification preferences
-    Users can set location, radius, and job categories for notifications
+    WORKER ONLY - Only workers can set job notification preferences
     """
     template_name = "users/notification_settings.html"
+    
+    def dispatch(self, request, *args, **kwargs):
+        # Only allow workers to access this view
+        if request.user.role != 'worker':
+            messages.error(request, 'Job notifications are only available for workers. Employers do not need this feature.')
+            return redirect('profile', pk=request.user.pk)
+        return super().dispatch(request, *args, **kwargs)
     
     def get_object(self):
         # Get or create notification preference for user
