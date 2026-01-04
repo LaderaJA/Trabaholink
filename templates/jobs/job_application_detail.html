@@ -621,6 +621,38 @@ body {
       </div>
     </div>
   </div>
+  
+  <!-- Conversation Messages Section -->
+  {% if messages %}
+  <div class="card shadow-sm mb-4">
+    <div class="card-header bg-primary text-white">
+      <h5 class="mb-0">
+        <i class="bi bi-chat-dots-fill"></i> Conversation
+      </h5>
+    </div>
+    <div class="card-body" style="max-height: 400px; overflow-y: auto;">
+      {% for msg in messages %}
+      <div class="mb-3 {% if msg.sender == request.user %}text-end{% endif %}">
+        <div class="d-inline-block" style="max-width: 70%;">
+          <div class="p-3 rounded {% if msg.sender == request.user %}bg-primary text-white{% else %}bg-light{% endif %}">
+            <strong>{{ msg.sender.get_full_name|default:msg.sender.username }}</strong>
+            <p class="mb-1">{{ msg.content }}</p>
+            <small class="{% if msg.sender == request.user %}text-white-50{% else %}text-muted{% endif %}">
+              {{ msg.timestamp|date:"M d, Y g:i A" }}
+            </small>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+    <div class="card-footer">
+      <a href="{% if user == application.job.owner %}{% url 'messaging:start_conversation_with_user' application.worker.username %}{% else %}{% url 'messaging:start_conversation_with_user' application.job.owner.username %}{% endif %}" 
+         class="btn btn-primary w-100">
+        <i class="bi bi-reply-fill"></i> Reply in Messaging
+      </a>
+    </div>
+  </div>
+  {% endif %}
 </div>
 
 <script>
