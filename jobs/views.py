@@ -843,6 +843,30 @@ class JobApplicationDetailView(LoginRequiredMixin, DetailView):
     
     def get_queryset(self):
         return JobApplication.objects.all()
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        from messaging.models import Conversation, Message
+        
+        application = self.get_object()
+        
+        # Find conversation between employer and worker
+        conversation = Conversation.objects.filter(
+            participants__in=[application.job.owner, application.worker]
+        ).annotate(
+            num_participants=Count('participants')
+        ).filter(
+            num_participants=2
+        ).first()
+        
+        if conversation:
+            context['conversation'] = conversation
+            context['messages'] = conversation.messages.order_by('timestamp')
+        else:
+            context['conversation'] = None
+            context['messages'] = []
+        
+        return context
 
 # Job Application Update View (only the applicant can edit)
 class JobApplicationUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
