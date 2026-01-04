@@ -14,7 +14,8 @@ from .views import (
     accept_application_new, ContractNegotiationView, accept_contract_terms,
     JobTrackingView, post_progress_update, mark_job_completed, end_job, oppose_job_completion, feedback_form,
     ContractFeedbackDetailView,
-    start_contract_work, employer_applications_view, employer_contracts_view, worker_applications_view, worker_contracts_view
+    start_contract_work, employer_applications_view, employer_contracts_view, worker_applications_view, worker_contracts_view,
+    reactivate_job
 )
 from .views_availability import manage_availability, get_availability_api, check_availability_conflicts
 
@@ -95,6 +96,7 @@ urlpatterns = [
     
     # Job Status Toggle
     path('<int:job_id>/toggle-status/', views.toggle_job_status, name="toggle_job_status"),
+    path('<int:pk>/reactivate/', reactivate_job, name="reactivate_job"),
     
     # Map demo
     path('map-demo/', TemplateView.as_view(template_name='jobs/map_bacoor_only.html'), name='map_demo'),

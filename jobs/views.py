@@ -1142,6 +1142,34 @@ def cancel_contract(request, pk):
     messages.success(request, "Contract cancelled successfully.")
     return redirect("jobs:contract_detail", pk=contract.pk)
 
+@login_required
+@require_POST
+def reactivate_job(request, pk):
+    """Reactivate a deactivated job posting"""
+    job = get_object_or_404(Job, pk=pk)
+    
+    # Only the job owner can reactivate
+    if request.user != job.owner:
+        messages.error(request, "You are not authorized to reactivate this job.")
+        return redirect("jobs:employer_dashboard")
+    
+    # Check if job is expired
+    if job.is_expired():
+        messages.error(request, "Cannot reactivate an expired job. Please edit the job to extend its expiration date.")
+        return redirect("jobs:job_edit", pk=pk)
+    
+    # Check if job has vacancies
+    if job.vacancies == 0:
+        messages.error(request, "Cannot reactivate a job with 0 vacancies. Please edit the job to add more positions.")
+        return redirect("jobs:job_edit", pk=pk)
+    
+    # Reactivate the job
+    job.is_active = True
+    job.save(update_fields=['is_active', 'updated_at'])
+    
+    messages.success(request, f"Job '{job.title}' has been successfully reactivated!")
+    return redirect("jobs:employer_dashboard")
+
 class ContractSignView(LoginRequiredMixin, DetailView):
     """
     View for signing a contract with signature pad
@@ -1337,6 +1365,7 @@ class EmployerDashboardView(LoginRequiredMixin, TemplateView):
         # Statistics
         context['total_jobs'] = Job.objects.filter(owner=user).count()
         context['active_jobs'] = Job.objects.filter(owner=user, is_active=True).count()
+        context['deactivated_jobs_count'] = Job.objects.filter(owner=user, is_active=False).count()
         context['total_applications'] = JobApplication.objects.filter(job__owner=user).exclude(status__iexact='Archived').count()
         context['pending_applications'] = JobApplication.objects.filter(
             job__owner=user, 
@@ -1360,6 +1389,12 @@ class EmployerDashboardView(LoginRequiredMixin, TemplateView):
         
         # Recent jobs
         context['recent_jobs'] = Job.objects.filter(owner=user).order_by('-created_at')[:5]
+        
+        # Deactivated jobs (auto-deactivated when all positions filled or expired)
+        context['deactivated_jobs'] = Job.objects.filter(
+            owner=user,
+            is_active=False
+        ).select_related('category').order_by('-updated_at')[:50]
         
         # Recent applications shown in Applications tab (exclude ones already under contracts)
         # Note: Only exclude applications that THEMSELVES have active/completed contracts,

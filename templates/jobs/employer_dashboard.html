@@ -838,6 +838,11 @@
                 <span>My Jobs</span>
                 <span class="tab-badge">{{ active_jobs }}</span>
             </button>
+            <button class="tab-button" onclick="switchTab(event, 'deactivated-jobs')">
+                <i class="bi bi-pause-circle"></i>
+                <span>Deactivated</span>
+                <span class="tab-badge">{{ deactivated_jobs_count }}</span>
+            </button>
         </div>
 
         <!-- Applications Tab -->
@@ -1203,6 +1208,74 @@
                 {% endfor %}
             </div>
         </div>
+
+        <!-- Deactivated Jobs Tab -->
+        <div id="deactivated-jobs-tab" class="tab-content">
+            <div class="filter-bar">
+                <input type="text" class="search-input" id="deactivated-jobs-search" placeholder="Search deactivated jobs..." onkeyup="filterDeactivatedJobs()">
+                <span style="color: #6b7280; font-size: 0.875rem; padding: 0.5rem 1rem;">
+                    <i class="bi bi-info-circle"></i> Jobs automatically deactivated when all positions filled or expired
+                </span>
+            </div>
+
+            <div id="deactivated-jobs-list">
+                {% for job in deactivated_jobs %}
+                <div class="application-card" data-title="{{ job.title|lower }}" style="border-left: 4px solid #ef4444;">
+                    <div class="application-header">
+                        <div>
+                            <div class="applicant-name">{{ job.title }}</div>
+                            <div class="job-title">
+                                <i class="bi bi-geo-alt"></i> {{ job.municipality }}, {{ job.barangay }}
+                            </div>
+                        </div>
+                        <span class="status-badge status-rejected">
+                            <i class="bi bi-pause-circle"></i> Deactivated
+                        </span>
+                    </div>
+
+                    <div class="application-meta">
+                        <span><i class="bi bi-calendar"></i> Posted: {{ job.created_at|date:"M d, Y" }}</span>
+                        <span><i class="bi bi-clock-history"></i> Last updated: {{ job.updated_at|date:"M d, Y" }}</span>
+                        <span><i class="bi bi-briefcase"></i> {{ job.vacancies }} Vacanc{{ job.vacancies|pluralize:"y,ies" }} {% if job.vacancies == 0 %}<strong>(All Filled!)</strong>{% endif %}</span>
+                        <span><i class="bi bi-people"></i> {{ job.applications.count }} Application(s)</span>
+                    </div>
+
+                    {% if job.is_expired %}
+                    <div style="background: #fef3c7; border: 1px solid #fbbf24; padding: 0.75rem; border-radius: 6px; margin-top: 0.75rem; font-size: 0.875rem; color: #78350f;">
+                        <i class="bi bi-exclamation-triangle-fill"></i> <strong>Expired:</strong> This job posting has reached its expiration date.
+                    </div>
+                    {% elif job.vacancies == 0 %}
+                    <div style="background: #d1fae5; border: 1px solid #10b981; padding: 0.75rem; border-radius: 6px; margin-top: 0.75rem; font-size: 0.875rem; color: #065f46;">
+                        <i class="bi bi-check-circle-fill"></i> <strong>All positions filled!</strong> This job was automatically deactivated.
+                    </div>
+                    {% endif %}
+
+                    <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="{% url 'jobs:job_detail' job.pk %}" class="btn-action btn-primary-custom">
+                            <i class="bi bi-eye"></i> View Job
+                        </a>
+                        <a href="{% url 'jobs:job_edit' job.pk %}" class="btn-action action-btn-secondary">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        {% if not job.is_expired and job.vacancies > 0 %}
+                        <form method="post" action="{% url 'jobs:reactivate_job' job.pk %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action btn-success" onclick="return confirm('Reactivate this job posting?')">
+                                <i class="bi bi-play-circle"></i> Reactivate Job
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state">
+                    <i class="bi bi-pause-circle"></i>
+                    <h3>No Deactivated Jobs</h3>
+                    <p>Jobs that are deactivated will appear here</p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
     </div>
     <!-- End of tabs container -->
 </div>
@@ -1301,6 +1374,17 @@ function filterJobs() {
         const title = card.getAttribute('data-title');
         const matchesSearch = !searchTerm || title.includes(searchTerm);
         card.style.display = matchesSearch ? 'block' : 'none';
+    });
+}
+
+// Filter Deactivated Jobs
+function filterDeactivatedJobs() {
+    const searchTerm = document.getElementById('deactivated-jobs-search').value.toLowerCase();
+    const cards = document.querySelectorAll('#deactivated-jobs-list .application-card');
+    
+    cards.forEach(card => {
+        const title = card.getAttribute('data-title');
+        card.style.display = title.includes(searchTerm) ? 'block' : 'none';
     });
 }
 </script>
