@@ -6,7 +6,7 @@ from django.db import migrations
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('jobs', '0011_contract_end_time_contract_start_time_and_more'),
+        ('jobs', '0010_alter_jobapplication_options_contract_agreed_rate_and_more'),
         ('jobs', '0017_re_add_translation_fields_to_historical_models'),
     ]
 
