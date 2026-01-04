@@ -418,4 +418,10 @@ class NotificationPreferenceForm(forms.ModelForm):
         
         # Set initial radius value if exists (convert Decimal to string for ChoiceField)
         if self.instance and self.instance.pk and self.instance.notification_radius_km:
-            self.fields['notification_radius_km'].initial = str(self.instance.notification_radius_km)
+            # Convert Decimal to string and normalize format to match choice values
+            # E.g., Decimal('50.00') -> '50.0' (remove trailing zeros)
+            from decimal import Decimal
+            radius_value = self.instance.notification_radius_km
+            # Normalize: convert to float then to string to remove trailing zeros
+            normalized_value = str(float(radius_value))
+            self.fields['notification_radius_km'].initial = normalized_value
