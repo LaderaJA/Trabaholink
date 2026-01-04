@@ -163,7 +163,14 @@ class Job(models.Model):
         """Decrease vacancy count by 1 when a contract is finalized"""
         if self.vacancies > 0:
             self.vacancies -= 1
-            self.save(update_fields=['vacancies', 'updated_at'])  # Include updated_at to trigger refresh
+            
+            # Automatically deactivate job if no vacancies remain
+            if self.vacancies == 0:
+                self.is_active = False
+                self.save(update_fields=['vacancies', 'is_active', 'updated_at'])
+            else:
+                self.save(update_fields=['vacancies', 'updated_at'])
+            
             # Refresh from database to ensure we have the latest value
             self.refresh_from_db()
             return True
