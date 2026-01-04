@@ -858,12 +858,20 @@ class JobApplicationDetailView(LoginRequiredMixin, DetailView):
             Q(user1=application.worker, user2=application.job.owner)
         ).first()
         
+        print(f"DEBUG: Application ID: {application.id}")
+        print(f"DEBUG: Job Owner: {application.job.owner.username}")
+        print(f"DEBUG: Worker: {application.worker.username}")
+        print(f"DEBUG: Conversation found: {conversation}")
+        
         if conversation:
+            messages_list = list(conversation.messages.order_by('created_at'))
+            print(f"DEBUG: Messages count: {len(messages_list)}")
             context['conversation'] = conversation
-            context['messages'] = conversation.messages.order_by('created_at')
+            context['conversation_messages'] = messages_list
         else:
+            print("DEBUG: No conversation found")
             context['conversation'] = None
-            context['messages'] = []
+            context['conversation_messages'] = []
         
         return context
 
