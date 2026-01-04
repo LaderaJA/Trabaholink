@@ -877,6 +877,22 @@ def notify_workers_about_new_job(sender, instance, created, **kwargs):
     OPTIMIZATION: Checks category FIRST (cheap), then distance (expensive).
     Only workers (role='worker') receive job notifications.
     """
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    # Debug: Log all job saves
+    logger.info(f"[NOTIFICATION] Job saved: {instance.title} (ID: {instance.pk})")
+    logger.info(f"[NOTIFICATION]   - Created: {created}")
+    logger.info(f"[NOTIFICATION]   - Has location: {bool(instance.location)}")
+    
+    if not created:
+        logger.info(f"[NOTIFICATION]   - SKIP: Job was updated, not created")
+        return
+    
+    if not instance.location:
+        logger.info(f"[NOTIFICATION]   - SKIP: Job has no location")
+        return
+    
     if created and instance.location:
         from users.models import NotificationPreference
         import logging
