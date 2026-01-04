@@ -427,6 +427,7 @@
     </div>
 
     <form id="availabilityForm">
+      {% csrf_token %}
       {% for day_value, day_name in days_of_week %}
       <div class="day-section" data-day="{{ day_value }}">
         <div class="day-header">
@@ -665,6 +666,13 @@ function getCookie(name) {
         cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
         break;
       }
+    }
+  }
+  // Fallback: try to get from hidden input
+  if (!cookieValue) {
+    const csrfInput = document.querySelector('[name=csrfmiddlewaretoken]');
+    if (csrfInput) {
+      cookieValue = csrfInput.value;
     }
   }
   return cookieValue;
