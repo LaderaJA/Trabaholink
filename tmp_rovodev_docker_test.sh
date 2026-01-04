@@ -32,7 +32,7 @@ docker run --rm \
     --network="host" \
     -v "$(pwd)":/workspace \
     -w /workspace \
-    mcr.microsoft.com/playwright/python:v1.40.0-jammy \
+    mcr.microsoft.com/playwright/python:v1.48.0-jammy \
     bash -c "
         echo 'Installing dependencies...'
         pip install playwright -q
