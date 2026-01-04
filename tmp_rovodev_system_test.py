@@ -9,7 +9,7 @@ from playwright.async_api import async_playwright, Page
 import traceback
 
 # Configuration
-BASE_URL = "http://194.233.72.74:8000"  # Production URL
+BASE_URL = "http://194.233.72.74"  # Production URL (nginx on port 80)
 TEST_RESULTS = []
 
 class TestResult:

@@ -6,7 +6,7 @@ echo "Trabaholink Production System Test"
 echo "========================================"
 echo ""
 
-PROD_URL="http://194.233.72.74:8000"
+PROD_URL="http://194.233.72.74"
 
 echo "Testing Production Server: $PROD_URL"
 echo ""
