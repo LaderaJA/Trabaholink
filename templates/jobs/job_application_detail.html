@@ -397,9 +397,9 @@ body {
           <i class="bi bi-chat-left-text-fill"></i>
           Application Message
         </h3>
-        <div class="message-box {% if not application.message %}empty{% endif %}">
-          {% if application.message %}
-            {{ application.message|linebreaks }}
+        <div class="message-box {% if not application.cover_letter %}empty{% endif %}">
+          {% if application.cover_letter %}
+            {{ application.cover_letter|linebreaks }}
           {% else %}
             <i class="bi bi-info-circle"></i> No message provided with this application.
           {% endif %}
