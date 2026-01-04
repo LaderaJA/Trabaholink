@@ -1424,8 +1424,8 @@
                 <form method="post" action="{% url 'jobs:job_apply' job.pk %}" id="applicationForm" onsubmit="return confirmApplication();">
                     {% csrf_token %}
                     <div class="mb-3">
-                        <label for="message" class="form-label">Message to Employer (Optional)</label>
-                        <textarea class="form-control" id="message" name="message" rows="4" 
+                        <label for="cover_letter" class="form-label">Message to Employer (Optional)</label>
+                        <textarea class="form-control" id="cover_letter" name="cover_letter" rows="4" 
                                   placeholder="Introduce yourself and explain why you're a good fit for this job..."></textarea>
                         <small class="text-muted">This message will be sent along with your application.</small>
                     </div>
