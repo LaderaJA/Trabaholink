@@ -905,9 +905,15 @@ def notify_workers_about_new_job(sender, instance, created, **kwargs):
             distance_km = pref.notification_radius_km if pref.notification_radius_km else 5.0
             
             # Calculate distance between job and worker's notification location
-            if instance.location.distance(pref.notification_location) <= D(km=float(distance_km)):
-                # Job matches category AND is within radius - send notification
-                send_job_notification(pref.user, instance, distance_km)
+            try:
+                actual_distance = instance.location.distance(pref.notification_location)
+                # Convert to meters for comparison
+                if actual_distance.m <= (distance_km * 1000):
+                    # Job matches category AND is within radius - send notification
+                    send_job_notification(pref.user, instance, distance_km)
+            except (AttributeError, TypeError) as e:
+                # Skip if distance calculation fails
+                continue
 
 
 def send_job_notification(worker, job, radius_km):
