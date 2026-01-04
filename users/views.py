@@ -782,6 +782,8 @@ class UserLocationUpdateView(LoginRequiredMixin, UpdateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         from jobs.models import GeneralCategory
+        import logging
+        logger = logging.getLogger(__name__)
         
         # Get all general categories for display
         context['general_categories'] = GeneralCategory.objects.all().order_by('name')
@@ -793,9 +795,19 @@ class UserLocationUpdateView(LoginRequiredMixin, UpdateView):
         context['current_location'] = pref.notification_location
         context['selected_categories'] = pref.preferred_categories.all()
         
+        logger.info(f"[NOTIFICATION_SETTINGS] User: {self.request.user.username}")
+        logger.info(f"[NOTIFICATION_SETTINGS] Saved radius in DB: {pref.notification_radius_km} (type: {type(pref.notification_radius_km)})")
+        logger.info(f"[NOTIFICATION_SETTINGS] Form initial value: {self.get_form().fields['notification_radius_km'].initial}")
+        
         return context
     
     def form_valid(self, form):
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        logger.info(f"[NOTIFICATION_SETTINGS] Form submitted")
+        logger.info(f"[NOTIFICATION_SETTINGS] Form cleaned_data radius: {form.cleaned_data.get('notification_radius_km')}")
+        
         preference = form.save(commit=False)
         loc = form.cleaned_data.get('notification_location')
         
@@ -807,7 +819,10 @@ class UserLocationUpdateView(LoginRequiredMixin, UpdateView):
                 form.add_error('notification_location', "Invalid location format.")
                 return self.form_invalid(form)
         
+        logger.info(f"[NOTIFICATION_SETTINGS] Before save - radius: {preference.notification_radius_km}")
         preference.save()
+        logger.info(f"[NOTIFICATION_SETTINGS] After save - radius: {preference.notification_radius_km}")
+        
         form.save_m2m()  # Save many-to-many relationships (preferred_categories)
         
         messages.success(
