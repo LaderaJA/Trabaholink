@@ -659,9 +659,19 @@ def generate_html_report():
 </html>
 """
     
-    filename = f"tmp_rovodev_test_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html"
-    with open(filename, 'w', encoding='utf-8') as f:
-        f.write(html)
+    import os
+    # Save to /tmp directory to avoid permission issues
+    filename = f"/tmp/test_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html"
+    try:
+        with open(filename, 'w', encoding='utf-8') as f:
+            f.write(html)
+        print(f"✓ Report saved to: {filename}")
+    except Exception as e:
+        print(f"Error saving report: {e}")
+        # Try current directory as fallback
+        filename = f"test_report_{datetime.now().strftime('%Y%m%d_%H%M%S')}.html"
+        with open(filename, 'w', encoding='utf-8') as f:
+            f.write(html)
     
     return filename
 
@@ -713,7 +723,10 @@ async def run_all_tests():
     print(f"Skipped: {sum(1 for r in TEST_RESULTS if r.status == 'skipped')}")
     print()
     print(f"📄 Report generated: {report_file}")
-    print(f"🌐 Open in browser: file://{report_file}")
+    print(f"🌐 View report:")
+    print(f"   - On server: cat {report_file}")
+    print(f"   - Copy to workspace: cp {report_file} /app/")
+    print(f"   - Download: scp root@vmi2966753.contaboserver.net:{report_file} .")
     print("=" * 70)
 
 if __name__ == "__main__":
