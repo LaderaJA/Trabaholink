@@ -2955,14 +2955,12 @@ body {
                     <button onclick="toggleJobStatus({{ job.id }}, '{{ job.title|escapejs }}', '{% url 'jobs:toggle_job_status' job.id %}')" 
                             class="btn-modern btn-outline-modern btn-sm-modern toggle-job-btn-{{ job.id }}"
                             style="{% if job.is_active %}color: #dc3545; border-color: #dc3545;{% else %}color: #198754; border-color: #198754;{% endif %}">
-                      <i class="bi {% if job.is_active %}bi-eye-slash{% else %}bi-eye{% endif %}"></i>
+                      <i class="bi {% if job.is_active %}bi-pause-circle{% else %}bi-play-circle{% endif %}"></i>
                       <span class="toggle-text-{{ job.id }}">{% if job.is_active %}Deactivate{% else %}Activate{% endif %}</span>
                     </button>
                     <a href="{% url 'jobs:job_edit' job.id %}" class="btn-modern btn-outline-modern btn-sm-modern">
                       <i class="bi bi-pencil"></i> Edit
                     </a>
-                    <a href="{% url 'jobs:job_delete' job.id %}" class="btn-modern btn-outline-modern btn-sm-modern" style="color: var(--danger-color); border-color: var(--danger-color);">
-                      <i class="bi bi-trash"></i>{% trans "Delete" %}</a>
                   </div>
                   {% endif %}
                 </li>

@@ -1475,12 +1475,21 @@
                         <a href="{% url 'jobs:job_edit' job.pk %}" class="btn-action btn-warning">
                             <i class="bi bi-pencil-square"></i> Edit Job
                         </a>
-                        <form method="post" action="{% url 'jobs:job_delete' job.pk %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to delete this job?');">
-                            {% csrf_token %}
-                            <button type="submit" class="btn-action btn-danger">
-                                <i class="bi bi-trash"></i> Delete Job
-                            </button>
-                        </form>
+                        {% if job.is_active %}
+                            <form method="post" action="{% url 'jobs:toggle_job_status' job.pk %}" style="display: inline;" onsubmit="return confirm('Are you sure you want to deactivate this job posting?');">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-action btn-danger">
+                                    <i class="bi bi-pause-circle"></i> Deactivate Job
+                                </button>
+                            </form>
+                        {% else %}
+                            <form method="post" action="{% url 'jobs:toggle_job_status' job.pk %}" style="display: inline;">
+                                {% csrf_token %}
+                                <button type="submit" class="btn-action btn-success">
+                                    <i class="bi bi-play-circle"></i> Activate Job
+                                </button>
+                            </form>
+                        {% endif %}
                     {% endif %}
                     <a href="javascript:history.back()" class="btn-action btn-secondary">
                         <i class="bi bi-arrow-left"></i>{% trans "Back" %}</a>
