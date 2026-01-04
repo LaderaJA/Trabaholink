@@ -879,9 +879,16 @@ def notify_workers_about_new_job(sender, instance, created, **kwargs):
     """
     if created and instance.location:
         from users.models import NotificationPreference
+        import logging
+        logger = logging.getLogger(__name__)
+        
+        logger.info(f"[NOTIFICATION] New job created: {instance.title} (ID: {instance.pk})")
+        logger.info(f"[NOTIFICATION] Job location: {instance.location}")
+        logger.info(f"[NOTIFICATION] Job category: {instance.category}")
         
         # Get job's general category once
         job_general_category = instance.category.general_category if instance.category else None
+        logger.info(f"[NOTIFICATION] Job general category: {job_general_category}")
         
         # Get all active notification preferences with location set (WORKERS ONLY)
         preferences = NotificationPreference.objects.filter(
@@ -890,30 +897,55 @@ def notify_workers_about_new_job(sender, instance, created, **kwargs):
             user__role='worker'  # Only notify workers
         ).exclude(user=instance.owner).select_related('user').prefetch_related('preferred_categories')
         
+        logger.info(f"[NOTIFICATION] Found {preferences.count()} active worker preferences")
+        
+        notifications_sent = 0
         for pref in preferences:
+            logger.info(f"[NOTIFICATION] Checking worker: {pref.user.username}")
+            logger.info(f"[NOTIFICATION]   - Radius: {pref.notification_radius_km} km")
+            logger.info(f"[NOTIFICATION]   - Location: {pref.notification_location}")
+            logger.info(f"[NOTIFICATION]   - Categories count: {pref.preferred_categories.count()}")
+            
             # STEP 1: Check category FIRST (fast database lookup, no calculations)
             if pref.preferred_categories.exists():
                 # Worker has category preferences - check if job matches
                 if not job_general_category:
+                    logger.info(f"[NOTIFICATION]   - SKIP: Job has no general category")
                     continue  # Job has no category, skip this worker
                 
                 if not pref.preferred_categories.filter(id=job_general_category.id).exists():
+                    logger.info(f"[NOTIFICATION]   - SKIP: Category mismatch")
                     continue  # Job category doesn't match worker's preferences, skip
+                
+                logger.info(f"[NOTIFICATION]   - PASS: Category matches!")
+            else:
+                logger.info(f"[NOTIFICATION]   - PASS: Worker accepts all categories")
             
             # STEP 2: Only calculate distance if category matches (or worker accepts all categories)
             # This is expensive (GIS calculation), so we do it last
-            distance_km = pref.notification_radius_km if pref.notification_radius_km else 5.0
+            distance_km = float(pref.notification_radius_km) if pref.notification_radius_km else 5.0
             
             # Calculate distance between job and worker's notification location
             try:
                 actual_distance = instance.location.distance(pref.notification_location)
+                distance_meters = actual_distance.m
+                logger.info(f"[NOTIFICATION]   - Distance: {distance_meters:.2f}m ({distance_meters/1000:.2f}km)")
+                logger.info(f"[NOTIFICATION]   - Max radius: {distance_km}km ({distance_km * 1000}m)")
+                
                 # Convert to meters for comparison
-                if actual_distance.m <= (distance_km * 1000):
+                if distance_meters <= (distance_km * 1000):
+                    logger.info(f"[NOTIFICATION]   - ✅ SENDING notification!")
                     # Job matches category AND is within radius - send notification
                     send_job_notification(pref.user, instance, distance_km)
+                    notifications_sent += 1
+                else:
+                    logger.info(f"[NOTIFICATION]   - SKIP: Outside radius")
             except (AttributeError, TypeError) as e:
+                logger.error(f"[NOTIFICATION]   - ERROR: Distance calculation failed: {e}")
                 # Skip if distance calculation fails
                 continue
+        
+        logger.info(f"[NOTIFICATION] Total notifications sent: {notifications_sent}")
 
 
 def send_job_notification(worker, job, radius_km):

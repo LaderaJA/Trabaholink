@@ -354,26 +354,28 @@ class PrivacySettingsForm(forms.ModelForm):
 class NotificationPreferenceForm(forms.ModelForm):
     """Form for job notification settings"""
     
-    notification_radius_km = forms.DecimalField(
+    notification_radius_km = forms.ChoiceField(
         label='Notification Radius',
-        max_digits=5,
-        decimal_places=2,
-        initial=1.0,
-        min_value=0.5,
-        max_value=100.0,
-        widget=forms.Select(
-            choices=[
-                (1.0, '1 km'),
-                (2.0, '2 km'),
-                (5.0, '5 km'),
-                (10.0, '10 km'),
-                (20.0, '20 km'),
-                (50.0, '50 km'),
-            ],
-            attrs={'class': 'form-control'}
-        ),
+        initial='5.0',
+        choices=[
+            ('1.0', '1 km'),
+            ('2.0', '2 km'),
+            ('5.0', '5 km'),
+            ('10.0', '10 km'),
+            ('20.0', '20 km'),
+            ('50.0', '50 km'),
+        ],
+        widget=forms.Select(attrs={'class': 'form-control'}),
         help_text='Jobs within this distance from your set location will trigger notifications'
     )
+    
+    def clean_notification_radius_km(self):
+        """Convert string choice to Decimal for database storage"""
+        from decimal import Decimal
+        value = self.cleaned_data.get('notification_radius_km')
+        if value:
+            return Decimal(value)
+        return Decimal('5.0')  # Default to 5km
     
     preferred_categories = forms.ModelMultipleChoiceField(
         queryset=None,  # Will be set in __init__
