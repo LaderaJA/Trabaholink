@@ -953,12 +953,16 @@ def send_job_notification(worker, job, radius_km):
     # Calculate actual distance for display
     from django.contrib.gis.measure import D
     from users.models import NotificationPreference
+    import logging
+    logger = logging.getLogger(__name__)
     
     try:
         pref = NotificationPreference.objects.get(user=worker)
         if pref.notification_location and job.location:
-            distance_m = job.location.distance(pref.notification_location)
-            distance_km = distance_m / 1000  # Convert to km
+            distance_obj = job.location.distance(pref.notification_location)
+            distance_km = distance_obj.m / 1000  # Convert meters to km
+            
+            logger.info(f"[NOTIFICATION] Creating notification for {worker.username}: {distance_km:.1f}km away")
             
             Notification.objects.create(
                 user=worker,
@@ -966,14 +970,20 @@ def send_job_notification(worker, job, radius_km):
                 notif_type="job_post",
                 object_id=job.pk,
             )
+            logger.info(f"[NOTIFICATION] ✅ Notification created successfully!")
     except Exception as e:
+        logger.error(f"[NOTIFICATION] ERROR creating notification: {e}")
         # Fallback notification without distance
-        Notification.objects.create(
-            user=worker,
-            message=f"🎯 New job: '{job.title}' has been posted near you. Click to view details.",
-            notif_type="job_post",
-            object_id=job.pk,
-        )
+        try:
+            Notification.objects.create(
+                user=worker,
+                message=f"🎯 New job: '{job.title}' has been posted near you. Click to view details.",
+                notif_type="job_post",
+                object_id=job.pk,
+            )
+            logger.info(f"[NOTIFICATION] ✅ Fallback notification created")
+        except Exception as e2:
+            logger.error(f"[NOTIFICATION] ❌ Failed to create fallback notification: {e2}")
 
 
 class WorkerAvailability(models.Model):
