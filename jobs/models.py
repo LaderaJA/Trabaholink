@@ -234,6 +234,22 @@ class Job(models.Model):
         # Initialize vacancies to match number_of_workers if creating new job
         if not self.pk:
             self.vacancies = self.number_of_workers
+        else:
+            # When updating: if number_of_workers increased, increase vacancies accordingly
+            # This allows employers to add more positions to existing jobs
+            try:
+                old_job = Job.objects.get(pk=self.pk)
+                if self.number_of_workers > old_job.number_of_workers:
+                    # Increase vacancies by the difference
+                    increase = self.number_of_workers - old_job.number_of_workers
+                    self.vacancies = old_job.vacancies + increase
+                    
+                    # Reactivate job if it was deactivated and now has vacancies
+                    if old_job.vacancies == 0 and self.vacancies > 0 and not self.is_expired():
+                        self.is_active = True
+            except Job.DoesNotExist:
+                pass
+        
         # Load banned words
         banned_words = load_banned_words()
 
