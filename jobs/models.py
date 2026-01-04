@@ -944,7 +944,14 @@ def notify_workers_about_new_job(sender, instance, created, **kwargs):
             # Calculate distance between job and worker's notification location
             try:
                 actual_distance = instance.location.distance(pref.notification_location)
-                distance_meters = actual_distance.m
+                
+                # Handle both Distance object and float (geography field returns float in meters)
+                if hasattr(actual_distance, 'm'):
+                    distance_meters = actual_distance.m
+                else:
+                    # Already in meters (geography field)
+                    distance_meters = float(actual_distance)
+                
                 logger.info(f"[NOTIFICATION]   - Distance: {distance_meters:.2f}m ({distance_meters/1000:.2f}km)")
                 logger.info(f"[NOTIFICATION]   - Max radius: {distance_km}km ({distance_km * 1000}m)")
                 
@@ -976,7 +983,14 @@ def send_job_notification(worker, job, radius_km):
         pref = NotificationPreference.objects.get(user=worker)
         if pref.notification_location and job.location:
             distance_obj = job.location.distance(pref.notification_location)
-            distance_km = distance_obj.m / 1000  # Convert meters to km
+            
+            # Handle both Distance object and float (geography field returns float in meters)
+            if hasattr(distance_obj, 'm'):
+                distance_meters = distance_obj.m
+            else:
+                distance_meters = float(distance_obj)
+            
+            distance_km = distance_meters / 1000  # Convert meters to km
             
             logger.info(f"[NOTIFICATION] Creating notification for {worker.username}: {distance_km:.1f}km away")
             
