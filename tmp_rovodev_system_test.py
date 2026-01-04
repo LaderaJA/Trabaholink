@@ -614,10 +614,12 @@ def generate_html_report():
 """
             
             if test.screenshot:
+                # Use relative path for screenshots
+                screenshot_path = test.screenshot.replace('/tmp/', '')
                 html += f"""
                     <div class="screenshot">
                         <strong>Screenshot:</strong><br>
-                        <img src="{test.screenshot}" alt="Screenshot" onclick="window.open(this.src, '_blank')">
+                        <img src="{screenshot_path}" alt="Screenshot" onclick="window.open(this.src, '_blank')">
                     </div>
 """
             
