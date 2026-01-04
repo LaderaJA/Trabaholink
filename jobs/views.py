@@ -847,21 +847,20 @@ class JobApplicationDetailView(LoginRequiredMixin, DetailView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         from messaging.models import Conversation, Message
+        from django.db.models import Q
         
         application = self.get_object()
         
         # Find conversation between employer and worker
+        # Conversation can be either user1-user2 or user2-user1
         conversation = Conversation.objects.filter(
-            participants__in=[application.job.owner, application.worker]
-        ).annotate(
-            num_participants=Count('participants')
-        ).filter(
-            num_participants=2
+            Q(user1=application.job.owner, user2=application.worker) |
+            Q(user1=application.worker, user2=application.job.owner)
         ).first()
         
         if conversation:
             context['conversation'] = conversation
-            context['messages'] = conversation.messages.order_by('timestamp')
+            context['messages'] = conversation.messages.order_by('created_at')
         else:
             context['conversation'] = None
             context['messages'] = []
