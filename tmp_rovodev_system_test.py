@@ -40,9 +40,16 @@ class TestResult:
 
 async def take_screenshot(page: Page, name: str) -> str:
     """Take a screenshot and return the filename"""
-    filename = f"tmp_rovodev_screenshot_{name.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
-    await page.screenshot(path=filename)
-    return filename
+    import os
+    # Create screenshots directory with proper permissions
+    os.makedirs("/tmp/test_screenshots", exist_ok=True)
+    filename = f"/tmp/test_screenshots/screenshot_{name.replace(' ', '_')}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.png"
+    try:
+        await page.screenshot(path=filename)
+        return filename
+    except Exception as e:
+        print(f"Warning: Could not save screenshot: {e}")
+        return None
 
 async def test_homepage(page: Page):
     """Test: Homepage loads correctly"""
