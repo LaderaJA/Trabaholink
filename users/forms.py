@@ -415,3 +415,7 @@ class NotificationPreferenceForm(forms.ModelForm):
         # Set initial location value if exists
         if self.instance and self.instance.notification_location:
             self.fields['notification_location'].initial = self.instance.notification_location.wkt
+        
+        # Set initial radius value if exists (convert Decimal to string for ChoiceField)
+        if self.instance and self.instance.pk and self.instance.notification_radius_km:
+            self.fields['notification_radius_km'].initial = str(self.instance.notification_radius_km)
