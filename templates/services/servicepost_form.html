@@ -749,12 +749,26 @@ select.form-control {
                     • Professional headshot (recommended for first image)
                   </div>
                 </div>
-                <label for="id_images" class="image-upload-zone">
-                  <input type="file" name="images" id="id_images" multiple class="form-control" style="display: none;">
-                  <i class="bi bi-cloud-arrow-up upload-icon"></i>
-                  <div class="upload-text">Click to upload or drag and drop</div>
-                  <div class="upload-hint">PNG, JPG, JPEG up to 5MB each • Multiple files supported</div>
-                </label>
+
+                <!-- Image Upload Inputs Container -->
+                <div id="image-inputs-container">
+                  <!-- Initial file input -->
+                  <div class="image-input-wrapper" data-index="0" style="margin-bottom: 1rem;">
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                      <input type="file" name="images" accept="image/*" class="form-control image-file-input" style="flex: 1;">
+                      <button type="button" class="btn btn-danger btn-sm remove-image-btn" style="display: none;" onclick="removeImageInput(this)">
+                        <i class="bi bi-x-lg"></i> Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Add More Images Button -->
+                <button type="button" class="btn btn-success btn-sm" onclick="addImageInput()" style="margin-bottom: 1.5rem;">
+                  <i class="bi bi-plus-circle"></i> Add More Images
+                </button>
+
+                <!-- Image Previews -->
                 <div id="image-previews" class="existing-images" style="margin-top: 1.5rem;"></div>
               </div>
             </div>
@@ -792,6 +806,89 @@ function deleteImage(imageId) {
       console.log('Image ' + imageId + ' marked for deletion');
     }
   }
+}
+
+// Function to add more image inputs
+let imageInputIndex = 1;
+function addImageInput() {
+  const container = document.getElementById('image-inputs-container');
+  const newWrapper = document.createElement('div');
+  newWrapper.className = 'image-input-wrapper';
+  newWrapper.setAttribute('data-index', imageInputIndex);
+  newWrapper.style.marginBottom = '1rem';
+  
+  newWrapper.innerHTML = `
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <input type="file" name="images" accept="image/*" class="form-control image-file-input" style="flex: 1;">
+      <button type="button" class="btn btn-danger btn-sm remove-image-btn" onclick="removeImageInput(this)">
+        <i class="bi bi-x-lg"></i> Remove
+      </button>
+    </div>
+    <div class="image-preview-item" style="margin-top: 0.5rem; display: none;"></div>
+  `;
+  
+  container.appendChild(newWrapper);
+  
+  // Add change event listener for preview
+  const fileInput = newWrapper.querySelector('input[type="file"]');
+  fileInput.addEventListener('change', function(e) {
+    handleFilePreview(e, newWrapper);
+  });
+  
+  // Show remove button on all except first
+  updateRemoveButtons();
+  imageInputIndex++;
+}
+
+// Function to remove an image input
+function removeImageInput(button) {
+  const wrapper = button.closest('.image-input-wrapper');
+  wrapper.remove();
+  updateRemoveButtons();
+}
+
+// Function to update remove buttons visibility
+function updateRemoveButtons() {
+  const wrappers = document.querySelectorAll('.image-input-wrapper');
+  wrappers.forEach((wrapper, index) => {
+    const removeBtn = wrapper.querySelector('.remove-image-btn');
+    if (removeBtn) {
+      removeBtn.style.display = wrappers.length > 1 ? 'inline-block' : 'none';
+    }
+  });
+}
+
+// Function to handle file preview
+function handleFilePreview(e, wrapper) {
+  const file = e.target.files[0];
+  const previewDiv = wrapper.querySelector('.image-preview-item');
+  
+  if (file && file.type.startsWith('image/')) {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      previewDiv.innerHTML = `
+        <div style="position: relative; display: inline-block;">
+          <img src="${event.target.result}" style="max-width: 150px; max-height: 150px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <button type="button" class="btn btn-sm btn-danger" onclick="clearFileInput(this)" style="position: absolute; top: 5px; right: 5px;">
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+      `;
+      previewDiv.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+// Function to clear file input
+function clearFileInput(button) {
+  const wrapper = button.closest('.image-input-wrapper');
+  const fileInput = wrapper.querySelector('input[type="file"]');
+  const previewDiv = wrapper.querySelector('.image-preview-item');
+  
+  fileInput.value = '';
+  previewDiv.innerHTML = '';
+  previewDiv.style.display = 'none';
 }
 
 document.addEventListener("DOMContentLoaded", function(){
