@@ -168,6 +168,14 @@ class Job(models.Model):
             if self.vacancies == 0:
                 self.is_active = False
                 self.save(update_fields=['vacancies', 'is_active', 'updated_at'])
+                
+                # Notify employer that all positions are filled
+                Notification.objects.create(
+                    user=self.owner,
+                    message=f"🎉 All positions for '{self.title}' have been filled! Your job posting has been automatically deactivated.",
+                    notif_type="job_post",
+                    object_id=self.pk,
+                )
             else:
                 self.save(update_fields=['vacancies', 'updated_at'])
             
@@ -175,6 +183,30 @@ class Job(models.Model):
             self.refresh_from_db()
             return True
         return False
+    
+    def increment_vacancy(self):
+        """Increase vacancy count by 1 when a contract is cancelled and reactivate if needed"""
+        self.vacancies += 1
+        
+        # Reactivate job if it was deactivated due to no vacancies
+        # Only reactivate if the job hasn't expired
+        if not self.is_active and not self.is_expired():
+            self.is_active = True
+            self.save(update_fields=['vacancies', 'is_active', 'updated_at'])
+            
+            # Notify employer that job is reactivated
+            Notification.objects.create(
+                user=self.owner,
+                message=f"✅ Your job posting '{self.title}' has been reactivated due to a contract cancellation. You now have {self.vacancies} open position(s).",
+                notif_type="job_post",
+                object_id=self.pk,
+            )
+        else:
+            self.save(update_fields=['vacancies', 'updated_at'])
+        
+        # Refresh from database
+        self.refresh_from_db()
+        return True
     
     def get_applicant_count(self):
         """Get real-time count of applicants for this job"""

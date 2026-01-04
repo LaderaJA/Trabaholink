@@ -1118,11 +1118,18 @@ def cancel_contract(request, pk):
         messages.error(request, "You are not authorized to cancel this contract.")
         return redirect("jobs:contract_detail", pk=pk)
     
+    # Store the old status before changing it
+    old_status = contract.status
+    
     # Update the contract status to 'Cancelled'
     contract.status = "Cancelled"
     contract.is_draft = False  # Finalize cancellation if it was in draft
     contract.updated_at = timezone.now()
     contract.save()
+    
+    # If contract was finalized, increment vacancy to reopen position
+    if old_status in ['Finalized', 'In Progress', 'Awaiting Review']:
+        contract.job.increment_vacancy()
     
     # Notify the worker about the cancellation
     Notification.objects.create(

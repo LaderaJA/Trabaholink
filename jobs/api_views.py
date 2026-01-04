@@ -747,11 +747,18 @@ class ContractViewSet(viewsets.ModelViewSet):
         
         reason = request.data.get('reason', '')
         
+        # Store the old status before changing it
+        old_status = contract.status
+        
         contract.status = "Cancelled"
         contract.termination_requested_by = request.user
         contract.termination_reason = reason
         contract.termination_requested_at = timezone.now()
         contract.save()
+        
+        # If contract was finalized, increment vacancy to reopen position
+        if old_status in ['Finalized', 'In Progress', 'Awaiting Review']:
+            contract.job.increment_vacancy()
         
         # Notify the other party
         other_user = contract.client if request.user == contract.worker else contract.worker
