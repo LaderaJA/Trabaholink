@@ -2456,17 +2456,30 @@ def toggle_job_status(request, job_id):
         
         messages.success(request, message)
         
-        return JsonResponse({
-            'success': True,
-            'is_active': job.is_active,
-            'message': message
-        })
+        # Check if it's an AJAX request
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        
+        if is_ajax:
+            return JsonResponse({
+                'success': True,
+                'is_active': job.is_active,
+                'message': message
+            })
+        else:
+            # Redirect to job list or referrer
+            return redirect(request.META.get('HTTP_REFERER', 'jobs:job_list'))
     
     except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'message': f'An error occurred: {str(e)}'
-        }, status=500)
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        
+        if is_ajax:
+            return JsonResponse({
+                'success': False,
+                'message': f'An error occurred: {str(e)}'
+            }, status=500)
+        else:
+            messages.error(request, f'An error occurred: {str(e)}')
+            return redirect(request.META.get('HTTP_REFERER', 'jobs:job_list'))
 
 
 class FAQView(TemplateView):
