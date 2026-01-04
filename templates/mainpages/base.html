@@ -42,24 +42,32 @@
       left: 0 !important;
       right: 0 !important;
       z-index: 1030 !important;
-      background: #FFFFFF !important;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e8f0fe 100%) !important;
+      box-shadow: 0 2px 8px rgba(30, 64, 175, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
       padding: 0 !important;
-      border-bottom: 1px solid #e5e7eb !important;
+      border-bottom: 1px solid rgba(59, 130, 246, 0.1) !important;
       min-height: var(--navbar-height);
+      backdrop-filter: blur(10px);
     }
     
-    /* Top accent stripe - Bacoor colors */
+    /* Top accent stripe - Bacoor colors with glow effect */
     .tl-navbar::before {
       content: '';
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, #1e40af 0%, #3b82f6 30%, #f59e0b 70%, #1e40af 100%);
-      animation: gradientShift 8s ease infinite;
+      height: 3px;
+      background: linear-gradient(90deg, 
+        #1e40af 0%, 
+        #3b82f6 25%, 
+        #60a5fa 40%,
+        #f59e0b 60%, 
+        #fbbf24 75%,
+        #1e40af 100%);
+      animation: gradientShift 10s ease infinite;
       background-size: 200% 100%;
+      box-shadow: 0 1px 6px rgba(59, 130, 246, 0.3);
     }
     
     @keyframes gradientShift {
