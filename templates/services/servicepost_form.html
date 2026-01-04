@@ -892,6 +892,15 @@ function clearFileInput(button) {
 }
 
 document.addEventListener("DOMContentLoaded", function(){
+  // Initialize file preview for the first input
+  const firstFileInput = document.querySelector('.image-input-wrapper[data-index="0"] input[type="file"]');
+  if (firstFileInput) {
+    firstFileInput.addEventListener('change', function(e) {
+      const wrapper = this.closest('.image-input-wrapper');
+      handleFilePreview(e, wrapper);
+    });
+  }
+  
   // Apply form control classes
   const formControls = document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], select, textarea');
   formControls.forEach(control => {
