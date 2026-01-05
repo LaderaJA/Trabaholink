@@ -1895,14 +1895,31 @@ function setupLocationSync() {
       .catch(error => console.error('Geocoding error:', error));
   }
   
+  // Debouncing for reverse geocoding to prevent rate limiting
+  let reverseGeocodeTimeout;
+  
   // Function to reverse geocode when marker is dragged
   function reverseGeocode(lat, lon) {
     console.log('Reverse geocoding:', lat, lon);
-    const reverseUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`;
     
-    fetch(reverseUrl)
-      .then(response => response.json())
-      .then(data => {
+    // Clear previous timeout
+    clearTimeout(reverseGeocodeTimeout);
+    
+    // Debounce: wait 500ms after last call
+    reverseGeocodeTimeout = setTimeout(() => {
+      // Show loading indicators
+      if (barangayInput) barangayInput.value = 'Loading...';
+      if (subdivisionInput) subdivisionInput.value = 'Loading...';
+      
+      const reverseUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`;
+      
+      fetch(reverseUrl, {
+        headers: {
+          'User-Agent': 'Trabaholink/1.0'
+        }
+      })
+        .then(response => response.json())
+        .then(data => {
         console.log('Reverse geocode result:', data);
         if (data && data.address) {
           const addr = data.address;
@@ -1958,8 +1975,14 @@ function setupLocationSync() {
           
           formChanged = true;
         }
-      })
-      .catch(error => console.error('Reverse geocoding error:', error));
+        })
+        .catch(error => {
+          console.error('Reverse geocoding error:', error);
+          // Reset loading indicators on error
+          if (barangayInput) barangayInput.value = '';
+          if (subdivisionInput) subdivisionInput.value = '';
+        });
+    }, 500); // 500ms debounce delay
   }
   
   // Add event listeners to location inputs
