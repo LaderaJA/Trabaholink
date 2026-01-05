@@ -654,8 +654,11 @@ class IntegrationTestRunner:
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         filename = f"integration_test_report_{timestamp}.html"
         
-        # Try to write to /tmp first (always writable), then copy to project root
-        temp_file = f"/tmp/{filename}"
+        # Save to project root (mounted volume, accessible from host)
+        # Find the base directory
+        import os
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        filepath = os.path.join(base_dir, filename)
         
         total_tests = self.passed_tests + self.failed_tests
         pass_rate = (self.passed_tests / total_tests * 100) if total_tests > 0 else 0
@@ -962,23 +965,22 @@ class IntegrationTestRunner:
         
         # Write to file
         try:
-            # First write to /tmp
-            with open(temp_file, 'w', encoding='utf-8') as f:
+            with open(filepath, 'w', encoding='utf-8') as f:
                 f.write(html_content)
-            
-            # Try to copy to current directory for web access
-            try:
-                import shutil
-                shutil.copy(temp_file, filename)
-                print(f"\n{Colors.GREEN}✓ HTML report generated: {filename}{Colors.END}")
-                print(f"{Colors.BLUE}View at: http://194.233.72.74:8888/{filename}{Colors.END}")
-            except Exception as copy_err:
-                # If copy fails, still have the temp file
-                print(f"\n{Colors.GREEN}✓ HTML report generated: {temp_file}{Colors.END}")
-                print(f"{Colors.YELLOW}⚠ Could not copy to web directory: {copy_err}{Colors.END}")
-                print(f"{Colors.YELLOW}⚠ Copy manually: cp {temp_file} ~/Trabaholink/{Colors.END}")
+            print(f"\n{Colors.GREEN}✓ HTML report generated: {filepath}{Colors.END}")
+            print(f"{Colors.BLUE}View at: http://194.233.72.74:8888/{filename}{Colors.END}")
+            print(f"{Colors.YELLOW}💡 If not accessible via web, run on host: python3 -m http.server 8888{Colors.END}")
         except Exception as e:
             print_error(f"Failed to generate HTML report: {e}")
+            # Fallback to /tmp
+            try:
+                temp_path = f"/tmp/{filename}"
+                with open(temp_path, 'w', encoding='utf-8') as f:
+                    f.write(html_content)
+                print(f"{Colors.YELLOW}✓ Report saved to: {temp_path}{Colors.END}")
+                print(f"{Colors.YELLOW}💡 Copy from container: docker cp trabaholink_web:{temp_path} ~/Trabaholink/{Colors.END}")
+            except Exception as e2:
+                print_error(f"Fallback also failed: {e2}")
 
 
 if __name__ == "__main__":
