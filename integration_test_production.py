@@ -654,6 +654,9 @@ class IntegrationTestRunner:
         timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
         filename = f"integration_test_report_{timestamp}.html"
         
+        # Try to write to /tmp first (always writable), then copy to project root
+        temp_file = f"/tmp/{filename}"
+        
         total_tests = self.passed_tests + self.failed_tests
         pass_rate = (self.passed_tests / total_tests * 100) if total_tests > 0 else 0
         elapsed_time = time.time() - self.start_time
@@ -959,10 +962,21 @@ class IntegrationTestRunner:
         
         # Write to file
         try:
-            with open(filename, 'w', encoding='utf-8') as f:
+            # First write to /tmp
+            with open(temp_file, 'w', encoding='utf-8') as f:
                 f.write(html_content)
-            print(f"\n{Colors.GREEN}✓ HTML report generated: {filename}{Colors.END}")
-            print(f"{Colors.BLUE}View at: http://194.233.72.74:8888/{filename}{Colors.END}")
+            
+            # Try to copy to current directory for web access
+            try:
+                import shutil
+                shutil.copy(temp_file, filename)
+                print(f"\n{Colors.GREEN}✓ HTML report generated: {filename}{Colors.END}")
+                print(f"{Colors.BLUE}View at: http://194.233.72.74:8888/{filename}{Colors.END}")
+            except Exception as copy_err:
+                # If copy fails, still have the temp file
+                print(f"\n{Colors.GREEN}✓ HTML report generated: {temp_file}{Colors.END}")
+                print(f"{Colors.YELLOW}⚠ Could not copy to web directory: {copy_err}{Colors.END}")
+                print(f"{Colors.YELLOW}⚠ Copy manually: cp {temp_file} ~/Trabaholink/{Colors.END}")
         except Exception as e:
             print_error(f"Failed to generate HTML report: {e}")
 
