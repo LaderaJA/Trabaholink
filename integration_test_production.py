@@ -81,6 +81,7 @@ class IntegrationTestRunner:
         self.passed_tests = 0
         self.failed_tests = 0
         self.start_time = None
+        self.test_results = []  # Store detailed test results
         
     def cleanup(self):
         """Clean up test data"""
@@ -108,22 +109,38 @@ class IntegrationTestRunner:
     
     def run_test(self, test_name, test_func):
         """Run a single test and track results"""
+        test_start = time.time()
+        error_msg = None
+        status = "passed"
+        
         try:
             print(f"\n{Colors.BOLD}Test: {test_name}{Colors.END}")
             test_func()
             self.passed_tests += 1
             print_success(f"PASSED: {test_name}")
-            return True
         except AssertionError as e:
             self.failed_tests += 1
+            status = "failed"
+            error_msg = str(e)
             print_error(f"FAILED: {test_name}")
             print_error(f"Reason: {e}")
-            return False
         except Exception as e:
             self.failed_tests += 1
+            status = "failed"
+            error_msg = f"{type(e).__name__}: {e}"
             print_error(f"ERROR: {test_name}")
-            print_error(f"Exception: {type(e).__name__}: {e}")
-            return False
+            print_error(f"Exception: {error_msg}")
+        
+        # Store result
+        duration = time.time() - test_start
+        self.test_results.append({
+            'name': test_name,
+            'status': status,
+            'duration': duration,
+            'error': error_msg
+        })
+        
+        return status == "passed"
     
     def test_01_database_connection(self):
         """Test database connectivity"""
@@ -607,6 +624,9 @@ class IntegrationTestRunner:
         
         # Print summary
         self.print_summary()
+        
+        # Generate HTML report
+        self.generate_html_report()
     
     def print_summary(self):
         """Print test summary"""
@@ -628,6 +648,323 @@ class IntegrationTestRunner:
             print(f"{Colors.RED}Please review and fix issues before deploying.{Colors.END}\n")
         
         print("="*70)
+    
+    def generate_html_report(self):
+        """Generate HTML report similar to test_report_20260104_091038.html"""
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+        filename = f"integration_test_report_{timestamp}.html"
+        
+        total_tests = self.passed_tests + self.failed_tests
+        pass_rate = (self.passed_tests / total_tests * 100) if total_tests > 0 else 0
+        elapsed_time = time.time() - self.start_time
+        
+        # Group tests by category
+        categories = {
+            'Core System': [],
+            'Job Workflow': [],
+            'Contract System': [],
+            'Statistics & Dashboard': [],
+            'Services': [],
+            'Communication': [],
+            'Geolocation': []
+        }
+        
+        # Categorize tests
+        for result in self.test_results:
+            name = result['name']
+            if any(x in name for x in ['Database', 'PostGIS', 'Health']):
+                categories['Core System'].append(result)
+            elif any(x in name for x in ['Job', 'Application', 'Vacancy', 'Notification']):
+                categories['Job Workflow'].append(result)
+            elif 'Contract' in name:
+                categories['Contract System'].append(result)
+            elif any(x in name for x in ['Dashboard', 'Profile', 'Stats']):
+                categories['Statistics & Dashboard'].append(result)
+            elif 'Service' in name or 'Review' in name:
+                categories['Services'].append(result)
+            elif 'Messaging' in name or 'Moderation' in name:
+                categories['Communication'].append(result)
+            elif 'Distance' in name or 'Geolocation' in name:
+                categories['Geolocation'].append(result)
+            else:
+                categories['Core System'].append(result)
+        
+        html_content = f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trabaholink Integration Test Results</title>
+    <style>
+        * {{ margin: 0; padding: 0; box-sizing: border-box; }}
+        body {{
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            line-height: 1.6;
+        }}
+        .container {{
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }}
+        .header {{
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }}
+        .header h1 {{
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }}
+        .header .timestamp {{
+            opacity: 0.9;
+            font-size: 0.9em;
+        }}
+        .summary {{
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }}
+        .summary-card {{
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }}
+        .summary-card .number {{
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }}
+        .summary-card .label {{
+            color: #666;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 1px;
+        }}
+        .passed {{ color: #28a745; }}
+        .failed {{ color: #dc3545; }}
+        .total {{ color: #007bff; }}
+        .time {{ color: #6c757d; }}
+        
+        .progress-bar {{
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 20px 30px;
+        }}
+        .progress-fill {{
+            height: 100%;
+            background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+            transition: width 0.3s ease;
+            width: {pass_rate}%;
+        }}
+        
+        .category {{
+            margin: 30px;
+        }}
+        .category-header {{
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #333;
+        }}
+        .test-item {{
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }}
+        .test-item:hover {{
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }}
+        .test-header {{
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            background: #fafafa;
+        }}
+        .test-name {{
+            font-weight: 600;
+            font-size: 1.1em;
+        }}
+        .test-status {{
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }}
+        .status-badge {{
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }}
+        .status-passed {{
+            background: #d4edda;
+            color: #155724;
+        }}
+        .status-failed {{
+            background: #f8d7da;
+            color: #721c24;
+        }}
+        .duration {{
+            color: #666;
+            font-size: 0.9em;
+        }}
+        .test-details {{
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+            background: white;
+            display: none;
+        }}
+        .test-item.expanded .test-details {{
+            display: block;
+        }}
+        .error-message {{
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 10px;
+            color: #721c24;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+        }}
+        .footer {{
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }}
+        .expand-icon {{
+            transition: transform 0.3s ease;
+        }}
+        .test-item.expanded .expand-icon {{
+            transform: rotate(180deg);
+        }}
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Trabaholink Integration Test Results</h1>
+            <div class="timestamp">Generated: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}</div>
+        </div>
+        
+        <div class="summary">
+            <div class="summary-card">
+                <div class="number total">{total_tests}</div>
+                <div class="label">Total Tests</div>
+            </div>
+            <div class="summary-card">
+                <div class="number passed">{self.passed_tests}</div>
+                <div class="label">Passed</div>
+            </div>
+            <div class="summary-card">
+                <div class="number failed">{self.failed_tests}</div>
+                <div class="label">Failed</div>
+            </div>
+            <div class="summary-card">
+                <div class="number time">{elapsed_time:.2f}s</div>
+                <div class="label">Duration</div>
+            </div>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill"></div>
+        </div>
+"""
+        
+        # Add test results by category
+        for category_name, tests in categories.items():
+            if not tests:
+                continue
+                
+            html_content += f"""
+        <div class="category">
+            <div class="category-header">{category_name}</div>
+"""
+            
+            for test in tests:
+                status_class = 'status-passed' if test['status'] == 'passed' else 'status-failed'
+                status_text = '✓ PASSED' if test['status'] == 'passed' else '✗ FAILED'
+                
+                html_content += f"""
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <div class="test-name">{test['name']}</div>
+                    <div class="test-status">
+                        <span class="duration">{test['duration']:.3f}s</span>
+                        <span class="status-badge {status_class}">{status_text}</span>
+                        <span class="expand-icon">▼</span>
+                    </div>
+                </div>
+                <div class="test-details">
+"""
+                
+                if test['error']:
+                    html_content += f"""
+                    <div class="error-message">{test['error']}</div>
+"""
+                else:
+                    html_content += """
+                    <p>✓ Test passed successfully</p>
+"""
+                
+                html_content += """
+                </div>
+            </div>
+"""
+        
+        html_content += """
+        </div>
+        
+        <div class="footer">
+            <p><strong>Trabaholink Platform</strong> - Integration Test Suite</p>
+            <p>Production Environment Test Report</p>
+        </div>
+    </div>
+    
+    <script>
+        // Auto-scroll to first failed test
+        const firstFailed = document.querySelector('.status-failed');
+        if (firstFailed) {
+            setTimeout(() => {
+                firstFailed.closest('.test-item').scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }, 500);
+        }
+    </script>
+</body>
+</html>
+"""
+        
+        # Write to file
+        try:
+            with open(filename, 'w', encoding='utf-8') as f:
+                f.write(html_content)
+            print(f"\n{Colors.GREEN}✓ HTML report generated: {filename}{Colors.END}")
+            print(f"{Colors.BLUE}View at: http://194.233.72.74:8888/{filename}{Colors.END}")
+        except Exception as e:
+            print_error(f"Failed to generate HTML report: {e}")
 
 
 if __name__ == "__main__":
