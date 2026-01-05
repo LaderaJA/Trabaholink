@@ -1897,6 +1897,7 @@ function setupLocationSync() {
   
   // Debouncing for reverse geocoding to prevent rate limiting
   let reverseGeocodeTimeout;
+  let lastReverseGeocodeTime = 0;
   
   // Function to reverse geocode when marker is dragged
   function reverseGeocode(lat, lon) {
@@ -1905,8 +1906,20 @@ function setupLocationSync() {
     // Clear previous timeout
     clearTimeout(reverseGeocodeTimeout);
     
-    // Debounce: wait 500ms after last call
+    // Debounce: wait 1 second after last call (Nominatim rate limit is 1 req/sec)
     reverseGeocodeTimeout = setTimeout(() => {
+      // Enforce minimum 1 second between requests
+      const now = Date.now();
+      const timeSinceLastRequest = now - lastReverseGeocodeTime;
+      
+      if (timeSinceLastRequest < 1000) {
+        console.log('Rate limit: waiting', 1000 - timeSinceLastRequest, 'ms');
+        setTimeout(() => reverseGeocode(lat, lon), 1000 - timeSinceLastRequest);
+        return;
+      }
+      
+      lastReverseGeocodeTime = now;
+      
       // Show loading indicators
       if (barangayInput) barangayInput.value = 'Loading...';
       if (subdivisionInput) subdivisionInput.value = 'Loading...';
@@ -1918,7 +1931,12 @@ function setupLocationSync() {
           'User-Agent': 'Trabaholink/1.0'
         }
       })
-        .then(response => response.json())
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          return response.json();
+        })
         .then(data => {
         console.log('Reverse geocode result:', data);
         if (data && data.address) {
@@ -1978,11 +1996,19 @@ function setupLocationSync() {
         })
         .catch(error => {
           console.error('Reverse geocoding error:', error);
-          // Reset loading indicators on error
-          if (barangayInput) barangayInput.value = '';
-          if (subdivisionInput) subdivisionInput.value = '';
+          // Don't clear fields on error - keep last known values
+          // Only clear "Loading..." text
+          if (barangayInput && barangayInput.value === 'Loading...') {
+            barangayInput.value = '';
+          }
+          if (subdivisionInput && subdivisionInput.value === 'Loading...') {
+            subdivisionInput.value = '';
+          }
+          
+          // Show user-friendly error message
+          console.warn('Unable to fetch address. Try moving the marker again in a moment.');
         });
-    }, 500); // 500ms debounce delay
+    }, 1000); // 1 second debounce delay to respect Nominatim rate limit
   }
   
   // Add event listeners to location inputs
