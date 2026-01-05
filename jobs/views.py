@@ -1421,11 +1421,11 @@ class EmployerDashboardView(LoginRequiredMixin, TemplateView):
             status__iexact='rejected'
         ).select_related('job', 'worker').order_by('-updated_at')[:50]
         
-        # Pending offers
-        context['pending_offers'] = JobOffer.objects.filter(
-            employer=user,
-            status='Pending'
-        ).select_related('job', 'worker')[:5]
+        # JobOffer feature is deprecated - system now uses Contracts directly
+        # context['pending_offers'] = JobOffer.objects.filter(
+        #     employer=user,
+        #     status='Pending'
+        # ).select_related('job', 'worker')[:5]
         
         # Active contracts
         context['active_contracts_list'] = Contract.objects.filter(
@@ -1493,11 +1493,11 @@ class WorkerDashboardView(LoginRequiredMixin, TemplateView):
         context['recent_applications'] = recent_applications_qs
         context['applications_tab_count'] = recent_applications_qs.count()
         
-        # Pending offers
-        context['pending_offers'] = JobOffer.objects.filter(
-            worker=user,
-            status='Pending'
-        ).select_related('job', 'employer')[:5]
+        # JobOffer feature is deprecated - system now uses Contracts directly
+        # context['pending_offers'] = JobOffer.objects.filter(
+        #     worker=user,
+        #     status='Pending'
+        # ).select_related('job', 'employer')[:5]
         
         # Active contracts
         context['active_contracts_list'] = Contract.objects.filter(
