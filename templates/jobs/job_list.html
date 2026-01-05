@@ -1223,9 +1223,6 @@
           <div class="results-count">
             <span>{{ services.count }}</span> Services Found
           </div>
-        </div>
-        
-        <div class="content-actions">
           <div class="view-toggle">
             <button class="view-btn active" data-view="list" id="servicesListViewBtn">
               <i class="bi bi-list-ul"></i>
@@ -1234,6 +1231,9 @@
               <i class="bi bi-grid-3x3-gap"></i>
             </button>
           </div>
+        </div>
+        
+        <div class="content-actions">
           {% if user.is_authenticated and user.role == 'worker' %}
           <a href="{% url 'services:servicepost_create' %}" class="btn-primary-custom">
             <i class="bi bi-plus-circle"></i> Post a Service
