@@ -1468,6 +1468,10 @@ class WorkerDashboardView(LoginRequiredMixin, TemplateView):
             worker=user, 
             status='Pending'
         ).count()
+        context['rejected_applications'] = JobApplication.objects.filter(
+            worker=user,
+            status__iexact='rejected'
+        ).count()
         context['active_contracts'] = Contract.objects.filter(worker=user).exclude(status__in=['Completed', 'Cancelled']).count()
         context['completed_contracts'] = Contract.objects.filter(
             worker=user, 
