@@ -922,6 +922,10 @@ document.addEventListener("DOMContentLoaded", function(){
   }).addTo(map);
   var marker = L.marker([lat, lng], { draggable: true }).addTo(map);
   
+  // Get address input field
+  const addressInput = document.getElementById('{{ form.address.id_for_label }}');
+  let geocodeTimeout;
+  
   function updateCoordinates(lat, lng) {
     latInput.value = lat;
     lngInput.value = lng;
@@ -929,17 +933,81 @@ document.addEventListener("DOMContentLoaded", function(){
     document.getElementById('lon-display').textContent = lng.toFixed(6);
   }
   
-  // Update hidden fields when marker is dragged
+  // Reverse geocoding: Get address from coordinates
+  function reverseGeocode(lat, lng) {
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.display_name && addressInput) {
+          // Update address field with the geocoded address
+          addressInput.value = data.display_name;
+          console.log('Address updated:', data.display_name);
+        }
+      })
+      .catch(error => {
+        console.error('Reverse geocoding error:', error);
+      });
+  }
+  
+  // Forward geocoding: Get coordinates from address
+  function geocodeAddress(address) {
+    if (!address || address.trim() === '') return;
+    
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          const lat = parseFloat(data[0].lat);
+          const lng = parseFloat(data[0].lon);
+          
+          // Update marker position
+          marker.setLatLng([lat, lng]);
+          map.setView([lat, lng], 15);
+          
+          // Update coordinates
+          updateCoordinates(lat, lng);
+          console.log('Map updated to:', lat, lng);
+        } else {
+          console.log('No results found for address:', address);
+        }
+      })
+      .catch(error => {
+        console.error('Geocoding error:', error);
+      });
+  }
+  
+  // Update hidden fields and address when marker is dragged
   marker.on('dragend', function(e){
     var pos = e.target.getLatLng();
     updateCoordinates(pos.lat, pos.lng);
+    reverseGeocode(pos.lat, pos.lng);
   });
   
-  // Also update marker and hidden fields on map click
+  // Also update marker, hidden fields and address on map click
   map.on('click', function(e){
     marker.setLatLng(e.latlng);
     updateCoordinates(e.latlng.lat, e.latlng.lng);
+    reverseGeocode(e.latlng.lat, e.latlng.lng);
   });
+  
+  // Listen to address input changes and geocode
+  if (addressInput) {
+    addressInput.addEventListener('input', function(e) {
+      // Clear previous timeout
+      clearTimeout(geocodeTimeout);
+      
+      // Debounce: wait 1 second after user stops typing
+      geocodeTimeout = setTimeout(() => {
+        geocodeAddress(e.target.value);
+      }, 1000);
+    });
+    
+    // Also trigger on blur (when user leaves the field)
+    addressInput.addEventListener('blur', function(e) {
+      clearTimeout(geocodeTimeout);
+      geocodeAddress(e.target.value);
+    });
+  }
   
   // Initialize display
   updateCoordinates(lat, lng);
