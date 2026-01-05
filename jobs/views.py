@@ -821,10 +821,13 @@ def job_applicants_view(request, job_id):
 
 
 def deny_application(request, pk):
+    """Reject an application instead of deleting it"""
     application = get_object_or_404(JobApplication, pk=pk)
     if request.user == application.job.owner:
-        application.delete()
-    return HttpResponseRedirect(reverse('jobs:job_detail', kwargs={'pk': application.job.pk}))
+        application.status = "Rejected"
+        application.save()
+        messages.success(request, f"Application from {application.worker.get_full_name()} has been rejected.")
+    return HttpResponseRedirect(reverse('jobs:employer_dashboard'))
 
 
 
