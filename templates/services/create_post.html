@@ -1018,12 +1018,149 @@ function initializeMap() {
   const defaultLat = 14.4310956;
   const defaultLng = 120.968096097231;
   
-  map = L.map('map').setView([defaultLat, defaultLng], 13);
+  // Bacoor center coordinates
+  const bacoorCenter = [14.4167, 120.9833];
+  
+  // Bacoor GeoJSON polygon boundary
+  const bacoorGeoJSON = {
+    "type": "FeatureCollection",
+    "features": [{
+      "type": "Feature",
+      "properties": {"name": "Bacoor"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [120.9450, 14.4800], [121.0200, 14.4800], [121.0200, 14.4500],
+          [121.0150, 14.4300], [121.0100, 14.4100], [121.0000, 14.3900],
+          [120.9900, 14.3850], [120.9700, 14.3850], [120.9550, 14.3900],
+          [120.9450, 14.4000], [120.9450, 14.4200], [120.9450, 14.4500],
+          [120.9450, 14.4800]
+        ]]
+      }
+    }]
+  };
+  
+  const luzonBounds = [[12.0, 119.5], [19.0, 123.0]];
+  
+  map = L.map('map', {
+    center: [defaultLat, defaultLng],
+    zoom: 14,
+    minZoom: 7,
+    maxZoom: 18,
+    maxBounds: luzonBounds,
+    maxBoundsViscosity: 0.8
+  });
+  
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
+    attribution: '&copy; OpenStreetMap contributors',
+    maxZoom: 18
   }).addTo(map);
   
-  marker = L.marker([defaultLat, defaultLng], { draggable: true }).addTo(map);
+  // Create darken mask for outside Bacoor
+  const maskWorldBounds = [[12.0, 119.5], [19.0, 123.0]];
+  const bacoorCoords = bacoorGeoJSON.features[0].geometry.coordinates[0];
+  const bacoorLatLngs = bacoorCoords.map(coord => [coord[1], coord[0]]);
+  window.bacoorPolygon = [...bacoorLatLngs];
+  
+  const maskCoordinates = [
+    [[maskWorldBounds[0][0], maskWorldBounds[0][1]], 
+     [maskWorldBounds[1][0], maskWorldBounds[0][1]],
+     [maskWorldBounds[1][0], maskWorldBounds[1][1]], 
+     [maskWorldBounds[0][0], maskWorldBounds[1][1]],
+     [maskWorldBounds[0][0], maskWorldBounds[0][1]]],
+    [...bacoorLatLngs].reverse()
+  ];
+  
+  L.polygon(maskCoordinates, {
+    color: 'transparent',
+    fillColor: '#000000',
+    fillOpacity: 0.5,
+    interactive: false
+  }).addTo(map);
+  
+  window.bacoorLayer = L.geoJSON(bacoorGeoJSON, {
+    style: {
+      color: '#10b981',
+      weight: 3,
+      opacity: 1,
+      fillColor: '#10b981',
+      fillOpacity: 0.1
+    }
+  }).addTo(map);
+  
+  marker = L.marker([defaultLat, defaultLng], { 
+    draggable: true,
+    title: 'Drag to set service location (Bacoor only)'
+  }).addTo(map);
+  
+  const addressInput = document.getElementById('{{ form.address.id_for_label }}');
+  let geocodeTimeout;
+  
+  function isPointInBacoor(lat, lng) {
+    if (!window.bacoorPolygon) return true;
+    const polygon = window.bacoorPolygon;
+    let inside = false;
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      const lati = polygon[i][0], lngi = polygon[i][1];
+      const latj = polygon[j][0], lngj = polygon[j][1];
+      const intersect = ((lngi > lng) !== (lngj > lng))
+        && (lat < (latj - lati) * (lng - lngi) / (lngj - lngi) + lati);
+      if (intersect) inside = !inside;
+    }
+    return inside;
+  }
+  
+  function showLocationWarning(lat, lng) {
+    const inBacoor = isPointInBacoor(lat, lng);
+    const existingWarning = document.getElementById('bacoor-warning');
+    if (existingWarning) existingWarning.remove();
+    const existingSuccess = document.querySelector('[data-location-success]');
+    if (existingSuccess) existingSuccess.remove();
+    
+    if (!inBacoor) {
+      const warning = document.createElement('div');
+      warning.id = 'bacoor-warning';
+      warning.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#fef3c7;border:2px solid #f59e0b;color:#92400e;padding:15px 25px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:10000;font-weight:600;display:flex;align-items:center;gap:10px;';
+      warning.innerHTML = '<i class="bi bi-exclamation-triangle-fill" style="font-size:1.5rem;color:#f59e0b;"></i><span>⚠️ Service location must be within Bacoor, Cavite only!</span>';
+      document.body.appendChild(warning);
+      setTimeout(() => warning.remove(), 5000);
+    } else {
+      const success = document.createElement('div');
+      success.setAttribute('data-location-success', 'true');
+      success.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#d1fae5;border:2px solid #10b981;color:#065f46;padding:15px 25px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.15);z-index:10000;font-weight:600;display:flex;align-items:center;gap:10px;';
+      success.innerHTML = '<i class="bi bi-check-circle-fill" style="font-size:1.5rem;color:#10b981;"></i><span>✓ Location is within Bacoor!</span>';
+      document.body.appendChild(success);
+      setTimeout(() => success.remove(), 3000);
+    }
+  }
+  
+  function reverseGeocode(lat, lng) {
+    showLocationWarning(lat, lng);
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.display_name && addressInput) {
+          addressInput.value = data.display_name;
+        }
+      })
+      .catch(error => console.error('Reverse geocoding error:', error));
+  }
+  
+  function geocodeAddress(address) {
+    if (!address || address.trim() === '') return;
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          const lat = parseFloat(data[0].lat);
+          const lng = parseFloat(data[0].lon);
+          marker.setLatLng([lat, lng]);
+          map.setView([lat, lng], 15);
+          updateCoordinates(lat, lng);
+        }
+      })
+      .catch(error => console.error('Geocoding error:', error));
+  }
   
   function updateCoordinates(lat, lng) {
     document.getElementById('latitude').value = lat;
@@ -1033,21 +1170,51 @@ function initializeMap() {
     document.getElementById('location-status').textContent = 'Set';
     document.getElementById('location-status').style.color = 'var(--success-color)';
     locationSet = true;
-    console.log('Coordinates updated:', lat, lng);
   }
   
-  // Initialize with default coordinates
   updateCoordinates(defaultLat, defaultLng);
   
   marker.on('dragend', function() {
     const pos = marker.getLatLng();
     updateCoordinates(pos.lat, pos.lng);
+    reverseGeocode(pos.lat, pos.lng);
   });
   
   map.on('click', function(e) {
     marker.setLatLng(e.latlng);
     updateCoordinates(e.latlng.lat, e.latlng.lng);
+    reverseGeocode(e.latlng.lat, e.latlng.lng);
   });
+  
+  if (addressInput) {
+    addressInput.addEventListener('input', function(e) {
+      clearTimeout(geocodeTimeout);
+      geocodeTimeout = setTimeout(() => geocodeAddress(e.target.value), 1000);
+    });
+    addressInput.addEventListener('blur', function(e) {
+      clearTimeout(geocodeTimeout);
+      geocodeAddress(e.target.value);
+    });
+  }
+  
+  // Form validation
+  const form = document.querySelector('form');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      const lat = parseFloat(document.getElementById('latitude').value);
+      const lng = parseFloat(document.getElementById('longitude').value);
+      if (!isPointInBacoor(lat, lng)) {
+        e.preventDefault();
+        const errorDiv = document.createElement('div');
+        errorDiv.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%);background:#fef2f2;border:2px solid #dc2626;color:#7f1d1d;padding:20px 30px;border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,0.2);z-index:10001;font-weight:600;font-size:1.1rem;max-width:500px;';
+        errorDiv.innerHTML = '<div style="display:flex;align-items:center;gap:15px;"><i class="bi bi-x-circle-fill" style="font-size:2rem;color:#dc2626;"></i><div><div style="font-size:1.2rem;margin-bottom:5px;">❌ Cannot Save Service</div><div style="font-weight:400;">Service location must be within Bacoor, Cavite. Please adjust the marker on the map.</div></div></div>';
+        document.body.appendChild(errorDiv);
+        document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        setTimeout(() => errorDiv.remove(), 7000);
+        return false;
+      }
+    });
+  }
 }
 
 function setupImagePreview() {
