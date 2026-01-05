@@ -1850,6 +1850,7 @@ function setupLocationSync() {
   // Get all location input elements - using correct Django form IDs
   const streetInput = document.querySelector('[name="street"]');
   const houseNumberInput = document.querySelector('[name="house_number"]');
+  const subdivisionInput = document.querySelector('[name="subdivision"]');
   const barangayInput = document.getElementById('{{ form.barangay.id_for_label }}');
   const municipalityInput = document.getElementById('{{ form.municipality.id_for_label }}');
   
