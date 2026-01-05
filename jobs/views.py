@@ -1367,7 +1367,9 @@ class EmployerDashboardView(LoginRequiredMixin, TemplateView):
         context['active_jobs'] = Job.objects.filter(owner=user, is_active=True).count()
         context['deactivated_jobs_count'] = Job.objects.filter(owner=user, is_active=False).count()
         # Total applications should count only Pending applications (those needing review)
-        context['total_applications'] = JobApplication.objects.filter(job__owner=user, status='Pending').count()
+        total_apps = JobApplication.objects.filter(job__owner=user, status='Pending').count()
+        print(f"DEBUG EMPLOYER DASHBOARD: User={user.username}, Total Pending Apps={total_apps}")
+        context['total_applications'] = total_apps
         context['pending_applications'] = JobApplication.objects.filter(
             job__owner=user, 
             status='Pending'
