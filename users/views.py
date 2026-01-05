@@ -426,6 +426,12 @@ class UserProfileDetailView(DetailView):
         if user.role == 'client':
             context["posted_jobs"] = user.posted_jobs.order_by("-created_at")
             
+            # Count total pending applications across all jobs
+            context["total_pending_applicants"] = JobApplication.objects.filter(
+                job__owner=user,
+                status='Pending'
+            ).count()
+            
             # Get completed contracts where user is the client, with worker feedback
             from django.db.models import Q
             completed_contracts_client = Contract.objects.filter(

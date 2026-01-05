@@ -2413,7 +2413,7 @@ body {
         <div class="stat-icon-modern green">
           <i class="bi bi-people-fill"></i>
         </div>
-        <div class="stat-number-modern">{{ user.posted_jobs.all.0.applications.count|default:"0" }}</div>
+        <div class="stat-number-modern">{{ total_pending_applicants|default:"0" }}</div>
         <div class="stat-label-modern">Total Applicants</div>
       </div>
       
