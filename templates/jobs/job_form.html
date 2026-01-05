@@ -1927,33 +1927,33 @@ function setupLocationSync() {
           
           // OpenStreetMap API structure for Bacoor:
           // - suburb = subdivision/neighborhood (e.g., "Molino", "Queens Row")
-          // - village = barangay (e.g., "Molino IV", "Queens Row East")
+          // - village/city_district = barangay (e.g., "Molino IV", "Queens Row East")
           // - municipality = city (e.g., "Bacoor")
           
+          console.log('Available address fields:', Object.keys(addr));
+          
           // Update subdivision (smaller area like neighborhood/compound)
-          const subdivision = addr.suburb || addr.neighbourhood || addr.quarter;
+          const subdivision = addr.suburb || addr.neighbourhood || addr.quarter || '';
           console.log('Subdivision from API:', subdivision);
-          if (subdivision && subdivisionInput) {
+          if (subdivisionInput) {
             subdivisionInput.value = subdivision;
             console.log('✅ Updated subdivision field to:', subdivision);
             subdivisionInput.dispatchEvent(new Event('change', { bubbles: true }));
           }
           
-          // Update barangay (larger administrative area)
-          const barangay = addr.village || addr.hamlet || addr.city_district;
+          // Update barangay (administrative area)
+          // Try multiple fields to get the most specific barangay name
+          const barangay = addr.city_district || addr.village || addr.hamlet || addr.suburb || '';
           console.log('Barangay from API:', barangay);
-          console.log('Barangay input element:', barangayInput);
+          console.log('city_district:', addr.city_district);
+          console.log('village:', addr.village);
           
-          if (barangay) {
-            if (barangayInput) {
-              barangayInput.value = barangay;
-              console.log('✅ Updated barangay field to:', barangay);
-              barangayInput.dispatchEvent(new Event('change', { bubbles: true }));
-            } else {
-              console.error('❌ Barangay input element not found!');
-            }
+          if (barangayInput) {
+            barangayInput.value = barangay;
+            console.log('✅ Updated barangay field to:', barangay);
+            barangayInput.dispatchEvent(new Event('change', { bubbles: true }));
           } else {
-            console.log('No barangay data in response. Available fields:', Object.keys(addr));
+            console.error('❌ Barangay input element not found!');
           }
           
           formChanged = true;
