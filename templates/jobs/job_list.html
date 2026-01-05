@@ -1226,6 +1226,14 @@
         </div>
         
         <div class="content-actions">
+          <div class="view-toggle">
+            <button class="view-btn active" data-view="list" id="servicesListViewBtn">
+              <i class="bi bi-list-ul"></i>
+            </button>
+            <button class="view-btn" data-view="grid" id="servicesGridViewBtn">
+              <i class="bi bi-grid-3x3-gap"></i>
+            </button>
+          </div>
           {% if user.is_authenticated and user.role == 'worker' %}
           <a href="{% url 'services:servicepost_create' %}" class="btn-primary-custom">
             <i class="bi bi-plus-circle"></i> Post a Service
@@ -1237,8 +1245,8 @@
         </div>
       </div>
       
-      <!-- Services List -->
-      <div class="jobs-list">
+      <!-- Services List View -->
+      <div id="servicesListView" class="jobs-list">
         {% for service in services %}
         <div class="job-card-list">
           <div class="job-thumbnail">
@@ -1302,6 +1310,66 @@
                 </a>
               </div>
             </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+          <i class="bi bi-tools"></i>
+          <h3>No Services Found</h3>
+          <p>Check back later for new service opportunities.</p>
+        </div>
+        {% endfor %}
+      </div>
+      
+      <!-- Services Grid View -->
+      <div id="servicesGridView" class="jobs-grid" style="display: none;">
+        {% for service in services %}
+        <div class="job-card-grid">
+          <div class="job-thumbnail-grid">
+            <a href="{{ service.get_absolute_url }}" class="job-thumbnail-link">
+              {% with service.images.first as service_image %}
+              {% if service_image %}
+              <img src="{{ service_image.image.url }}" alt="{{ service.headline }}" class="img-fluid">
+              {% else %}
+              <div class="no-image-placeholder">
+                <i class="bi bi-tools"></i>
+                <small>No image</small>
+              </div>
+              {% endif %}
+              {% endwith %}
+            </a>
+            <div class="timestamp-badge-grid">
+              <i class="bi bi-clock"></i> {{ service.created_at|timesince }} ago
+            </div>
+          </div>
+          
+          <div class="job-content-grid">
+            <span class="status-badge hiring" style="background: rgba(59, 130, 246, 0.1); color: var(--primary-color);">
+              <i class="bi bi-tools"></i> Service
+            </span>
+            
+            <a href="{{ service.get_absolute_url }}" class="job-title-link-grid">
+              {{ service.headline }}
+            </a>
+            
+            <div class="job-meta-grid">
+              <div class="meta-item">
+                <i class="bi bi-person-circle"></i>
+                <span>{{ service.user.username }}</span>
+              </div>
+              <div class="meta-item">
+                <i class="bi bi-calendar-event"></i>
+                <span>{{ service.created_at|date:"M d, Y" }}</span>
+              </div>
+            </div>
+            
+            <p class="job-description-preview-grid">
+              {{ service.description|truncatechars:100 }}
+            </p>
+            
+            <a href="{{ service.get_absolute_url }}" class="btn-view-details-grid">
+              View Details <i class="bi bi-arrow-right"></i>
+            </a>
           </div>
         </div>
         {% empty %}
@@ -1428,6 +1496,36 @@ gridViewBtn.addEventListener('click', function() {
 const savedView = localStorage.getItem('jobViewPreference');
 if (savedView === 'grid') {
   gridViewBtn.click();
+}
+
+// Services View Toggle
+const servicesListViewBtn = document.getElementById('servicesListViewBtn');
+const servicesGridViewBtn = document.getElementById('servicesGridViewBtn');
+const servicesListView = document.getElementById('servicesListView');
+const servicesGridView = document.getElementById('servicesGridView');
+
+if (servicesListViewBtn && servicesGridViewBtn) {
+  servicesListViewBtn.addEventListener('click', function() {
+    servicesListView.style.display = 'flex';
+    servicesGridView.style.display = 'none';
+    servicesListViewBtn.classList.add('active');
+    servicesGridViewBtn.classList.remove('active');
+    localStorage.setItem('servicesViewPreference', 'list');
+  });
+
+  servicesGridViewBtn.addEventListener('click', function() {
+    servicesListView.style.display = 'none';
+    servicesGridView.style.display = 'grid';
+    servicesGridViewBtn.classList.add('active');
+    servicesListViewBtn.classList.remove('active');
+    localStorage.setItem('servicesViewPreference', 'grid');
+  });
+
+  // Restore services view preference
+  const savedServicesView = localStorage.getItem('servicesViewPreference');
+  if (savedServicesView === 'grid') {
+    servicesGridViewBtn.click();
+  }
 }
 
 // Sort Function
