@@ -446,10 +446,9 @@ class IntegrationTestRunner:
         """Test service posting by worker"""
         worker1 = User.objects.get(username=f"{TEST_PREFIX}worker1")
         
-        # Get or create service category
+        # Get or create service category (no slug field in ServiceCategory)
         service_cat, _ = ServiceCategory.objects.get_or_create(
-            name='Carpentry Services',
-            defaults={'slug': 'carpentry-services'}
+            name='Carpentry Services'
         )
         
         # Create service post
@@ -472,6 +471,10 @@ class IntegrationTestRunner:
     
     def test_15_service_review(self):
         """Test service review system"""
+        if not self.test_services:
+            print_warning("No services available for review test")
+            return
+        
         service = self.test_services[0]
         client = User.objects.get(username=f"{TEST_PREFIX}client1")
         
