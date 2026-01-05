@@ -1924,8 +1924,22 @@ function setupLocationSync() {
             console.log('No house_number in response');
           }
           
-          // Update barangay - try multiple possible fields
-          const barangay = addr.suburb || addr.neighbourhood || addr.village || addr.hamlet || addr.quarter;
+          // OpenStreetMap API structure for Bacoor:
+          // - suburb = subdivision/neighborhood (e.g., "Molino", "Queens Row")
+          // - village = barangay (e.g., "Molino IV", "Queens Row East")
+          // - municipality = city (e.g., "Bacoor")
+          
+          // Update subdivision (smaller area like neighborhood/compound)
+          const subdivision = addr.suburb || addr.neighbourhood || addr.quarter;
+          console.log('Subdivision from API:', subdivision);
+          if (subdivision && subdivisionInput) {
+            subdivisionInput.value = subdivision;
+            console.log('✅ Updated subdivision field to:', subdivision);
+            subdivisionInput.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+          
+          // Update barangay (larger administrative area)
+          const barangay = addr.village || addr.hamlet || addr.city_district;
           console.log('Barangay from API:', barangay);
           console.log('Barangay input element:', barangayInput);
           
@@ -1933,8 +1947,6 @@ function setupLocationSync() {
             if (barangayInput) {
               barangayInput.value = barangay;
               console.log('✅ Updated barangay field to:', barangay);
-              
-              // Trigger change event to update form state
               barangayInput.dispatchEvent(new Event('change', { bubbles: true }));
             } else {
               console.error('❌ Barangay input element not found!');
@@ -1951,7 +1963,7 @@ function setupLocationSync() {
   
   // Add event listeners to location inputs
   let geocodeTimeout;
-  const inputs = [streetInput, houseNumberInput, barangayInput];
+  const inputs = [streetInput, houseNumberInput, subdivisionInput, barangayInput];
   
   inputs.forEach(input => {
     if (input) {
