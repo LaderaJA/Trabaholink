@@ -16,21 +16,78 @@
 </div>
 
 <div class="container mt-4">
-  <!-- Filter Options -->
-  <form method="get" class="mb-3">
-    <label for="post-filter">Show:</label>
-    <select id="post-filter" name="type" class="form-select w-auto d-inline-block" onchange="this.form.submit()">
-      <option value="all" {% if filter_type == "all" %}selected{% endif %}>All Posts</option>
-      <option value="job" {% if filter_type == "job" %}selected{% endif %}>Job Posts Only</option>
-      <option value="service" {% if filter_type == "service" %}selected{% endif %}>Service Posts Only</option>
-    </select>
-    <noscript>
-      <button type="submit" class="btn btn-primary">Apply</button>
-    </noscript>
-  </form>
+  <!-- Filter Options and View Toggle -->
+  <div class="content-actions-bar">
+    <form method="get" class="filter-form">
+      <label for="post-filter">Show:</label>
+      <select id="post-filter" name="type" class="form-select" onchange="this.form.submit()">
+        <option value="all" {% if filter_type == "all" %}selected{% endif %}>All Posts</option>
+        <option value="job" {% if filter_type == "job" %}selected{% endif %}>Job Posts Only</option>
+        <option value="service" {% if filter_type == "service" %}selected{% endif %}>Service Posts Only</option>
+      </select>
+      <noscript>
+        <button type="submit" class="btn btn-primary">Apply</button>
+      </noscript>
+    </form>
+    
+    <div class="view-toggle">
+      <button class="view-btn" data-view="list" id="listViewBtn">
+        <i class="bi bi-list-ul"></i>
+      </button>
+      <button class="view-btn active" data-view="grid" id="gridViewBtn">
+        <i class="bi bi-grid-3x3-gap"></i>
+      </button>
+    </div>
+  </div>
   
   {% if posts %}
-  <div class="row">
+  <!-- List View -->
+  <div id="listView" class="posts-list-view" style="display: none;">
+    {% for post in posts %}
+    <div class="post-card-list">
+      <div class="post-card-list-content">
+        {% if post.post_type == "Job" and post.job_picture %}
+          <div class="post-list-image">
+            <img src="{{ post.job_picture.url }}" alt="{{ post.title }}">
+          </div>
+        {% elif post.post_type == "Service" and post.image %}
+          <div class="post-list-image">
+            <img src="{{ post.image.url }}" alt="{{ post.headline }}">
+          </div>
+        {% else %}
+          <div class="post-list-image post-list-no-image">
+            <i class="bi bi-{% if post.post_type == 'Job' %}briefcase{% else %}tools{% endif %}"></i>
+          </div>
+        {% endif %}
+        
+        <div class="post-list-info">
+          <div class="post-list-header">
+            <h5 class="post-list-title">
+              {% if post.post_type == "Job" %}
+                <span class="post-badge job-badge"><i class="bi bi-briefcase"></i> Job</span>
+                {{ post.title }}
+              {% elif post.post_type == "Service" %}
+                <span class="post-badge service-badge"><i class="bi bi-tools"></i> Service</span>
+                {{ post.headline }}
+              {% endif %}
+            </h5>
+            <p class="post-list-date"><i class="bi bi-calendar"></i> {{ post.created_at|date:"M d, Y" }}</p>
+          </div>
+          <p class="post-list-description">{{ post.description|truncatechars:150 }}</p>
+        </div>
+        
+        <div class="post-list-action">
+          <a href="{{ post.get_absolute_url }}" class="btn-view-details">
+            <i class="bi bi-eye"></i> {% trans "View Details" %}
+          </a>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  
+  <!-- Grid View -->
+  <div id="gridView" class="row">
     {% for post in posts %}
     <div class="col-md-6 col-lg-4 mb-4">
       <div class="card h-100 shadow-sm">
@@ -64,7 +121,251 @@
   {% endif %}
 </div>
 
+<script>
+// View Toggle Functionality
+const listViewBtn = document.getElementById('listViewBtn');
+const gridViewBtn = document.getElementById('gridViewBtn');
+const listView = document.getElementById('listView');
+const gridView = document.getElementById('gridView');
+
+listViewBtn.addEventListener('click', function() {
+  listView.style.display = 'flex';
+  gridView.style.display = 'none';
+  listViewBtn.classList.add('active');
+  gridViewBtn.classList.remove('active');
+  localStorage.setItem('postsViewPreference', 'list');
+});
+
+gridViewBtn.addEventListener('click', function() {
+  listView.style.display = 'none';
+  gridView.style.display = 'grid';
+  gridViewBtn.classList.add('active');
+  listViewBtn.classList.remove('active');
+  localStorage.setItem('postsViewPreference', 'grid');
+});
+
+// Restore view preference
+const savedView = localStorage.getItem('postsViewPreference');
+if (savedView === 'list') {
+  listViewBtn.click();
+}
+</script>
+
 <style>
+    /* Content Actions Bar */
+    .content-actions-bar {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 2rem;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+    
+    .filter-form {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+    
+    .filter-form label {
+        margin: 0;
+        font-weight: 600;
+    }
+    
+    .filter-form .form-select {
+        width: auto;
+        min-width: 180px;
+    }
+    
+    /* View Toggle */
+    .view-toggle {
+        display: flex;
+        gap: 0.5rem;
+        background: white;
+        padding: 0.25rem;
+        border-radius: 8px;
+        border: 1px solid #ddd;
+    }
+    
+    .view-btn {
+        padding: 0.5rem 0.75rem;
+        border: none;
+        background: none;
+        cursor: pointer;
+        border-radius: 6px;
+        color: #666;
+        transition: all 0.2s;
+        font-size: 1.2rem;
+    }
+    
+    .view-btn:hover {
+        background: #f0f0f0;
+    }
+    
+    .view-btn.active {
+        background: #1A94D5;
+        color: white;
+    }
+    
+    /* List View Styles */
+    .posts-list-view {
+        display: flex;
+        flex-direction: column;
+        gap: 1.5rem;
+    }
+    
+    .post-card-list {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        overflow: hidden;
+        transition: all 0.3s ease;
+    }
+    
+    .post-card-list:hover {
+        box-shadow: 0 4px 16px rgba(0,0,0,0.15);
+        transform: translateY(-2px);
+    }
+    
+    .post-card-list-content {
+        display: flex;
+        gap: 1.5rem;
+        padding: 1.5rem;
+        align-items: center;
+    }
+    
+    .post-list-image {
+        width: 120px;
+        height: 120px;
+        border-radius: 8px;
+        overflow: hidden;
+        flex-shrink: 0;
+    }
+    
+    .post-list-image img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    
+    .post-list-no-image {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        font-size: 3rem;
+    }
+    
+    .post-list-info {
+        flex: 1;
+    }
+    
+    .post-list-header {
+        margin-bottom: 0.75rem;
+    }
+    
+    .post-list-title {
+        font-size: 1.25rem;
+        font-weight: 600;
+        margin: 0 0 0.5rem 0;
+        color: #333;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        flex-wrap: wrap;
+    }
+    
+    .post-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.25rem 0.75rem;
+        border-radius: 20px;
+        font-size: 0.75rem;
+        font-weight: 600;
+        text-transform: uppercase;
+    }
+    
+    .job-badge {
+        background: #dbeafe;
+        color: #1e40af;
+    }
+    
+    .service-badge {
+        background: #d1fae5;
+        color: #065f46;
+    }
+    
+    .post-list-date {
+        font-size: 0.85rem;
+        color: #666;
+        margin: 0;
+    }
+    
+    .post-list-description {
+        color: #555;
+        margin: 0;
+        line-height: 1.6;
+    }
+    
+    .post-list-action {
+        flex-shrink: 0;
+    }
+    
+    .btn-view-details {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.75rem 1.5rem;
+        background: #1A94D5;
+        color: white;
+        text-decoration: none;
+        border-radius: 8px;
+        font-weight: 600;
+        transition: all 0.2s;
+    }
+    
+    .btn-view-details:hover {
+        background: #1578b0;
+        transform: translateX(5px);
+    }
+    
+    /* Responsive */
+    @media (max-width: 768px) {
+        .content-actions-bar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        
+        .filter-form {
+            width: 100%;
+        }
+        
+        .filter-form .form-select {
+            flex: 1;
+        }
+        
+        .view-toggle {
+            justify-content: center;
+        }
+        
+        .post-card-list-content {
+            flex-direction: column;
+            text-align: center;
+        }
+        
+        .post-list-action {
+            width: 100%;
+        }
+        
+        .btn-view-details {
+            width: 100%;
+            justify-content: center;
+        }
+    }
+
     /* Hero Banner */
     .posts-hero {
         background: #1A94D5;
