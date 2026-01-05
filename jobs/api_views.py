@@ -804,7 +804,7 @@ class DashboardViewSet(viewsets.ViewSet):
         stats = {
             'total_jobs': Job.objects.filter(owner=user).count(),
             'active_jobs': Job.objects.filter(owner=user, is_active=True).count(),
-            'total_applications': JobApplication.objects.filter(job__owner=user).count(),
+            'total_applications': JobApplication.objects.filter(job__owner=user, status='Pending').count(),
             'pending_applications': JobApplication.objects.filter(
                 job__owner=user, 
                 status='Pending'
