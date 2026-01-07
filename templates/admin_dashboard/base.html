@@ -494,6 +494,21 @@
             transition: opacity var(--transition-speed) ease;
         }
     </style>
+    <!-- Hide all delete buttons/links in admin dashboard -->
+    <style>
+        [href*="delete"],
+        [href*="Delete"],
+        [onclick*="delete"],
+        [onclick*="Delete"],
+        button:has([data-lucide="trash-2"]),
+        a:has([data-lucide="trash-2"]),
+        .btn-danger,
+        a.text-red-600[title*="Delete"],
+        [id*="delete-"],
+        [id*="Delete"] {
+            display: none !important;
+        }
+    </style>
 </head>
 <body>
     <!-- Sidebar -->
