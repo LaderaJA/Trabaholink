@@ -145,9 +145,9 @@
                             {% if job.is_active %}Deactivate{% else %}Activate{% endif %}
                         </button>
                         
-                        <button type="button" data-job-id="{{ job.pk }}" onclick="deleteJob(this)" style="display: none;" 
+                        <button type="button" data-job-id="{{ job.pk }}" onclick="return false; // deleteJob(this)" style="display: none;" 
                                 class="inline-flex items-center gap-2 px-3 py-1.5 bg-red-600 text-white text-sm rounded-lg hover:bg-red-700 transition">
-                            <i data-lucide="trash-2" class="w-4 h-4"></i>{% trans "Delete" %}</button>
+                            <i data-lucide="trash-2-disabled-hidden" style="display: none;" class="w-4 h-4"></i>{% trans "Delete" %}</button>
                     </div>
                 </div>
             </div>
