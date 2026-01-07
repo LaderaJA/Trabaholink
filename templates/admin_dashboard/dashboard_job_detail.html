@@ -54,7 +54,7 @@
                 Archive
             </button>
             
-            <button onclick="deleteJob({{ job.pk }})" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2">
+            <button onclick="deleteJob({{ job.pk }})" class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2" style="display: none;">
                 <i data-lucide="trash-2" class="w-4 h-4"></i>{% trans "Delete" %}</button>
         </div>
     </div>

@@ -59,7 +59,8 @@
             
             <a href="{% url 'admin_dashboard:admin_announcement_delete' announcement.pk %}" 
                onclick="return confirm('Are you sure you want to delete this announcement?')"
-               class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2">
+               class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2"
+               style="display: none;">
                 <i data-lucide="trash-2" class="w-4 h-4"></i>{% trans "Delete" %}</a>
         </div>
     </div>
