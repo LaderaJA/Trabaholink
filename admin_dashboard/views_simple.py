@@ -45,34 +45,61 @@ class UserVerificationDetailSimpleView(LoginRequiredMixin, DetailView):
         # Get PhilSys verification data
         philsys_data = {}
         try:
-            # Check VerificationLog for PhilSys web verification data
-            if latest_log and latest_log.extracted_data and 'philsys_web' in latest_log.extracted_data:
-                philsys_web = latest_log.extracted_data['philsys_web']
+            # NEW: Check for offline_verification data (QR code extraction)
+            if latest_log and latest_log.extracted_data and 'offline_verification' in latest_log.extracted_data:
+                offline_data = latest_log.extracted_data['offline_verification']
+                qr_data = offline_data.get('qr_data', {})
                 
-                # Handle both old and new data structures
-                # New structure: philsys_web.data contains the fields
-                # Old structure: philsys_web directly contains the fields
+                # Extract QR code data for PhilSys IDs
+                philsys_data = {
+                    'verified': offline_data.get('success', False),
+                    'full_name': qr_data.get('full_name') or qr_data.get('name'),
+                    'last_name': qr_data.get('last_name'),
+                    'first_name': qr_data.get('first_name'),
+                    'middle_name': qr_data.get('middle_name'),
+                    'suffix': qr_data.get('suffix'),
+                    'sex': qr_data.get('sex') or qr_data.get('gender'),
+                    'date_of_birth': qr_data.get('date_of_birth') or qr_data.get('birth_date'),
+                    'place_of_birth': qr_data.get('place_of_birth'),
+                    'address': qr_data.get('address'),
+                    'pcn': qr_data.get('pcn') or qr_data.get('philsys_card_number'),
+                    'date_of_issuance': qr_data.get('date_of_issuance') or qr_data.get('issue_date'),
+                    'verification_score': offline_data.get('overall_score'),
+                    'face_match_score': offline_data.get('face_match_score'),
+                    'data_match_score': offline_data.get('data_match_score'),
+                    'decision': offline_data.get('decision'),
+                    'reason': ', '.join(offline_data.get('mismatches', [])) if offline_data.get('mismatches') else None,
+                    'verified_at': latest_log.created_at
+                }
+                logger.info(f"Loaded offline PhilSys verification data (QR code): {list(philsys_data.keys())}")
+            
+            # FALLBACK: Check for old philsys_web data (portal verification - deprecated)
+            elif latest_log and latest_log.extracted_data and 'philsys_web' in latest_log.extracted_data:
+                philsys_web = latest_log.extracted_data['philsys_web']
                 data_source = philsys_web.get('data', philsys_web)
                 
                 philsys_data = {
                     'verified': philsys_web.get('verified', False),
+                    'full_name': data_source.get('name'),
                     'last_name': data_source.get('last_name'),
                     'first_name': data_source.get('first_name'),
                     'middle_name': data_source.get('middle_name'),
                     'suffix': data_source.get('suffix'),
-                    'name': data_source.get('name'),
                     'sex': data_source.get('sex'),
                     'date_of_birth': data_source.get('date_of_birth'),
                     'place_of_birth': data_source.get('place_of_birth'),
+                    'address': data_source.get('address'),
                     'pcn': data_source.get('pcn'),
                     'date_of_issuance': data_source.get('date_of_issuance'),
                     'best_capture_finger': data_source.get('best_capture_finger'),
                     'reason': philsys_web.get('reason'),
                     'verified_at': latest_log.created_at
                 }
-                logger.info(f"Loaded PhilSys web data: {list(philsys_data.keys())}")
+                logger.info(f"Loaded PhilSys web data (old format): {list(philsys_data.keys())}")
         except Exception as e:
             logger.error(f"Error loading PhilSys data: {e}")
+            import traceback
+            logger.error(traceback.format_exc())
         
         context['philsys_data'] = philsys_data
         
