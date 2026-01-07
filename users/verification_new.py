@@ -129,13 +129,22 @@ def verify_philsys_id_offline(
         # Even with perfect face match, data must be at least 70% to prevent identity fraud
         data_threshold_met = result['data_match_score'] >= 0.70
         
-        if overall_score >= 0.55 and data_threshold_met:
+        # AUTO-REJECT: Obvious data mismatch (name/DOB wrong) - don't waste time on manual review
+        obvious_mismatch = result['data_match_score'] < 0.40
+        
+        if obvious_mismatch:
+            # Data score too low - clearly wrong person/ID
+            result['decision'] = 'rejected'
+            result['success'] = True
+            result['decision_reason'] = f"Critical data mismatch - Auto-rejected: Data {result['data_match_score']:.0%} (name/DOB mismatch) + Face {result['face_match_score']:.0%} = {overall_score:.0%}"
+            logger.info(f"❌ DECISION: AUTO-REJECT (data {result['data_match_score']:.0%} < 40% - obvious mismatch)")
+        elif overall_score >= 0.55 and data_threshold_met:
             result['decision'] = 'approved'
             result['success'] = True
             result['decision_reason'] = f"Good match - Auto-approved: Data {result['data_match_score']:.0%} + Face {result['face_match_score']:.0%} = {overall_score:.0%}"
             logger.info("✅ DECISION: AUTO-APPROVE (score >= 55% AND data >= 70%)")
         elif overall_score >= 0.55 and not data_threshold_met:
-            # High overall score but low data match - potential fraud
+            # High overall score but moderate data mismatch (40-69%) - potential fraud, needs review
             result['decision'] = 'pending'
             result['success'] = True
             result['decision_reason'] = f"Face matches but data mismatch - Manual review required: Data {result['data_match_score']:.0%} (below 70% threshold) + Face {result['face_match_score']:.0%} = {overall_score:.0%}"
