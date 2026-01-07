@@ -65,14 +65,28 @@ def run_verification_pipeline(self, user_id: int, verification_id: int = None) -
                     'message': 'No pending verification found'
                 }
         
-        # Run enhanced verification pipeline: OCR → Face Match → Complete
-        # Chain the tasks together
+        # Run enhanced verification pipeline
+        # For PhilSys IDs: Skip OCR (uses QR code extraction in auto_verify_philsys task)
+        # For other IDs: Run OCR → Face Match → Complete
         from celery import chain
-        verification_chain = chain(
-            verify_id_with_ocr_v2.s(verification.id),
-            verify_face_match_v2.s(verification.id),
-            complete_verification_v2.s(verification.id)
-        )
+        
+        # Check if this is a PhilSys ID
+        user = CustomUser.objects.get(pk=user_id)
+        if is_philsys_id(user.id_type):
+            # PhilSys IDs don't need OCR - QR extraction handles data
+            logger.info(f"PhilSys ID detected for user {user_id} - skipping OCR task")
+            verification_chain = chain(
+                verify_face_match_v2.s(verification.id),
+                complete_verification_v2.s(verification.id)
+            )
+        else:
+            # Standard verification with OCR
+            logger.info(f"Standard ID type for user {user_id} - running full OCR pipeline")
+            verification_chain = chain(
+                verify_id_with_ocr_v2.s(verification.id),
+                verify_face_match_v2.s(verification.id),
+                complete_verification_v2.s(verification.id)
+            )
         
         # Apply async without blocking (don't call .get()!)
         verification_chain.apply_async()
