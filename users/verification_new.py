@@ -276,6 +276,7 @@ def extract_from_raw_qr_text(raw_text: str) -> Dict[str, str]:
 def extract_ocr_data_from_id(id_front_path: str) -> Dict[str, Any]:
     """
     Extract text data from ID front using OCR as backup to QR code.
+    Optimized: Resize image before OCR to speed up processing.
     """
     try:
         from users.services.verification.ocr_philsys import PhilSysOCRV2
@@ -283,6 +284,14 @@ def extract_ocr_data_from_id(id_front_path: str) -> Dict[str, Any]:
         
         # Load image
         img = Image.open(id_front_path)
+        
+        # OPTIMIZATION: Resize if too large (speeds up OCR significantly)
+        max_dimension = 1200  # Max width or height
+        if max(img.size) > max_dimension:
+            ratio = max_dimension / max(img.size)
+            new_size = tuple(int(dim * ratio) for dim in img.size)
+            img = img.resize(new_size, Image.Resampling.LANCZOS)
+            logger.info(f"Resized image from {Image.open(id_front_path).size} to {new_size} for faster OCR")
         
         # Extract data using PhilSys OCR
         ocr = PhilSysOCRV2()
@@ -404,26 +413,81 @@ def compare_data_fields(user_data: Dict[str, Any], extracted_data: Dict[str, str
 def compare_faces(id_front_path: str, selfie_path: str) -> Dict[str, Any]:
     """
     Compare face from ID with selfie photo.
+    Optimized: Resize images before face detection to speed up processing.
     
     Returns similarity score (0.0 to 1.0).
     """
+    import signal
+    import tempfile
+    import os
+    
+    def timeout_handler(signum, frame):
+        raise TimeoutError("Face matching timeout after 60 seconds")
+    
     try:
-        from users.services.verification.face_match import match_faces  # Correct function name
+        from users.services.verification.face_match import match_faces
         from PIL import Image
         
-        # Load images
+        # OPTIMIZATION: Resize images to speed up face detection
+        max_size = 800  # Resize to max 800px
+        
+        # Resize ID image
         id_img = Image.open(id_front_path)
+        if max(id_img.size) > max_size:
+            ratio = max_size / max(id_img.size)
+            new_size = tuple(int(dim * ratio) for dim in id_img.size)
+            id_img = id_img.resize(new_size, Image.Resampling.LANCZOS)
+            # Save to temp file
+            temp_id = tempfile.NamedTemporaryFile(delete=False, suffix='.jpg')
+            id_img.save(temp_id.name, 'JPEG')
+            id_path = temp_id.name
+            logger.info(f"Resized ID image for faster face detection: {new_size}")
+        else:
+            id_path = id_front_path
+        
+        # Resize selfie image
         selfie_img = Image.open(selfie_path)
+        if max(selfie_img.size) > max_size:
+            ratio = max_size / max(selfie_img.size)
+            new_size = tuple(int(dim * ratio) for dim in selfie_img.size)
+            selfie_img = selfie_img.resize(new_size, Image.Resampling.LANCZOS)
+            # Save to temp file
+            temp_selfie = tempfile.NamedTemporaryFile(delete=False, suffix='.jpg')
+            selfie_img.save(temp_selfie.name, 'JPEG')
+            selfie_path_resized = temp_selfie.name
+            logger.info(f"Resized selfie image for faster face detection: {new_size}")
+        else:
+            selfie_path_resized = selfie_path
         
-        # Compare faces - match_faces expects file paths, not PIL images
-        result = match_faces(id_front_path, selfie_path)
+        # Set timeout (60 seconds max for face matching)
+        signal.signal(signal.SIGALRM, timeout_handler)
+        signal.alarm(60)
         
-        return {
-            'success': True,
-            'similarity': result.get('similarity', 0.0),
-            'match': result.get('match', False),
-            'details': result
-        }
+        try:
+            # Compare faces
+            result = match_faces(id_path, selfie_path_resized)
+            signal.alarm(0)  # Cancel timeout
+            
+            # Clean up temp files
+            if id_path != id_front_path:
+                os.unlink(id_path)
+            if selfie_path_resized != selfie_path:
+                os.unlink(selfie_path_resized)
+            
+            return {
+                'success': True,
+                'similarity': result.get('similarity', 0.0),
+                'match': result.get('match', False),
+                'details': result
+            }
+        except TimeoutError:
+            signal.alarm(0)
+            logger.error("Face matching timed out after 60 seconds")
+            return {
+                'success': False,
+                'error': 'Face matching timeout (60s)',
+                'similarity': 0.0
+            }
         
     except Exception as e:
         logger.exception(f"Error comparing faces: {e}")
