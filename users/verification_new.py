@@ -125,11 +125,21 @@ def verify_philsys_id_offline(
         raw_face_score = result['face_match_score'] - 0.10  # Remove the 10% bonus
         face_failed = raw_face_score <= 0.0 or not face_result['success']
         
-        if overall_score >= 0.55:
+        # SECURITY CHECK: Require minimum data match for auto-approve
+        # Even with perfect face match, data must be at least 70% to prevent identity fraud
+        data_threshold_met = result['data_match_score'] >= 0.70
+        
+        if overall_score >= 0.55 and data_threshold_met:
             result['decision'] = 'approved'
             result['success'] = True
             result['decision_reason'] = f"Good match - Auto-approved: Data {result['data_match_score']:.0%} + Face {result['face_match_score']:.0%} = {overall_score:.0%}"
-            logger.info("✅ DECISION: AUTO-APPROVE (score >= 55%)")
+            logger.info("✅ DECISION: AUTO-APPROVE (score >= 55% AND data >= 70%)")
+        elif overall_score >= 0.55 and not data_threshold_met:
+            # High overall score but low data match - potential fraud
+            result['decision'] = 'pending'
+            result['success'] = True
+            result['decision_reason'] = f"Face matches but data mismatch - Manual review required: Data {result['data_match_score']:.0%} (below 70% threshold) + Face {result['face_match_score']:.0%} = {overall_score:.0%}"
+            logger.warning(f"⚠️  DECISION: MANUAL REVIEW (score {overall_score:.0%} >= 55% BUT data {result['data_match_score']:.0%} < 70% - potential identity fraud)")
         elif overall_score >= 0.50:
             result['decision'] = 'pending'
             result['success'] = True
