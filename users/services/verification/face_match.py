@@ -68,21 +68,30 @@ class FaceMatcherV2:
         if img is None:
             raise FaceMatchError(f"Unable to load image: {image_path}")
         
-        # Resize if too large (for performance)
+        # Resize if too large (for performance) or too small (for better detection)
         height, width = img.shape[:2]
         max_dimension = 1024
+        min_dimension = 300
+        
         if max(height, width) > max_dimension:
             scale = max_dimension / max(height, width)
             new_width = int(width * scale)
             new_height = int(height * scale)
             img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_AREA)
             logger.info(f"Resized image from {width}x{height} to {new_width}x{new_height}")
+        elif max(height, width) < min_dimension:
+            # Upscale small images for better face detection
+            scale = min_dimension / max(height, width)
+            new_width = int(width * scale)
+            new_height = int(height * scale)
+            img = cv2.resize(img, (new_width, new_height), interpolation=cv2.INTER_CUBIC)
+            logger.info(f"Upscaled small image from {width}x{height} to {new_width}x{new_height}")
         
         # Convert to grayscale
         gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
         
-        # Enhance contrast
-        clahe = cv2.createCLAHE(clipLimit=2.0, tileGridSize=(8, 8))
+        # Enhance contrast with more aggressive CLAHE for difficult images
+        clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
         enhanced_gray = clahe.apply(gray)
         
         # Denoise
@@ -92,10 +101,10 @@ class FaceMatcherV2:
     
     def detect_faces_opencv(self, image: np.ndarray, gray: np.ndarray) -> list:
         """
-        Detect faces using OpenCV Haar cascades.
+        Detect faces using OpenCV Haar cascades with multiple attempts.
         Returns list of face rectangles.
         """
-        # Detect faces with multiple scales
+        # Try with default parameters first
         faces = self.face_cascade.detectMultiScale(
             gray,
             scaleFactor=1.1,
@@ -103,6 +112,17 @@ class FaceMatcherV2:
             minSize=(30, 30),
             flags=cv2.CASCADE_SCALE_IMAGE
         )
+        
+        # If no faces found, try with more lenient parameters
+        if len(faces) == 0:
+            logger.info("No faces with default params, trying lenient detection")
+            faces = self.face_cascade.detectMultiScale(
+                gray,
+                scaleFactor=1.05,  # Smaller scale factor = more thorough
+                minNeighbors=3,     # Lower threshold = more detections
+                minSize=(20, 20),   # Smaller minimum face size
+                flags=cv2.CASCADE_SCALE_IMAGE
+            )
         
         # Filter faces by eye detection (more reliable)
         valid_faces = []
@@ -168,8 +188,17 @@ class FaceMatcherV2:
             # Detect faces and compute encodings
             # Use 'hog' model instead of 'cnn' - much faster and less memory intensive
             # HOG is accurate enough for PhilSys ID verification (85%+ accuracy vs 95% for CNN)
+            # Try with upsampling=1 first, then increase if no faces found
             id_face_locations = face_recognition.face_locations(id_image, model='hog', number_of_times_to_upsample=1)
+            if not id_face_locations:
+                # Retry with more upsampling for difficult images
+                logger.info("No faces detected with upsample=1, retrying with upsample=2")
+                id_face_locations = face_recognition.face_locations(id_image, model='hog', number_of_times_to_upsample=2)
+            
             selfie_face_locations = face_recognition.face_locations(selfie_image, model='hog', number_of_times_to_upsample=1)
+            if not selfie_face_locations:
+                logger.info("No faces detected in selfie with upsample=1, retrying with upsample=2")
+                selfie_face_locations = face_recognition.face_locations(selfie_image, model='hog', number_of_times_to_upsample=2)
             
             if not id_face_locations:
                 raise FaceMatchError("No face detected in ID image")
