@@ -814,28 +814,3 @@ def auto_verify_philsys(self, verification_id: int) -> Dict[str, Any]:
 #     
 #     return date_str  # Return original if can't parse
 
-        else:
-            # PENDING - Manual Review Required (score 60-79%)
-            logger.info(f"Marking for manual review - verification score: {overall_score:.1%}")
-            
-            with transaction.atomic():
-                verification.status = 'pending'
-                verification.save(update_fields=['status'])
-                
-                log.result = 'pending'
-                log.notes += f"\n\nMarked for manual review: Score {overall_score:.1%} (threshold: 80% for auto-approve)"
-                log.save(update_fields=['result', 'notes'])
-                
-                # Notify user
-                Notification.objects.create(
-                    user=user,
-                    message=f"⏳ Your ID verification is under review. Verification score: {overall_score:.0%}. Our team will review your submission and respond within 24-48 hours.",
-                    notif_type="verification_pending"
-                )
-            
-            return {
-                'success': True,
-                'decision': 'pending',
-                'match_score': overall_score,
-                'reason': 'Score requires manual review'
-            }
