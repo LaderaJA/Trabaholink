@@ -3148,8 +3148,8 @@ body {
                     <a href="{% url 'services:servicepost_update' service.slug %}" class="btn-modern btn-outline-modern btn-sm-modern">
                       <i class="bi bi-pencil"></i> Edit
                     </a>
-                    <a href="{% url 'services:servicepost_delete' service.slug %}" class="btn-modern btn-outline-modern btn-sm-modern" style="color: var(--danger-color); border-color: var(--danger-color);">
-                      <i class="bi bi-trash"></i>{% trans "Delete" %}</a>
+                    <button onclick="archiveService('{{ service.slug }}', '{{ service.title }}')" class="btn-modern btn-outline-modern btn-sm-modern" style="color: var(--warning-color); border-color: var(--warning-color);">
+                      <i class="bi bi-archive"></i>{% trans "Archive" %}</button>
                   </div>
                   {% endif %}
                 </li>
@@ -3536,6 +3536,32 @@ function toggleJobStatus(jobId, jobTitle, toggleUrl) {
             "title": "Build Credibility \ud83c\udf1f",
             "content": "<h3>Stand Out to Employers</h3><p>Increase your visibility by:</p><ul><li>Completing identity verification</li><li>Getting skills verified</li><li>Requesting reviews from past clients</li><li>Uploading portfolio photos</li><li>Keeping your profile active</li></ul><p>A complete profile gets 3x more job offers!</p>"
         }
+
+// Archive service function
+function archiveService(slug, title) {
+    if (!confirm(`Archive "${title}"? This will hide it from public view but you can reactivate it later.`)) return;
+    
+    fetch(`/services/${slug}/archive/`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value,
+            "Content-Type": "application/json"
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Service archived successfully!");
+            location.reload();
+        } else {
+            alert("Error: " + (data.error || "Failed to archive service"));
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("Failed to archive service. Please try again.");
+    });
+}
     ]
 }
 {% endblock %}
