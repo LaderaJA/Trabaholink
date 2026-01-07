@@ -430,7 +430,7 @@ def compare_faces(id_front_path: str, selfie_path: str) -> Dict[str, Any]:
     import os
     
     try:
-        from users.services.verification.face_match import match_face
+        from users.services.verification.face_match import compute_similarity
         from PIL import Image
         
         # OPTIMIZATION: Resize images to speed up face detection
@@ -466,8 +466,9 @@ def compare_faces(id_front_path: str, selfie_path: str) -> Dict[str, Any]:
         
         # Compare faces (no signal.alarm - it breaks Celery workers!)
         logger.info("Starting face comparison...")
-        result = match_face(id_path, selfie_path_resized)
-        logger.info(f"Face comparison complete: {result.get('similarity', 0):.2%}")
+        # compute_similarity returns (similarity_score, details_dict)
+        similarity_score, details = compute_similarity(id_path, selfie_path_resized)
+        logger.info(f"Face comparison complete: {similarity_score:.2%}")
         
         # Clean up temp files
         try:
@@ -480,9 +481,9 @@ def compare_faces(id_front_path: str, selfie_path: str) -> Dict[str, Any]:
         
         return {
             'success': True,
-            'similarity': result.get('similarity', 0.0),
-            'match': result.get('match', False),
-            'details': result
+            'similarity': similarity_score,
+            'match': similarity_score >= 0.60,
+            'details': details
         }
         
     except Exception as e:
