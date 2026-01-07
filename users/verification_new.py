@@ -92,11 +92,15 @@ def verify_philsys_id_offline(
         face_result = compare_faces(id_front_path, selfie_path)
         
         if face_result['success']:
-            result['face_match_score'] = face_result['similarity']
-            logger.info(f"Face match score: {face_result['similarity']:.2%}")
+            raw_face_score = face_result['similarity']
+            # Add 10% bonus to make face recognition more lenient (capped at 100%)
+            boosted_score = min(raw_face_score + 0.10, 1.0)
+            result['face_match_score'] = boosted_score
+            logger.info(f"Face match score: {boosted_score:.2%} (raw: {raw_face_score:.2%} + 10% bonus)")
         else:
-            logger.warning(f"Face matching failed: {face_result.get('error')}")
-            result['face_match_score'] = 0.0
+            # Even on failure, give 10% base score to be more lenient
+            result['face_match_score'] = 0.10
+            logger.warning(f"Face matching failed: {face_result.get('error')}, using base score: 10%")
         
         # Step 5: Calculate overall verification score
         # Weighted scoring: Data (60%) + Face (40%)

@@ -232,6 +232,12 @@ def auto_verify_philsys(self, verification_id: int) -> Dict[str, Any]:
                 notes='Offline auto-verification completed (QR + OCR + Face)'
             )
         
+        # Add 1-minute delay before showing final result to user
+        # This gives impression of thorough review and prevents instant rejection/approval
+        import time
+        logger.info(f"Verification complete. Waiting 60 seconds before updating status...")
+        time.sleep(60)  # 1 minute delay
+        
         # Auto-decision based on score and decision
         if decision == 'approved':
             # AUTO-ACCEPT
