@@ -197,6 +197,14 @@ def auto_verify_philsys(self, verification_id: int) -> Dict[str, Any]:
                 notes=f"Offline auto-verification failed: {philsys_result.get('error')}"
             )
             
+            # Notify user that verification failed and needs manual review
+            error_msg = philsys_result.get('error', 'Unknown error')
+            Notification.objects.create(
+                user=user,
+                message=f"⚠️ Your ID verification requires manual review. Issue: {error_msg}. Our team will review your submission within 24-48 hours.",
+                notif_type="verification_error"
+            )
+            
             return philsys_result
         
         # Get decision from offline verification
