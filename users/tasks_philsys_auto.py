@@ -244,6 +244,8 @@ def auto_verify_philsys(self, verification_id: int) -> Dict[str, Any]:
             logger.info(f"Auto-accepting verification {verification_id} - data matches")
             
             with transaction.atomic():
+                # Refresh from database to avoid stale data after 60s delay
+                verification.refresh_from_db()
                 verification.status = 'approved'
                 verification.reviewed_at = timezone.now()
                 verification.save(update_fields=['status', 'reviewed_at'])
@@ -277,6 +279,8 @@ def auto_verify_philsys(self, verification_id: int) -> Dict[str, Any]:
             logger.info(f"Auto-rejecting verification {verification_id} - low score: {overall_score:.1%}")
             
             with transaction.atomic():
+                # Refresh from database to avoid stale data after 60s delay
+                verification.refresh_from_db()
                 verification.status = 'rejected'
                 verification.rejection_reason = f"Data mismatch: {match_result['mismatch_details']}"
                 verification.reviewed_at = timezone.now()
@@ -305,10 +309,12 @@ def auto_verify_philsys(self, verification_id: int) -> Dict[str, Any]:
             }
         
         else:
-            # PENDING - Manual Review Required (score 60-79%)
+            # PENDING - Manual Review Required (score 50-54%)
             logger.info(f"Marking for manual review - verification score: {overall_score:.1%}")
             
             with transaction.atomic():
+                # Refresh from database to avoid stale data after 60s delay
+                verification.refresh_from_db()
                 verification.status = 'pending'
                 verification.save(update_fields=['status'])
                 
