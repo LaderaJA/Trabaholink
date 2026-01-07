@@ -41,27 +41,44 @@ def extract_qr_data(image) -> Dict[str, str]:
         json_data = json.loads(data)
         if isinstance(json_data, dict):
             # Check if this is a JWT/signed payload with 'subject' field
-            if 'subject' in json_data and isinstance(json_data['subject'], str):
+            if 'subject' in json_data:
                 # PhilSys uses JWT - the 'subject' field contains the actual person data
-                logger.info("Detected JWT format QR code, extracting from 'subject' field")
-                try:
-                    # Try to parse subject as JSON
-                    subject_data = json.loads(json_data['subject'])
-                    if isinstance(subject_data, dict):
-                        # Extract person data from subject
-                        for key, value in subject_data.items():
-                            normalized_key = normalize_text(str(key)).lower().replace(' ', '_').replace('-', '_')
-                            normalized_value = normalize_text(str(value)) if value else ''
-                            if normalized_key and normalized_value:
-                                extracted[normalized_key] = normalized_value
-                        logger.info(f"QR parsed JWT subject with {len(extracted)-1} fields: {list(extracted.keys())}")
-                        return extracted
-                except (json.JSONDecodeError, ValueError):
-                    # Subject might be base64 encoded
-                    logger.debug("Subject is not JSON, checking if base64 encoded")
+                logger.info("Detected JWT format QR code with 'subject' field")
+                subject_value = json_data['subject']
+                
+                # Subject might be: 1) JSON string, 2) base64 string, 3) nested dict, 4) plain string
+                if isinstance(subject_value, dict):
+                    # Already a dict, extract directly
+                    logger.info("Subject is already a dict, extracting fields")
+                    for key, value in subject_value.items():
+                        normalized_key = normalize_text(str(key)).lower().replace(' ', '_').replace('-', '_')
+                        normalized_value = normalize_text(str(value)) if value else ''
+                        if normalized_key and normalized_value:
+                            extracted[normalized_key] = normalized_value
+                    logger.info(f"QR parsed JWT subject dict with {len(extracted)-1} fields: {list(extracted.keys())}")
+                    return extracted
+                    
+                elif isinstance(subject_value, str):
+                    # Try multiple decoding strategies
+                    logger.info(f"Subject is string ({len(subject_value)} chars), attempting to decode")
+                    
+                    # Strategy 1: Try parsing as JSON directly
                     try:
-                        # Try base64 decode
-                        decoded = base64.b64decode(json_data['subject']).decode('utf-8')
+                        subject_data = json.loads(subject_value)
+                        if isinstance(subject_data, dict):
+                            for key, value in subject_data.items():
+                                normalized_key = normalize_text(str(key)).lower().replace(' ', '_').replace('-', '_')
+                                normalized_value = normalize_text(str(value)) if value else ''
+                                if normalized_key and normalized_value:
+                                    extracted[normalized_key] = normalized_value
+                            logger.info(f"QR parsed JWT subject (JSON) with {len(extracted)-1} fields: {list(extracted.keys())}")
+                            return extracted
+                    except (json.JSONDecodeError, ValueError) as e:
+                        logger.debug(f"Subject is not JSON: {e}")
+                    
+                    # Strategy 2: Try base64 decode
+                    try:
+                        decoded = base64.b64decode(subject_value).decode('utf-8')
                         subject_data = json.loads(decoded)
                         if isinstance(subject_data, dict):
                             for key, value in subject_data.items():
@@ -69,10 +86,27 @@ def extract_qr_data(image) -> Dict[str, str]:
                                 normalized_value = normalize_text(str(value)) if value else ''
                                 if normalized_key and normalized_value:
                                     extracted[normalized_key] = normalized_value
-                            logger.info(f"QR parsed base64 JWT subject with {len(extracted)-1} fields: {list(extracted.keys())}")
+                            logger.info(f"QR parsed JWT subject (base64) with {len(extracted)-1} fields: {list(extracted.keys())}")
                             return extracted
                     except Exception as e:
-                        logger.warning(f"Failed to decode JWT subject: {e}")
+                        logger.debug(f"Subject is not base64: {e}")
+                    
+                    # Strategy 3: URL-safe base64
+                    try:
+                        decoded = base64.urlsafe_b64decode(subject_value + '==').decode('utf-8')
+                        subject_data = json.loads(decoded)
+                        if isinstance(subject_data, dict):
+                            for key, value in subject_data.items():
+                                normalized_key = normalize_text(str(key)).lower().replace(' ', '_').replace('-', '_')
+                                normalized_value = normalize_text(str(value)) if value else ''
+                                if normalized_key and normalized_value:
+                                    extracted[normalized_key] = normalized_value
+                            logger.info(f"QR parsed JWT subject (urlsafe b64) with {len(extracted)-1} fields: {list(extracted.keys())}")
+                            return extracted
+                    except Exception as e:
+                        logger.debug(f"Subject is not urlsafe base64: {e}")
+                    
+                    logger.warning(f"Failed to decode JWT subject string, treating as plain text: {subject_value[:100]}")
             
             # Not JWT or JWT parsing failed, extract top-level fields
             for key, value in json_data.items():
