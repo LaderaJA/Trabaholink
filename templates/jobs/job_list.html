@@ -946,11 +946,9 @@
           <i class="bi bi-plus-circle"></i> Post a Job
         </a>
         {% endif %}
-        {% comment %}
         <button class="btn-primary-custom" style="background: white; color: var(--primary-color); border: 2px solid var(--primary-color);" data-bs-toggle="modal" data-bs-target="#locationModal">
           <i class="bi bi-geo-alt"></i> Set Location
         </button>
-        {% endcomment %}
         <button onclick="findJobsNearMe()" class="btn-primary-custom" style="background: #28a745; color: white; border: none;">
           <i class="bi bi-crosshair"></i> Jobs Near Me
         </button>
@@ -1241,11 +1239,7 @@
             <i class="bi bi-plus-circle"></i> Post a Service
           </a>
           {% endif %}
-          {% comment %}
-          <button class="btn-primary-custom" style="background: white; color: var(--primary-color); border: 2px solid var(--primary-color);" data-bs-toggle="modal" data-bs-target="#locationModal">
-            <i class="bi bi-geo-alt"></i> Set Location
-          </button>
-          {% endcomment %}
+          {% comment %} HIDDEN: Set Location button only for Jobs tab {% endcomment %}
         </div>
       </div>
       
