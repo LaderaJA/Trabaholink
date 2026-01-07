@@ -355,6 +355,16 @@ CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'Asia/Manila'
 CELERY_ENABLE_UTC = True
 
+# Celery Worker Memory Optimization (prevent OOM with face recognition tasks)
+CELERY_WORKER_PREFETCH_MULTIPLIER = int(os.environ.get('CELERYD_PREFETCH_MULTIPLIER', '1'))  # Fetch 1 task at a time
+CELERY_WORKER_MAX_TASKS_PER_CHILD = 50  # Restart worker after 50 tasks to prevent memory leaks
+CELERY_WORKER_MAX_MEMORY_PER_CHILD = 1500000  # 1.5GB per worker process (in KB)
+CELERY_TASK_ACKS_LATE = True  # Acknowledge tasks after completion, not before
+CELERY_TASK_REJECT_ON_WORKER_LOST = True  # Re-queue tasks if worker crashes
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True  # Retry broker connection on startup
+CELERY_TASK_SOFT_TIME_LIMIT = 300  # 5 minutes soft timeout
+CELERY_TASK_TIME_LIMIT = 360  # 6 minutes hard timeout
+
 # PhilSys Verification Settings
 PHILSYS_VERIFICATION_ENABLED = True
 PHILSYS_VERIFICATION_TIMEOUT = 30000  # 30 seconds

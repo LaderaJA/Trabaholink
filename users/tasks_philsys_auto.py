@@ -70,6 +70,10 @@ def scan_pending_philsys_verifications():
     retry_backoff=True,
     retry_backoff_max=1800,  # Max 30 minutes between retries
     max_retries=5,  # Retry up to 5 times for network issues
+    soft_time_limit=300,  # 5 minute soft timeout
+    time_limit=360,  # 6 minute hard timeout
+    acks_late=True,  # Acknowledge after task completes
+    reject_on_worker_lost=True,  # Reject task if worker crashes
 )
 def auto_verify_philsys(self, verification_id: int) -> Dict[str, Any]:
     """
@@ -165,12 +169,14 @@ def auto_verify_philsys(self, verification_id: int) -> Dict[str, Any]:
             }
         
         # Run offline verification
+        logger.info(f"Starting offline PhilSys verification for verification {verification_id}")
         philsys_result = verify_philsys_id_offline(
             id_front_path=id_front_path,
             id_back_path=id_back_path,
             selfie_path=selfie_path,
             user_data=user_data
         )
+        logger.info(f"Offline verification completed for verification {verification_id}")
         
         # Check if verification failed
         # Note: No more retry_later since we're not using portal automation
@@ -328,10 +334,19 @@ def auto_verify_philsys(self, verification_id: int) -> Dict[str, Any]:
     except Exception as e:
         logger.exception(f"Auto PhilSys verification failed for {verification_id}: {e}")
         
+        # Force garbage collection to free memory
+        import gc
+        gc.collect()
+        
         # Check if this is a retryable error
         if 'timeout' in str(e).lower() or 'network' in str(e).lower() or 'connection' in str(e).lower():
             logger.warning(f"Network error, will retry: {e}")
             raise self.retry(countdown=300)  # Retry after 5 minutes
+        
+        # Check for memory errors
+        if 'memory' in str(e).lower() or 'killed' in str(e).lower():
+            logger.error(f"Memory error detected, marking for manual review: {e}")
+            # Don't retry on memory errors
         
         # Non-retryable error - mark for manual review
         try:
@@ -345,6 +360,11 @@ def auto_verify_philsys(self, verification_id: int) -> Dict[str, Any]:
             'success': False,
             'error': str(e)
         }
+    finally:
+        # Always clean up memory after task
+        import gc
+        gc.collect()
+        logger.debug(f"Task cleanup completed for verification {verification_id}")
 
 # 
 # # def verify_with_philsys_portal(id_back_path: str, user_id: int) -> Dict[str, Any]:

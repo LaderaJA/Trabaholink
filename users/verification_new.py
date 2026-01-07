@@ -421,12 +421,15 @@ def compare_faces(id_front_path: str, selfie_path: str) -> Dict[str, Any]:
     """
     import tempfile
     import os
+    import gc
+    
+    temp_files = []  # Track temp files for cleanup
     
     try:
         from users.services.verification.face_match import compute_similarity
         from PIL import Image
         
-        # OPTIMIZATION: Resize images to speed up face detection
+        # OPTIMIZATION: Resize images to speed up face detection and reduce memory
         max_size = 800  # Resize to max 800px
         
         # Resize ID image
@@ -437,9 +440,13 @@ def compare_faces(id_front_path: str, selfie_path: str) -> Dict[str, Any]:
             id_img = id_img.resize(new_size, Image.Resampling.LANCZOS)
             # Save to temp file
             temp_id = tempfile.NamedTemporaryFile(delete=False, suffix='.jpg')
-            id_img.save(temp_id.name, 'JPEG')
+            id_img.save(temp_id.name, 'JPEG', quality=85, optimize=True)
             id_path = temp_id.name
+            temp_files.append(id_path)
             logger.info(f"Resized ID image for faster face detection: {new_size}")
+            # Free memory immediately
+            id_img.close()
+            del id_img
         else:
             id_path = id_front_path
         
@@ -451,26 +458,24 @@ def compare_faces(id_front_path: str, selfie_path: str) -> Dict[str, Any]:
             selfie_img = selfie_img.resize(new_size, Image.Resampling.LANCZOS)
             # Save to temp file
             temp_selfie = tempfile.NamedTemporaryFile(delete=False, suffix='.jpg')
-            selfie_img.save(temp_selfie.name, 'JPEG')
+            selfie_img.save(temp_selfie.name, 'JPEG', quality=85, optimize=True)
             selfie_path_resized = temp_selfie.name
+            temp_files.append(selfie_path_resized)
             logger.info(f"Resized selfie image for faster face detection: {new_size}")
+            # Free memory immediately
+            selfie_img.close()
+            del selfie_img
         else:
             selfie_path_resized = selfie_path
         
+        # Force garbage collection before heavy operation
+        gc.collect()
+        
         # Compare faces (no signal.alarm - it breaks Celery workers!)
-        logger.info("Starting face comparison...")
+        logger.info("Starting face comparison (memory-optimized)...")
         # compute_similarity returns (similarity_score, details_dict)
         similarity_score, details = compute_similarity(id_path, selfie_path_resized)
         logger.info(f"Face comparison complete: {similarity_score:.2%}")
-        
-        # Clean up temp files
-        try:
-            if id_path != id_front_path and os.path.exists(id_path):
-                os.unlink(id_path)
-            if selfie_path_resized != selfie_path and os.path.exists(selfie_path_resized):
-                os.unlink(selfie_path_resized)
-        except:
-            pass
         
         return {
             'success': True,
@@ -486,6 +491,18 @@ def compare_faces(id_front_path: str, selfie_path: str) -> Dict[str, Any]:
             'error': str(e),
             'similarity': 0.0
         }
+    finally:
+        # Always clean up temp files
+        for temp_file in temp_files:
+            try:
+                if os.path.exists(temp_file):
+                    os.unlink(temp_file)
+                    logger.debug(f"Cleaned up temp file: {temp_file}")
+            except Exception as cleanup_error:
+                logger.warning(f"Failed to cleanup temp file {temp_file}: {cleanup_error}")
+        
+        # Force garbage collection to free memory
+        gc.collect()
 
 
 def calculate_string_similarity(str1: str, str2: str) -> float:

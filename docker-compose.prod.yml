@@ -76,11 +76,15 @@ services:
   # Override Celery worker for production
   celery_worker:
     restart: always
-    command: celery -A Trabaholink worker -l info --concurrency=4 --max-tasks-per-child=1000
+    # Reduced concurrency from 4 to 2 to prevent OOM with face recognition tasks
+    # max-tasks-per-child=50 forces worker restart after 50 tasks to prevent memory leaks
+    command: celery -A Trabaholink worker -l info --concurrency=2 --max-tasks-per-child=50 --max-memory-per-child=1500000
     environment:
       REDIS_PASSWORD: ${REDIS_PASSWORD}
       CELERY_BROKER_URL: "redis://:${REDIS_PASSWORD}@redis:6379/0"
       CELERY_RESULT_BACKEND: "redis://:${REDIS_PASSWORD}@redis:6379/0"
+      # Worker optimization settings
+      CELERYD_PREFETCH_MULTIPLIER: "1"  # Fetch 1 task at a time to prevent memory buildup
     deploy:
       resources:
         limits:
