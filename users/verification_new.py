@@ -408,15 +408,15 @@ def compare_faces(id_front_path: str, selfie_path: str) -> Dict[str, Any]:
     Returns similarity score (0.0 to 1.0).
     """
     try:
-        from users.services.verification.face_match import compare_faces as face_compare
+        from users.services.verification.face_match import match_faces  # Correct function name
         from PIL import Image
         
         # Load images
         id_img = Image.open(id_front_path)
         selfie_img = Image.open(selfie_path)
         
-        # Compare faces
-        result = face_compare(id_img, selfie_img)
+        # Compare faces - match_faces expects file paths, not PIL images
+        result = match_faces(id_front_path, selfie_path)
         
         return {
             'success': True,
