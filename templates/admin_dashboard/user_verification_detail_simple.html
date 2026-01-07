@@ -206,8 +206,8 @@
                             <p class="text-lg font-medium text-orange-600">Not extracted - QR decode failed</p>
                         {% endif %}
                     {% else %}
-                        <p class="text-xs font-semibold text-blue-600 uppercase mb-2">Full Name (OCR)</p>
-                        <p class="text-lg font-medium text-blue-900">{{ ocr_data.full_name|default:"Not extracted" }}</p>
+                        <p class="text-xs font-semibold text-gray-500 uppercase mb-2">Full Name (From ID Image)</p>
+                        <p class="text-lg font-medium text-gray-600 italic">👁️ Please verify manually from ID image below</p>
                     {% endif %}
                 </div>
             </div>
@@ -228,8 +228,8 @@
                             <p class="text-lg font-medium text-orange-600">Not extracted</p>
                         {% endif %}
                     {% else %}
-                        <p class="text-xs font-semibold text-blue-600 uppercase mb-2">Date of Birth (OCR)</p>
-                        <p class="text-lg font-medium text-blue-900">{{ ocr_data.date_of_birth|default:"Not extracted" }}</p>
+                        <p class="text-xs font-semibold text-gray-500 uppercase mb-2">Date of Birth (From ID Image)</p>
+                        <p class="text-lg font-medium text-gray-600 italic">👁️ Please verify manually from ID image below</p>
                     {% endif %}
                 </div>
             </div>
@@ -250,8 +250,8 @@
                             <p class="text-lg font-medium text-orange-600">Not extracted</p>
                         {% endif %}
                     {% else %}
-                        <p class="text-xs font-semibold text-blue-600 uppercase mb-2">Address (OCR)</p>
-                        <p class="text-lg font-medium text-blue-900">{{ ocr_data.address|default:"Not extracted" }}</p>
+                        <p class="text-xs font-semibold text-gray-500 uppercase mb-2">Address (From ID Image)</p>
+                        <p class="text-lg font-medium text-gray-600 italic">👁️ Please verify manually from ID image below</p>
                     {% endif %}
                 </div>
             </div>
@@ -264,8 +264,8 @@
                     <p class="text-lg font-medium text-gray-900">Not provided by user</p>
                 </div>
                 <div>
-                    <p class="text-xs font-semibold text-blue-600 uppercase mb-2">ID Number (OCR)</p>
-                    <p class="text-lg font-medium text-blue-900">{{ ocr_data.id_number }}</p>
+                    <p class="text-xs font-semibold text-gray-500 uppercase mb-2">ID Number (OCR)</p>
+                    <p class="text-lg font-medium text-gray-600 italic">{{ ocr_data.id_number }}</p>
                 </div>
             </div>
             {% endif %}
@@ -289,8 +289,8 @@
                             <p class="text-lg font-medium text-orange-600">Not extracted</p>
                         {% endif %}
                     {% else %}
-                        <p class="text-xs font-semibold text-blue-600 uppercase mb-2">Sex (OCR)</p>
-                        <p class="text-lg font-medium text-blue-900">{{ ocr_data.sex|default:"Not extracted" }}</p>
+                        <p class="text-xs font-semibold text-gray-500 uppercase mb-2">Sex (From ID Image)</p>
+                        <p class="text-lg font-medium text-gray-600 italic">👁️ Please verify manually from ID image below</p>
                     {% endif %}
                 </div>
             </div>
@@ -302,8 +302,8 @@
                     <p class="text-lg font-medium text-gray-900">{{ verification.contact_number|default:"—" }}</p>
                 </div>
                 <div>
-                    <p class="text-xs font-semibold text-blue-600 uppercase mb-2">Contact Number (OCR)</p>
-                    <p class="text-lg font-medium text-blue-900">Not extracted</p>
+                    <p class="text-xs font-semibold text-gray-500 uppercase mb-2">Contact Number (From ID Image)</p>
+                    <p class="text-lg font-medium text-gray-600 italic">Not extracted</p>
                 </div>
             </div>
         </div>
