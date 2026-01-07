@@ -340,6 +340,10 @@ def compare_data_fields(user_data: Dict[str, Any], extracted_data: Dict[str, str
     mismatches = []
     field_scores = []
     
+    # Debug: Log what data we have
+    logger.info(f"User data keys: {list(user_data.keys())}")
+    logger.info(f"Extracted data keys: {list(extracted_data.keys())}")
+    
     # Compare full name (most important - weight: 40%)
     if 'full_name' in extracted_data and user_data.get('full_name'):
         user_name = str(user_data['full_name']).upper().strip()
@@ -354,8 +358,10 @@ def compare_data_fields(user_data: Dict[str, Any], extracted_data: Dict[str, str
             matches.append(f"Name matches ({int(similarity*100)}%)")
         else:
             mismatches.append(f"Name mismatch: '{user_name}' vs '{extracted_name}'")
+    else:
+        logger.warning(f"Name comparison skipped - extracted: {'full_name' in extracted_data}, user: {bool(user_data.get('full_name'))}")
     
-    # Compare date of birth (important - weight: 30%)
+    # Compare date of birth (important - weight: 30%)  
     if 'date_of_birth' in extracted_data and user_data.get('date_of_birth'):
         user_dob = normalize_date_for_comparison(str(user_data['date_of_birth']))
         extracted_dob = normalize_date_for_comparison(str(extracted_data['date_of_birth']))
@@ -402,6 +408,9 @@ def compare_data_fields(user_data: Dict[str, Any], extracted_data: Dict[str, str
     # Calculate overall match score
     match_score = sum(field_scores) if field_scores else 0.0
     
+    logger.info(f"Field scores: {field_scores}, Total: {match_score:.2%}")
+    logger.info(f"Total matches: {len(matches)}, Total mismatches: {len(mismatches)}")
+    
     return {
         'match_score': match_score,
         'matches': matches,
@@ -417,12 +426,8 @@ def compare_faces(id_front_path: str, selfie_path: str) -> Dict[str, Any]:
     
     Returns similarity score (0.0 to 1.0).
     """
-    import signal
     import tempfile
     import os
-    
-    def timeout_handler(signum, frame):
-        raise TimeoutError("Face matching timeout after 60 seconds")
     
     try:
         from users.services.verification.face_match import compare_face_images
@@ -459,35 +464,26 @@ def compare_faces(id_front_path: str, selfie_path: str) -> Dict[str, Any]:
         else:
             selfie_path_resized = selfie_path
         
-        # Set timeout (60 seconds max for face matching)
-        signal.signal(signal.SIGALRM, timeout_handler)
-        signal.alarm(60)
+        # Compare faces (no signal.alarm - it breaks Celery workers!)
+        logger.info("Starting face comparison...")
+        result = compare_face_images(id_path, selfie_path_resized)
+        logger.info(f"Face comparison complete: {result.get('similarity', 0):.2%}")
         
+        # Clean up temp files
         try:
-            # Compare faces
-            result = compare_face_images(id_path, selfie_path_resized)
-            signal.alarm(0)  # Cancel timeout
-            
-            # Clean up temp files
-            if id_path != id_front_path:
+            if id_path != id_front_path and os.path.exists(id_path):
                 os.unlink(id_path)
-            if selfie_path_resized != selfie_path:
+            if selfie_path_resized != selfie_path and os.path.exists(selfie_path_resized):
                 os.unlink(selfie_path_resized)
-            
-            return {
-                'success': True,
-                'similarity': result.get('similarity', 0.0),
-                'match': result.get('match', False),
-                'details': result
-            }
-        except TimeoutError:
-            signal.alarm(0)
-            logger.error("Face matching timed out after 60 seconds")
-            return {
-                'success': False,
-                'error': 'Face matching timeout (60s)',
-                'similarity': 0.0
-            }
+        except:
+            pass
+        
+        return {
+            'success': True,
+            'similarity': result.get('similarity', 0.0),
+            'match': result.get('match', False),
+            'details': result
+        }
         
     except Exception as e:
         logger.exception(f"Error comparing faces: {e}")
