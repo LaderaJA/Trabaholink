@@ -425,7 +425,7 @@ def compare_faces(id_front_path: str, selfie_path: str) -> Dict[str, Any]:
         raise TimeoutError("Face matching timeout after 60 seconds")
     
     try:
-        from users.services.verification.face_match import match_faces
+        from users.services.verification.face_match import compare_face_images
         from PIL import Image
         
         # OPTIMIZATION: Resize images to speed up face detection
@@ -465,7 +465,7 @@ def compare_faces(id_front_path: str, selfie_path: str) -> Dict[str, Any]:
         
         try:
             # Compare faces
-            result = match_faces(id_path, selfie_path_resized)
+            result = compare_face_images(id_path, selfie_path_resized)
             signal.alarm(0)  # Cancel timeout
             
             # Clean up temp files
