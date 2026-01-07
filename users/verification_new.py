@@ -121,6 +121,10 @@ def verify_philsys_id_offline(
         # - 55-79%: Pending (manual review)
         # - < 55%: Auto-reject
         
+        # Check if face matching completely failed (raw score was 0%)
+        raw_face_score = result['face_match_score'] - 0.10  # Remove the 10% bonus
+        face_failed = raw_face_score <= 0.0 or not face_result['success']
+        
         if overall_score >= 0.80:
             result['decision'] = 'approved'
             result['success'] = True
@@ -129,12 +133,20 @@ def verify_philsys_id_offline(
         elif overall_score >= 0.55:  # Lowered from 0.60
             result['decision'] = 'pending'
             result['success'] = True
-            result['decision_reason'] = f"Moderate match requiring manual review: Data {result['data_match_score']:.0%} + Face {result['face_match_score']:.0%} = {overall_score:.0%}"
+            # Special reason if face failed
+            if face_failed:
+                result['decision_reason'] = f"Face matching failed - Manual review required: Data {result['data_match_score']:.0%} matches but face verification could not be completed"
+            else:
+                result['decision_reason'] = f"Moderate match requiring manual review: Data {result['data_match_score']:.0%} + Face {result['face_match_score']:.0%} = {overall_score:.0%}"
             logger.info("⚠️  DECISION: MANUAL REVIEW (55% <= score < 80%)")
         else:
             result['decision'] = 'rejected'
             result['success'] = True
-            result['decision_reason'] = f"Low confidence match: Data {result['data_match_score']:.0%} + Face {result['face_match_score']:.0%} = {overall_score:.0%}"
+            # Special reason if face failed
+            if face_failed:
+                result['decision_reason'] = f"Face mismatch: Face verification failed. Data match: {result['data_match_score']:.0%}"
+            else:
+                result['decision_reason'] = f"Low confidence match: Data {result['data_match_score']:.0%} + Face {result['face_match_score']:.0%} = {overall_score:.0%}"
             logger.info("❌ DECISION: AUTO-REJECT (score < 55%)")
         
         return result
