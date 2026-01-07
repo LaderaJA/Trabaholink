@@ -120,18 +120,11 @@ def verify_id_with_ocr_v2(self, verification_id):
         # Update verification status based on results
         extraction_quality = extracted_data.get('extraction_quality', 'poor')
         
-        if extraction_quality in ['excellent', 'good'] and match_score >= 0.75:
-            verification.status = 'approved'
-            verification.notes = f'Auto-approved: OCR quality={extraction_quality}, match score={match_score:.0%}'
-            logger.info(f"Auto-approved verification {verification_id}")
-        elif extraction_quality == 'poor' or match_score < 0.5:
-            verification.status = 'pending'
-            verification.notes = f'Manual review required: OCR quality={extraction_quality}, match score={match_score:.0%}'
-            logger.info(f"Verification {verification_id} requires manual review")
-        else:
-            verification.status = 'pending'
-            verification.notes = f'Manual review recommended: OCR quality={extraction_quality}, match score={match_score:.0%}'
-            logger.info(f"Verification {verification_id} pending manual review")
+        # IMPORTANT: Non-PhilSys IDs always require manual review
+        # OCR is not reliable enough for auto-approval (only PhilSys QR codes are)
+        verification.status = 'pending'
+        verification.notes = f'Manual review required (non-PhilSys ID): OCR quality={extraction_quality}, match score={match_score:.0%}. OCR data is for reference only.'
+        logger.info(f"Verification {verification_id} marked for manual review (non-PhilSys ID, OCR not reliable for auto-decision)")
         
         verification.save()
         
@@ -242,16 +235,19 @@ def verify_face_match_v2(self, verification_id):
         verification.face_match_score = similarity
         verification.face_match_metadata = metadata
         
-        if result == 'verified' and verification.status == 'pending':
-            verification.status = 'approved'
-            verification.notes = notes
-        elif result == 'rejected':
-            verification.status = 'rejected'
-            verification.rejection_reason = notes
-        else:
-            # Manual review needed
+        # IMPORTANT: For non-PhilSys IDs, don't auto-approve/reject based on face match
+        # Only PhilSys IDs with QR verification can be auto-approved
+        # Face matching alone is not sufficient for auto-decision
+        if verification.id_type == 'philsys':
+            # PhilSys IDs are handled by auto_verify_philsys task - don't override here
             if not verification.notes:
                 verification.notes = notes
+        else:
+            # Non-PhilSys IDs always need manual review
+            verification.status = 'pending'
+            if not verification.notes:
+                verification.notes = f'Manual review required (non-PhilSys ID). Face match: {similarity:.0%}. Awaiting admin decision.'
+            logger.info(f"Non-PhilSys ID - marked for manual review regardless of face match score")
         
         verification.save()
         
