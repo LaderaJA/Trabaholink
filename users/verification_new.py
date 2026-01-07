@@ -60,29 +60,22 @@ def verify_philsys_id_offline(
         if not qr_result['success']:
             logger.warning(f"QR extraction failed: {qr_result.get('error')}")
             result['error'] = f"QR code extraction failed: {qr_result.get('error')}"
-            # Continue without QR data - we can still use OCR
-        else:
-            result['qr_data'] = qr_result['data']
-            logger.info(f"QR data extracted: {qr_result['data'].keys()}")
+            return result
         
-        # Step 2: Extract data from ID front using OCR (as backup)
-        logger.info("Step 2: Extracting text from ID front using OCR...")
-        ocr_result = extract_ocr_data_from_id(id_front_path)
+        result['qr_data'] = qr_result['data']
+        logger.info(f"QR data extracted: {qr_result['data'].keys()}")
         
-        if ocr_result['success']:
-            result['ocr_data'] = ocr_result['data']
-            logger.info(f"OCR data extracted: {ocr_result['data'].keys()}")
-        else:
-            logger.warning(f"OCR extraction failed: {ocr_result.get('error')}")
+        # Step 2: SKIP OCR for PhilSys IDs - QR code is sufficient and faster
+        logger.info("Step 2: Skipping OCR extraction - using QR code data from PhilSys ID")
+        result['ocr_data'] = {}  # Not used for PhilSys
         
-        # Step 3: Compare extracted data with user input
-        logger.info("Step 3: Comparing extracted data with user input...")
+        # Step 3: Compare QR data with user input
+        logger.info("Step 3: Comparing QR data with user input...")
         
-        # Prefer QR data over OCR data (QR is more reliable)
-        extracted_data = result['qr_data'] if result['qr_data'] else result['ocr_data']
+        extracted_data = result['qr_data']
         
         if not extracted_data:
-            result['error'] = "Failed to extract data from ID (both QR and OCR failed)"
+            result['error'] = "Failed to extract data from QR code"
             return result
         
         data_comparison = compare_data_fields(user_data, extracted_data)
@@ -94,17 +87,9 @@ def verify_philsys_id_offline(
         logger.info(f"Matches: {len(data_comparison['matches'])}")
         logger.info(f"Mismatches: {len(data_comparison['mismatches'])}")
         
-        # Step 4: Face matching (TEMPORARY: Disabled due to model loading delays)
-        # TODO: Re-enable after pre-loading face_recognition models on worker startup
+        # Step 4: Face matching
         logger.info("Step 4: Comparing face from ID with selfie...")
-        logger.warning("Face matching temporarily disabled - causes worker hangs on first load")
-        
-        # face_result = compare_faces(id_front_path, selfie_path)
-        face_result = {
-            'success': True,
-            'similarity': 0.70,  # Default to 70% for manual review
-            'note': 'Face matching skipped - admin will verify visually'
-        }
+        face_result = compare_faces(id_front_path, selfie_path)
         
         if face_result['success']:
             result['face_match_score'] = face_result['similarity']
