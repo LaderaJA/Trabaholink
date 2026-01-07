@@ -509,6 +509,7 @@
         btn.innerHTML = '<i data-lucide="loader" class="w-4 h-4 inline mr-1 animate-spin"></i> Verifying...';
         lucide.createIcons();
 
+        // Trigger the new offline verification (QR + OCR + Face)
         fetch(`/admin_dashboard/identity-verifications/${verificationId}/verify-philsys/`, {
             method: 'POST',
             headers: {
