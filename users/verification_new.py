@@ -224,10 +224,13 @@ def parse_philsys_qr_data(qr_data: Dict[str, str]) -> Dict[str, str]:
         'fullname': 'full_name',
         'lastname': 'last_name',
         'last_name': 'last_name',
+        'lname': 'last_name',  # PhilSys short form
         'firstname': 'first_name',
         'first_name': 'first_name',
+        'fname': 'first_name',  # PhilSys short form
         'middlename': 'middle_name',
         'middle_name': 'middle_name',
+        'mname': 'middle_name',  # PhilSys short form
         
         # DOB variations
         'date_of_birth': 'date_of_birth',
