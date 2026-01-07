@@ -209,36 +209,94 @@ def parse_philsys_qr_data(qr_data: Dict[str, str]) -> Dict[str, str]:
     parsed = {}
     
     # The extract_qr_data already does basic parsing
-    # We just need to normalize field names
+    # We just need to normalize field names with comprehensive mapping
     
     field_mapping = {
+        # PCN variations
         'pcn': 'pcn',
         'philsys_card_number': 'pcn',
+        'card_number': 'pcn',
+        'philsysno': 'pcn',
+        
+        # Name variations
         'name': 'full_name',
         'full_name': 'full_name',
+        'fullname': 'full_name',
+        'lastname': 'last_name',
+        'last_name': 'last_name',
+        'firstname': 'first_name',
+        'first_name': 'first_name',
+        'middlename': 'middle_name',
+        'middle_name': 'middle_name',
+        
+        # DOB variations
         'date_of_birth': 'date_of_birth',
+        'dateofbirth': 'date_of_birth',
         'dob': 'date_of_birth',
         'birth_date': 'date_of_birth',
+        'birthdate': 'date_of_birth',
+        
+        # Gender variations
         'sex': 'gender',
         'gender': 'gender',
+        
+        # Address variations
         'address': 'address',
+        'residential_address': 'address',
+        
+        # Date issued variations
         'date_of_issuance': 'date_issued',
+        'dateofissuance': 'date_issued',
+        'dateissued': 'date_issued',
+        'date_issued': 'date_issued',
         'issue_date': 'date_issued',
+        'issuedate': 'date_issued',
     }
+    
+    logger.info(f"Parsing QR data with {len(qr_data)} raw fields")
     
     for key, value in qr_data.items():
         if key == 'qr_raw':
             continue
         
-        # Normalize key
-        normalized_key = field_mapping.get(key.lower(), key.lower())
-        parsed[normalized_key] = value
+        # Normalize key - remove special chars and lowercase
+        clean_key = key.lower().replace(' ', '').replace('_', '').replace('-', '')
+        
+        # Try exact match first
+        if key.lower() in field_mapping:
+            normalized_key = field_mapping[key.lower()]
+            parsed[normalized_key] = value
+            logger.debug(f"Mapped '{key}' -> '{normalized_key}': {value}")
+        # Try cleaned key
+        elif clean_key in field_mapping:
+            normalized_key = field_mapping[clean_key]
+            parsed[normalized_key] = value
+            logger.debug(f"Mapped '{key}' (cleaned: '{clean_key}') -> '{normalized_key}': {value}")
+        else:
+            # Keep original for debugging
+            parsed[key.lower()] = value
+            logger.debug(f"Kept original key '{key}': {value}")
+    
+    # Construct full_name if we have components but not full_name
+    if 'full_name' not in parsed and ('first_name' in parsed or 'last_name' in parsed):
+        name_parts = []
+        if 'last_name' in parsed:
+            name_parts.append(parsed['last_name'])
+        if 'first_name' in parsed:
+            name_parts.append(parsed['first_name'])
+        if 'middle_name' in parsed:
+            name_parts.append(parsed['middle_name'])
+        if name_parts:
+            parsed['full_name'] = ', '.join([name_parts[0], ' '.join(name_parts[1:])]) if len(name_parts) > 1 else name_parts[0]
+            logger.info(f"Constructed full_name from components: {parsed['full_name']}")
     
     # If we have raw QR data but no parsed fields, try to extract from raw
-    if not parsed and 'qr_raw' in qr_data:
+    if len(parsed) == 0 and 'qr_raw' in qr_data:
+        logger.warning("No fields parsed from QR, attempting raw text extraction")
         raw = qr_data['qr_raw']
         parsed = extract_from_raw_qr_text(raw)
     
+    logger.info(f"Parsed QR data result: {list(parsed.keys())}")
     return parsed
 
 

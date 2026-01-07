@@ -33,7 +33,23 @@ def extract_qr_data(image) -> Dict[str, str]:
         "qr_raw": data,
     }
 
-    # Heuristic key extraction
+    # Try parsing as JSON first (PhilSys QR codes are JSON format)
+    import json
+    try:
+        json_data = json.loads(data)
+        if isinstance(json_data, dict):
+            # Normalize JSON keys
+            for key, value in json_data.items():
+                normalized_key = normalize_text(str(key)).lower().replace(' ', '_').replace('-', '_')
+                normalized_value = normalize_text(str(value)) if value else ''
+                if normalized_key and normalized_value:
+                    extracted[normalized_key] = normalized_value
+            logger.info(f"QR parsed as JSON with {len(extracted)-1} fields: {list(extracted.keys())}")
+            return extracted
+    except (json.JSONDecodeError, ValueError) as e:
+        logger.debug(f"QR is not JSON format: {e}, trying key-value parsing")
+
+    # Fallback: Heuristic key extraction for key-value format
     for token in data.split('\n'):
         token = normalize_text(token)
         if not token or ':' not in token:
@@ -41,7 +57,8 @@ def extract_qr_data(image) -> Dict[str, str]:
         key, value = token.split(':', 1)
         key = normalize_text(key).lower().replace(' ', '_')
         value = normalize_text(value)
-        extracted[key] = value
+        if key and value:
+            extracted[key] = value
 
-    logger.debug("QR extracted data: %s", extracted)
+    logger.info(f"QR extracted data ({len(extracted)-1} fields): {list(extracted.keys())}")
     return extracted
