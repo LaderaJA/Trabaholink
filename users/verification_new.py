@@ -116,23 +116,26 @@ def verify_philsys_id_offline(
         logger.info(f"Overall verification score: {overall_score:.2%}")
         
         # Step 6: Make decision based on score
-        # Thresholds:
+        # Thresholds (lowered from 60% to 55% for more lenient manual review):
         # - >= 80%: Auto-approve
-        # - 60-79%: Pending (manual review)
-        # - < 60%: Auto-reject
+        # - 55-79%: Pending (manual review)
+        # - < 55%: Auto-reject
         
         if overall_score >= 0.80:
             result['decision'] = 'approved'
             result['success'] = True
+            result['decision_reason'] = f"High confidence match: Data {result['data_match_score']:.0%} + Face {result['face_match_score']:.0%} = {overall_score:.0%}"
             logger.info("✅ DECISION: AUTO-APPROVE (score >= 80%)")
-        elif overall_score >= 0.60:
+        elif overall_score >= 0.55:  # Lowered from 0.60
             result['decision'] = 'pending'
             result['success'] = True
-            logger.info("⚠️  DECISION: MANUAL REVIEW (score 60-79%)")
+            result['decision_reason'] = f"Moderate match requiring manual review: Data {result['data_match_score']:.0%} + Face {result['face_match_score']:.0%} = {overall_score:.0%}"
+            logger.info("⚠️  DECISION: MANUAL REVIEW (55% <= score < 80%)")
         else:
             result['decision'] = 'rejected'
             result['success'] = True
-            logger.info("❌ DECISION: AUTO-REJECT (score < 60%)")
+            result['decision_reason'] = f"Low confidence match: Data {result['data_match_score']:.0%} + Face {result['face_match_score']:.0%} = {overall_score:.0%}"
+            logger.info("❌ DECISION: AUTO-REJECT (score < 55%)")
         
         return result
         

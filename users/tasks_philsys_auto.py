@@ -269,7 +269,7 @@ def auto_verify_philsys(self, verification_id: int) -> Dict[str, Any]:
                 'success': True,
                 'decision': 'approved',
                 'match_score': match_result['match_score'],
-                'reason': match_result['match_summary']
+                'reason': philsys_result.get('decision_reason', '') or match_result['match_summary']
             }
         
         elif decision == 'rejected':
@@ -301,7 +301,7 @@ def auto_verify_philsys(self, verification_id: int) -> Dict[str, Any]:
                 'success': True,
                 'decision': 'rejected',
                 'match_score': match_result['match_score'],
-                'reason': match_result['mismatch_details']
+                'reason': philsys_result.get('decision_reason', '') or match_result['mismatch_details']
             }
         
         else:
@@ -327,7 +327,7 @@ def auto_verify_philsys(self, verification_id: int) -> Dict[str, Any]:
                 'success': True,
                 'decision': 'pending',
                 'match_score': overall_score,
-                'reason': 'Score requires manual review'
+                'reason': philsys_result.get('decision_reason', '') or 'Score requires manual review'
             }
     
     except AccountVerification.DoesNotExist:
