@@ -76,16 +76,16 @@ def run_verification_pipeline(self, user_id: int, verification_id: int = None) -
             # PhilSys IDs don't need OCR - QR extraction handles data
             logger.info(f"PhilSys ID detected for user {user_id} - skipping OCR task")
             verification_chain = chain(
-                verify_face_match_v2.s(verification.id),
-                complete_verification_v2.s(verification.id)
+                verify_face_match_v2.si(verification.id),
+                complete_verification_v2.si(verification.id)
             )
         else:
             # Standard verification with OCR
             logger.info(f"Standard ID type for user {user_id} - running full OCR pipeline")
             verification_chain = chain(
-                verify_id_with_ocr_v2.s(verification.id),
-                verify_face_match_v2.s(verification.id),
-                complete_verification_v2.s(verification.id)
+                verify_id_with_ocr_v2.si(verification.id),
+                verify_face_match_v2.si(verification.id),
+                complete_verification_v2.si(verification.id)
             )
         
         # Apply async without blocking (don't call .get()!)
