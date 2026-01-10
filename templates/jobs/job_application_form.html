@@ -1,5 +1,76 @@
 {% extends "mainpages/base.html" %}
 {% load i18n %}
+
+{% block extra_css %}
+<!-- Quill.js CSS -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<style>
+/* Quill Editor Custom Styles */
+.ql-container {
+  font-size: 1rem;
+  font-family: inherit;
+}
+.ql-editor {
+  min-height: 200px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+.ql-editor.ql-blank::before {
+  color: #9ca3af;
+  font-style: italic;
+}
+/* Grammar error highlighting */
+.grammar-error {
+  background-color: #fee2e2;
+  border-bottom: 2px wavy #ef4444;
+  cursor: pointer;
+}
+.spelling-error {
+  background-color: #fef3c7;
+  border-bottom: 2px wavy #f59e0b;
+  cursor: pointer;
+}
+.style-suggestion {
+  background-color: #dbeafe;
+  border-bottom: 2px wavy #3b82f6;
+  cursor: pointer;
+}
+/* Grammar tooltip */
+.grammar-tooltip {
+  position: absolute;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  max-width: 300px;
+  font-size: 0.875rem;
+}
+.grammar-tooltip-title {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #111827;
+}
+.grammar-tooltip-message {
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+.grammar-tooltip-suggestion {
+  color: #10b981;
+  cursor: pointer;
+  padding: 4px 8px;
+  background: #f0fdf4;
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 4px;
+}
+.grammar-tooltip-suggestion:hover {
+  background: #dcfce7;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <style>
 /* Enhanced CSS Variables */
@@ -545,7 +616,22 @@ input[type="number"].form-control {
                 Cover Letter
                 {% if form.cover_letter.field.required %}<span class="required-indicator">*</span>{% endif %}
               </label>
-              {{ form.cover_letter }}
+              
+              <!-- Quill Editor Container -->
+              <div id="quill-cover-letter-editor" style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; min-height: 200px;"></div>
+              
+              <!-- Hidden textarea for form submission -->
+              <textarea id="{{ form.cover_letter.id_for_label }}" name="cover_letter" style="display: none;">{{ form.cover_letter.value|default:"" }}</textarea>
+              
+              <!-- Grammar Check Button and Status -->
+              <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <button type="button" id="grammar-check-btn" class="btn btn-sm btn-outline-primary" style="display: flex; align-items: center; gap: 5px;">
+                  <i class="fa fa-spell-check"></i>
+                  Check Grammar
+                </button>
+                <div id="grammar-status" style="font-size: 0.875rem; color: #6b7280;"></div>
+              </div>
+              
               <div class="char-counter" id="coverLetterCounter">0 characters</div>
               <div class="field-instruction">
                 <i class="fa fa-lightbulb instruction-icon"></i>
@@ -843,13 +929,162 @@ input[type="number"].form-control {
   </div>
 </div>
 
+<!-- Quill.js JavaScript -->
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Character counters
+  // Initialize Quill Editor
+  const quill = new Quill('#quill-cover-letter-editor', {
+    theme: 'snow',
+    placeholder: 'Introduce yourself and explain why you\'re a good fit for this job...',
+    modules: {
+      toolbar: [
+        [{ 'header': [1, 2, 3, false] }],
+        ['bold', 'italic', 'underline'],
+        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+        ['link'],
+        ['clean']
+      ]
+    }
+  });
+
+  // Get references
   const coverLetterField = document.querySelector('#{{ form.cover_letter.id_for_label }}');
   const experienceField = document.querySelector('#{{ form.experience.id_for_label }}');
   const notesField = document.querySelector('#{{ form.additional_notes.id_for_label }}');
+  const grammarBtn = document.getElementById('grammar-check-btn');
+  const grammarStatus = document.getElementById('grammar-status');
   
+  // Load initial content if editing
+  if (coverLetterField.value) {
+    quill.root.innerHTML = coverLetterField.value;
+  }
+  
+  // Sync Quill content to hidden textarea
+  quill.on('text-change', function() {
+    coverLetterField.value = quill.root.innerHTML;
+    updateCharCounterForQuill();
+  });
+  
+  // Update character counter for Quill
+  function updateCharCounterForQuill() {
+    const counter = document.getElementById('coverLetterCounter');
+    if (counter) {
+      const text = quill.getText();
+      const length = text.trim().length;
+      counter.textContent = `${length} characters`;
+      
+      counter.className = 'char-counter';
+      if (length > 1000) {
+        counter.classList.add('danger');
+      } else if (length > 800) {
+        counter.classList.add('warning');
+      }
+    }
+  }
+  
+  // Grammar Checking with LanguageTool API
+  let currentTooltip = null;
+  let grammarErrors = [];
+  
+  grammarBtn.addEventListener('click', async function() {
+    const text = quill.getText().trim();
+    
+    if (!text) {
+      grammarStatus.textContent = 'Please write something first!';
+      grammarStatus.style.color = '#f59e0b';
+      return;
+    }
+    
+    // Show loading state
+    grammarBtn.disabled = true;
+    grammarBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Checking...';
+    grammarStatus.textContent = 'Analyzing your text...';
+    grammarStatus.style.color = '#6b7280';
+    
+    try {
+      // Call LanguageTool API
+      const response = await fetch('https://api.languagetool.org/v2/check', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          'text': text,
+          'language': 'en-US',
+          'enabledOnly': 'false'
+        })
+      });
+      
+      const data = await response.json();
+      grammarErrors = data.matches || [];
+      
+      // Clear previous highlights
+      const editor = quill.root;
+      const oldHighlights = editor.querySelectorAll('.grammar-error, .spelling-error, .style-suggestion');
+      oldHighlights.forEach(el => {
+        const parent = el.parentNode;
+        while (el.firstChild) {
+          parent.insertBefore(el.firstChild, el);
+        }
+        parent.removeChild(el);
+      });
+      
+      // Show results
+      if (grammarErrors.length === 0) {
+        grammarStatus.textContent = '✓ No issues found!';
+        grammarStatus.style.color = '#10b981';
+      } else {
+        grammarStatus.textContent = `Found ${grammarErrors.length} issue(s)`;
+        grammarStatus.style.color = '#ef4444';
+        
+        // Highlight errors (simplified approach - showing in status)
+        highlightGrammarErrors(grammarErrors);
+      }
+    } catch (error) {
+      console.error('Grammar check error:', error);
+      grammarStatus.textContent = '⚠ Error checking grammar';
+      grammarStatus.style.color = '#ef4444';
+    } finally {
+      grammarBtn.disabled = false;
+      grammarBtn.innerHTML = '<i class="fa fa-spell-check"></i> Check Grammar';
+    }
+  });
+  
+  // Simplified error highlighting (show first 5 errors)
+  function highlightGrammarErrors(errors) {
+    const displayErrors = errors.slice(0, 5);
+    let errorList = '<div style="margin-top: 10px; padding: 10px; background: #fef3c7; border-radius: 6px; font-size: 0.875rem;"><strong>Issues found:</strong><ul style="margin: 5px 0; padding-left: 20px;">';
+    
+    displayErrors.forEach((error, index) => {
+      const type = error.rule.issueType || 'grammar';
+      const icon = type === 'misspelling' ? '📝' : type === 'style' ? '💡' : '✏️';
+      errorList += `<li>${icon} <strong>"${error.context.text.substring(error.context.offset, error.context.offset + error.context.length)}"</strong>: ${error.message}`;
+      if (error.replacements && error.replacements.length > 0) {
+        errorList += ` <span style="color: #10b981;">→ ${error.replacements[0].value}</span>`;
+      }
+      errorList += '</li>';
+    });
+    
+    if (errors.length > 5) {
+      errorList += `<li><em>...and ${errors.length - 5} more issue(s)</em></li>`;
+    }
+    
+    errorList += '</ul></div>';
+    
+    const existingList = document.getElementById('grammar-error-list');
+    if (existingList) {
+      existingList.remove();
+    }
+    
+    const errorDiv = document.createElement('div');
+    errorDiv.id = 'grammar-error-list';
+    errorDiv.innerHTML = errorList;
+    grammarStatus.parentNode.parentNode.insertBefore(errorDiv, grammarStatus.parentNode.nextSibling);
+  }
+  
+  // Character counters for other fields
   function updateCharCounter(field, counterId) {
     const counter = document.getElementById(counterId);
     if (field && counter) {
@@ -871,16 +1106,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
-  updateCharCounter(coverLetterField, 'coverLetterCounter');
   updateCharCounter(experienceField, 'experienceCounter');
   updateCharCounter(notesField, 'notesCounter');
+  updateCharCounterForQuill(); // Initial count for Quill
   
   // Progress tracking
   function updateProgress() {
     const steps = document.querySelectorAll('.step');
     
-    // Check cover letter
-    if (coverLetterField && coverLetterField.value.trim()) {
+    // Check cover letter (using Quill's text)
+    const quillText = quill.getText().trim();
+    if (quillText && quillText.length > 10) {
       steps[0].classList.add('completed');
       steps[1].classList.add('active');
     }

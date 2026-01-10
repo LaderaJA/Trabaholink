@@ -6,6 +6,8 @@
 
 {% block css %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
+<!-- Quill.js CSS -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1425,8 +1427,22 @@
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="cover_letter" class="form-label">Message to Employer (Optional)</label>
-                        <textarea class="form-control" id="cover_letter" name="cover_letter" rows="4" 
-                                  placeholder="Introduce yourself and explain why you're a good fit for this job..."></textarea>
+                        
+                        <!-- Quill Editor Container -->
+                        <div id="quill-quick-apply-editor" style="background: white; border: 1px solid #dee2e6; border-radius: 8px; min-height: 150px;"></div>
+                        
+                        <!-- Hidden textarea for form submission -->
+                        <textarea id="cover_letter" name="cover_letter" style="display: none;"></textarea>
+                        
+                        <!-- Grammar Check Button -->
+                        <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                            <button type="button" id="quick-grammar-check-btn" class="btn btn-sm btn-outline-primary" style="display: flex; align-items: center; gap: 5px;">
+                                <i class="fa fa-spell-check"></i>
+                                Check Grammar
+                            </button>
+                            <div id="quick-grammar-status" style="font-size: 0.875rem; color: #6b7280;"></div>
+                        </div>
+                        
                         <small class="text-muted">This message will be sent along with your application.</small>
                     </div>
                     
@@ -1816,8 +1832,113 @@
     </div>
 </div>
 
+<!-- Quill.js JavaScript -->
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
+    // Initialize Quill Editor for Quick Apply
+    if (document.getElementById('quill-quick-apply-editor')) {
+        const quickQuill = new Quill('#quill-quick-apply-editor', {
+            theme: 'snow',
+            placeholder: 'Introduce yourself and explain why you\'re a good fit for this job...',
+            modules: {
+                toolbar: [
+                    ['bold', 'italic', 'underline'],
+                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    ['clean']
+                ]
+            }
+        });
+
+        const quickCoverLetterField = document.getElementById('cover_letter');
+        const quickGrammarBtn = document.getElementById('quick-grammar-check-btn');
+        const quickGrammarStatus = document.getElementById('quick-grammar-status');
+        
+        // Sync Quill content to hidden textarea
+        quickQuill.on('text-change', function() {
+            quickCoverLetterField.value = quickQuill.root.innerHTML;
+        });
+        
+        // Grammar checking for quick apply
+        if (quickGrammarBtn) {
+            quickGrammarBtn.addEventListener('click', async function() {
+                const text = quickQuill.getText().trim();
+                
+                if (!text) {
+                    quickGrammarStatus.textContent = 'Please write something first!';
+                    quickGrammarStatus.style.color = '#f59e0b';
+                    return;
+                }
+                
+                quickGrammarBtn.disabled = true;
+                quickGrammarBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Checking...';
+                quickGrammarStatus.textContent = 'Analyzing...';
+                quickGrammarStatus.style.color = '#6b7280';
+                
+                try {
+                    const response = await fetch('https://api.languagetool.org/v2/check', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded',
+                        },
+                        body: new URLSearchParams({
+                            'text': text,
+                            'language': 'en-US',
+                            'enabledOnly': 'false'
+                        })
+                    });
+                    
+                    const data = await response.json();
+                    const errors = data.matches || [];
+                    
+                    if (errors.length === 0) {
+                        quickGrammarStatus.textContent = '✓ No issues found!';
+                        quickGrammarStatus.style.color = '#10b981';
+                    } else {
+                        quickGrammarStatus.textContent = `Found ${errors.length} issue(s)`;
+                        quickGrammarStatus.style.color = '#ef4444';
+                        
+                        // Show first 3 errors
+                        const displayErrors = errors.slice(0, 3);
+                        let errorList = '<div style="margin-top: 10px; padding: 10px; background: #fef3c7; border-radius: 6px; font-size: 0.875rem;"><strong>Issues:</strong><ul style="margin: 5px 0; padding-left: 20px;">';
+                        
+                        displayErrors.forEach(error => {
+                            const type = error.rule.issueType || 'grammar';
+                            const icon = type === 'misspelling' ? '📝' : '✏️';
+                            errorList += `<li>${icon} ${error.message}`;
+                            if (error.replacements && error.replacements.length > 0) {
+                                errorList += ` <span style="color: #10b981;">→ ${error.replacements[0].value}</span>`;
+                            }
+                            errorList += '</li>';
+                        });
+                        
+                        if (errors.length > 3) {
+                            errorList += `<li><em>...and ${errors.length - 3} more</em></li>`;
+                        }
+                        
+                        errorList += '</ul></div>';
+                        
+                        const existingList = document.getElementById('quick-grammar-error-list');
+                        if (existingList) existingList.remove();
+                        
+                        const errorDiv = document.createElement('div');
+                        errorDiv.id = 'quick-grammar-error-list';
+                        errorDiv.innerHTML = errorList;
+                        quickGrammarStatus.parentNode.parentNode.insertBefore(errorDiv, quickGrammarStatus.parentNode.nextSibling);
+                    }
+                } catch (error) {
+                    console.error('Grammar check error:', error);
+                    quickGrammarStatus.textContent = '⚠ Error checking';
+                    quickGrammarStatus.style.color = '#ef4444';
+                } finally {
+                    quickGrammarBtn.disabled = false;
+                    quickGrammarBtn.innerHTML = '<i class="fa fa-spell-check"></i> Check Grammar';
+                }
+            });
+        }
+    }
+
     // CV Preview Modal Function
     function openCVModal(cvUrl, applicantName) {
         // Set applicant name

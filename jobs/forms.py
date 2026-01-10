@@ -1,6 +1,7 @@
 from django import forms
 from .models import Job, JobApplication, Contract, ProgressLog, JobOffer, WorkerAvailability
 from django.forms.widgets import ClearableFileInput
+from .utils_sanitize import sanitize_html
 
 class MultipleFileInput(ClearableFileInput):
     allow_multiple_selected = True
@@ -138,6 +139,18 @@ class JobApplicationForm(forms.ModelForm):
             'certifications': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'additional_notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
+    
+    def clean_cover_letter(self):
+        """
+        Sanitize HTML content from Quill.js editor to prevent XSS attacks.
+        """
+        cover_letter = self.cleaned_data.get('cover_letter', '')
+        
+        if cover_letter:
+            # Sanitize HTML to allow only safe tags and attributes
+            cover_letter = sanitize_html(cover_letter)
+        
+        return cover_letter
 
 class ContractForm(forms.ModelForm):
     class Meta:

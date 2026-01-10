@@ -399,7 +399,7 @@ body {
         </h3>
         <div class="message-box {% if not application.cover_letter %}empty{% endif %}">
           {% if application.cover_letter %}
-            {{ application.cover_letter|linebreaks }}
+            {{ application.cover_letter|safe }}
           {% else %}
             <i class="bi bi-info-circle"></i> No message provided with this application.
           {% endif %}
