@@ -125,11 +125,6 @@
                                 <strong>{{ conflict.date|date:"D, M d, Y" }}</strong>: {{ conflict.reason }}
                             </li>
                             {% endfor %}
-                            {% if total_conflicts > 10 %}
-                            <li class="text-yellow-800 font-medium">
-                                ...and {{ total_conflicts|add:"-10" }} more conflicting day(s)
-                            </li>
-                            {% endif %}
                         </ul>
                         {% if is_worker %}
                         <div class="bg-yellow-100 border border-yellow-200 rounded-md p-3 mt-3">

@@ -1752,7 +1752,7 @@ class ContractNegotiationView(LoginRequiredMixin, UpdateView):
                 end_time=contract.end_time
             )
             context['has_availability_conflicts'] = not availability_result['available']
-            context['availability_conflicts'] = availability_result['conflicts'][:10]  # Show first 10 conflicts
+            context['availability_conflicts'] = availability_result['conflicts']  # Show all conflicts
             context['total_conflicts'] = len(availability_result['conflicts'])
         else:
             context['has_availability_conflicts'] = False

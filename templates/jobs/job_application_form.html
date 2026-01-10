@@ -1171,12 +1171,11 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   });
   
-  // Simplified error highlighting (show first 5 errors)
+  // Show all grammar errors (no truncation)
   function highlightGrammarErrors(errors) {
-    const displayErrors = errors.slice(0, 5);
     let errorList = '<div style="margin-top: 10px; padding: 10px; background: #fef3c7; border-radius: 6px; font-size: 0.875rem;"><strong>Issues found:</strong><ul style="margin: 5px 0; padding-left: 20px;">';
     
-    displayErrors.forEach((error, index) => {
+    errors.forEach((error, index) => {
       const type = error.rule.issueType || 'grammar';
       const icon = type === 'misspelling' ? '<i class="fa fa-spell-check"></i>' : type === 'style' ? '<i class="fa fa-lightbulb-o"></i>' : '<i class="fa fa-pencil"></i>';
       errorList += `<li>${icon} <strong>"${error.context.text.substring(error.context.offset, error.context.offset + error.context.length)}"</strong>: ${error.message}`;
@@ -1185,10 +1184,6 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       errorList += '</li>';
     });
-    
-    if (errors.length > 5) {
-      errorList += `<li><em>...and ${errors.length - 5} more issue(s)</em></li>`;
-    }
     
     errorList += '</ul></div>';
     

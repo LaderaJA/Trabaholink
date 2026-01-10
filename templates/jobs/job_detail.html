@@ -2018,11 +2018,10 @@
                         quickGrammarStatus.textContent = `Found ${errors.length} issue(s)`;
                         quickGrammarStatus.style.color = '#ef4444';
                         
-                        // Show first 3 errors
-                        const displayErrors = errors.slice(0, 3);
+                        // Show all errors (no truncation)
                         let errorList = '<div style="margin-top: 10px; padding: 10px; background: #fef3c7; border-radius: 6px; font-size: 0.875rem;"><strong>Issues:</strong><ul style="margin: 5px 0; padding-left: 20px;">';
                         
-                        displayErrors.forEach(error => {
+                        errors.forEach(error => {
                             const type = error.rule.issueType || 'grammar';
                             const icon = type === 'misspelling' ? '<i class="fa fa-spell-check"></i>' : '<i class="fa fa-pencil"></i>';
                             errorList += `<li>${icon} ${error.message}`;
@@ -2031,10 +2030,6 @@
                             }
                             errorList += '</li>';
                         });
-                        
-                        if (errors.length > 3) {
-                            errorList += `<li><em>...and ${errors.length - 3} more</em></li>`;
-                        }
                         
                         errorList += '</ul></div>';
                         
