@@ -107,6 +107,100 @@ body {
   font-style: italic;
 }
 
+/* Cover Letter Content Styling */
+.cover-letter-content {
+  font-family: 'Georgia', serif;
+  font-size: 1rem;
+  line-height: 1.8;
+  color: #1f2937;
+}
+
+.cover-letter-content h1,
+.cover-letter-content h2,
+.cover-letter-content h3 {
+  margin-top: 1.5em;
+  margin-bottom: 0.5em;
+  font-weight: 600;
+  color: #111827;
+}
+
+.cover-letter-content p {
+  margin-bottom: 1em;
+}
+
+.cover-letter-content ul,
+.cover-letter-content ol {
+  margin-left: 1.5em;
+  margin-bottom: 1em;
+}
+
+.cover-letter-content strong {
+  font-weight: 600;
+  color: #111827;
+}
+
+.cover-letter-content a {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.cover-letter-content blockquote {
+  border-left: 4px solid #e5e7eb;
+  padding-left: 1em;
+  margin-left: 0;
+  font-style: italic;
+  color: #6b7280;
+}
+
+/* CV Section Styling */
+.cv-section {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+
+.cv-preview-box {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 1.5rem;
+  background: #f9fafb;
+  border-radius: 8px;
+  border: 2px dashed #d1d5db;
+}
+
+.cv-icon {
+  flex-shrink: 0;
+}
+
+.cv-info {
+  flex: 1;
+}
+
+.cv-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+@media (max-width: 768px) {
+  .cv-preview-box {
+    flex-direction: column;
+    text-align: center;
+  }
+  
+  .cv-actions {
+    width: 100%;
+    flex-direction: column;
+  }
+  
+  .cv-actions a {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 .info-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
