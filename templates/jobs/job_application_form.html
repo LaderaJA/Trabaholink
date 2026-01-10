@@ -19,6 +19,36 @@
   color: #9ca3af;
   font-style: italic;
 }
+/* Quill Toolbar Enhancements */
+.ql-toolbar {
+  background: #f9fafb;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  border: 1px solid #e5e7eb;
+  padding: 8px;
+}
+.ql-toolbar .ql-formats {
+  margin-right: 10px;
+}
+.ql-toolbar button {
+  width: 28px;
+  height: 28px;
+}
+.ql-toolbar button:hover {
+  color: #2563eb;
+}
+.ql-toolbar button.ql-active {
+  color: #2563eb;
+}
+.ql-snow .ql-picker {
+  font-size: 14px;
+}
+/* Make container border match toolbar */
+#quill-cover-letter-editor {
+  border-top: none !important;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
 /* Grammar error highlighting */
 .grammar-error {
   background-color: #fee2e2;
@@ -934,16 +964,25 @@ input[type="number"].form-control {
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Initialize Quill Editor
+  // Initialize Quill Editor with Full Features
   const quill = new Quill('#quill-cover-letter-editor', {
     theme: 'snow',
     placeholder: 'Introduce yourself and explain why you\'re a good fit for this job...',
     modules: {
       toolbar: [
-        [{ 'header': [1, 2, 3, false] }],
-        ['bold', 'italic', 'underline'],
+        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+        [{ 'font': [] }],
+        [{ 'size': ['small', false, 'large', 'huge'] }],
+        ['bold', 'italic', 'underline', 'strike'],
+        [{ 'color': [] }, { 'background': [] }],
+        [{ 'script': 'sub'}, { 'script': 'super' }],
+        [{ 'header': 1 }, { 'header': 2 }],
+        ['blockquote', 'code-block'],
         [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-        ['link'],
+        [{ 'indent': '-1'}, { 'indent': '+1' }],
+        [{ 'direction': 'rtl' }],
+        [{ 'align': [] }],
+        ['link', 'image', 'video'],
         ['clean']
       ]
     }

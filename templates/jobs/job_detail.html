@@ -8,6 +8,46 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 <!-- Quill.js CSS -->
 <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<style>
+/* Quill Toolbar Enhancements for Quick Apply */
+.ql-toolbar {
+  background: #f9fafb;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  border: 1px solid #e5e7eb;
+  padding: 8px;
+}
+.ql-toolbar .ql-formats {
+  margin-right: 10px;
+}
+.ql-toolbar button {
+  width: 28px;
+  height: 28px;
+}
+.ql-toolbar button:hover {
+  color: #2563eb;
+}
+.ql-toolbar button.ql-active {
+  color: #2563eb;
+}
+.ql-snow .ql-picker {
+  font-size: 14px;
+}
+#quill-quick-apply-editor {
+  border-top: none !important;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
+.ql-container {
+  font-size: 1rem;
+  font-family: inherit;
+}
+.ql-editor {
+  min-height: 150px;
+  max-height: 350px;
+  overflow-y: auto;
+}
+</style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -1837,15 +1877,26 @@
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-    // Initialize Quill Editor for Quick Apply
+    // Initialize Quill Editor for Quick Apply with Full Features
     if (document.getElementById('quill-quick-apply-editor')) {
         const quickQuill = new Quill('#quill-quick-apply-editor', {
             theme: 'snow',
             placeholder: 'Introduce yourself and explain why you\'re a good fit for this job...',
             modules: {
                 toolbar: [
-                    ['bold', 'italic', 'underline'],
+                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                    [{ 'font': [] }],
+                    [{ 'size': ['small', false, 'large', 'huge'] }],
+                    ['bold', 'italic', 'underline', 'strike'],
+                    [{ 'color': [] }, { 'background': [] }],
+                    [{ 'script': 'sub'}, { 'script': 'super' }],
+                    [{ 'header': 1 }, { 'header': 2 }],
+                    ['blockquote', 'code-block'],
                     [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                    [{ 'indent': '-1'}, { 'indent': '+1' }],
+                    [{ 'direction': 'rtl' }],
+                    [{ 'align': [] }],
+                    ['link', 'image', 'video'],
                     ['clean']
                 ]
             }
