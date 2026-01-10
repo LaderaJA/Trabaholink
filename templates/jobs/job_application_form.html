@@ -1268,6 +1268,12 @@ document.addEventListener('DOMContentLoaded', function() {
       if (grammarErrors.length === 0) {
         grammarStatus.textContent = '✓ No issues found!';
         grammarStatus.style.color = '#10b981';
+        
+        // Remove any previous error list
+        const existingList = document.getElementById('grammar-error-list');
+        if (existingList) {
+          existingList.remove();
+        }
       } else {
         grammarStatus.textContent = `Found ${grammarErrors.length} issue(s)`;
         grammarStatus.style.color = '#ef4444';

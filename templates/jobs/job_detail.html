@@ -2128,6 +2128,12 @@
                     if (errors.length === 0) {
                         quickGrammarStatus.textContent = '✓ No issues found!';
                         quickGrammarStatus.style.color = '#10b981';
+                        
+                        // Remove any previous error list
+                        const existingList = document.getElementById('quick-grammar-error-list');
+                        if (existingList) {
+                            existingList.remove();
+                        }
                     } else {
                         quickGrammarStatus.textContent = `Found ${errors.length} issue(s)`;
                         quickGrammarStatus.style.color = '#ef4444';
