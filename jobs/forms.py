@@ -1,7 +1,6 @@
 from django import forms
 from .models import Job, JobApplication, Contract, ProgressLog, JobOffer, WorkerAvailability
 from django.forms.widgets import ClearableFileInput
-from .utils_sanitize import sanitize_html
 
 class MultipleFileInput(ClearableFileInput):
     allow_multiple_selected = True
@@ -147,6 +146,8 @@ class JobApplicationForm(forms.ModelForm):
         cover_letter = self.cleaned_data.get('cover_letter', '')
         
         if cover_letter:
+            # Lazy import to avoid issues during startup before bleach is installed
+            from .utils_sanitize import sanitize_html
             # Sanitize HTML to allow only safe tags and attributes
             cover_letter = sanitize_html(cover_letter)
         
