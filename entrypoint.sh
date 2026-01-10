@@ -19,6 +19,14 @@ until python -c "import redis; redis.Redis(host=\"${REDIS_HOST}\", port=${REDIS_
 done
 echo "Redis is up and running!"
 
+# Install bleach if not present (for Quill.js HTML sanitization)
+echo "Checking for bleach package..."
+python -c "import bleach" 2>/dev/null || {
+  echo "Installing bleach..."
+  pip install -q bleach==6.1.0
+  echo "✓ bleach installed"
+}
+
 # Run migrations
 if [ "$RUN_MIGRATIONS" = "true" ]; then
   echo "Running database migrations..."
