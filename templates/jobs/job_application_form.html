@@ -1072,6 +1072,9 @@ document.addEventListener('DOMContentLoaded', function() {
     modules: {
       toolbar: {
         container: [
+          // Row 0: History (Undo/Redo)
+          ['undo', 'redo'],
+          
           // Row 1: Text Style & Size
           [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
           [{ 'font': [] }],
@@ -1096,10 +1099,33 @@ document.addEventListener('DOMContentLoaded', function() {
           // Row 6: Utilities
           [{ 'direction': 'rtl' }],
           ['clean']
-        ]
+        ],
+        handlers: {
+          'undo': function() {
+            this.quill.history.undo();
+          },
+          'redo': function() {
+            this.quill.history.redo();
+          }
+        }
+      },
+      history: {
+        delay: 1000,
+        maxStack: 50,
+        userOnly: true
       }
     }
   });
+  
+  // Add custom icons for undo/redo buttons
+  const undoButton = document.querySelector('.ql-undo');
+  const redoButton = document.querySelector('.ql-redo');
+  if (undoButton) {
+    undoButton.innerHTML = '<i class="fa fa-undo"></i>';
+  }
+  if (redoButton) {
+    redoButton.innerHTML = '<i class="fa fa-repeat"></i>';
+  }
 
   // Get references
   const coverLetterField = document.querySelector('#{{ form.cover_letter.id_for_label }}');
@@ -1116,6 +1142,10 @@ document.addEventListener('DOMContentLoaded', function() {
   // Add tooltips to toolbar buttons
   function addQuillTooltips() {
     const tooltips = {
+      // History
+      '.ql-undo': 'Undo (Ctrl+Z)',
+      '.ql-redo': 'Redo (Ctrl+Y)',
+      
       // Headers and fonts
       '.ql-header': 'Heading Style',
       '.ql-header[value="1"]': 'Heading 1 (Largest)',

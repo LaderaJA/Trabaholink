@@ -1986,6 +1986,9 @@
             modules: {
                 toolbar: {
                     container: [
+                        // Row 0: History (Undo/Redo)
+                        ['undo', 'redo'],
+                        
                         // Row 1: Text Style & Size
                         [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
                         [{ 'font': [] }],
@@ -2010,10 +2013,33 @@
                         // Row 6: Utilities
                         [{ 'direction': 'rtl' }],
                         ['clean']
-                    ]
+                    ],
+                    handlers: {
+                        'undo': function() {
+                            this.quill.history.undo();
+                        },
+                        'redo': function() {
+                            this.quill.history.redo();
+                        }
+                    }
+                },
+                history: {
+                    delay: 1000,
+                    maxStack: 50,
+                    userOnly: true
                 }
             }
         });
+        
+        // Add custom icons for undo/redo buttons
+        const undoButton = document.querySelector('#quill-quick-apply-editor').previousElementSibling.querySelector('.ql-undo');
+        const redoButton = document.querySelector('#quill-quick-apply-editor').previousElementSibling.querySelector('.ql-redo');
+        if (undoButton) {
+            undoButton.innerHTML = '<i class="fa fa-undo"></i>';
+        }
+        if (redoButton) {
+            redoButton.innerHTML = '<i class="fa fa-repeat"></i>';
+        }
 
         const quickCoverLetterField = document.getElementById('cover_letter');
         const quickGrammarBtn = document.getElementById('quick-grammar-check-btn');
@@ -2022,6 +2048,10 @@
         // Add tooltips to toolbar buttons
         function addQuillTooltips() {
             const tooltips = {
+                // History
+                '.ql-undo': 'Undo (Ctrl+Z)',
+                '.ql-redo': 'Redo (Ctrl+Y)',
+                
                 // Headers and fonts
                 '.ql-header': 'Heading Style',
                 '.ql-header[value="1"]': 'Heading 1 (Largest)',

@@ -391,20 +391,71 @@ body {
   <div class="content-grid">
     <!-- Main Content -->
     <div class="main-card">
-      <!-- Worker's Message -->
+      <!-- Worker's Cover Letter -->
       <div class="card-section">
         <h3 class="section-title">
-          <i class="bi bi-chat-left-text-fill"></i>
-          Application Message
+          <i class="bi bi-file-text-fill"></i>
+          Cover Letter
         </h3>
         <div class="message-box {% if not application.cover_letter %}empty{% endif %}">
           {% if application.cover_letter %}
-            {{ application.cover_letter|safe }}
+            <div class="cover-letter-content">
+              {{ application.cover_letter|safe }}
+            </div>
           {% else %}
-            <i class="bi bi-info-circle"></i> No message provided with this application.
+            <div style="text-align: center; padding: 20px; color: #6b7280;">
+              <i class="bi bi-info-circle" style="font-size: 2rem; opacity: 0.5;"></i>
+              <p style="margin-top: 10px;">No cover letter provided with this application.</p>
+            </div>
           {% endif %}
         </div>
       </div>
+
+      <!-- Worker's CV/Resume -->
+      {% if application.attach_profile_cv and application.worker.cv_url %}
+      <div class="card-section">
+        <h3 class="section-title">
+          <i class="bi bi-file-earmark-pdf-fill"></i>
+          Curriculum Vitae (CV)
+        </h3>
+        <div class="cv-section">
+          <div class="cv-preview-box">
+            <div class="cv-icon">
+              <i class="bi bi-file-earmark-pdf-fill" style="font-size: 3rem; color: #ef4444;"></i>
+            </div>
+            <div class="cv-info">
+              <h4 style="margin: 0 0 5px 0; font-size: 1.1rem;">{{ application.worker.get_full_name }}'s Resume</h4>
+              <p style="margin: 0; color: #6b7280; font-size: 0.9rem;">
+                Attached from worker's profile
+              </p>
+            </div>
+            <div class="cv-actions">
+              <a href="{{ application.worker.cv_url }}" target="_blank" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+                <i class="bi bi-eye-fill"></i>
+                View CV
+              </a>
+              <a href="{{ application.worker.cv_url }}" download class="btn btn-outline-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+                <i class="bi bi-download"></i>
+                Download
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+      {% elif application.attach_profile_cv %}
+      <div class="card-section">
+        <h3 class="section-title">
+          <i class="bi bi-file-earmark-pdf-fill"></i>
+          Curriculum Vitae (CV)
+        </h3>
+        <div class="message-box empty">
+          <div style="text-align: center; padding: 20px; color: #f59e0b;">
+            <i class="bi bi-exclamation-triangle-fill" style="font-size: 2rem; opacity: 0.7;"></i>
+            <p style="margin-top: 10px;">Worker indicated they would attach CV, but no CV found in their profile.</p>
+          </div>
+        </div>
+      </div>
+      {% endif %}
 
       <!-- Application Info -->
       <div class="card-section">
