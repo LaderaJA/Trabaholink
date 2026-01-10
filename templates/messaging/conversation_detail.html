@@ -1855,7 +1855,7 @@ hr{
                           {% if message.file.name|slice:"-4:" == ".pdf" or message.file.name|slice:"-4:" == ".PDF" %}
                             📄
                           {% elif message.file.name|slice:"-4:" == ".doc" or message.file.name|slice:"-5:" == ".docx" or message.file.name|slice:"-4:" == ".DOC" or message.file.name|slice:"-5:" == ".DOCX" %}
-                            📝
+                            <i class="fa fa-file-text-o"></i>
                           {% elif message.file.name|slice:"-4:" == ".zip" or message.file.name|slice:"-4:" == ".rar" or message.file.name|slice:"-4:" == ".ZIP" or message.file.name|slice:"-4:" == ".RAR" %}
                             📦
                           {% elif message.file.name|slice:"-4:" == ".mp4" or message.file.name|slice:"-4:" == ".mov" or message.file.name|slice:"-4:" == ".MP4" or message.file.name|slice:"-4:" == ".MOV" %}
@@ -2091,7 +2091,7 @@ function getFileIcon(fileName) {
   const ext = fileName.split('.').pop().toLowerCase();
   if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return '🖼️';
   if (['pdf'].includes(ext)) return '📄';
-  if (['doc', 'docx'].includes(ext)) return '📝';
+  if (['doc', 'docx'].includes(ext)) return '<i class="fa fa-file-text-o"></i>';
   return '📎';
 }
 

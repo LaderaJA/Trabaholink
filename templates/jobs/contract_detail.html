@@ -1065,7 +1065,7 @@ document.addEventListener('keydown', (event) => {
 function confirmAcceptContract(role) {
     const roleText = role === 'client' ? 'Client' : 'Worker';
     return confirm(
-        '⚠️ IMPORTANT REMINDERS BEFORE ACCEPTING CONTRACT:\n\n' +
+        '<i class="fa fa-exclamation-triangle"></i> IMPORTANT REMINDERS BEFORE ACCEPTING CONTRACT:\n\n' +
         '✓ You are accepting the contract terms as the ' + roleText + '\n' +
         '✓ You agree to all scope of work, payment terms, and deliverables\n' +
         '✓ You agree to the start and end dates specified\n' +
@@ -1078,7 +1078,7 @@ function confirmAcceptContract(role) {
 
 function confirmFinalizeContract() {
     return confirm(
-        '⚠️ IMPORTANT REMINDERS BEFORE FINALIZING CONTRACT:\n\n' +
+        '<i class="fa fa-exclamation-triangle"></i> IMPORTANT REMINDERS BEFORE FINALIZING CONTRACT:\n\n' +
         '✓ Both parties have accepted the contract terms\n' +
         '✓ Finalizing will lock the contract - no more changes allowed\n' +
         '✓ The worker will be able to start work after finalization\n' +
@@ -1090,7 +1090,7 @@ function confirmFinalizeContract() {
 
 function confirmStartWork() {
     return confirm(
-        '⚠️ IMPORTANT REMINDERS BEFORE STARTING WORK:\n\n' +
+        '<i class="fa fa-exclamation-triangle"></i> IMPORTANT REMINDERS BEFORE STARTING WORK:\n\n' +
         '✓ The contract has been finalized by the client\n' +
         '✓ You are committing to complete the work as specified\n' +
         '✓ You should provide regular progress updates\n' +

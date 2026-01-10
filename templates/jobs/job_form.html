@@ -1784,7 +1784,7 @@ function showLocationWarning(lat, lng) {
         <line x1="12" y1="9" x2="12" y2="13"></line>
         <line x1="12" y1="17" x2="12.01" y2="17"></line>
       </svg>
-      <span>⚠️ Warning: Selected location is outside Bacoor area. Jobs are only available in Bacoor, Cavite.</span>
+      <span><i class="fa fa-exclamation-triangle"></i> Warning: Selected location is outside Bacoor area. Jobs are only available in Bacoor, Cavite.</span>
       <button onclick="this.parentElement.remove()" style="background: none; border: none; cursor: pointer; font-size: 20px; color: #92400e; margin-left: 10px;">×</button>
     `;
     
@@ -1838,7 +1838,7 @@ function showLocationWarning(lat, lng) {
       font-weight: 600;
       animation: slideDown 0.3s ease;
     `;
-    success.textContent = '✅ Location is within Bacoor service area';
+    success.textContent = '<i class="fa fa-check-circle"></i> Location is within Bacoor service area';
     document.body.appendChild(success);
     
     setTimeout(() => success.remove(), 2000);
@@ -1972,7 +1972,7 @@ function setupLocationSync() {
           console.log('Subdivision from API:', subdivision);
           if (subdivisionInput) {
             subdivisionInput.value = subdivision;
-            console.log('✅ Updated subdivision field to:', subdivision);
+            console.log('<i class="fa fa-check-circle"></i> Updated subdivision field to:', subdivision);
             subdivisionInput.dispatchEvent(new Event('change', { bubbles: true }));
           }
           
@@ -1985,10 +1985,10 @@ function setupLocationSync() {
           
           if (barangayInput) {
             barangayInput.value = barangay;
-            console.log('✅ Updated barangay field to:', barangay);
+            console.log('<i class="fa fa-check-circle"></i> Updated barangay field to:', barangay);
             barangayInput.dispatchEvent(new Event('change', { bubbles: true }));
           } else {
-            console.error('❌ Barangay input element not found!');
+            console.error('<i class="fa fa-times-circle"></i> Barangay input element not found!');
           }
           
           formChanged = true;

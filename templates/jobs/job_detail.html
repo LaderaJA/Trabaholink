@@ -1890,7 +1890,11 @@
                     });
                     
                     const data = await response.json();
-                    const errors = data.matches || [];
+                    // Filter out whitespace-only errors
+                    const errors = (data.matches || []).filter(error => {
+                        const ruleId = error.rule.id.toLowerCase();
+                        return !ruleId.includes('whitespace') && !ruleId.includes('double_space') && !ruleId.includes('comma_parenthesis_whitespace');
+                    });
                     
                     if (errors.length === 0) {
                         quickGrammarStatus.textContent = '✓ No issues found!';
@@ -1905,7 +1909,7 @@
                         
                         displayErrors.forEach(error => {
                             const type = error.rule.issueType || 'grammar';
-                            const icon = type === 'misspelling' ? '📝' : '✏️';
+                            const icon = type === 'misspelling' ? '<i class="fa fa-spell-check"></i>' : '<i class="fa fa-pencil"></i>';
                             errorList += `<li>${icon} ${error.message}`;
                             if (error.replacements && error.replacements.length > 0) {
                                 errorList += ` <span style="color: #10b981;">→ ${error.replacements[0].value}</span>`;

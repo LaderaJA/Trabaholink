@@ -1018,7 +1018,23 @@ document.addEventListener('DOMContentLoaded', function() {
       });
       
       const data = await response.json();
-      grammarErrors = data.matches || [];
+      // Filter out whitespace-only errors and minor issues
+      grammarErrors = (data.matches || []).filter(error => {
+        const ruleId = error.rule.id.toLowerCase();
+        const issueType = error.rule.issueType || '';
+        
+        // Skip whitespace errors
+        if (ruleId.includes('whitespace') || ruleId.includes('double_space')) {
+          return false;
+        }
+        
+        // Skip very minor punctuation issues
+        if (ruleId.includes('comma_parenthesis_whitespace')) {
+          return false;
+        }
+        
+        return true;
+      });
       
       // Clear previous highlights
       const editor = quill.root;
@@ -1059,7 +1075,7 @@ document.addEventListener('DOMContentLoaded', function() {
     
     displayErrors.forEach((error, index) => {
       const type = error.rule.issueType || 'grammar';
-      const icon = type === 'misspelling' ? '📝' : type === 'style' ? '💡' : '✏️';
+      const icon = type === 'misspelling' ? '<i class="fa fa-spell-check"></i>' : type === 'style' ? '<i class="fa fa-lightbulb-o"></i>' : '<i class="fa fa-pencil"></i>';
       errorList += `<li>${icon} <strong>"${error.context.text.substring(error.context.offset, error.context.offset + error.context.length)}"</strong>: ${error.message}`;
       if (error.replacements && error.replacements.length > 0) {
         errorList += ` <span style="color: #10b981;">→ ${error.replacements[0].value}</span>`;

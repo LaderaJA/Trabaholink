@@ -541,7 +541,7 @@
 <script>
 function confirmAccept() {
     return confirm(
-        '⚠️ IMPORTANT REMINDERS BEFORE ACCEPTING:\n\n' +
+        '<i class="fa fa-exclamation-triangle"></i> IMPORTANT REMINDERS BEFORE ACCEPTING:\n\n' +
         '✓ You are agreeing to the offered rate of ₱{{ offer.offered_rate }}\n' +
         '✓ Work starts on {{ offer.proposed_start_date|date:"F d, Y" }}\n' +
         '✓ A contract will be created that you must sign\n' +
@@ -553,7 +553,7 @@ function confirmAccept() {
 
 function confirmReject() {
     return confirm(
-        '⚠️ IMPORTANT REMINDERS BEFORE REJECTING:\n\n' +
+        '<i class="fa fa-exclamation-triangle"></i> IMPORTANT REMINDERS BEFORE REJECTING:\n\n' +
         '✓ This will permanently decline the job offer\n' +
         '✓ The employer will be notified immediately\n' +
         '✓ You cannot accept this offer later\n' +

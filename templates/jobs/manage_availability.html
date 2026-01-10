@@ -417,7 +417,7 @@
 
   <div class="availability-card">
     <div class="info-box">
-      <h3>💡 How It Works</h3>
+      <h3><i class="fa fa-lightbulb-o"></i> How It Works</h3>
       <ul>
         <li>Toggle each day ON/OFF to indicate if you're available</li>
         <li>Add multiple time slots per day if you have split shifts</li>
@@ -468,7 +468,7 @@
                 <input type="time" class="end-time" value="{{ slot.end_time }}" required>
               </div>
               <button type="button" class="btn-remove-slot" onclick="removeTimeSlot(this)">
-                🗑️ Remove
+                <i class="fa fa-trash-o"></i> Remove
               </button>
             </div>
           {% empty %}
@@ -482,7 +482,7 @@
                 <input type="time" class="end-time" value="17:00" required>
               </div>
               <button type="button" class="btn-remove-slot" onclick="removeTimeSlot(this)">
-                🗑️ Remove
+                <i class="fa fa-trash-o"></i> Remove
               </button>
             </div>
           {% endfor %}
@@ -522,7 +522,7 @@ function addTimeSlot(dayOfWeek) {
       <input type="time" class="end-time" value="17:00" required>
     </div>
     <button type="button" class="btn-remove-slot" onclick="removeTimeSlot(this)">
-      🗑️ Remove
+      <i class="fa fa-trash-o"></i> Remove
     </button>
   `;
   
@@ -640,7 +640,7 @@ function showAlert(message, type) {
   const alertDiv = document.createElement('div');
   alertDiv.className = `alert alert-${type}`;
   alertDiv.innerHTML = `
-    <span style="font-size: 1.25rem;">${type === 'success' ? '✅' : type === 'error' ? '❌' : 'ℹ️'}</span>
+    <i class="fa ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-times-circle' : 'fa-info-circle'}" style="font-size: 1.25rem;"></i>
     <span>${message}</span>
   `;
   

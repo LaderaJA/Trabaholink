@@ -113,7 +113,7 @@
                 </div>
                 <div class="ml-3 flex-1">
                     <h3 class="text-sm font-medium text-yellow-800">
-                        ⚠️ Schedule Conflict Detected
+                        <i class="fa fa-exclamation-triangle"></i> Schedule Conflict Detected
                     </h3>
                     <div class="mt-2 text-sm text-yellow-700">
                         <p class="mb-2">
@@ -134,7 +134,7 @@
                         {% if is_worker %}
                         <div class="bg-yellow-100 border border-yellow-200 rounded-md p-3 mt-3">
                             <p class="text-sm text-yellow-800 mb-2">
-                                <strong>💡 Recommendations for Worker:</strong>
+                                <strong><i class="fa fa-lightbulb-o"></i> Recommendations for Worker:</strong>
                             </p>
                             <ul class="text-xs text-yellow-700 space-y-1 ml-4 list-disc">
                                 <li><a href="{% url 'jobs:manage_availability' %}" class="underline font-medium hover:text-yellow-900">Update your availability settings</a> to match this schedule</li>
@@ -145,7 +145,7 @@
                         {% else %}
                         <div class="bg-yellow-100 border border-yellow-200 rounded-md p-3 mt-3">
                             <p class="text-sm text-yellow-800 mb-2">
-                                <strong>💡 Recommendations for Employer:</strong>
+                                <strong><i class="fa fa-lightbulb-o"></i> Recommendations for Employer:</strong>
                             </p>
                             <ul class="text-xs text-yellow-700 space-y-1 ml-4 list-disc">
                                 <li>Discuss schedule conflicts with the worker before finalizing</li>
