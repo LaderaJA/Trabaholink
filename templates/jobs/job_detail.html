@@ -99,6 +99,55 @@
     width: 100%;
   }
 }
+
+/* Enhanced Tooltips for Toolbar */
+.ql-toolbar button[title],
+.ql-toolbar .ql-picker-label[title] {
+  position: relative;
+}
+
+.ql-toolbar button:hover::after,
+.ql-toolbar .ql-picker-label:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  background: #1f2937;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  animation: tooltipFadeIn 0.2s ease-out;
+}
+
+.ql-toolbar button:hover::before,
+.ql-toolbar .ql-picker-label:hover::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(2px);
+  border: 4px solid transparent;
+  border-top-color: #1f2937;
+  z-index: 1001;
+  pointer-events: none;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-4px);
+  }
+}
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1969,6 +2018,71 @@
         const quickCoverLetterField = document.getElementById('cover_letter');
         const quickGrammarBtn = document.getElementById('quick-grammar-check-btn');
         const quickGrammarStatus = document.getElementById('quick-grammar-status');
+        
+        // Add tooltips to toolbar buttons
+        function addQuillTooltips() {
+            const tooltips = {
+                // Headers and fonts
+                '.ql-header': 'Heading Style',
+                '.ql-header[value="1"]': 'Heading 1 (Largest)',
+                '.ql-header[value="2"]': 'Heading 2',
+                '.ql-header[value="3"]': 'Heading 3',
+                '.ql-header[value="4"]': 'Heading 4',
+                '.ql-header[value="5"]': 'Heading 5',
+                '.ql-header[value="6"]': 'Heading 6 (Smallest)',
+                '.ql-font': 'Font Family',
+                '.ql-size': 'Font Size',
+                '.ql-size[value="small"]': 'Small',
+                '.ql-size[value="large"]': 'Large',
+                '.ql-size[value="huge"]': 'Huge',
+                
+                // Text formatting
+                '.ql-bold': 'Bold (Ctrl+B)',
+                '.ql-italic': 'Italic (Ctrl+I)',
+                '.ql-underline': 'Underline (Ctrl+U)',
+                '.ql-strike': 'Strikethrough',
+                '.ql-script[value="sub"]': 'Subscript',
+                '.ql-script[value="super"]': 'Superscript',
+                
+                // Colors
+                '.ql-color': 'Text Color',
+                '.ql-background': 'Background Color',
+                
+                // Alignment and lists
+                '.ql-align': 'Text Alignment',
+                '.ql-align[value="center"]': 'Align Center',
+                '.ql-align[value="right"]': 'Align Right',
+                '.ql-align[value="justify"]': 'Justify',
+                '.ql-list[value="ordered"]': 'Numbered List',
+                '.ql-list[value="bullet"]': 'Bullet List',
+                '.ql-indent[value="-1"]': 'Decrease Indent',
+                '.ql-indent[value="+1"]': 'Increase Indent',
+                
+                // Blocks and media
+                '.ql-blockquote': 'Block Quote',
+                '.ql-code-block': 'Code Block',
+                '.ql-link': 'Insert Link',
+                '.ql-image': 'Insert Image',
+                '.ql-video': 'Insert Video',
+                
+                // Utilities
+                '.ql-direction[value="rtl"]': 'Right-to-Left Text Direction',
+                '.ql-clean': 'Remove Formatting'
+            };
+            
+            const toolbar = document.querySelector('#quill-quick-apply-editor').previousElementSibling;
+            
+            Object.keys(tooltips).forEach(selector => {
+                const elements = toolbar.querySelectorAll(selector);
+                elements.forEach(el => {
+                    el.setAttribute('title', tooltips[selector]);
+                    el.setAttribute('data-tooltip', tooltips[selector]);
+                });
+            });
+        }
+        
+        // Add tooltips after a brief delay
+        setTimeout(addQuillTooltips, 100);
         
         // Sync Quill content to hidden textarea
         quickQuill.on('text-change', function() {
