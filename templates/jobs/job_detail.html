@@ -16,9 +16,15 @@
   border-top-right-radius: 8px;
   border: 1px solid #e5e7eb;
   padding: 8px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
 }
 .ql-toolbar .ql-formats {
   margin-right: 10px;
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
 }
 .ql-toolbar button {
   width: 28px;
@@ -46,6 +52,52 @@
   min-height: 150px;
   max-height: 350px;
   overflow-y: auto;
+}
+
+/* Responsive Design for Mobile */
+@media (max-width: 768px) {
+  .ql-toolbar {
+    padding: 6px;
+    gap: 2px;
+  }
+  .ql-toolbar .ql-formats {
+    margin-right: 6px;
+    margin-bottom: 4px;
+  }
+  .ql-toolbar button {
+    width: 24px;
+    height: 24px;
+  }
+  .ql-snow .ql-picker {
+    font-size: 12px;
+  }
+  .ql-snow .ql-picker-label {
+    padding: 2px 4px;
+  }
+  .ql-editor {
+    min-height: 120px;
+    font-size: 0.9rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .ql-toolbar {
+    padding: 4px;
+  }
+  .ql-toolbar .ql-formats {
+    margin-right: 4px;
+  }
+  .ql-toolbar button {
+    width: 22px;
+    height: 22px;
+  }
+  .ql-snow .ql-picker-label {
+    padding: 1px 3px;
+  }
+  /* Stack some groups on very small screens */
+  .ql-toolbar .ql-formats:nth-child(n+7) {
+    width: 100%;
+  }
 }
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1877,28 +1929,40 @@
 
 <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
 <script>
-    // Initialize Quill Editor for Quick Apply with Full Features
+    // Initialize Quill Editor for Quick Apply with Organized Toolbar
     if (document.getElementById('quill-quick-apply-editor')) {
         const quickQuill = new Quill('#quill-quick-apply-editor', {
             theme: 'snow',
             placeholder: 'Introduce yourself and explain why you\'re a good fit for this job...',
             modules: {
-                toolbar: [
-                    [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-                    [{ 'font': [] }],
-                    [{ 'size': ['small', false, 'large', 'huge'] }],
-                    ['bold', 'italic', 'underline', 'strike'],
-                    [{ 'color': [] }, { 'background': [] }],
-                    [{ 'script': 'sub'}, { 'script': 'super' }],
-                    [{ 'header': 1 }, { 'header': 2 }],
-                    ['blockquote', 'code-block'],
-                    [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-                    [{ 'indent': '-1'}, { 'indent': '+1' }],
-                    [{ 'direction': 'rtl' }],
-                    [{ 'align': [] }],
-                    ['link', 'image', 'video'],
-                    ['clean']
-                ]
+                toolbar: {
+                    container: [
+                        // Row 1: Text Style & Size
+                        [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+                        [{ 'font': [] }],
+                        [{ 'size': ['small', false, 'large', 'huge'] }],
+                        
+                        // Row 2: Text Formatting
+                        ['bold', 'italic', 'underline', 'strike'],
+                        [{ 'script': 'sub'}, { 'script': 'super' }],
+                        
+                        // Row 3: Colors
+                        [{ 'color': [] }, { 'background': [] }],
+                        
+                        // Row 4: Paragraph Formatting
+                        [{ 'align': [] }],
+                        [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+                        [{ 'indent': '-1'}, { 'indent': '+1' }],
+                        
+                        // Row 5: Blocks & Media
+                        ['blockquote', 'code-block'],
+                        ['link', 'image', 'video'],
+                        
+                        // Row 6: Utilities
+                        [{ 'direction': 'rtl' }],
+                        ['clean']
+                    ]
+                }
             }
         });
 
