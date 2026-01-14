@@ -60,6 +60,11 @@
   z-index: 100;
 }
 
+/* Increase spacing between color and background color buttons */
+.ql-toolbar .ql-color {
+  margin-right: 8px !important;
+}
+
 /* Webkit scrollbar styling */
 .ql-toolbar::-webkit-scrollbar {
   height: 6px;
@@ -204,12 +209,12 @@
   visibility: visible !important;
   opacity: 1 !important;
   pointer-events: auto !important;
-  height: auto !important; /* Let it size naturally based on content */
-  max-height: none !important; /* Remove max-height limit */
+  height: auto !important;
+  max-height: 300px !important; /* Limit height */
   overflow-y: auto !important;
   overflow-x: hidden !important;
   background: white !important;
-  border: 2px solid #2563eb !important; /* Blue border for visibility testing */
+  border: 2px solid #2563eb !important;
   box-shadow: 0 10px 40px rgba(0,0,0,0.3) !important;
   padding: 8px !important;
   margin: 0 !important;
@@ -221,6 +226,27 @@
   isolation: auto !important;
   mix-blend-mode: normal !important;
   will-change: auto !important;
+}
+
+/* Mobile responsive dropdowns */
+@media (max-width: 768px) {
+  .ql-picker-options-portal {
+    max-height: 200px !important;
+    max-width: calc(100vw - 40px) !important;
+  }
+}
+
+@media (max-width: 480px) {
+  .ql-picker-options-portal {
+    max-height: 150px !important;
+    max-width: calc(100vw - 20px) !important;
+    font-size: 14px !important;
+  }
+  
+  .ql-picker-options-portal .ql-picker-item {
+    padding: 8px !important;
+    min-height: 36px !important;
+  }
 }
 
 /* Make sure portal items are visible */
@@ -2567,21 +2593,34 @@
                             portalItems.forEach((portalItem, index) => {
                                 const originalItem = originalItems[index];
                                 if (originalItem) {
-                                    // Copy any data attributes
+                                    // Copy all attributes
                                     const dataValue = originalItem.getAttribute('data-value');
                                     const dataLabel = originalItem.getAttribute('data-label');
                                     
-                                    // Get text content from original (Quill might populate via JS)
-                                    const text = originalItem.textContent || originalItem.innerText || dataLabel || dataValue || `Option ${index + 1}`;
+                                    // Quill uses ::before with content from data-value/data-label
+                                    // We need to make it visible by using the attribute as actual content
+                                    let displayText = '';
                                     
-                                    console.log('[Dropdown Fix] Item', index, '- dataValue:', dataValue, 'dataLabel:', dataLabel, 'text:', text);
+                                    // Check if it's a heading dropdown
+                                    if (dataValue && !isNaN(dataValue)) {
+                                        displayText = `Heading ${dataValue}`;
+                                    } else if (dataValue) {
+                                        // For other pickers, use the data-value or data-label
+                                        displayText = dataLabel || dataValue;
+                                    } else {
+                                        // Fallback
+                                        displayText = originalItem.textContent || `Option ${index + 1}`;
+                                    }
                                     
-                                    // Set content and styles
-                                    portalItem.textContent = text;
+                                    console.log('[Dropdown Fix] Item', index, '- dataValue:', dataValue, 'display:', displayText);
+                                    
+                                    // Set actual text content instead of relying on ::before
+                                    portalItem.textContent = displayText;
                                     portalItem.style.display = 'block';
-                                    portalItem.style.padding = '5px 10px';
+                                    portalItem.style.padding = '8px 12px';
                                     portalItem.style.cursor = 'pointer';
                                     portalItem.style.minHeight = '30px';
+                                    portalItem.style.whiteSpace = 'nowrap';
                                 }
                             });
                             
