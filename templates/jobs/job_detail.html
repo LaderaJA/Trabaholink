@@ -28,6 +28,17 @@
   z-index: 1;
 }
 
+/* CRITICAL: Allow toolbar and ALL parent containers to show overflowing dropdowns */
+#quill-quick-apply-editor,
+#quill-quick-apply-editor .ql-container,
+#quill-quick-apply-editor .ql-toolbar,
+.modal-content,
+.modal-body,
+.application-form-section,
+.content-section {
+  overflow: visible !important;
+}
+
 /* Quill Toolbar - MS Word Style (Horizontal Scroll with Visible Dropdowns) */
 .ql-toolbar {
   background: linear-gradient(to bottom, #ffffff, #f5f5f5);
@@ -2478,108 +2489,33 @@
         // Add tooltips after a brief delay
         setTimeout(addQuillTooltips, 100);
         
-        // AGGRESSIVE FIX: Force dropdowns to body and reposition constantly
+        // Simple fix: Just ensure dropdowns are visible with CSS overflow
+        // No need to move dropdowns - let Quill manage them
+        console.log('[Dropdown Fix] Using CSS-only overflow solution');
+        
+        // Fix aria-hidden accessibility issue
         const toolbar = document.querySelector('#quill-quick-apply-editor').previousElementSibling;
         if (toolbar) {
-            console.log('[Dropdown Fix] Setting up AGGRESSIVE dropdown fix');
-            
             const allPickers = toolbar.querySelectorAll('.ql-picker');
             
-            // Function to forcefully reposition dropdown
-            function forceRepositionDropdown(picker) {
-                const options = picker.querySelector('.ql-picker-options');
-                if (!options) return;
-                
-                const isExpanded = picker.classList.contains('ql-expanded');
-                
-                if (isExpanded) {
-                    // FORCE move to body every time
-                    if (options.parentElement !== document.body) {
-                        console.log('[Dropdown Fix] FORCING dropdown to body');
-                        document.body.appendChild(options);
-                    }
-                    
-                    // Get the picker LABEL (button), not the whole picker container
-                    const pickerLabel = picker.querySelector('.ql-picker-label');
-                    const rect = pickerLabel ? pickerLabel.getBoundingClientRect() : picker.getBoundingClientRect();
-                    
-                    console.log('[Dropdown Fix] Picker rect:', rect);
-                    console.log('[Dropdown Fix] Window scroll:', window.scrollY, window.scrollX);
-                    
-                    // FIX: Remove aria-hidden to fix accessibility warning
-                    options.removeAttribute('aria-hidden');
-                    options.setAttribute('aria-expanded', 'true');
-                    
-                    // Calculate and apply position
-                    options.style.cssText = `
-                        position: fixed !important;
-                        top: ${rect.bottom + 2}px !important;
-                        left: ${rect.left}px !important;
-                        z-index: 999999 !important;
-                        display: block !important;
-                        visibility: visible !important;
-                        opacity: 1 !important;
-                        min-width: ${Math.max(rect.width, 150)}px !important;
-                        max-height: 250px !important;
-                        overflow-y: auto !important;
-                        background: white !important;
-                        border: 1px solid #ccc !important;
-                        box-shadow: 0 8px 24px rgba(0,0,0,0.2) !important;
-                        margin: 0 !important;
-                        padding: 5px !important;
-                        clip: auto !important;
-                        clip-path: none !important;
-                    `;
-                    console.log('[Dropdown Fix] Positioned dropdown at top:', rect.bottom + 2, 'left:', rect.left);
-                } else {
-                    // When closed, restore aria-hidden
-                    if (options) {
-                        options.setAttribute('aria-hidden', 'true');
-                        options.setAttribute('aria-expanded', 'false');
-                    }
-                }
-            }
-            
-            // Watch each picker with MutationObserver
             allPickers.forEach(picker => {
                 const observer = new MutationObserver(() => {
-                    forceRepositionDropdown(picker);
+                    const options = picker.querySelector('.ql-picker-options');
+                    if (options) {
+                        const isExpanded = picker.classList.contains('ql-expanded');
+                        if (isExpanded) {
+                            options.removeAttribute('aria-hidden');
+                            options.setAttribute('aria-expanded', 'true');
+                        } else {
+                            options.setAttribute('aria-hidden', 'true');
+                            options.setAttribute('aria-expanded', 'false');
+                        }
+                    }
                 });
                 
                 observer.observe(picker, { 
                     attributes: true, 
-                    attributeFilter: ['class'],
-                    childList: true,
-                    subtree: true
-                });
-                
-                // Also reposition on any picker interaction
-                picker.addEventListener('click', () => {
-                    setTimeout(() => forceRepositionDropdown(picker), 0);
-                    setTimeout(() => forceRepositionDropdown(picker), 50);
-                    setTimeout(() => forceRepositionDropdown(picker), 100);
-                });
-            });
-            
-            // Constant repositioning check
-            setInterval(() => {
-                allPickers.forEach(picker => {
-                    if (picker.classList.contains('ql-expanded')) {
-                        forceRepositionDropdown(picker);
-                    }
-                });
-            }, 100);
-            
-            // Handle scroll/resize
-            window.addEventListener('scroll', () => {
-                allPickers.forEach(picker => picker.classList.remove('ql-expanded'));
-            }, true);
-            
-            window.addEventListener('resize', () => {
-                allPickers.forEach(picker => {
-                    if (picker.classList.contains('ql-expanded')) {
-                        forceRepositionDropdown(picker);
-                    }
+                    attributeFilter: ['class']
                 });
             });
         }
