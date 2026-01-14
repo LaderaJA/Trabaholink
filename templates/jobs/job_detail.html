@@ -2550,12 +2550,10 @@
                         const pickerLabel = picker.querySelector('.ql-picker-label');
                         const rect = pickerLabel ? pickerLabel.getBoundingClientRect() : picker.getBoundingClientRect();
                         
-                        // ALWAYS recreate portal to ensure fresh content
-                        // Remove old portal if exists
-                        if (portalClone && portalClone.parentElement) {
-                            portalClone.remove();
-                        }
-                        
+                        // Only create portal if it doesn't exist
+                        if (!portalClone) {
+                            console.log('[Dropdown Fix] VERSION CHECK - Creating NEW portal clone v2');
+                            
                             // Clone with deep copy to get all children
                             portalClone = options.cloneNode(true);
                             portalClone.classList.add('ql-picker-options-portal');
