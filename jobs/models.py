@@ -13,6 +13,7 @@ from simple_history.models import HistoricalRecords
 from django.contrib.gis.measure import D
 from django.contrib.gis.db.models.functions import Distance
 from notifications.models import Notification
+from .validators import validate_video_file
 
 
 CustomUser = get_user_model()
@@ -820,6 +821,13 @@ class JobProgress(models.Model):
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE, related_name="progress_updates")
     update_text = models.TextField(help_text="Progress update description")
     image = models.ImageField(upload_to='progress_images/', blank=True, null=True, help_text="Optional progress photo")
+    video = models.FileField(
+        upload_to='progress_videos/', 
+        blank=True, 
+        null=True,
+        validators=[validate_video_file],
+        help_text="Optional progress video (max 30 seconds, 25MB)"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
     

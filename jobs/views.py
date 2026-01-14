@@ -9,6 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point
 from django.core.paginator import Paginator
+from django.core.exceptions import ValidationError
 from django.db.models import Q, Count
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -1951,28 +1952,39 @@ def post_progress_update(request, contract_pk):
     
     update_text = request.POST.get('update_text')
     image = request.FILES.get('image')
+    video = request.FILES.get('video')
     
     if not update_text:
         messages.error(request, "Please provide an update description.")
         return redirect("jobs:job_tracking", pk=contract_pk)
     
-    # Create progress update
-    JobProgress.objects.create(
-        contract=contract,
-        update_text=update_text,
-        image=image,
-        updated_by=request.user
-    )
+    try:
+        # Create progress update
+        JobProgress.objects.create(
+            contract=contract,
+            update_text=update_text,
+            image=image,
+            video=video,
+            updated_by=request.user
+        )
+        
+        # Notify employer
+        Notification.objects.create(
+            user=contract.client,
+            message=f"{contract.worker.username} posted a progress update for '{contract.job.title}'.",
+            notif_type="progress_update",
+            object_id=contract.pk
+        )
+        
+        messages.success(request, "Progress update posted successfully!")
+        
+    except ValidationError as e:
+        # Handle video validation errors
+        error_message = str(e.message) if hasattr(e, 'message') else str(e)
+        messages.error(request, f"Video upload failed: {error_message}")
+    except Exception as e:
+        messages.error(request, f"Error posting update: {str(e)}")
     
-    # Notify employer
-    Notification.objects.create(
-        user=contract.client,
-        message=f"{contract.worker.username} posted a progress update for '{contract.job.title}'.",
-        notif_type="progress_update",
-        object_id=contract.pk
-    )
-    
-    messages.success(request, "Progress update posted successfully!")
     return redirect("jobs:job_tracking", pk=contract_pk)
 
 

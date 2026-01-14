@@ -98,7 +98,7 @@
                 {% if can_post_progress %}
                 <!-- Post Progress Update -->
                 <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4">Post Progress Update</h2>
+                    <h2 class="text-xl font-bold text-gray-800 mb-4">📝 Post Progress Update</h2>
                     <form id="progress-form" method="post" action="{% url 'jobs:post_progress_update' contract.pk %}" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="mb-4">
@@ -112,11 +112,43 @@
 
                         <div class="mb-4">
                             <label for="image" class="block text-sm font-medium text-gray-700 mb-2">
-                                Progress Photo (Optional)
+                                📷 Progress Photo (Optional)
                             </label>
                             <input type="file" name="image" id="image" accept="image/*"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg">
-                            <p class="text-xs text-gray-500 mt-1">Upload a photo showing your progress</p>
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <p class="text-xs text-gray-500 mt-1">Supported: JPG, PNG, GIF</p>
+                            
+                            <!-- Image Preview -->
+                            <div id="imagePreview" class="mt-3 hidden">
+                                <img id="imagePreviewImg" src="" alt="Preview" class="max-w-xs rounded-lg border border-gray-300">
+                                <button type="button" onclick="clearImagePreview()" class="text-sm text-red-600 mt-2 hover:text-red-700">Remove</button>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label for="video" class="block text-sm font-medium text-gray-700 mb-2">
+                                🎥 Progress Video (Optional)
+                            </label>
+                            <input type="file" name="video" id="video" 
+                                   accept="video/mp4,video/quicktime,video/webm,video/x-msvideo"
+                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
+                            <div class="flex items-start gap-2 mt-1">
+                                <span class="text-xs text-gray-500">
+                                    📹 Max 30 seconds, 25MB | Formats: MP4, MOV, WEBM, AVI
+                                </span>
+                            </div>
+                            
+                            <!-- Video Preview -->
+                            <div id="videoPreview" class="mt-3 hidden">
+                                <video id="videoPreviewPlayer" controls class="max-w-md rounded-lg border border-gray-300" style="max-height: 300px;">
+                                    <source id="videoPreviewSource" src="" type="video/mp4">
+                                    Your browser does not support video playback.
+                                </video>
+                                <div class="flex items-center gap-4 mt-2">
+                                    <span id="videoInfo" class="text-sm text-gray-600"></span>
+                                    <button type="button" onclick="clearVideoPreview()" class="text-sm text-red-600 hover:text-red-700">Remove</button>
+                                </div>
+                            </div>
                         </div>
 
                         <button type="submit" 
@@ -232,7 +264,23 @@
                             <div class="mt-3">
                                 <img src="{{ update.image.url }}" alt="Progress photo" 
                                      class="rounded-lg max-w-full h-auto cursor-pointer hover:opacity-90 transition"
-                                     onclick="window.open('{{ update.image.url }}', '_blank')">
+                                     onclick="window.open('{{ update.image.url }}', '_blank')"
+                                     style="max-height: 400px;">
+                            </div>
+                            {% endif %}
+                            
+                            {% if update.video %}
+                            <div class="mt-3">
+                                <video controls 
+                                       class="rounded-lg max-w-full h-auto border border-gray-300"
+                                       style="max-height: 400px;"
+                                       preload="metadata">
+                                    <source src="{{ update.video.url }}" type="video/mp4">
+                                    <source src="{{ update.video.url }}" type="video/quicktime">
+                                    <source src="{{ update.video.url }}" type="video/webm">
+                                    Your browser does not support video playback. 
+                                    <a href="{{ update.video.url }}" target="_blank" class="text-blue-600 underline">Download video</a>
+                                </video>
                             </div>
                             {% endif %}
                             
@@ -358,6 +406,84 @@
         position: sticky;
     }
 </style>
+
+<script>
+// Image preview
+document.getElementById('image')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('imagePreviewImg').src = e.target.result;
+            document.getElementById('imagePreview').classList.remove('hidden');
+        };
+        reader.readAsDataURL(file);
+    }
+});
+
+function clearImagePreview() {
+    document.getElementById('image').value = '';
+    document.getElementById('imagePreview').classList.add('hidden');
+}
+
+// Video preview with validation
+document.getElementById('video')?.addEventListener('change', function(e) {
+    const file = e.target.files[0];
+    if (file) {
+        // Check file size (25MB)
+        const maxSize = 25 * 1024 * 1024;
+        if (file.size > maxSize) {
+            alert(`Video file is too large (${(file.size / (1024*1024)).toFixed(1)}MB). Maximum size is 25MB.`);
+            this.value = '';
+            return;
+        }
+        
+        // Check file extension
+        const validExtensions = ['mp4', 'mov', 'webm', 'avi'];
+        const fileExt = file.name.split('.').pop().toLowerCase();
+        if (!validExtensions.includes(fileExt)) {
+            alert(`Invalid video format (.${fileExt}). Please use MP4, MOV, WEBM, or AVI.`);
+            this.value = '';
+            return;
+        }
+        
+        // Show preview
+        const videoURL = URL.createObjectURL(file);
+        const videoPlayer = document.getElementById('videoPreviewPlayer');
+        const videoSource = document.getElementById('videoPreviewSource');
+        
+        videoSource.src = videoURL;
+        videoSource.type = file.type;
+        videoPlayer.load();
+        
+        // Check duration after metadata loads
+        videoPlayer.addEventListener('loadedmetadata', function() {
+            const duration = videoPlayer.duration;
+            if (duration > 30) {
+                alert(`Video is too long (${duration.toFixed(1)} seconds). Maximum duration is 30 seconds.`);
+                clearVideoPreview();
+                return;
+            }
+            
+            // Show video info
+            document.getElementById('videoInfo').textContent = 
+                `${(file.size / (1024*1024)).toFixed(1)}MB · ${duration.toFixed(1)}s`;
+            document.getElementById('videoPreview').classList.remove('hidden');
+        }, { once: true });
+    }
+});
+
+function clearVideoPreview() {
+    const videoInput = document.getElementById('video');
+    const videoPlayer = document.getElementById('videoPreviewPlayer');
+    
+    videoInput.value = '';
+    videoPlayer.pause();
+    videoPlayer.src = '';
+    document.getElementById('videoPreview').classList.add('hidden');
+}
+</script>
+
 {% endblock %}
 
 

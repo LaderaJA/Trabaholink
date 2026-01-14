@@ -263,6 +263,10 @@ MODELTRANSLATION_AUTO_POPULATE = True
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR/'media'
 
+# File upload settings (for video uploads in progress tracking)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 26214400  # 25MB in bytes
+FILE_UPLOAD_MAX_MEMORY_SIZE = 26214400  # 25MB in bytes
+
 STATIC_URL = 'static/'
 STATICFILES_DIRS = [BASE_DIR / 'static']
 STATIC_ROOT = BASE_DIR / 'staticfiles'  # New line added
