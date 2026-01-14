@@ -19,62 +19,44 @@
   color: #9ca3af;
   font-style: italic;
 }
-/* Quill Toolbar - MS Word Style (Single Row with Horizontal Scroll) */
+/* Quill Toolbar - Grouped with Labels */
 .ql-toolbar {
-  background: linear-gradient(to bottom, #ffffff, #f5f5f5);
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
-  border: none;
-  border-bottom: 2px solid #e0e0e0;
-  padding: 6px 12px;
-  display: flex;
-  align-items: center;
-  overflow-x: auto;
-  overflow-y: hidden;
-  white-space: nowrap;
-  gap: 2px;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e0 #f7fafc;
+  background: #f9fafb;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  border: 1px solid #e5e7eb;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  overflow: visible !important;
 }
 
-/* Webkit scrollbar styling */
-.ql-toolbar::-webkit-scrollbar {
-  height: 6px;
-}
-
-.ql-toolbar::-webkit-scrollbar-track {
-  background: #f7fafc;
-}
-
-.ql-toolbar::-webkit-scrollbar-thumb {
-  background: #cbd5e0;
-  border-radius: 3px;
-}
-
-.ql-toolbar::-webkit-scrollbar-thumb:hover {
-  background: #a0aec0;
-}
-
-/* Toolbar Groups - Inline with separators */
+/* Toolbar Groups with Labels */
 .ql-toolbar .ql-formats {
-  display: inline-flex !important;
+  display: flex !important;
+  flex-wrap: wrap;
   align-items: center !important;
-  gap: 2px;
-  padding: 0 8px;
-  margin: 0;
-  border-right: 1px solid #d1d5db;
-  flex-shrink: 0;
+  gap: 4px;
+  padding: 8px 12px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  position: relative;
   vertical-align: middle;
 }
 
-.ql-toolbar .ql-formats:last-child {
-  border-right: none;
-}
-
-/* Remove labels - MS Word doesn't have them */
+/* Add labels to groups */
 .ql-toolbar .ql-formats::before {
-  display: none;
+  content: attr(data-group);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  width: 100%;
+  margin-bottom: 6px;
+  display: block;
 }
 /* Override Quill default button sizes with higher specificity */
 .ql-snow.ql-toolbar button,
@@ -164,48 +146,6 @@
   border-top-right-radius: 0 !important;
 }
 
-/* Toolbar Toggle Button - Redesigned */
-.toolbar-toggle-btn {
-  display: none;
-  width: 100%;
-  padding: 10px 15px;
-  background: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
-  margin-bottom: 8px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
-  color: #495057;
-  text-align: center;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.toolbar-toggle-btn:hover {
-  background: #e9ecef;
-  border-color: #adb5bd;
-}
-
-.toolbar-toggle-btn:active {
-  transform: translateY(1px);
-  box-shadow: none;
-}
-
-.toolbar-toggle-btn i {
-  margin-right: 6px;
-  font-size: 11px;
-  transition: transform 0.3s ease;
-}
-
-.toolbar-toggle-btn.collapsed i {
-  transform: rotate(180deg);
-}
-
-/* Collapsible toolbar */
-.ql-toolbar.collapsed {
-  display: none !important;
-}
 
 /* Responsive Design for Mobile */
 @media (max-width: 768px) {
@@ -921,12 +861,6 @@ input[type="number"].form-control {
                 {% if form.cover_letter.field.required %}<span class="required-indicator">*</span>{% endif %}
               </label>
               
-              <!-- Toolbar Toggle Button (Mobile Only) -->
-              <button type="button" class="toolbar-toggle-btn" id="coverLetterToolbarToggle">
-                <i class="fa fa-chevron-down"></i>
-                <span>Formatting Tools</span>
-              </button>
-              
               <!-- Quill Editor Container -->
               <div id="quill-cover-letter-editor" style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; min-height: 200px;"></div>
               
@@ -1389,41 +1323,36 @@ document.addEventListener('DOMContentLoaded', function() {
   // Add tooltips after a brief delay to ensure toolbar is fully rendered
   setTimeout(addQuillTooltips, 100);
   
-  // Toolbar toggle functionality for mobile
-  const toolbarToggleBtn = document.getElementById('coverLetterToolbarToggle');
-  
-  // Wait for Quill to initialize and create toolbar
-  setTimeout(() => {
+  // Add labels to toolbar groups
+  function addToolbarLabels() {
     const toolbar = document.querySelector('.ql-toolbar');
+    const groups = toolbar.querySelectorAll('.ql-formats');
     
-    if (toolbarToggleBtn && toolbar) {
-      // Start collapsed on mobile
-      if (window.innerWidth <= 768) {
-        toolbar.classList.add('collapsed');
-        toolbarToggleBtn.classList.add('collapsed');
-        const icon = toolbarToggleBtn.querySelector('i');
-        const span = toolbarToggleBtn.querySelector('span');
-        if (icon) icon.className = 'fa fa-chevron-down';
-        if (span) span.textContent = 'Show Formatting Tools';
+    const labels = [
+      'History',           // Undo/Redo
+      'Heading',          // Headers
+      'Font',             // Font family
+      'Size',             // Font size
+      'Text Style',       // Bold, Italic, etc.
+      'Script',           // Sub/Super
+      'Colors',           // Text/Background color
+      'Alignment',        // Text alignment
+      'Lists',            // Ordered/Bullet
+      'Indent',           // Indent controls
+      'Blocks',           // Blockquote, Code
+      'Media',            // Link
+      'Tools'             // Direction, Clean
+    ];
+    
+    groups.forEach((group, index) => {
+      if (labels[index]) {
+        group.setAttribute('data-group', labels[index]);
       }
-      
-      toolbarToggleBtn.addEventListener('click', function(e) {
-        e.preventDefault();
-        toolbar.classList.toggle('collapsed');
-        toolbarToggleBtn.classList.toggle('collapsed');
-        
-        // Update icon and text
-        const icon = toolbarToggleBtn.querySelector('i');
-        const span = toolbarToggleBtn.querySelector('span');
-        
-        if (toolbar.classList.contains('collapsed')) {
-          if (icon) icon.className = 'fa fa-chevron-down';
-          if (span) span.textContent = 'Show Formatting Tools';
-        } else {
-          if (icon) icon.className = 'fa fa-chevron-up';
-          if (span) span.textContent = 'Hide Formatting Tools';
-        }
-      });
+    });
+  }
+  
+  setTimeout(addToolbarLabels, 150);
+  
     }
   }, 300);
 
