@@ -704,6 +704,20 @@
     .content-section:last-child {
         border-bottom: none;
     }
+    
+    /* Application Form Section - Distinct Background */
+    .application-form-section {
+        background: #f8f9fa;
+        border-radius: 12px;
+        border: 1px solid #e5e7eb;
+        margin-top: 1rem;
+    }
+    
+    @media (max-width: 768px) {
+        .application-form-section {
+            padding: 1.5rem 1rem;
+        }
+    }
 
     .section-title {
         font-size: 1.125rem;
@@ -1651,7 +1665,7 @@
 
             <!-- Application Section -->
             {% if user.is_authenticated and user != job.owner %}
-            <div class="content-section">
+            <div class="content-section application-form-section">
                 <h2 class="section-title">
                     <i class="bi bi-send-fill"></i>
                     Apply for this Job
