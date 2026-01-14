@@ -2489,24 +2489,83 @@
         // Add tooltips after a brief delay
         setTimeout(addQuillTooltips, 100);
         
-        // Simple fix: Just ensure dropdowns are visible with CSS overflow
-        // No need to move dropdowns - let Quill manage them
-        console.log('[Dropdown Fix] Using CSS-only overflow solution');
+        // PORTAL PATTERN: Clone dropdown to body for visibility, sync with original
+        console.log('[Dropdown Fix] Implementing portal pattern for dropdown visibility');
         
-        // Fix aria-hidden accessibility issue
         const toolbar = document.querySelector('#quill-quick-apply-editor').previousElementSibling;
         if (toolbar) {
             const allPickers = toolbar.querySelectorAll('.ql-picker');
+            const dropdownClones = new Map();
             
             allPickers.forEach(picker => {
+                const options = picker.querySelector('.ql-picker-options');
+                if (!options) return;
+                
+                // Store original parent
+                const originalParent = options.parentElement;
+                let portalClone = null;
+                
                 const observer = new MutationObserver(() => {
-                    const options = picker.querySelector('.ql-picker-options');
-                    if (options) {
-                        const isExpanded = picker.classList.contains('ql-expanded');
-                        if (isExpanded) {
-                            options.removeAttribute('aria-hidden');
-                            options.setAttribute('aria-expanded', 'true');
-                        } else {
+                    const isExpanded = picker.classList.contains('ql-expanded');
+                    
+                    if (isExpanded && options) {
+                        console.log('[Dropdown Fix] Picker expanded - creating portal');
+                        
+                        // Get picker button position
+                        const pickerLabel = picker.querySelector('.ql-picker-label');
+                        const rect = pickerLabel ? pickerLabel.getBoundingClientRect() : picker.getBoundingClientRect();
+                        
+                        // Create portal clone if doesn't exist
+                        if (!portalClone) {
+                            portalClone = options.cloneNode(true);
+                            portalClone.classList.add('ql-picker-options-portal');
+                            document.body.appendChild(portalClone);
+                            dropdownClones.set(picker, portalClone);
+                        }
+                        
+                        // Position portal
+                        portalClone.style.cssText = `
+                            position: fixed !important;
+                            top: ${rect.bottom}px !important;
+                            left: ${rect.left}px !important;
+                            z-index: 999999 !important;
+                            display: block !important;
+                            visibility: visible !important;
+                            min-width: ${rect.width}px !important;
+                        `;
+                        
+                        // Hide original (keep in DOM for Quill)
+                        options.style.display = 'none';
+                        
+                        // Remove aria-hidden for accessibility
+                        portalClone.removeAttribute('aria-hidden');
+                        portalClone.setAttribute('aria-expanded', 'true');
+                        
+                        // Sync clicks from portal to original
+                        const portalItems = portalClone.querySelectorAll('.ql-picker-item');
+                        const originalItems = options.querySelectorAll('.ql-picker-item');
+                        
+                        portalItems.forEach((portalItem, index) => {
+                            portalItem.addEventListener('click', (e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                if (originalItems[index]) {
+                                    originalItems[index].click();
+                                }
+                                picker.classList.remove('ql-expanded');
+                            });
+                        });
+                        
+                        console.log('[Dropdown Fix] Portal created at', rect.bottom, rect.left);
+                        
+                    } else {
+                        // Cleanup portal when closed
+                        if (portalClone && portalClone.parentElement) {
+                            portalClone.remove();
+                            portalClone = null;
+                        }
+                        if (options) {
+                            options.style.display = '';
                             options.setAttribute('aria-hidden', 'true');
                             options.setAttribute('aria-expanded', 'false');
                         }
@@ -2518,6 +2577,13 @@
                     attributeFilter: ['class']
                 });
             });
+            
+            // Cleanup on scroll
+            window.addEventListener('scroll', () => {
+                allPickers.forEach(picker => {
+                    picker.classList.remove('ql-expanded');
+                });
+            }, true);
         }
         
         // Sync Quill content to hidden textarea
