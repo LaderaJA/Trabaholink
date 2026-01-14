@@ -2529,6 +2529,33 @@
                 toggleJobCache(button, jobId);
             });
         });
+        
+        // Listen for cache events from other pages (job list)
+        window.addEventListener('tl-item-saved', function(event) {
+            const { itemId, itemType, action } = event.detail;
+            
+            // Only handle job events for this page
+            if (itemType === 'job') {
+                cacheButtons.forEach(button => {
+                    const buttonJobId = button.getAttribute('data-job-id');
+                    if (buttonJobId === itemId.toString()) {
+                        if (action === 'save') {
+                            // Update button to saved state
+                            button.classList.add('cached');
+                            button.querySelector('i').className = 'bi bi-bookmark-fill';
+                            button.querySelector('.cache-button-text').textContent = 'Saved';
+                            button.setAttribute('title', 'Remove from offline storage');
+                        } else if (action === 'unsave') {
+                            // Update button to unsaved state
+                            button.classList.remove('cached');
+                            button.querySelector('i').className = 'bi bi-bookmark';
+                            button.querySelector('.cache-button-text').textContent = 'Save Offline';
+                            button.setAttribute('title', 'Save for offline viewing');
+                        }
+                    }
+                });
+            }
+        });
     });
 
     function checkCacheStatus(button, jobId) {

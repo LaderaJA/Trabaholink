@@ -355,8 +355,39 @@ class OfflineUIManager {
         
         if (itemType === 'job') {
             window.offlineCache.cacheJob(itemId, data);
+            
+            // Also try to cache the full detail page if user is on it
+            this.cacheJobDetailPageIfAvailable(itemId);
         } else {
             window.offlineCache.cacheService(itemId, data);
+        }
+        
+        // Trigger event so other buttons can sync
+        window.dispatchEvent(new CustomEvent('tl-item-saved', { 
+            detail: { itemId, itemType, action: 'save' }
+        }));
+    }
+    
+    /**
+     * Cache job detail page via Service Worker
+     */
+    async cacheJobDetailPageIfAvailable(itemId) {
+        try {
+            // Pre-cache the detail page URL
+            const detailUrl = `/jobs/${itemId}/`;
+            
+            // Use Service Worker to cache the page
+            if ('caches' in window) {
+                const cache = await caches.open('trabaholink-cache-v1');
+                const response = await fetch(detailUrl, { credentials: 'same-origin' });
+                if (response.ok) {
+                    await cache.put(detailUrl, response.clone());
+                    console.log(`[OfflineUI] Pre-cached job detail page: ${detailUrl}`);
+                }
+            }
+        } catch (error) {
+            // Silently fail - not critical
+            console.log('[OfflineUI] Could not pre-cache detail page:', error.message);
         }
     }
 
@@ -373,6 +404,11 @@ class OfflineUIManager {
             delete services[itemId];
             localStorage.setItem(window.offlineCache.CACHE_KEYS.SERVICES, JSON.stringify(services));
         }
+        
+        // Trigger event so other buttons can sync
+        window.dispatchEvent(new CustomEvent('tl-item-saved', { 
+            detail: { itemId, itemType, action: 'unsave' }
+        }));
     }
 
     /**
