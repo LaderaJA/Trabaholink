@@ -55,18 +55,6 @@
   border-radius: 3px;
 }
 
-.ql-toolbar::-webkit-scrollbar-thumb:hover {
-  background: #a0aec0;
-}
-
-/* Toolbar Groups - Inline with separators */
-.ql-toolbar .ql-formats {
-  display: inline-flex;
-  align-items: center;
-  gap: 2px;
-  padding: 0 8px;
-  margin: 0;
-  border-right: 1px solid #d1d5db;
   flex-shrink: 0;
 }
 
@@ -85,19 +73,31 @@
   border: 1px solid transparent;
   transition: all 0.15s ease;
 }
+.ql-toolbar .ql-formats::before {
+  display: none;
+}
+/* Override Quill default button sizes with higher specificity */
+.ql-snow.ql-toolbar button,
+.ql-snow .ql-toolbar button,
+.ql-toolbar button {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 3px !important;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.ql-toolbar button svg {
+  width: 18px !important;
+  height: 18px !important;
+}
 
 .ql-toolbar button:hover {
   background: #e8f0fe;
-  border-color: #c6dafc;
-}
-
-.ql-toolbar button.ql-active {
-  background: #d3e3fd;
-  border-color: #a8c7fa;
-}
-
-.ql-snow .ql-picker {
-  font-size: 13px;
   border: 1px solid transparent;
   border-radius: 3px;
 }
@@ -134,19 +134,6 @@
 }
 
 .ql-snow .ql-picker.ql-expanded {
-  border-top-right-radius: 0 !important;
-}
-
-/* Toolbar Toggle Button - Redesigned */
-.toolbar-toggle-btn {
-  display: none;
-  width: 100%;
-  padding: 10px 15px;
-  background: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
-  margin-bottom: 8px;
-  cursor: pointer;
   font-size: 13px;
   font-weight: 600;
   color: #495057;

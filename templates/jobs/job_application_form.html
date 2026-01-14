@@ -58,13 +58,14 @@
 
 /* Toolbar Groups - Inline with separators */
 .ql-toolbar .ql-formats {
-  display: inline-flex;
-  align-items: center;
+  display: inline-flex !important;
+  align-items: center !important;
   gap: 2px;
   padding: 0 8px;
   margin: 0;
   border-right: 1px solid #d1d5db;
   flex-shrink: 0;
+  vertical-align: middle;
 }
 
 .ql-toolbar .ql-formats:last-child {
@@ -75,12 +76,24 @@
 .ql-toolbar .ql-formats::before {
   display: none;
 }
+/* Override Quill default button sizes with higher specificity */
+.ql-snow.ql-toolbar button,
+.ql-snow .ql-toolbar button,
 .ql-toolbar button {
-  width: 32px;
-  height: 32px;
+  width: 32px !important;
+  height: 32px !important;
+  padding: 3px !important;
   border-radius: 3px;
   border: 1px solid transparent;
   transition: all 0.15s ease;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.ql-toolbar button svg {
+  width: 18px !important;
+  height: 18px !important;
 }
 
 .ql-toolbar button:hover {
@@ -112,16 +125,30 @@
 .ql-snow .ql-picker-options {
   max-height: 250px;
   overflow-y: auto;
-  z-index: 1050 !important;
-  position: fixed !important;
+  z-index: 9999 !important;
+  position: absolute !important;
   background: white;
   border: 1px solid #ccc;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  margin-top: 2px;
 }
 
 /* Prevent body scroll when dropdown is open */
 .ql-snow .ql-picker.ql-expanded {
-  z-index: 1051;
+  z-index: 10000 !important;
+  position: relative;
+}
+
+/* Ensure color picker dropdown is visible */
+.ql-snow .ql-color-picker .ql-picker-options,
+.ql-snow .ql-background .ql-picker-options {
+  min-width: 150px !important;
+  padding: 5px;
+}
+
+/* Fix toolbar overflow to allow dropdowns to be visible */
+.ql-toolbar {
+  overflow: visible !important;
 }
 
 .ql-snow .ql-picker.ql-header .ql-picker-label,
