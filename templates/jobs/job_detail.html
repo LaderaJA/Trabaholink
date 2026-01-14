@@ -257,9 +257,9 @@
   min-height: 30px !important;
 }
 
-/* Color picker grid layout */
-.ql-picker.ql-color .ql-picker-options-portal,
-.ql-picker.ql-background .ql-picker-options-portal {
+/* Color picker grid layout - using direct class since portal is in body */
+.ql-picker-options-portal.ql-color-portal,
+.ql-picker-options-portal.ql-background-portal {
   display: grid !important;
   grid-template-columns: repeat(7, 1fr) !important;
   gap: 4px !important;
@@ -268,8 +268,8 @@
   min-width: 200px !important;
 }
 
-.ql-picker.ql-color .ql-picker-options-portal .ql-picker-item,
-.ql-picker.ql-background .ql-picker-options-portal .ql-picker-item {
+.ql-picker-options-portal.ql-color-portal .ql-picker-item,
+.ql-picker-options-portal.ql-background-portal .ql-picker-item {
   display: block !important;
   width: 24px !important;
   height: 24px !important;
@@ -280,8 +280,8 @@
   transition: transform 0.2s !important;
 }
 
-.ql-picker.ql-color .ql-picker-options-portal .ql-picker-item:hover,
-.ql-picker.ql-background .ql-picker-options-portal .ql-picker-item:hover {
+.ql-picker-options-portal.ql-color-portal .ql-picker-item:hover,
+.ql-picker-options-portal.ql-background-portal .ql-picker-item:hover {
   transform: scale(1.1) !important;
   border-color: #333 !important;
   z-index: 1 !important;
@@ -289,8 +289,8 @@
 
 /* Mobile: 5 columns for color picker */
 @media (max-width: 480px) {
-  .ql-picker.ql-color .ql-picker-options-portal,
-  .ql-picker.ql-background .ql-picker-options-portal {
+  .ql-picker-options-portal.ql-color-portal,
+  .ql-picker-options-portal.ql-background-portal {
     grid-template-columns: repeat(5, 1fr) !important;
   }
 }
@@ -2621,6 +2621,13 @@
                             // Clone with deep copy to get all children
                             portalClone = options.cloneNode(true);
                             portalClone.classList.add('ql-picker-options-portal');
+                            
+                            // Add picker type class to portal for CSS targeting
+                            if (picker.classList.contains('ql-color')) {
+                                portalClone.classList.add('ql-color-portal');
+                            } else if (picker.classList.contains('ql-background')) {
+                                portalClone.classList.add('ql-background-portal');
+                            }
                             
                             // Force items to be blocks with content
                             const portalItems = portalClone.querySelectorAll('.ql-picker-item');
