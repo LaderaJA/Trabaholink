@@ -22,7 +22,7 @@
   color: #9ca3af;
   font-style: italic;
 }
-/* Quill Toolbar - MS Word Style (Single Row with Horizontal Scroll) */
+/* Quill Toolbar - MS Word Style (No Horizontal Scroll) */
 .ql-toolbar {
   background: linear-gradient(to bottom, #ffffff, #f5f5f5);
   border-top-left-radius: 0;
@@ -31,14 +31,11 @@
   border-bottom: 2px solid #e0e0e0;
   padding: 6px 12px;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  overflow-x: auto;
-  overflow-y: hidden;
-  white-space: nowrap;
+  overflow: visible !important;
   gap: 2px;
   box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-  scrollbar-width: thin;
-  scrollbar-color: #cbd5e0 #f7fafc;
 }
 
 /* Webkit scrollbar styling */
@@ -78,12 +75,24 @@
 .ql-toolbar .ql-formats::before {
   display: none;
 }
+/* Override Quill default button sizes with higher specificity */
+.ql-snow.ql-toolbar button,
+.ql-snow .ql-toolbar button,
 .ql-toolbar button {
-  width: 32px;
-  height: 32px;
+  width: 32px !important;
+  height: 32px !important;
+  padding: 3px !important;
   border-radius: 3px;
   border: 1px solid transparent;
   transition: all 0.15s ease;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.ql-toolbar button svg {
+  width: 18px !important;
+  height: 18px !important;
 }
 
 .ql-toolbar button:hover {
@@ -113,11 +122,25 @@
 .ql-snow .ql-picker-options {
   max-height: 250px;
   overflow-y: auto;
-  z-index: 1050 !important;
-  position: fixed !important;
+  z-index: 9999 !important;
+  position: absolute !important;
   background: white;
   border: 1px solid #ccc;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  margin-top: 2px;
+}
+
+/* Prevent body scroll when dropdown is open */
+.ql-snow .ql-picker.ql-expanded {
+  z-index: 10000 !important;
+  position: relative;
+}
+
+/* Ensure color picker dropdown is visible */
+.ql-snow .ql-color-picker .ql-picker-options,
+.ql-snow .ql-background .ql-picker-options {
+  min-width: 150px !important;
+  padding: 5px;
 }
 
 /* Prevent body scroll when dropdown is open */
@@ -139,6 +162,8 @@
 
 /* Toolbar Toggle Button - Redesigned */
 .toolbar-toggle-btn {
+
+/* Responsive Design for Mobile */
   display: none;
   width: 100%;
   padding: 10px 15px;
