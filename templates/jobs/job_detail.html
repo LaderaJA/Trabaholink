@@ -1735,14 +1735,20 @@
       line-height: 1;
   }
   
-  /* Ensure Bootstrap Icons render properly */
-  .cache-button-hero .bi,
-  .cache-button-header .bi {
-      display: inline-block;
-      font-family: "bootstrap-icons" !important;
+  /* Ensure icons render properly with proper dimensions */
+  .cache-button-hero .fa,
+  .cache-button-header .fa,
+  .cache-button-hero i,
+  .cache-button-header i {
+      display: inline-block !important;
+      width: auto !important;
+      height: auto !important;
+      min-width: 18px !important;
+      min-height: 18px !important;
       font-weight: normal !important;
       font-style: normal !important;
-      vertical-align: middle;
+      vertical-align: middle !important;
+      line-height: 1 !important;
   }
   
   /* Remove any pseudo-elements that might cause duplicates */
