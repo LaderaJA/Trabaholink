@@ -19,55 +19,93 @@
   color: #9ca3af;
   font-style: italic;
 }
-/* Quill Toolbar Enhancements - Mobile Responsive */
+/* Quill Toolbar - MS Word Style (Single Row with Horizontal Scroll) */
 .ql-toolbar {
-  background: #f9fafb;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-  border: 1px solid #e5e7eb;
-  padding: 12px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
-}
-
-/* Toolbar Groups with Labels */
-.ql-toolbar .ql-formats {
+  background: linear-gradient(to bottom, #ffffff, #f5f5f5);
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border: none;
+  border-bottom: 2px solid #e0e0e0;
+  padding: 6px 12px;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 4px;
-  padding: 8px 12px;
-  background: white;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
-  position: relative;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  gap: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f7fafc;
 }
 
-/* Add labels to groups */
+/* Webkit scrollbar styling */
+.ql-toolbar::-webkit-scrollbar {
+  height: 6px;
+}
+
+.ql-toolbar::-webkit-scrollbar-track {
+  background: #f7fafc;
+}
+
+.ql-toolbar::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 3px;
+}
+
+.ql-toolbar::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* Toolbar Groups - Inline with separators */
+.ql-toolbar .ql-formats {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 8px;
+  margin: 0;
+  border-right: 1px solid #d1d5db;
+  flex-shrink: 0;
+}
+
+.ql-toolbar .ql-formats:last-child {
+  border-right: none;
+}
+
+/* Remove labels - MS Word doesn't have them */
 .ql-toolbar .ql-formats::before {
-  content: attr(data-group);
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  width: 100%;
-  margin-bottom: 6px;
-  display: block;
+  display: none;
 }
 .ql-toolbar button {
   width: 28px;
   height: 28px;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
 }
+
 .ql-toolbar button:hover {
-  color: #2563eb;
+  background: #e8f0fe;
+  border-color: #c6dafc;
 }
+
 .ql-toolbar button.ql-active {
-  color: #2563eb;
+  background: #d3e3fd;
+  border-color: #a8c7fa;
 }
+
 .ql-snow .ql-picker {
-  font-size: 14px;
+  font-size: 13px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+}
+
+.ql-snow .ql-picker:hover {
+  background: #e8f0fe;
+}
+
+.ql-snow .ql-picker.ql-expanded {
+  background: #d3e3fd;
+  border-color: #a8c7fa;
 }
 /* Make container border match toolbar */
 #quill-cover-letter-editor {
@@ -77,63 +115,33 @@
 }
 
 /* Responsive Design for Mobile */
-@media (max-width: 992px) {
-  .ql-toolbar {
-    grid-template-columns: repeat(2, 1fr);
-    padding: 10px;
-    gap: 10px;
-  }
-}
-
 @media (max-width: 768px) {
   .ql-toolbar {
-    grid-template-columns: 1fr;
-    padding: 8px;
-    gap: 8px;
+    padding: 4px 8px;
   }
   
   .ql-toolbar .ql-formats {
-    padding: 6px 10px;
-  }
-  
-  .ql-toolbar .ql-formats::before {
-    font-size: 0.7rem;
-    margin-bottom: 4px;
+    padding: 0 6px;
   }
   
   .ql-toolbar button {
     width: 32px;
     height: 32px;
-    margin: 2px;
-  }
-  
-  .ql-snow .ql-picker {
-    font-size: 13px;
   }
   
   .ql-snow .ql-picker-label {
     padding: 4px 6px;
-  }
-  
-  .ql-editor {
-    min-height: 150px;
-    font-size: 0.95rem;
-    padding: 12px;
-  }
-  
-  /* Make editor container more prominent on mobile */
-  #quill-cover-letter-editor {
-    min-height: 200px;
+    font-size: 12px;
   }
 }
 
 @media (max-width: 480px) {
   .ql-toolbar {
-    padding: 6px;
+    padding: 4px 6px;
   }
   
   .ql-toolbar .ql-formats {
-    padding: 6px 8px;
+    padding: 0 4px;
   }
   
   .ql-toolbar button {
@@ -143,12 +151,7 @@
   
   .ql-snow .ql-picker-label {
     padding: 3px 4px;
-    font-size: 12px;
-  }
-  
-  /* Ensure groups are full width on small phones */
-  .ql-toolbar {
-    grid-template-columns: 1fr;
+    font-size: 11px;
   }
 }
 
@@ -1257,36 +1260,6 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Add tooltips after a brief delay to ensure toolbar is fully rendered
   setTimeout(addQuillTooltips, 100);
-  
-  // Add labels to toolbar groups for better mobile experience
-  function addToolbarLabels() {
-    const toolbar = document.querySelector('#quill-cover-letter-editor').previousElementSibling;
-    const groups = toolbar.querySelectorAll('.ql-formats');
-    
-    const labels = [
-      'History',           // Undo/Redo
-      'Heading',          // Headers
-      'Font',             // Font family
-      'Size',             // Font size
-      'Text Style',       // Bold, Italic, etc.
-      'Script',           // Sub/Super
-      'Colors',           // Text/Background color
-      'Alignment',        // Text alignment
-      'Lists',            // Ordered/Bullet
-      'Indent',           // Indent controls
-      'Blocks',           // Blockquote, Code
-      'Media',            // Link, Image, Video
-      'Tools'             // Direction, Clean
-    ];
-    
-    groups.forEach((group, index) => {
-      if (labels[index]) {
-        group.setAttribute('data-group', labels[index]);
-      }
-    });
-  }
-  
-  setTimeout(addToolbarLabels, 150);
   
   // Sync Quill content to hidden textarea
   quill.on('text-change', function() {
