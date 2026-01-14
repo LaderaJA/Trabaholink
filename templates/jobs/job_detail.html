@@ -2804,17 +2804,24 @@
                         const portalItems = portalClone.querySelectorAll('.ql-picker-item');
                         const originalItems = options.querySelectorAll('.ql-picker-item');
                         
-                        console.log('[Dropdown Fix] Portal has', portalItems.length, 'items');
+                        console.log('[Dropdown Fix] Portal has', portalItems.length, 'items - setting up click handlers');
                         
-                        // DEBUG: Check first item style
-                        if (portalItems.length > 0) {
-                            const firstItem = portalItems[0];
-                            console.log('[Dropdown Fix] First item element:', firstItem);
-                            console.log('[Dropdown Fix] First item computed style:', window.getComputedStyle(firstItem));
-                            console.log('[Dropdown Fix] First item display:', window.getComputedStyle(firstItem).display);
-                            console.log('[Dropdown Fix] First item height:', window.getComputedStyle(firstItem).height);
-                            console.log('[Dropdown Fix] First item bounding rect:', firstItem.getBoundingClientRect());
-                        }
+                        portalItems.forEach((portalItem, index) => {
+                            portalItem.addEventListener('click', (e) => {
+                                console.log('[Dropdown Fix] Portal item', index, 'clicked - triggering original');
+                                e.preventDefault();
+                                e.stopPropagation();
+                                
+                                if (originalItems[index]) {
+                                    // Trigger click on the original item
+                                    originalItems[index].click();
+                                    console.log('[Dropdown Fix] Original item', index, 'clicked');
+                                }
+                                
+                                // Close the dropdown
+                                picker.classList.remove('ql-expanded');
+                            });
+                        });
                         
                         portalItems.forEach((portalItem, index) => {
                             portalItem.addEventListener('click', (e) => {
