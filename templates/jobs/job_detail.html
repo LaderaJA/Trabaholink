@@ -8,6 +8,9 @@
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
 <!-- Quill.js CSS -->
 <link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<style>
+.ql-container {
+  font-size: 1rem;
   font-family: inherit;
 }
 .ql-editor {
@@ -19,55 +22,62 @@
   color: #9ca3af;
   font-style: italic;
 }
-/* Quill Toolbar - Grouped with Labels */
+/* Quill Toolbar - MS Word Style (Single Row with Horizontal Scroll) */
 .ql-toolbar {
-  background: #f9fafb;
-  border-top-left-radius: 8px;
-  border-top-right-radius: 8px;
-  border: 1px solid #e5e7eb;
-  padding: 12px;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 12px;
-  overflow: visible !important;
+  background: linear-gradient(to bottom, #ffffff, #f5f5f5);
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+  border: none;
+  border-bottom: 2px solid #e0e0e0;
+  padding: 6px 12px;
+  display: flex;
+  align-items: center;
+  overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  gap: 2px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f7fafc;
 }
 
-/* Toolbar Groups with Labels */
-.ql-toolbar .ql-formats {
-  display: flex !important;
-  flex-wrap: wrap;
-  align-items: center !important;
-  gap: 4px;
-  padding: 8px 12px;
-  background: white;
-  border-radius: 6px;
-  border: 1px solid #e5e7eb;
-  position: relative;
-  vertical-align: middle;
+/* Webkit scrollbar styling */
+.ql-toolbar::-webkit-scrollbar {
+  height: 6px;
 }
 
-/* Add labels to groups */
-.ql-toolbar .ql-formats::before {
-  content: attr(data-group);
-  font-size: 0.75rem;
-  font-weight: 600;
-  color: #6b7280;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  width: 100%;
-  margin-bottom: 6px;
-  display: block;
+.ql-toolbar::-webkit-scrollbar-track {
+  background: #f7fafc;
 }
-/* Override Quill default button sizes with higher specificity */
-.ql-snow.ql-toolbar button,
-.ql-snow .ql-toolbar button,
-.ql-toolbar button {
-  width: 32px !important;
-  height: 32px !important;
-  padding: 3px !important;
+
+.ql-toolbar::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
   border-radius: 3px;
-  border: 1px solid transparent;
-  transition: all 0.15s ease;
+}
+
+.ql-toolbar::-webkit-scrollbar-thumb:hover {
+  background: #a0aec0;
+}
+
+/* Toolbar Groups - Inline with separators */
+.ql-toolbar .ql-formats {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 0 8px;
+  margin: 0;
+  border-right: 1px solid #d1d5db;
+  flex-shrink: 0;
+}
+
+.ql-toolbar .ql-formats:last-child {
+  border-right: none;
+}
+
+/* Remove labels - MS Word doesn't have them */
+.ql-toolbar .ql-formats::before {
+  display: none;
+}
 .ql-toolbar button {
   width: 32px;
   height: 32px;
@@ -75,31 +85,19 @@
   border: 1px solid transparent;
   transition: all 0.15s ease;
 }
-.ql-toolbar .ql-formats::before {
-  display: none;
-}
-/* Override Quill default button sizes with higher specificity */
-.ql-snow.ql-toolbar button,
-.ql-snow .ql-toolbar button,
-.ql-toolbar button {
-  width: 32px !important;
-  height: 32px !important;
-  padding: 3px !important;
-  border-radius: 3px;
-  border: 1px solid transparent;
-  transition: all 0.15s ease;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-}
-
-.ql-toolbar button svg {
-  width: 18px !important;
-  height: 18px !important;
-}
 
 .ql-toolbar button:hover {
   background: #e8f0fe;
+  border-color: #c6dafc;
+}
+
+.ql-toolbar button.ql-active {
+  background: #d3e3fd;
+  border-color: #a8c7fa;
+}
+
+.ql-snow .ql-picker {
+  font-size: 13px;
   border: 1px solid transparent;
   border-radius: 3px;
 }
@@ -136,6 +134,19 @@
 }
 
 .ql-snow .ql-picker.ql-expanded {
+  border-top-right-radius: 0 !important;
+}
+
+/* Toolbar Toggle Button - Redesigned */
+.toolbar-toggle-btn {
+  display: none;
+  width: 100%;
+  padding: 10px 15px;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  margin-bottom: 8px;
+  cursor: pointer;
   font-size: 13px;
   font-weight: 600;
   color: #495057;
@@ -163,6 +174,48 @@
 .toolbar-toggle-btn.collapsed i {
   transform: rotate(180deg);
 }
+
+/* Collapsible toolbar */
+}
+
+.ql-toolbar button:hover::before,
+.ql-toolbar .ql-picker-label:hover::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(2px);
+  border: 4px solid transparent;
+  border-top-color: #1f2937;
+  z-index: 1001;
+  pointer-events: none;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-4px);
+  }
+}
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+    body {
+        background: #f8f9fa !important;
+        min-height: 100vh;
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+        /* Ensure navbar space is preserved */
+        padding-top: var(--navbar-height) !important;
+    }
+
+    .job-detail-container {
+        max-width: 1300px;
         margin: 0 auto;
         padding: 0;
         /* Ensure content starts below navbar */
@@ -1720,6 +1773,12 @@
                     <div class="mb-3">
                         <label for="cover_letter" class="form-label">Message to Employer (Optional)</label>
                         
+                        <!-- Toolbar Toggle Button (Mobile Only) -->
+                        <button type="button" class="toolbar-toggle-btn" id="quickApplyToolbarToggle">
+                            <i class="fa fa-chevron-down"></i>
+                            <span>Formatting Tools</span>
+                        </button>
+                        
                         <!-- Quill Editor Container -->
                         <div id="quill-quick-apply-editor" style="background: white; border: 1px solid #dee2e6; border-radius: 8px; min-height: 150px;"></div>
                         
@@ -2287,6 +2346,41 @@
                 }
                 
                 quickToolbarToggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    quickToolbar.classList.toggle('collapsed');
+                    quickToolbarToggleBtn.classList.toggle('collapsed');
+                    
+                    // Update icon and text
+                    const icon = quickToolbarToggleBtn.querySelector('i');
+                    const span = quickToolbarToggleBtn.querySelector('span');
+                    
+                    if (quickToolbar.classList.contains('collapsed')) {
+                        if (icon) icon.className = 'fa fa-chevron-down';
+                        if (span) span.textContent = 'Show Formatting Tools';
+                    } else {
+                        if (icon) icon.className = 'fa fa-chevron-up';
+                        if (span) span.textContent = 'Hide Formatting Tools';
+                    }
+                });
+            }
+        }, 300);
+        
+        // Sync Quill content to hidden textarea
+        quickQuill.on('text-change', function() {
+            quickCoverLetterField.value = quickQuill.root.innerHTML;
+        });
+        
+        // Grammar checking for quick apply
+        if (quickGrammarBtn) {
+            quickGrammarBtn.addEventListener('click', async function() {
+                const text = quickQuill.getText().trim();
+                
+                if (!text) {
+                    quickGrammarStatus.textContent = 'Please write something first!';
+                    quickGrammarStatus.style.color = '#f59e0b';
+                    return;
+                }
+                
                 quickGrammarBtn.disabled = true;
                 quickGrammarBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Checking...';
                 quickGrammarStatus.textContent = 'Analyzing...';
