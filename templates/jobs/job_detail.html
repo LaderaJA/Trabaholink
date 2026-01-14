@@ -1756,12 +1756,13 @@
   }
   
   /* Remove any pseudo-elements that might cause duplicates */
+  /* BUT: Allow Bootstrap Icons (.bi) to use ::before for icon rendering */
   .cache-button-hero::before,
   .cache-button-header::before,
   .cache-button-hero::after,
   .cache-button-header::after,
-  .cache-button-hero i::before,
-  .cache-button-header i::before,
+  .cache-button-hero i:not(.bi)::before,
+  .cache-button-header i:not(.bi)::before,
   .cache-button-hero i::after,
   .cache-button-header i::after,
   .cache-button-hero span::before,
