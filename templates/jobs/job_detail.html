@@ -1735,9 +1735,9 @@
       line-height: 1;
   }
   
-  /* Ensure icons render properly with proper dimensions and FontAwesome font */
-  .cache-button-hero .fa,
-  .cache-button-header .fa,
+  /* Ensure Bootstrap Icons render properly with proper dimensions */
+  .cache-button-hero .bi,
+  .cache-button-header .bi,
   .cache-button-hero i,
   .cache-button-header i {
       display: inline-block !important;
@@ -1745,11 +1745,14 @@
       height: auto !important;
       min-width: 18px !important;
       min-height: 18px !important;
-      font-family: "FontAwesome", "Font Awesome 5 Free" !important;
-      font-weight: 900 !important;
+      font-family: "bootstrap-icons" !important;
+      font-weight: normal !important;
       font-style: normal !important;
       vertical-align: middle !important;
       line-height: 1 !important;
+      speak: none !important;
+      -webkit-font-smoothing: antialiased !important;
+      -moz-osx-font-smoothing: grayscale !important;
   }
   
   /* Remove any pseudo-elements that might cause duplicates */
@@ -1887,7 +1890,7 @@
                             
                             <!-- Cache Button for Offline Viewing -->
                             <button class="cache-button-hero" id="jobCacheButton" data-job-id="{{ job.id }}" title="Save for offline viewing">
-                                <i class="fa fa-bookmark-o"></i>
+                                <i class="bi bi-bookmark"></i>
                                 <span class="cache-button-text">Save Offline</span>
                             </button>
                         </div>
@@ -1955,7 +1958,7 @@
                     
                     <!-- Cache Button for Offline Viewing -->
                     <button class="cache-button-header" id="jobCacheButtonNoImage" data-job-id="{{ job.id }}" title="Save for offline viewing">
-                        <i class="fa fa-bookmark-o"></i>
+                        <i class="bi bi-bookmark"></i>
                         <span class="cache-button-text">Save Offline</span>
                     </button>
                 </div>
@@ -3259,7 +3262,7 @@
                             // Use :scope > i to get only direct child icon
                             const icon = button.querySelector(':scope > i');
                             const text = button.querySelector(':scope > .cache-button-text');
-                            if (icon) icon.className = 'fa fa-bookmark';
+                            if (icon) icon.className = 'bi bi-bookmark-fill';
                             if (text) text.textContent = 'Saved';
                             button.setAttribute('title', 'Remove from offline storage');
                         } else if (action === 'unsave') {
@@ -3268,7 +3271,7 @@
                             // Use :scope > i to get only direct child icon
                             const icon = button.querySelector(':scope > i');
                             const text = button.querySelector(':scope > .cache-button-text');
-                            if (icon) icon.className = 'fa fa-bookmark-o';
+                            if (icon) icon.className = 'bi bi-bookmark';
                             if (text) text.textContent = 'Save Offline';
                             button.setAttribute('title', 'Save for offline viewing');
                         }
@@ -3286,7 +3289,7 @@
                 // Use :scope > i to get only direct child icon
                 const icon = button.querySelector(':scope > i');
                 const text = button.querySelector(':scope > .cache-button-text');
-                if (icon) icon.className = 'fa fa-bookmark';
+                if (icon) icon.className = 'bi bi-bookmark-fill';
                 if (text) text.textContent = 'Saved';
                 button.setAttribute('title', 'Remove from offline storage');
             }
@@ -3303,7 +3306,7 @@
             // Use :scope > i to get only direct child icon
             const icon = button.querySelector(':scope > i');
             const text = button.querySelector(':scope > .cache-button-text');
-            if (icon) icon.className = 'fa fa-bookmark-o';
+            if (icon) icon.className = 'bi bi-bookmark';
             if (text) text.textContent = 'Save Offline';
             button.setAttribute('title', 'Save for offline viewing');
             
@@ -3317,7 +3320,7 @@
             // Use :scope > i to get only direct child icon
             const icon = button.querySelector(':scope > i');
             const text = button.querySelector(':scope > .cache-button-text');
-            if (icon) icon.className = 'fa fa-bookmark';
+            if (icon) icon.className = 'bi bi-bookmark-fill';
             if (text) text.textContent = 'Saved';
             button.setAttribute('title', 'Remove from offline storage');
             
