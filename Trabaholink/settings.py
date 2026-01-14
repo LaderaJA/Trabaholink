@@ -129,6 +129,7 @@ if not DEBUG:
     CSP_STYLE_SRC = ("'self'", "'unsafe-inline'", "https://fonts.googleapis.com", "https://cdn.jsdelivr.net", "https://cdnjs.cloudflare.com", "https://unpkg.com", "https://cdn.quilljs.com")
     CSP_FONT_SRC = ("'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "data:")
     CSP_IMG_SRC = ("'self'", "data:", "blob:", "https:", "http:")
+    CSP_MEDIA_SRC = ("'self'", "blob:", "data:")  # Allow video/audio from blob URLs (for preview) and media folder
     CSP_CONNECT_SRC = ("'self'", "wss:", "https:", "https://api.languagetool.org")
     CSP_FRAME_ANCESTORS = ("'self'",)
     CSP_BASE_URI = ("'self'",)
