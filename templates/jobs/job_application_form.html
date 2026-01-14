@@ -124,8 +124,8 @@
   max-height: 250px;
   overflow-y: auto;
   overflow-x: hidden;
-  z-index: 9999 !important;
-  position: absolute !important;
+  z-index: 99999 !important;
+  position: fixed !important;
   background: white;
   border: 1px solid #ccc;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
@@ -1424,6 +1424,81 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Add tooltips after a brief delay to ensure toolbar is fully rendered
   setTimeout(addQuillTooltips, 100);
+  
+  // Fix dropdown positioning - move to body to escape overflow clipping
+  setTimeout(() => {
+    const toolbar = document.querySelector('#quill-cover-letter-editor').previousElementSibling;
+    if (toolbar) {
+      // Store reference to original parent for each dropdown
+      const dropdownParents = new Map();
+      
+      toolbar.addEventListener('click', function(e) {
+        const picker = e.target.closest('.ql-picker');
+        if (picker) {
+          setTimeout(() => {
+            const options = picker.querySelector('.ql-picker-options');
+            if (options && picker.classList.contains('ql-expanded')) {
+              // Store original parent if not already stored
+              if (!dropdownParents.has(options)) {
+                dropdownParents.set(options, options.parentElement);
+              }
+              
+              // Move dropdown to body to escape overflow constraints
+              if (options.parentElement !== document.body) {
+                document.body.appendChild(options);
+              }
+              
+              // Position it relative to the picker
+              const rect = picker.getBoundingClientRect();
+              options.style.top = (rect.bottom + window.scrollY) + 'px';
+              options.style.left = (rect.left + window.scrollX) + 'px';
+              options.style.width = ''; // Reset width to allow natural sizing
+              options.style.minWidth = rect.width + 'px'; // Match picker width minimum
+            }
+          }, 10);
+        }
+      });
+      
+      // Close dropdowns and return them to original parent
+      function closeAllDropdowns() {
+        const expandedPickers = toolbar.querySelectorAll('.ql-picker.ql-expanded');
+        expandedPickers.forEach(picker => {
+          const options = picker.querySelector('.ql-picker-options');
+          // If dropdown is in body, move it back to original parent
+          if (options && options.parentElement === document.body) {
+            const originalParent = dropdownParents.get(options);
+            if (originalParent) {
+              originalParent.appendChild(options);
+            }
+          }
+          picker.classList.remove('ql-expanded');
+        });
+      }
+      
+      // Close dropdowns when clicking outside
+      document.addEventListener('click', function(e) {
+        if (!e.target.closest('.ql-picker') && !e.target.closest('.ql-picker-options')) {
+          closeAllDropdowns();
+        }
+      });
+      
+      // Reposition dropdowns on window resize
+      window.addEventListener('resize', function() {
+        const expandedPickers = toolbar.querySelectorAll('.ql-picker.ql-expanded');
+        expandedPickers.forEach(picker => {
+          const options = document.body.querySelector('.ql-picker-options');
+          if (options) {
+            const rect = picker.getBoundingClientRect();
+            options.style.top = (rect.bottom + window.scrollY) + 'px';
+            options.style.left = (rect.left + window.scrollX) + 'px';
+          }
+        });
+      });
+      
+      // Close dropdowns on scroll
+      window.addEventListener('scroll', closeAllDropdowns, true);
+    }
+  }, 200);
   
   // Add labels to toolbar groups
   function addToolbarLabels() {
