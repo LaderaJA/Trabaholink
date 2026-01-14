@@ -19,22 +19,42 @@
   color: #9ca3af;
   font-style: italic;
 }
-/* Quill Toolbar Enhancements */
+/* Quill Toolbar Enhancements - Mobile Responsive */
 .ql-toolbar {
   background: #f9fafb;
   border-top-left-radius: 8px;
   border-top-right-radius: 8px;
   border: 1px solid #e5e7eb;
-  padding: 8px;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+}
+
+/* Toolbar Groups with Labels */
+.ql-toolbar .ql-formats {
   display: flex;
   flex-wrap: wrap;
-  gap: 4px;
-}
-.ql-toolbar .ql-formats {
-  margin-right: 10px;
-  display: inline-flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
+  padding: 8px 12px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  position: relative;
+}
+
+/* Add labels to groups */
+.ql-toolbar .ql-formats::before {
+  content: attr(data-group);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  width: 100%;
+  margin-bottom: 6px;
+  display: block;
 }
 .ql-toolbar button {
   width: 28px;
@@ -57,48 +77,78 @@
 }
 
 /* Responsive Design for Mobile */
+@media (max-width: 992px) {
+  .ql-toolbar {
+    grid-template-columns: repeat(2, 1fr);
+    padding: 10px;
+    gap: 10px;
+  }
+}
+
 @media (max-width: 768px) {
   .ql-toolbar {
-    padding: 6px;
-    gap: 2px;
+    grid-template-columns: 1fr;
+    padding: 8px;
+    gap: 8px;
   }
+  
   .ql-toolbar .ql-formats {
-    margin-right: 6px;
+    padding: 6px 10px;
+  }
+  
+  .ql-toolbar .ql-formats::before {
+    font-size: 0.7rem;
     margin-bottom: 4px;
   }
+  
   .ql-toolbar button {
-    width: 24px;
-    height: 24px;
+    width: 32px;
+    height: 32px;
+    margin: 2px;
   }
+  
   .ql-snow .ql-picker {
-    font-size: 12px;
+    font-size: 13px;
   }
+  
   .ql-snow .ql-picker-label {
-    padding: 2px 4px;
+    padding: 4px 6px;
   }
+  
   .ql-editor {
     min-height: 150px;
-    font-size: 0.9rem;
+    font-size: 0.95rem;
+    padding: 12px;
+  }
+  
+  /* Make editor container more prominent on mobile */
+  #quill-cover-letter-editor {
+    min-height: 200px;
   }
 }
 
 @media (max-width: 480px) {
   .ql-toolbar {
-    padding: 4px;
+    padding: 6px;
   }
+  
   .ql-toolbar .ql-formats {
-    margin-right: 4px;
+    padding: 6px 8px;
   }
+  
   .ql-toolbar button {
-    width: 22px;
-    height: 22px;
+    width: 28px;
+    height: 28px;
   }
+  
   .ql-snow .ql-picker-label {
-    padding: 1px 3px;
+    padding: 3px 4px;
+    font-size: 12px;
   }
-  /* Stack some groups on very small screens */
-  .ql-toolbar .ql-formats:nth-child(n+7) {
-    width: 100%;
+  
+  /* Ensure groups are full width on small phones */
+  .ql-toolbar {
+    grid-template-columns: 1fr;
   }
 }
 
@@ -1207,6 +1257,36 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Add tooltips after a brief delay to ensure toolbar is fully rendered
   setTimeout(addQuillTooltips, 100);
+  
+  // Add labels to toolbar groups for better mobile experience
+  function addToolbarLabels() {
+    const toolbar = document.querySelector('#quill-cover-letter-editor').previousElementSibling;
+    const groups = toolbar.querySelectorAll('.ql-formats');
+    
+    const labels = [
+      'History',           // Undo/Redo
+      'Heading',          // Headers
+      'Font',             // Font family
+      'Size',             // Font size
+      'Text Style',       // Bold, Italic, etc.
+      'Script',           // Sub/Super
+      'Colors',           // Text/Background color
+      'Alignment',        // Text alignment
+      'Lists',            // Ordered/Bullet
+      'Indent',           // Indent controls
+      'Blocks',           // Blockquote, Code
+      'Media',            // Link, Image, Video
+      'Tools'             // Direction, Clean
+    ];
+    
+    groups.forEach((group, index) => {
+      if (labels[index]) {
+        group.setAttribute('data-group', labels[index]);
+      }
+    });
+  }
+  
+  setTimeout(addToolbarLabels, 150);
   
   // Sync Quill content to hidden textarea
   quill.on('text-change', function() {
