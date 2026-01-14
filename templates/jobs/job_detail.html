@@ -2606,6 +2606,16 @@
                         
                         console.log('[Dropdown Fix] Portal has', portalItems.length, 'items');
                         
+                        // DEBUG: Check first item style
+                        if (portalItems.length > 0) {
+                            const firstItem = portalItems[0];
+                            console.log('[Dropdown Fix] First item element:', firstItem);
+                            console.log('[Dropdown Fix] First item computed style:', window.getComputedStyle(firstItem));
+                            console.log('[Dropdown Fix] First item display:', window.getComputedStyle(firstItem).display);
+                            console.log('[Dropdown Fix] First item height:', window.getComputedStyle(firstItem).height);
+                            console.log('[Dropdown Fix] First item bounding rect:', firstItem.getBoundingClientRect());
+                        }
+                        
                         portalItems.forEach((portalItem, index) => {
                             portalItem.addEventListener('click', (e) => {
                                 e.preventDefault();
