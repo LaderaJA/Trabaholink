@@ -73,18 +73,18 @@
   justify-content: center !important;
 }
 
-.ql-toolbar button svg {
+/* CRITICAL: Override Quill's default SVG sizing with extreme specificity */
+.ql-snow.ql-toolbar button svg,
+.ql-snow .ql-toolbar button svg,
+.ql-toolbar button svg,
+.ql-toolbar .ql-stroke,
+.ql-toolbar .ql-fill {
   width: 18px !important;
   height: 18px !important;
   max-width: 18px !important;
   max-height: 18px !important;
-}
-
-/* Override Quill's height: 100% on SVG */
-.ql-snow.ql-toolbar button svg,
-.ql-snow .ql-toolbar button svg {
-  height: 18px !important;
-  width: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
 }
 
 .ql-toolbar button:hover {
@@ -210,13 +210,18 @@
     flex-shrink: 0;
   }
   
-  .ql-toolbar button svg,
+  /* CRITICAL: Force smaller SVG icons on tablet */
   .ql-snow.ql-toolbar button svg,
-  .ql-snow .ql-toolbar button svg {
+  .ql-snow .ql-toolbar button svg,
+  .ql-toolbar button svg,
+  .ql-toolbar .ql-stroke,
+  .ql-toolbar .ql-fill {
     width: 16px !important;
     height: 16px !important;
     max-width: 16px !important;
     max-height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
   }
   
   .ql-toolbar {
@@ -261,13 +266,18 @@
     height: 24px !important;
   }
   
-  .ql-toolbar button svg,
+  /* CRITICAL: Force smaller SVG icons on phone */
   .ql-snow.ql-toolbar button svg,
-  .ql-snow .ql-toolbar button svg {
+  .ql-snow .ql-toolbar button svg,
+  .ql-toolbar button svg,
+  .ql-toolbar .ql-stroke,
+  .ql-toolbar .ql-fill {
     width: 14px !important;
     height: 14px !important;
     max-width: 14px !important;
     max-height: 14px !important;
+    min-width: 14px !important;
+    min-height: 14px !important;
   }
   
   .ql-toolbar {
