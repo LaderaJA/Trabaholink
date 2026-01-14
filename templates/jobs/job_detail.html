@@ -122,6 +122,15 @@
 .ql-toolbar button svg {
   width: 18px !important;
   height: 18px !important;
+  max-width: 18px !important;
+  max-height: 18px !important;
+}
+
+/* Override Quill's height: 100% on SVG */
+.ql-snow.ql-toolbar button svg,
+.ql-snow .ql-toolbar button svg {
+  height: 18px !important;
+  width: 18px !important;
 }
 
 .ql-toolbar button:hover {
@@ -199,9 +208,13 @@
     height: 28px !important;
   }
   
-  .ql-toolbar button svg {
+  .ql-toolbar button svg,
+  .ql-snow.ql-toolbar button svg,
+  .ql-snow .ql-toolbar button svg {
     width: 16px !important;
     height: 16px !important;
+    max-width: 16px !important;
+    max-height: 16px !important;
   }
   
   .ql-snow .ql-picker-options {
@@ -222,9 +235,13 @@
     height: 24px !important;
   }
   
-  .ql-toolbar button svg {
+  .ql-toolbar button svg,
+  .ql-snow.ql-toolbar button svg,
+  .ql-snow .ql-toolbar button svg {
     width: 14px !important;
     height: 14px !important;
+    max-width: 14px !important;
+    max-height: 14px !important;
   }
   
   .ql-snow .ql-picker-options {
