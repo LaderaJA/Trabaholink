@@ -2910,23 +2910,81 @@
                             existingList.remove();
                         }
                     } else {
-                        quickGrammarStatus.textContent = `Found ${errors.length} issue(s)`;
-                        quickGrammarStatus.style.color = '#ef4444';
-                        
-                        // Show all errors (no truncation)
-                        let errorList = '<div style="margin-top: 10px; padding: 10px; background: #fef3c7; border-radius: 6px; font-size: 0.875rem;"><strong>Issues:</strong><ul style="margin: 5px 0; padding-left: 20px;">';
-                        
-                        errors.forEach(error => {
-                            const type = error.rule.issueType || 'grammar';
-                            const icon = type === 'misspelling' ? '<i class="fa fa-spell-check"></i>' : '<i class="fa fa-pencil"></i>';
-                            errorList += `<li>${icon} ${error.message}`;
-                            if (error.replacements && error.replacements.length > 0) {
-                                errorList += ` <span style="color: #10b981;">→ ${error.replacements[0].value}</span>`;
+                        // Filter errors - remove proper name and capitalization false positives
+                        const filteredErrors = errors.filter(error => {
+                            const context = error.context.text.toLowerCase();
+                            const badWord = error.context.text.substring(error.context.offset, error.context.offset + error.context.length);
+                            
+                            // Skip if it's flagging a name in a greeting context
+                            if (context.includes('my name is') || context.includes('i am') || context.includes("i'm")) {
+                                return false;
                             }
-                            errorList += '</li>';
+                            
+                            // Skip capitalization errors for names after "is" or "am"
+                            if (error.rule.issueType === 'typographical' && 
+                                (context.includes('name is') || context.includes('called'))) {
+                                return false;
+                            }
+                            
+                            return true;
                         });
                         
-                        errorList += '</ul></div>';
+                        if (filteredErrors.length === 0) {
+                            quickGrammarStatus.textContent = '✓ No grammar issues found!';
+                            quickGrammarStatus.style.color = '#10b981';
+                            
+                            const existingList = document.getElementById('quick-grammar-error-list');
+                            if (existingList) existingList.remove();
+                            
+                            return;
+                        }
+                        
+                        quickGrammarStatus.textContent = `Found ${filteredErrors.length} issue(s)`;
+                        quickGrammarStatus.style.color = '#ef4444';
+                        
+                        // Enhanced error display with better formatting
+                        let errorList = '<div style="margin-top: 15px; padding: 0; background: transparent; border-radius: 8px; font-size: 0.875rem; max-height: 300px; overflow-y: auto;">';
+                        
+                        filteredErrors.forEach((error, index) => {
+                            const type = error.rule.issueType || 'grammar';
+                            const badWord = error.context.text.substring(error.context.offset, error.context.offset + error.context.length);
+                            const beforeText = error.context.text.substring(Math.max(0, error.context.offset - 20), error.context.offset);
+                            const afterText = error.context.text.substring(error.context.offset + error.context.length, Math.min(error.context.text.length, error.context.offset + error.context.length + 20));
+                            
+                            // Icon based on error type
+                            let icon = '<i class="fa fa-exclamation-circle" style="color: #f59e0b;"></i>';
+                            if (type === 'misspelling') icon = '<i class="fa fa-spell-check" style="color: #ef4444;"></i>';
+                            else if (type === 'grammar') icon = '<i class="fa fa-pencil" style="color: #3b82f6;"></i>';
+                            
+                            // Build error item with better styling
+                            errorList += `
+                                <div style="background: white; padding: 12px; margin-bottom: 8px; border-left: 3px solid ${type === 'misspelling' ? '#ef4444' : '#3b82f6'}; border-radius: 4px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                                    <div style="display: flex; align-items: start; gap: 8px;">
+                                        ${icon}
+                                        <div style="flex: 1;">
+                                            <div style="font-weight: 600; color: #374151; margin-bottom: 4px;">${error.message}</div>
+                                            <div style="background: #f3f4f6; padding: 6px 8px; border-radius: 4px; margin: 6px 0; font-family: monospace; font-size: 0.8125rem;">
+                                                ${beforeText}<mark style="background: #fef3c7; padding: 2px 4px; border-radius: 2px; font-weight: 600;">${badWord}</mark>${afterText}
+                                            </div>`;
+                            
+                            if (error.replacements && error.replacements.length > 0) {
+                                errorList += `<div style="margin-top: 6px; color: #059669; font-weight: 500;">
+                                    <i class="fa fa-arrow-right"></i> Suggestion: <strong>${error.replacements[0].value}</strong>`;
+                                
+                                if (error.replacements.length > 1) {
+                                    errorList += ` <span style="color: #6b7280; font-weight: normal; font-size: 0.75rem;">(+${error.replacements.length - 1} more)</span>`;
+                                }
+                                
+                                errorList += '</div>';
+                            }
+                            
+                            errorList += `
+                                        </div>
+                                    </div>
+                                </div>`;
+                        });
+                        
+                        errorList += '</div>';
                         
                         const existingList = document.getElementById('quick-grammar-error-list');
                         if (existingList) existingList.remove();
