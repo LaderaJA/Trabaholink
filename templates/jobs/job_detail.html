@@ -2444,77 +2444,82 @@
         // Add tooltips after a brief delay
         setTimeout(addQuillTooltips, 100);
         
-        // Fix dropdown positioning for fixed position dropdowns - move to body to escape overflow clipping
+        // Fix dropdown positioning - use MutationObserver to detect when Quill opens dropdowns
         const toolbar = document.querySelector('#quill-quick-apply-editor').previousElementSibling;
         if (toolbar) {
-            // Store reference to original parent for each dropdown
-            const dropdownParents = new Map();
+            console.log('[Dropdown Fix] Toolbar found, setting up dropdown repositioning');
             
-            toolbar.addEventListener('click', function(e) {
-                const picker = e.target.closest('.ql-picker');
-                if (picker) {
-                    setTimeout(() => {
-                        const options = picker.querySelector('.ql-picker-options');
-                        if (options && picker.classList.contains('ql-expanded')) {
-                            // Store original parent if not already stored
-                            if (!dropdownParents.has(options)) {
-                                dropdownParents.set(options, options.parentElement);
-                            }
-                            
-                            // Move dropdown to body to escape overflow constraints
-                            if (options.parentElement !== document.body) {
-                                document.body.appendChild(options);
-                            }
-                            
-                            // Position it relative to the picker
-                            const rect = picker.getBoundingClientRect();
-                            options.style.top = (rect.bottom + window.scrollY) + 'px';
-                            options.style.left = (rect.left + window.scrollX) + 'px';
-                            options.style.width = ''; // Reset width to allow natural sizing
-                            options.style.minWidth = rect.width + 'px'; // Match picker width minimum
-                        }
-                    }, 10);
+            // Track all pickers and their dropdowns
+            const pickerMap = new WeakMap();
+            
+            // Function to reposition dropdown
+            function repositionDropdown(picker, options) {
+                if (!options || !picker) return;
+                
+                // Move to body if not already there
+                if (options.parentElement !== document.body) {
+                    console.log('[Dropdown Fix] Moving dropdown to body');
+                    document.body.appendChild(options);
                 }
-            });
-            
-            // Close dropdowns and return them to original parent
-            function closeAllDropdowns() {
-                const expandedPickers = toolbar.querySelectorAll('.ql-picker.ql-expanded');
-                expandedPickers.forEach(picker => {
-                    const options = picker.querySelector('.ql-picker-options');
-                    // If dropdown is in body, move it back to original parent
-                    if (options && options.parentElement === document.body) {
-                        const originalParent = dropdownParents.get(options);
-                        if (originalParent) {
-                            originalParent.appendChild(options);
-                        }
-                    }
-                    picker.classList.remove('ql-expanded');
-                });
+                
+                // Calculate position
+                const rect = picker.getBoundingClientRect();
+                const top = rect.bottom + window.scrollY;
+                const left = rect.left + window.scrollX;
+                
+                // Apply positioning
+                options.style.position = 'fixed';
+                options.style.top = rect.bottom + 'px';
+                options.style.left = rect.left + 'px';
+                options.style.zIndex = '99999';
+                options.style.minWidth = rect.width + 'px';
+                
+                console.log('[Dropdown Fix] Positioned dropdown at', {top: rect.bottom, left: rect.left});
             }
             
-            // Close dropdowns when clicking outside
-            document.addEventListener('click', function(e) {
-                if (!e.target.closest('.ql-picker') && !e.target.closest('.ql-picker-options')) {
-                    closeAllDropdowns();
-                }
+            // Watch each picker for class changes
+            const allPickers = toolbar.querySelectorAll('.ql-picker');
+            allPickers.forEach(picker => {
+                const observer = new MutationObserver((mutations) => {
+                    mutations.forEach((mutation) => {
+                        if (mutation.attributeName === 'class') {
+                            const isExpanded = picker.classList.contains('ql-expanded');
+                            const options = picker.querySelector('.ql-picker-options');
+                            
+                            if (isExpanded && options) {
+                                console.log('[Dropdown Fix] Picker expanded, repositioning');
+                                setTimeout(() => repositionDropdown(picker, options), 10);
+                            } else if (!isExpanded && options && options.parentElement === document.body) {
+                                // Return to original parent when closed
+                                console.log('[Dropdown Fix] Picker collapsed, returning dropdown');
+                                picker.appendChild(options);
+                            }
+                        }
+                    });
+                });
+                
+                observer.observe(picker, { attributes: true, attributeFilter: ['class'] });
+                pickerMap.set(picker, observer);
             });
             
-            // Reposition dropdowns on window resize
-            window.addEventListener('resize', function() {
-                const expandedPickers = toolbar.querySelectorAll('.ql-picker.ql-expanded');
-                expandedPickers.forEach(picker => {
-                    const options = document.body.querySelector('.ql-picker-options');
-                    if (options) {
-                        const rect = picker.getBoundingClientRect();
-                        options.style.top = (rect.bottom + window.scrollY) + 'px';
-                        options.style.left = (rect.left + window.scrollX) + 'px';
+            // Update positions on scroll/resize
+            window.addEventListener('resize', () => {
+                allPickers.forEach(picker => {
+                    if (picker.classList.contains('ql-expanded')) {
+                        const options = document.body.querySelector('.ql-picker-options');
+                        if (options) repositionDropdown(picker, options);
                     }
                 });
             });
             
-            // Close dropdowns on scroll
-            window.addEventListener('scroll', closeAllDropdowns, true);
+            // Close on scroll
+            window.addEventListener('scroll', () => {
+                allPickers.forEach(picker => {
+                    if (picker.classList.contains('ql-expanded')) {
+                        picker.classList.remove('ql-expanded');
+                    }
+                });
+            }, true);
         }
         
         // Sync Quill content to hidden textarea
