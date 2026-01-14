@@ -2282,6 +2282,31 @@
         // Add tooltips after a brief delay
         setTimeout(addQuillTooltips, 100);
         
+        // Toolbar toggle functionality for mobile
+        const quickToolbarToggleBtn = document.getElementById('quickApplyToolbarToggle');
+        const quickToolbar = document.querySelector('#quill-quick-apply-editor').previousElementSibling;
+        
+        if (quickToolbarToggleBtn) {
+            // Start collapsed on mobile
+            if (window.innerWidth <= 768) {
+                quickToolbar.classList.add('collapsed');
+                quickToolbarToggleBtn.classList.add('collapsed');
+                quickToolbarToggleBtn.querySelector('span').textContent = 'Show Formatting Tools';
+            }
+            
+            quickToolbarToggleBtn.addEventListener('click', function() {
+                quickToolbar.classList.toggle('collapsed');
+                quickToolbarToggleBtn.classList.toggle('collapsed');
+                
+                // Update text
+                const span = quickToolbarToggleBtn.querySelector('span');
+                if (quickToolbar.classList.contains('collapsed')) {
+                    span.textContent = 'Show Formatting Tools';
+                } else {
+                    span.textContent = 'Hide Formatting Tools';
+                }
+            });
+        }
         
         // Sync Quill content to hidden textarea
         quickQuill.on('text-change', function() {
