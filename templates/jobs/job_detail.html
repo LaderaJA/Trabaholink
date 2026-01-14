@@ -119,12 +119,19 @@
   justify-content: center !important;
 }
 
-/* CRITICAL: Override Quill's default SVG sizing with extreme specificity */
+/* CRITICAL: Override Quill's default SVG sizing - including inline styles */
+.ql-snow.ql-toolbar button svg[width],
+.ql-snow.ql-toolbar button svg[height],
+.ql-snow .ql-toolbar button svg[width],
+.ql-snow .ql-toolbar button svg[height],
+.ql-toolbar button svg[width],
+.ql-toolbar button svg[height],
 .ql-snow.ql-toolbar button svg,
 .ql-snow .ql-toolbar button svg,
 .ql-toolbar button svg,
 .ql-toolbar .ql-stroke,
-.ql-toolbar .ql-fill {
+.ql-toolbar .ql-fill,
+.ql-toolbar svg {
   width: 18px !important;
   height: 18px !important;
   max-width: 18px !important;
@@ -208,12 +215,19 @@
     height: 28px !important;
   }
   
-  /* CRITICAL: Force smaller SVG icons on tablet */
+  /* CRITICAL: Force smaller SVG icons on tablet - including inline styles */
+  .ql-snow.ql-toolbar button svg[width],
+  .ql-snow.ql-toolbar button svg[height],
+  .ql-snow .ql-toolbar button svg[width],
+  .ql-snow .ql-toolbar button svg[height],
+  .ql-toolbar button svg[width],
+  .ql-toolbar button svg[height],
   .ql-snow.ql-toolbar button svg,
   .ql-snow .ql-toolbar button svg,
   .ql-toolbar button svg,
   .ql-toolbar .ql-stroke,
-  .ql-toolbar .ql-fill {
+  .ql-toolbar .ql-fill,
+  .ql-toolbar svg {
     width: 16px !important;
     height: 16px !important;
     max-width: 16px !important;
@@ -240,12 +254,19 @@
     height: 24px !important;
   }
   
-  /* CRITICAL: Force smaller SVG icons on phone */
+  /* CRITICAL: Force smaller SVG icons on phone - including inline styles */
+  .ql-snow.ql-toolbar button svg[width],
+  .ql-snow.ql-toolbar button svg[height],
+  .ql-snow .ql-toolbar button svg[width],
+  .ql-snow .ql-toolbar button svg[height],
+  .ql-toolbar button svg[width],
+  .ql-toolbar button svg[height],
   .ql-snow.ql-toolbar button svg,
   .ql-snow .ql-toolbar button svg,
   .ql-toolbar button svg,
   .ql-toolbar .ql-stroke,
-  .ql-toolbar .ql-fill {
+  .ql-toolbar .ql-fill,
+  .ql-toolbar svg {
     width: 14px !important;
     height: 14px !important;
     max-width: 14px !important;
@@ -278,48 +299,7 @@
   padding-right: 20px;
 }
 
-/* Toolbar Toggle Button - Redesigned */
-.toolbar-toggle-btn {
-
-/* Responsive Design for Mobile */
-  display: none;
-  width: 100%;
-  padding: 10px 15px;
-  background: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
-  margin-bottom: 8px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
-  color: #495057;
-  text-align: center;
-  transition: all 0.2s ease;
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
-}
-
-.toolbar-toggle-btn:hover {
-  background: #e9ecef;
-  border-color: #adb5bd;
-}
-
-.toolbar-toggle-btn:active {
-  transform: translateY(1px);
-  box-shadow: none;
-}
-
-.toolbar-toggle-btn i {
-  margin-right: 6px;
-  font-size: 11px;
-  transition: transform 0.3s ease;
-}
-
-.toolbar-toggle-btn.collapsed i {
-  transform: rotate(180deg);
-}
-
-/* Collapsible toolbar */
-}
+/* Toolbar always visible - toggle button removed */
 
 .ql-toolbar button:hover::before,
 .ql-toolbar .ql-picker-label:hover::before {
@@ -1916,12 +1896,6 @@
                     <div class="mb-3">
                         <label for="cover_letter" class="form-label">Message to Employer (Optional)</label>
                         
-                        <!-- Toolbar Toggle Button (Mobile Only) -->
-                        <button type="button" class="toolbar-toggle-btn" id="quickApplyToolbarToggle">
-                            <i class="fa fa-chevron-down"></i>
-                            <span>Formatting Tools</span>
-                        </button>
-                        
                         <!-- Quill Editor Container -->
                         <div id="quill-quick-apply-editor" style="background: white; border: 1px solid #dee2e6; border-radius: 8px; min-height: 150px;"></div>
                         
@@ -2470,44 +2444,6 @@
         // Add tooltips after a brief delay
         setTimeout(addQuillTooltips, 100);
         
-        // Toolbar toggle functionality for mobile
-        const quickToolbarToggleBtn = document.getElementById('quickApplyToolbarToggle');
-        
-        // Wait for Quill to initialize and create toolbar
-        setTimeout(() => {
-            const quickToolbar = document.querySelector('#quill-quick-apply-editor').previousElementSibling;
-            
-            if (quickToolbarToggleBtn && quickToolbar && quickToolbar.classList.contains('ql-toolbar')) {
-                // Start collapsed on mobile
-                if (window.innerWidth <= 768) {
-                    quickToolbar.classList.add('collapsed');
-                    quickToolbarToggleBtn.classList.add('collapsed');
-                    const icon = quickToolbarToggleBtn.querySelector('i');
-                    const span = quickToolbarToggleBtn.querySelector('span');
-                    if (icon) icon.className = 'fa fa-chevron-down';
-                    if (span) span.textContent = 'Show Formatting Tools';
-                }
-                
-                quickToolbarToggleBtn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    quickToolbar.classList.toggle('collapsed');
-                    quickToolbarToggleBtn.classList.toggle('collapsed');
-                    
-                    // Update icon and text
-                    const icon = quickToolbarToggleBtn.querySelector('i');
-                    const span = quickToolbarToggleBtn.querySelector('span');
-                    
-                    if (quickToolbar.classList.contains('collapsed')) {
-                        if (icon) icon.className = 'fa fa-chevron-down';
-                        if (span) span.textContent = 'Show Formatting Tools';
-                    } else {
-                        if (icon) icon.className = 'fa fa-chevron-up';
-                        if (span) span.textContent = 'Hide Formatting Tools';
-                    }
-                });
-            }
-        }, 300);
-        
         // Fix dropdown positioning for fixed position dropdowns
         const toolbar = document.querySelector('#quill-quick-apply-editor').previousElementSibling;
         if (toolbar) {
@@ -2870,14 +2806,18 @@
                         if (action === 'save') {
                             // Update button to saved state
                             button.classList.add('cached');
-                            button.querySelector('i').className = 'bi bi-bookmark-fill';
-                            button.querySelector('.cache-button-text').textContent = 'Saved';
+                            const icon = button.querySelector('i');
+                            const text = button.querySelector('.cache-button-text');
+                            if (icon) icon.className = 'bi bi-bookmark-fill';
+                            if (text) text.textContent = 'Saved';
                             button.setAttribute('title', 'Remove from offline storage');
                         } else if (action === 'unsave') {
                             // Update button to unsaved state
                             button.classList.remove('cached');
-                            button.querySelector('i').className = 'bi bi-bookmark';
-                            button.querySelector('.cache-button-text').textContent = 'Save Offline';
+                            const icon = button.querySelector('i');
+                            const text = button.querySelector('.cache-button-text');
+                            if (icon) icon.className = 'bi bi-bookmark';
+                            if (text) text.textContent = 'Save Offline';
                             button.setAttribute('title', 'Save for offline viewing');
                         }
                     }
@@ -2891,8 +2831,10 @@
             const cached = window.offlineCache.getCachedJob(jobId);
             if (cached) {
                 button.classList.add('cached');
-                button.querySelector('i').className = 'bi bi-bookmark-fill';
-                button.querySelector('.cache-button-text').textContent = 'Saved';
+                const icon = button.querySelector('i');
+                const text = button.querySelector('.cache-button-text');
+                if (icon) icon.className = 'bi bi-bookmark-fill';
+                if (text) text.textContent = 'Saved';
                 button.setAttribute('title', 'Remove from offline storage');
             }
         }
@@ -2905,8 +2847,10 @@
             // Remove from cache
             unsaveJob(jobId);
             button.classList.remove('cached');
-            button.querySelector('i').className = 'bi bi-bookmark';
-            button.querySelector('.cache-button-text').textContent = 'Save Offline';
+            const icon = button.querySelector('i');
+            const text = button.querySelector('.cache-button-text');
+            if (icon) icon.className = 'bi bi-bookmark';
+            if (text) text.textContent = 'Save Offline';
             button.setAttribute('title', 'Save for offline viewing');
             
             if (window.offlineUI) {
@@ -2916,8 +2860,10 @@
             // Add to cache
             saveJobToCache(jobId);
             button.classList.add('cached');
-            button.querySelector('i').className = 'bi bi-bookmark-fill';
-            button.querySelector('.cache-button-text').textContent = 'Saved';
+            const icon = button.querySelector('i');
+            const text = button.querySelector('.cache-button-text');
+            if (icon) icon.className = 'bi bi-bookmark-fill';
+            if (text) text.textContent = 'Saved';
             button.setAttribute('title', 'Remove from offline storage');
             
             if (window.offlineUI) {

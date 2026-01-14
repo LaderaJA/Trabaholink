@@ -73,12 +73,19 @@
   justify-content: center !important;
 }
 
-/* CRITICAL: Override Quill's default SVG sizing with extreme specificity */
+/* CRITICAL: Override Quill's default SVG sizing - including inline styles */
+.ql-snow.ql-toolbar button svg[width],
+.ql-snow.ql-toolbar button svg[height],
+.ql-snow .ql-toolbar button svg[width],
+.ql-snow .ql-toolbar button svg[height],
+.ql-toolbar button svg[width],
+.ql-toolbar button svg[height],
 .ql-snow.ql-toolbar button svg,
 .ql-snow .ql-toolbar button svg,
 .ql-toolbar button svg,
 .ql-toolbar .ql-stroke,
-.ql-toolbar .ql-fill {
+.ql-toolbar .ql-fill,
+.ql-toolbar svg {
   width: 18px !important;
   height: 18px !important;
   max-width: 18px !important;
@@ -210,12 +217,19 @@
     flex-shrink: 0;
   }
   
-  /* CRITICAL: Force smaller SVG icons on tablet */
+  /* CRITICAL: Force smaller SVG icons on tablet - including inline styles */
+  .ql-snow.ql-toolbar button svg[width],
+  .ql-snow.ql-toolbar button svg[height],
+  .ql-snow .ql-toolbar button svg[width],
+  .ql-snow .ql-toolbar button svg[height],
+  .ql-toolbar button svg[width],
+  .ql-toolbar button svg[height],
   .ql-snow.ql-toolbar button svg,
   .ql-snow .ql-toolbar button svg,
   .ql-toolbar button svg,
   .ql-toolbar .ql-stroke,
-  .ql-toolbar .ql-fill {
+  .ql-toolbar .ql-fill,
+  .ql-toolbar svg {
     width: 16px !important;
     height: 16px !important;
     max-width: 16px !important;
@@ -266,12 +280,19 @@
     height: 24px !important;
   }
   
-  /* CRITICAL: Force smaller SVG icons on phone */
+  /* CRITICAL: Force smaller SVG icons on phone - including inline styles */
+  .ql-snow.ql-toolbar button svg[width],
+  .ql-snow.ql-toolbar button svg[height],
+  .ql-snow .ql-toolbar button svg[width],
+  .ql-snow .ql-toolbar button svg[height],
+  .ql-toolbar button svg[width],
+  .ql-toolbar button svg[height],
   .ql-snow.ql-toolbar button svg,
   .ql-snow .ql-toolbar button svg,
   .ql-toolbar button svg,
   .ql-toolbar .ql-stroke,
-  .ql-toolbar .ql-fill {
+  .ql-toolbar .ql-fill,
+  .ql-toolbar svg {
     width: 14px !important;
     height: 14px !important;
     max-width: 14px !important;
