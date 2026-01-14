@@ -151,6 +151,32 @@
   clip-path: none !important;
 }
 
+/* Portal clone in body - MAXIMUM visibility overrides */
+.ql-picker-options-portal {
+  position: fixed !important;
+  z-index: 2147483647 !important; /* Maximum possible z-index */
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  max-height: 300px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  background: white !important;
+  border: 2px solid #2563eb !important; /* Blue border for visibility testing */
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3) !important;
+  padding: 8px !important;
+  margin: 0 !important;
+  transform: none !important;
+  clip: auto !important;
+  clip-path: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  isolation: auto !important;
+  mix-blend-mode: normal !important;
+  will-change: auto !important;
+}
+
 /* Webkit scrollbar for dropdowns */
 .ql-snow .ql-picker-options::-webkit-scrollbar {
   width: 6px;
@@ -1477,15 +1503,23 @@ document.addEventListener('DOMContentLoaded', function() {
               dropdownClones.set(picker, portalClone);
             }
             
-            // Position portal
+            // Position portal with maximum visibility
             portalClone.style.cssText = `
               position: fixed !important;
               top: ${rect.bottom}px !important;
               left: ${rect.left}px !important;
-              z-index: 999999 !important;
+              z-index: 2147483647 !important;
               display: block !important;
               visibility: visible !important;
+              opacity: 1 !important;
+              pointer-events: auto !important;
               min-width: ${rect.width}px !important;
+              max-height: 300px !important;
+              overflow-y: auto !important;
+              background: white !important;
+              border: 2px solid #2563eb !important;
+              box-shadow: 0 10px 40px rgba(0,0,0,0.3) !important;
+              padding: 8px !important;
             `;
             
             // Hide original (keep in DOM for Quill)
@@ -1495,9 +1529,18 @@ document.addEventListener('DOMContentLoaded', function() {
             portalClone.removeAttribute('aria-hidden');
             portalClone.setAttribute('aria-expanded', 'true');
             
+            // Debug: Log portal details
+            console.log('[Dropdown Fix] Portal created at', rect.bottom, rect.left);
+            console.log('[Dropdown Fix] Portal element:', portalClone);
+            console.log('[Dropdown Fix] Portal in DOM?', document.body.contains(portalClone));
+            console.log('[Dropdown Fix] Portal computed style:', window.getComputedStyle(portalClone));
+            console.log('[Dropdown Fix] Portal bounding rect:', portalClone.getBoundingClientRect());
+            
             // Sync clicks from portal to original
             const portalItems = portalClone.querySelectorAll('.ql-picker-item');
             const originalItems = options.querySelectorAll('.ql-picker-item');
+            
+            console.log('[Dropdown Fix] Portal has', portalItems.length, 'items');
             
             portalItems.forEach((portalItem, index) => {
               portalItem.addEventListener('click', (e) => {
@@ -1509,8 +1552,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 picker.classList.remove('ql-expanded');
               });
             });
-            
-            console.log('[Dropdown Fix] Portal created at', rect.bottom, rect.left);
             
           } else {
             // Cleanup portal when closed
