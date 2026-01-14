@@ -995,7 +995,7 @@
     <!-- Jobs List View (Default) -->
     <div class="jobs-list" id="listView">
       {% for job in jobs %}
-      <div class="job-card-list" data-lat="{{ job.location.y }}" data-lng="{{ job.location.x }}">
+      <div class="job-card-list" data-job-id="{{ job.id }}" data-lat="{{ job.location.y }}" data-lng="{{ job.location.x }}" data-job-title="{{ job.title }}" data-job-description="{{ job.description|truncatechars:200 }}" data-job-location="{{ job.full_address|default:job.municipality }}" data-job-category="{{ job.category.name }}" data-job-employer="{{ job.owner.username }}" data-job-salary="₱{{ job.budget|floatformat:0 }}" data-job-date="{{ job.created_at|date:'M d, Y' }}">
         <div class="job-thumbnail">
           <a href="{% url 'jobs:job_detail' job.id %}" class="job-thumbnail-link">
             {% if job.jobimage_set.exists %}
@@ -1094,7 +1094,7 @@
     <!-- Jobs Grid View (Hidden by default) -->
     <div class="jobs-grid" id="gridView" style="display: none;">
       {% for job in jobs %}
-      <div class="job-card-grid" data-lat="{{ job.location.y }}" data-lng="{{ job.location.x }}">
+      <div class="job-card-grid" data-job-id="{{ job.id }}" data-lat="{{ job.location.y }}" data-lng="{{ job.location.x }}" data-job-title="{{ job.title }}" data-job-description="{{ job.description|truncatechars:200 }}" data-job-location="{{ job.full_address|default:job.municipality }}" data-job-category="{{ job.category.name }}" data-job-employer="{{ job.owner.username }}" data-job-salary="₱{{ job.budget|floatformat:0 }}" data-job-date="{{ job.created_at|date:'M d, Y' }}">
         <div class="job-image-grid">
           <a href="{% url 'jobs:job_detail' job.id %}" class="job-image-link">
             {% if job.jobimage_set.exists %}
@@ -1246,7 +1246,7 @@
       <!-- Services List View -->
       <div id="servicesListView" class="jobs-list">
         {% for service in services %}
-        <div class="job-card-list">
+        <div class="job-card-list" data-service-id="{{ service.id }}" data-service-title="{{ service.headline }}" data-service-description="{{ service.description|truncatechars:200 }}" data-service-category="{{ service.category.name|default:'General' }}" data-service-provider="{{ service.user.username }}">
           <div class="job-thumbnail">
             <a href="{{ service.get_absolute_url }}" class="job-thumbnail-link">
               {% with service.images.first as service_image %}
@@ -1322,7 +1322,7 @@
       <!-- Services Grid View -->
       <div id="servicesGridView" class="jobs-grid" style="display: none;">
         {% for service in services %}
-        <div class="job-card-grid">
+        <div class="job-card-grid" data-service-id="{{ service.id }}" data-service-title="{{ service.headline }}" data-service-description="{{ service.description|truncatechars:200 }}" data-service-category="{{ service.category.name|default:'General' }}" data-service-provider="{{ service.user.username }}">
           <div class="job-thumbnail-grid">
             <a href="{{ service.get_absolute_url }}" class="job-thumbnail-link">
               {% with service.images.first as service_image %}

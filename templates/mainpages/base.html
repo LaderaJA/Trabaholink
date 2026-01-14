@@ -10,6 +10,8 @@
   <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
   <link rel="stylesheet" href="{% static 'css/base.css' %}" />
   <link rel="stylesheet" href="{% static 'css/mobile-fixes.css' %}" />
+  <!-- Offline Mode Styles -->
+  <link rel="stylesheet" href="{% static 'css/offline.css' %}" />
   <link
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
@@ -1921,6 +1923,52 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="{% static 'js/base.js' %}"></script>
+  
+  <!-- Offline Mode Scripts (Load in order) -->
+  <script src="{% static 'js/offline-cache.js' %}"></script>
+  <script src="{% static 'js/offline-ui.js' %}"></script>
+  <script src="{% static 'js/offline-prefetch.js' %}"></script>
+  <script src="{% static 'js/offline-link-handler.js' %}"></script>
+  
+  <!-- Service Worker Registration -->
+  <script>
+    // Register Service Worker for offline page caching
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js')
+          .then(function(registration) {
+            console.log('✅ [ServiceWorker] Registered successfully:', registration.scope);
+            
+            // Check for updates periodically
+            setInterval(function() {
+              registration.update();
+            }, 60000); // Check every minute
+          })
+          .catch(function(error) {
+            console.error('❌ [ServiceWorker] Registration failed:', error);
+          });
+        
+        // Handle service worker updates
+        navigator.serviceWorker.addEventListener('controllerchange', function() {
+          console.log('🔄 [ServiceWorker] New version available, reloading...');
+          // Optionally show a toast notification before reload
+          if (window.offlineUI) {
+            window.offlineUI.showToast(
+              'Update Available', 
+              'A new version is available. Refreshing...', 
+              'info'
+            );
+          }
+          setTimeout(function() {
+            window.location.reload();
+          }, 2000);
+        });
+      });
+    } else {
+      console.warn('⚠️ Service Workers not supported in this browser');
+    }
+  </script>
+  
   {% block js %}{% endblock %}
   
   <script>

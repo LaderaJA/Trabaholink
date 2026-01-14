@@ -4,7 +4,23 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.views.generic import RedirectView
 from django.contrib.staticfiles.views import serve
+from django.http import HttpResponse
+from django.views.decorators.http import require_GET
+from django.views.decorators.cache import cache_control
+import os
 from .health_views import health_check, health_check_detailed
+
+@require_GET
+@cache_control(max_age=0, no_cache=True, no_store=True, must_revalidate=True)
+def service_worker(request):
+    """Serve the service worker from root path with correct scope"""
+    sw_path = os.path.join(settings.BASE_DIR, 'static', 'js', 'sw.js')
+    try:
+        with open(sw_path, 'r', encoding='utf-8') as f:
+            sw_content = f.read()
+        return HttpResponse(sw_content, content_type='application/javascript')
+    except FileNotFoundError:
+        return HttpResponse('Service Worker not found', status=404)
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,6 +42,8 @@ urlpatterns = [
     # Health check endpoints for Docker
     path('health/', health_check, name='health_check'),
     path('health/detailed/', health_check_detailed, name='health_check_detailed'),
+    # Service Worker - must be at root for proper scope
+    path('sw.js', service_worker, name='service_worker'),
     # Favicon
     path('favicon.ico', RedirectView.as_view(url='/static/images/favicon.ico', permanent=True)),
 ]

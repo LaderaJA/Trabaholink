@@ -1364,6 +1364,98 @@
             padding: 1.25rem;
         }
     }
+
+  /* ============================================
+     CACHE BUTTON STYLES - Mobile First
+     ============================================ */
+  
+  .hero-badges-group,
+  .header-badges-group {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+  }
+
+  .cache-button-hero,
+  .cache-button-header {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 20px;
+      background: rgba(255, 255, 255, 0.95);
+      color: #475569;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      backdrop-filter: blur(10px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  .cache-button-hero:hover,
+  .cache-button-header:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+      background: white;
+  }
+
+  .cache-button-hero.cached,
+  .cache-button-header.cached {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border-color: transparent;
+  }
+
+  .cache-button-hero.cached:hover,
+  .cache-button-header.cached:hover {
+      background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
+  }
+
+  .cache-button-hero i,
+  .cache-button-header i {
+      font-size: 18px;
+      transition: transform 0.3s ease;
+  }
+
+  .cache-button-hero.cached i,
+  .cache-button-header.cached i {
+      animation: bookmarkSave 0.5s ease;
+  }
+
+  @keyframes bookmarkSave {
+      0% { transform: scale(1); }
+      50% { transform: scale(1.3); }
+      100% { transform: scale(1); }
+  }
+
+  /* Mobile adjustments */
+  @media (max-width: 768px) {
+      .cache-button-hero,
+      .cache-button-header {
+          padding: 8px 16px;
+          font-size: 13px;
+      }
+
+      .cache-button-text {
+          display: none;
+      }
+
+      .cache-button-hero i,
+      .cache-button-header i {
+          font-size: 20px;
+      }
+  }
+
+  /* Desktop hover effects */
+  @media (min-width: 769px) {
+      .cache-button-hero:hover i,
+      .cache-button-header:hover i {
+          transform: scale(1.1);
+      }
+  }
 </style>
 {% endblock %}
 
@@ -1400,15 +1492,23 @@
                                 <i class="bi bi-calendar3"></i> {{ job.created_at|date:"M d, Y" }}
                             </span>
                         </div>
-                        {% if job.is_active %}
-                        <span class="status-badge-hero status-active">
-                            <i class="bi bi-check-circle-fill"></i> Active
-                        </span>
-                        {% else %}
-                        <span class="status-badge-hero status-inactive">
-                            <i class="bi bi-x-circle-fill"></i> Closed
-                        </span>
-                        {% endif %}
+                        <div class="hero-badges-group">
+                            {% if job.is_active %}
+                            <span class="status-badge-hero status-active">
+                                <i class="bi bi-check-circle-fill"></i> Active
+                            </span>
+                            {% else %}
+                            <span class="status-badge-hero status-inactive">
+                                <i class="bi bi-x-circle-fill"></i> Closed
+                            </span>
+                            {% endif %}
+                            
+                            <!-- Cache Button for Offline Viewing -->
+                            <button class="cache-button-hero" id="jobCacheButton" data-job-id="{{ job.id }}" title="Save for offline viewing">
+                                <i class="bi bi-bookmark"></i>
+                                <span class="cache-button-text">Save Offline</span>
+                            </button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1460,15 +1560,23 @@
                 </div>
             </div>
             <div>
-                {% if job.is_active %}
-                <span class="status-badge status-active">
-                    <i class="bi bi-check-circle-fill"></i> Active
-                </span>
-                {% else %}
-                <span class="status-badge status-inactive">
-                    <i class="bi bi-x-circle-fill"></i> Closed
-                </span>
-                {% endif %}
+                <div class="header-badges-group">
+                    {% if job.is_active %}
+                    <span class="status-badge status-active">
+                        <i class="bi bi-check-circle-fill"></i> Active
+                    </span>
+                    {% else %}
+                    <span class="status-badge status-inactive">
+                        <i class="bi bi-x-circle-fill"></i> Closed
+                    </span>
+                    {% endif %}
+                    
+                    <!-- Cache Button for Offline Viewing -->
+                    <button class="cache-button-header" id="jobCacheButtonNoImage" data-job-id="{{ job.id }}" title="Save for offline viewing">
+                        <i class="bi bi-bookmark"></i>
+                        <span class="cache-button-text">Save Offline</span>
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -2400,6 +2508,117 @@
             .openPopup();
     });
     {% endif %}
+
+    // ============================================
+    // CACHE BUTTON FUNCTIONALITY
+    // ============================================
+    
+    document.addEventListener('DOMContentLoaded', function() {
+        const cacheButtons = document.querySelectorAll('#jobCacheButton, #jobCacheButtonNoImage');
+        
+        cacheButtons.forEach(button => {
+            const jobId = button.getAttribute('data-job-id');
+            
+            // Check if job is already cached on load
+            checkCacheStatus(button, jobId);
+            
+            // Add click event
+            button.addEventListener('click', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                toggleJobCache(button, jobId);
+            });
+        });
+    });
+
+    function checkCacheStatus(button, jobId) {
+        if (window.offlineCache) {
+            const cached = window.offlineCache.getCachedJob(jobId);
+            if (cached) {
+                button.classList.add('cached');
+                button.querySelector('i').className = 'bi bi-bookmark-fill';
+                button.querySelector('.cache-button-text').textContent = 'Saved';
+                button.setAttribute('title', 'Remove from offline storage');
+            }
+        }
+    }
+
+    function toggleJobCache(button, jobId) {
+        const isCached = button.classList.contains('cached');
+        
+        if (isCached) {
+            // Remove from cache
+            unsaveJob(jobId);
+            button.classList.remove('cached');
+            button.querySelector('i').className = 'bi bi-bookmark';
+            button.querySelector('.cache-button-text').textContent = 'Save Offline';
+            button.setAttribute('title', 'Save for offline viewing');
+            
+            if (window.offlineUI) {
+                window.offlineUI.showToast('Removed', 'Job removed from offline storage', 'info');
+            }
+        } else {
+            // Add to cache
+            saveJobToCache(jobId);
+            button.classList.add('cached');
+            button.querySelector('i').className = 'bi bi-bookmark-fill';
+            button.querySelector('.cache-button-text').textContent = 'Saved';
+            button.setAttribute('title', 'Remove from offline storage');
+            
+            if (window.offlineUI) {
+                window.offlineUI.showToast('Saved', 'Job saved for offline viewing', 'success');
+            }
+        }
+    }
+
+    function saveJobToCache(jobId) {
+        if (!window.offlineCache) {
+            console.error('Offline cache not available');
+            return;
+        }
+
+        // Gather all job data from the page
+        const jobData = {
+            id: jobId,
+            title: document.querySelector('.hero-title, .job-title')?.textContent.trim() || '',
+            description: document.querySelector('.description-text')?.textContent.trim() || '',
+            location: '{{ job.municipality }}, {{ job.barangay }}',
+            category: '{{ job.category.name }}',
+            employer: '{{ job.owner.get_full_name|default:job.owner.username }}',
+            salary: '₱{{ job.budget|floatformat:0 }}',
+            posted_date: '{{ job.created_at|date:"M d, Y" }}',
+            schedule: '{{ job.schedule|default:"" }}',
+            experience_required: '{{ job.experience_required|default:"" }}',
+            skills_required: '{{ job.skills_required|default:"" }}',
+            urgency: '{{ job.urgency }}',
+            vacancies: {{ job.vacancies }},
+            is_active: {{ job.is_active|lower }},
+            application_deadline: '{{ job.application_deadline|date:"M d, Y"|default:"" }}',
+            applicant_count: {{ job.get_applicant_count }},
+            images: [
+                {% for image in job.jobimage_set.all %}
+                '{{ image.image.url }}'{% if not forloop.last %},{% endif %}
+                {% endfor %}
+            ],
+            url: window.location.href
+        };
+
+        window.offlineCache.cacheJob(jobId, jobData);
+        console.log('[JobDetail] Cached job:', jobId);
+    }
+
+    function unsaveJob(jobId) {
+        if (!window.offlineCache) {
+            console.error('Offline cache not available');
+            return;
+        }
+
+        const jobs = window.offlineCache.getCachedItems(window.offlineCache.CACHE_KEYS.JOBS);
+        delete jobs[jobId];
+        localStorage.setItem(window.offlineCache.CACHE_KEYS.JOBS, JSON.stringify(jobs));
+        console.log('[JobDetail] Removed job from cache:', jobId);
+    }
+    
 </script>
 {% endblock %}
 
