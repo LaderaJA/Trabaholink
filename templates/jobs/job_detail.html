@@ -2550,10 +2550,37 @@
                         const pickerLabel = picker.querySelector('.ql-picker-label');
                         const rect = pickerLabel ? pickerLabel.getBoundingClientRect() : picker.getBoundingClientRect();
                         
-                        // Create portal clone if doesn't exist
+                        // Create portal clone if doesn't exist  
                         if (!portalClone) {
+                            // Clone with deep copy to get all children
                             portalClone = options.cloneNode(true);
                             portalClone.classList.add('ql-picker-options-portal');
+                            
+                            // Force items to be blocks with content
+                            const portalItems = portalClone.querySelectorAll('.ql-picker-item');
+                            const originalItems = options.querySelectorAll('.ql-picker-item');
+                            
+                            portalItems.forEach((portalItem, index) => {
+                                const originalItem = originalItems[index];
+                                if (originalItem) {
+                                    // Copy any data attributes
+                                    const dataValue = originalItem.getAttribute('data-value');
+                                    const dataLabel = originalItem.getAttribute('data-label');
+                                    
+                                    // Get text content from original (Quill might populate via JS)
+                                    const text = originalItem.textContent || originalItem.innerText || dataLabel || dataValue || `Option ${index + 1}`;
+                                    
+                                    // Set content and styles
+                                    portalItem.textContent = text;
+                                    portalItem.style.display = 'block';
+                                    portalItem.style.padding = '5px 10px';
+                                    portalItem.style.cursor = 'pointer';
+                                    portalItem.style.minHeight = '30px';
+                                    
+                                    console.log('[Dropdown Fix] Item', index, 'text:', text);
+                                }
+                            });
+                            
                             document.body.appendChild(portalClone);
                             dropdownClones.set(picker, portalClone);
                         }
