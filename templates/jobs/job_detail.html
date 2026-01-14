@@ -257,6 +257,44 @@
   min-height: 30px !important;
 }
 
+/* Color picker grid layout */
+.ql-picker.ql-color .ql-picker-options-portal,
+.ql-picker.ql-background .ql-picker-options-portal {
+  display: grid !important;
+  grid-template-columns: repeat(7, 1fr) !important;
+  gap: 4px !important;
+  padding: 8px !important;
+  width: auto !important;
+  min-width: 200px !important;
+}
+
+.ql-picker.ql-color .ql-picker-options-portal .ql-picker-item,
+.ql-picker.ql-background .ql-picker-options-portal .ql-picker-item {
+  display: block !important;
+  width: 24px !important;
+  height: 24px !important;
+  min-height: 24px !important;
+  padding: 0 !important;
+  border: 1px solid #ddd !important;
+  border-radius: 3px !important;
+  transition: transform 0.2s !important;
+}
+
+.ql-picker.ql-color .ql-picker-options-portal .ql-picker-item:hover,
+.ql-picker.ql-background .ql-picker-options-portal .ql-picker-item:hover {
+  transform: scale(1.1) !important;
+  border-color: #333 !important;
+  z-index: 1 !important;
+}
+
+/* Mobile: 5 columns for color picker */
+@media (max-width: 480px) {
+  .ql-picker.ql-color .ql-picker-options-portal,
+  .ql-picker.ql-background .ql-picker-options-portal {
+    grid-template-columns: repeat(5, 1fr) !important;
+  }
+}
+
 /* Webkit scrollbar for dropdowns */
 .ql-snow .ql-picker-options::-webkit-scrollbar {
   width: 6px;
@@ -2596,25 +2634,57 @@
                                     // Copy all attributes
                                     const dataValue = originalItem.getAttribute('data-value');
                                     const dataLabel = originalItem.getAttribute('data-label');
+                                    const parentPicker = picker.classList.contains('ql-header') ? 'header' :
+                                                        picker.classList.contains('ql-font') ? 'font' :
+                                                        picker.classList.contains('ql-size') ? 'size' :
+                                                        picker.classList.contains('ql-script') ? 'script' :
+                                                        picker.classList.contains('ql-color') ? 'color' :
+                                                        picker.classList.contains('ql-background') ? 'background' : 'unknown';
                                     
-                                    // Quill uses ::before with content from data-value/data-label
-                                    // We need to make it visible by using the attribute as actual content
                                     let displayText = '';
                                     
-                                    // Check if it's a heading dropdown
-                                    if (dataValue && !isNaN(dataValue)) {
+                                    // Determine display text based on picker type
+                                    if (parentPicker === 'header' && dataValue && !isNaN(dataValue)) {
                                         displayText = `Heading ${dataValue}`;
-                                    } else if (dataValue) {
-                                        // For other pickers, use the data-value or data-label
-                                        displayText = dataLabel || dataValue;
+                                    } else if (parentPicker === 'font') {
+                                        // Font names map
+                                        const fontMap = {
+                                            'sans-serif': 'Sans Serif',
+                                            'serif': 'Serif',
+                                            'monospace': 'Monospace',
+                                            '': 'Normal'
+                                        };
+                                        displayText = fontMap[dataValue] || dataValue || 'Normal';
+                                    } else if (parentPicker === 'script') {
+                                        // Script map
+                                        const scriptMap = {
+                                            'sub': 'Subscript',
+                                            'super': 'Superscript',
+                                            '': 'Normal'
+                                        };
+                                        displayText = scriptMap[dataValue] || dataValue || 'Normal';
+                                    } else if (parentPicker === 'size') {
+                                        const sizeMap = {
+                                            'small': 'Small',
+                                            'large': 'Large',
+                                            'huge': 'Huge',
+                                            '': 'Normal'
+                                        };
+                                        displayText = sizeMap[dataValue] || dataValue || 'Normal';
+                                    } else if (parentPicker === 'color' || parentPicker === 'background') {
+                                        // For color pickers, create color swatch
+                                        displayText = ''; // No text for color swatches
+                                        // Set background color from data-value
+                                        if (dataValue) {
+                                            portalItem.style.backgroundColor = dataValue;
+                                        }
                                     } else {
-                                        // Fallback
-                                        displayText = originalItem.textContent || `Option ${index + 1}`;
+                                        displayText = dataLabel || dataValue || originalItem.textContent || `Option ${index + 1}`;
                                     }
                                     
-                                    console.log('[Dropdown Fix] Item', index, '- dataValue:', dataValue, 'display:', displayText);
+                                    console.log('[Dropdown Fix] Item', index, '- type:', parentPicker, 'dataValue:', dataValue, 'display:', displayText);
                                     
-                                    // Set actual text content instead of relying on ::before
+                                    // Set actual text content
                                     portalItem.textContent = displayText;
                                     portalItem.style.display = 'block';
                                     portalItem.style.padding = '8px 12px';
