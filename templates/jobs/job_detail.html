@@ -1717,20 +1717,32 @@
 
   .cache-button-hero.cached,
   .cache-button-header.cached {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
       color: white;
       border-color: transparent;
   }
 
   .cache-button-hero.cached:hover,
   .cache-button-header.cached:hover {
-      background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
+      background: linear-gradient(135deg, #2563eb 0%, #1e3a8a 100%);
   }
 
   .cache-button-hero i,
   .cache-button-header i {
       font-size: 18px;
       transition: transform 0.3s ease;
+      font-style: normal;
+      line-height: 1;
+  }
+  
+  /* Ensure Bootstrap Icons render properly */
+  .cache-button-hero .bi,
+  .cache-button-header .bi {
+      display: inline-block;
+      font-family: "bootstrap-icons" !important;
+      font-weight: normal !important;
+      font-style: normal !important;
+      vertical-align: middle;
   }
   
   /* Remove any pseudo-elements that might cause duplicates */
