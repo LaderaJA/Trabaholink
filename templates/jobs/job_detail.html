@@ -2556,41 +2556,40 @@
                             portalClone.remove();
                         }
                         
-                        // Clone with deep copy to get all children
-                        portalClone = options.cloneNode(true);
-                        portalClone.classList.add('ql-picker-options-portal');
-                        
-                        console.log('[Dropdown Fix] VERSION CHECK - Creating NEW portal clone v2');
-                        
-                        // Force items to be blocks with content
-                        const portalItems = portalClone.querySelectorAll('.ql-picker-item');
-                        const originalItems = options.querySelectorAll('.ql-picker-item');
-                        
-                        console.log('[Dropdown Fix] Found', portalItems.length, 'portal items and', originalItems.length, 'original items');
-                        
-                        portalItems.forEach((portalItem, index) => {
-                            const originalItem = originalItems[index];
-                            if (originalItem) {
-                                // Copy any data attributes
-                                const dataValue = originalItem.getAttribute('data-value');
-                                const dataLabel = originalItem.getAttribute('data-label');
-                                
-                                // Get text content from original (Quill might populate via JS)
-                                const text = originalItem.textContent || originalItem.innerText || dataLabel || dataValue || `Option ${index + 1}`;
-                                
-                                console.log('[Dropdown Fix] Item', index, '- dataValue:', dataValue, 'dataLabel:', dataLabel, 'text:', text);
-                                
-                                // Set content and styles
-                                portalItem.textContent = text;
-                                portalItem.style.display = 'block';
-                                portalItem.style.padding = '5px 10px';
-                                portalItem.style.cursor = 'pointer';
-                                portalItem.style.minHeight = '30px';
-                            }
-                        });
-                        
-                        document.body.appendChild(portalClone);
-                        dropdownClones.set(picker, portalClone);
+                            // Clone with deep copy to get all children
+                            portalClone = options.cloneNode(true);
+                            portalClone.classList.add('ql-picker-options-portal');
+                            
+                            // Force items to be blocks with content
+                            const portalItems = portalClone.querySelectorAll('.ql-picker-item');
+                            const originalItems = options.querySelectorAll('.ql-picker-item');
+                            
+                            console.log('[Dropdown Fix] Found', portalItems.length, 'portal items and', originalItems.length, 'original items');
+                            
+                            portalItems.forEach((portalItem, index) => {
+                                const originalItem = originalItems[index];
+                                if (originalItem) {
+                                    // Copy any data attributes
+                                    const dataValue = originalItem.getAttribute('data-value');
+                                    const dataLabel = originalItem.getAttribute('data-label');
+                                    
+                                    // Get text content from original (Quill might populate via JS)
+                                    const text = originalItem.textContent || originalItem.innerText || dataLabel || dataValue || `Option ${index + 1}`;
+                                    
+                                    console.log('[Dropdown Fix] Item', index, '- dataValue:', dataValue, 'dataLabel:', dataLabel, 'text:', text);
+                                    
+                                    // Set content and styles
+                                    portalItem.textContent = text;
+                                    portalItem.style.display = 'block';
+                                    portalItem.style.padding = '5px 10px';
+                                    portalItem.style.cursor = 'pointer';
+                                    portalItem.style.minHeight = '30px';
+                                }
+                            });
+                            
+                            document.body.appendChild(portalClone);
+                            dropdownClones.set(picker, portalClone);
+                        }
                         
                         // Calculate dropdown height based on items
                         const items = portalClone.querySelectorAll('.ql-picker-item');
