@@ -2284,9 +2284,11 @@
         
         // Toolbar toggle functionality for mobile
         const quickToolbarToggleBtn = document.getElementById('quickApplyToolbarToggle');
-        const quickToolbar = document.querySelector('#quill-quick-apply-editor').previousElementSibling;
+        // Find the actual Quill toolbar (it's created right before the editor, after the toggle button)
+        const quickEditorContainer = document.querySelector('#quill-quick-apply-editor');
+        const quickToolbar = quickEditorContainer.parentElement.querySelector('.ql-toolbar');
         
-        if (quickToolbarToggleBtn) {
+        if (quickToolbarToggleBtn && quickToolbar) {
             // Start collapsed on mobile
             if (window.innerWidth <= 768) {
                 quickToolbar.classList.add('collapsed');

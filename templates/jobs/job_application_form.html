@@ -1316,13 +1316,16 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Toolbar toggle functionality for mobile
   const toolbarToggleBtn = document.getElementById('coverLetterToolbarToggle');
-  const toolbar = document.querySelector('#quill-cover-letter-editor').previousElementSibling;
+  // Find the actual Quill toolbar (created by Quill before the editor)
+  const editorContainer = document.querySelector('#quill-cover-letter-editor');
+  const toolbar = editorContainer.parentElement.querySelector('.ql-toolbar');
   
-  if (toolbarToggleBtn) {
+  if (toolbarToggleBtn && toolbar) {
     // Start collapsed on mobile
     if (window.innerWidth <= 768) {
       toolbar.classList.add('collapsed');
       toolbarToggleBtn.classList.add('collapsed');
+      toolbarToggleBtn.querySelector('span').textContent = 'Show Formatting Tools';
     }
     
     toolbarToggleBtn.addEventListener('click', function() {
