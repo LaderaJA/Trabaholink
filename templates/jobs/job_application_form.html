@@ -107,6 +107,19 @@
   background: #d3e3fd;
   border-color: #a8c7fa;
 }
+
+/* Picker dropdowns (Font, Size, etc.) */
+.ql-snow .ql-picker-options {
+  max-height: 250px;
+  overflow-y: auto;
+}
+
+.ql-snow .ql-picker.ql-header .ql-picker-label,
+.ql-snow .ql-picker.ql-font .ql-picker-label,
+.ql-snow .ql-picker.ql-size .ql-picker-label {
+  padding-left: 8px;
+  padding-right: 20px;
+}
 /* Make container border match toolbar */
 #quill-cover-letter-editor {
   border-top: none !important;
@@ -172,11 +185,25 @@
   
   .ql-snow .ql-picker {
     flex-shrink: 0;
+    max-width: 120px;
   }
   
   .ql-snow .ql-picker-label {
     padding: 6px 8px;
     font-size: 13px;
+  }
+  
+  /* Make dropdown menus full width on mobile */
+  .ql-snow .ql-picker-options {
+    left: 0 !important;
+    right: auto !important;
+    min-width: 180px;
+    max-height: 200px;
+    font-size: 14px;
+  }
+  
+  .ql-snow .ql-picker-item {
+    padding: 8px 12px;
   }
 }
 
