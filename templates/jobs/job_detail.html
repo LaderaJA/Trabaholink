@@ -2196,7 +2196,7 @@
                         
                         // Row 5: Blocks & Media
                         ['blockquote', 'code-block'],
-                        ['link', 'image', 'video'],
+                        ['link'],
                         
                         // Row 6: Utilities
                         [{ 'direction': 'rtl' }],
@@ -2220,14 +2220,19 @@
         });
         
         // Add custom icons for undo/redo buttons
-        const undoButton = document.querySelector('#quill-quick-apply-editor').previousElementSibling.querySelector('.ql-undo');
-        const redoButton = document.querySelector('#quill-quick-apply-editor').previousElementSibling.querySelector('.ql-redo');
-        if (undoButton) {
-            undoButton.innerHTML = '<i class="fa fa-undo"></i>';
-        }
-        if (redoButton) {
-            redoButton.innerHTML = '<i class="fa fa-repeat"></i>';
-        }
+        setTimeout(() => {
+            const toolbar = document.querySelector('#quill-quick-apply-editor').parentElement.querySelector('.ql-toolbar');
+            const undoButton = toolbar.querySelector('.ql-undo');
+            const redoButton = toolbar.querySelector('.ql-redo');
+            if (undoButton) {
+                undoButton.innerHTML = '<svg viewBox="0 0 18 18" style="width: 18px; height: 18px;"><polygon class="ql-fill" points="6 10 4 12 2 10 6 10"></polygon><path class="ql-stroke" d="M8.09,13.91A4.6,4.6,0,0,0,9,14,5,5,0,1,0,4,9"></path></svg>';
+                undoButton.style.display = 'inline-block';
+            }
+            if (redoButton) {
+                redoButton.innerHTML = '<svg viewBox="0 0 18 18" style="width: 18px; height: 18px;"><polygon class="ql-fill" points="12 10 14 12 16 10 12 10"></polygon><path class="ql-stroke" d="M9.91,13.91A4.6,4.6,0,0,1,9,14a5,5,0,1,1,5-5"></path></svg>';
+                redoButton.style.display = 'inline-block';
+            }
+        }, 200);
 
         const quickCoverLetterField = document.getElementById('cover_letter');
         const quickGrammarBtn = document.getElementById('quick-grammar-check-btn');
@@ -2280,8 +2285,6 @@
                 '.ql-blockquote': 'Block Quote',
                 '.ql-code-block': 'Code Block',
                 '.ql-link': 'Insert Link',
-                '.ql-image': 'Insert Image',
-                '.ql-video': 'Insert Video',
                 
                 // Utilities
                 '.ql-direction[value="rtl"]': 'Right-to-Left Text Direction',
