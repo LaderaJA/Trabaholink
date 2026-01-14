@@ -359,13 +359,12 @@ class OfflinePrefetchManager {
     }
 
     /**
-     * Show cached indicator on current page
+     * Show cached indicator on current page (deprecated - now using toggle buttons)
      */
     showCachedIndicator() {
-        const mainContent = document.querySelector('main, .content, .container');
-        if (mainContent && window.offlineUI) {
-            window.offlineUI.addCachedBadge(mainContent);
-        }
+        // This function is deprecated - toggle buttons show saved state automatically
+        // Keeping for compatibility but no longer adds badges
+        console.log('[OfflinePrefetch] Page cached successfully');
     }
 
     /**

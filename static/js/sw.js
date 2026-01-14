@@ -17,7 +17,8 @@ const STATIC_ASSETS = [
     '/static/js/offline-cache.js',
     '/static/js/offline-ui.js',
     '/static/js/offline-prefetch.js',
-    '/static/images/favicon.png',
+    '/static/js/offline-link-handler.js',
+    '/static/images/favicon.ico',
     '/static/images/logobrand.png',
     '/static/images/default_avatar.svg'
 ];
