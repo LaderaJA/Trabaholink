@@ -159,7 +159,8 @@
   visibility: visible !important;
   opacity: 1 !important;
   pointer-events: auto !important;
-  max-height: 300px !important;
+  height: auto !important; /* Let it size naturally based on content */
+  max-height: none !important; /* Remove max-height limit */
   overflow-y: auto !important;
   overflow-x: hidden !important;
   background: white !important;
@@ -175,6 +176,14 @@
   isolation: auto !important;
   mix-blend-mode: normal !important;
   will-change: auto !important;
+}
+
+/* Make sure portal items are visible */
+.ql-picker-options-portal .ql-picker-item {
+  display: block !important;
+  padding: 5px 10px !important;
+  cursor: pointer !important;
+  min-height: 30px !important;
 }
 
 /* Webkit scrollbar for dropdowns */
@@ -1510,7 +1519,7 @@ document.addEventListener('DOMContentLoaded', function() {
             
             console.log('[Dropdown Fix] Portal created with', itemCount, 'items, height:', estimatedHeight + 'px');
             
-            // Position portal with maximum visibility AND proper height
+            // Position portal - let it size naturally
             portalClone.style.cssText = `
               position: fixed !important;
               top: ${rect.bottom}px !important;
@@ -1521,10 +1530,10 @@ document.addEventListener('DOMContentLoaded', function() {
               opacity: 1 !important;
               pointer-events: auto !important;
               min-width: ${rect.width}px !important;
-              height: ${estimatedHeight}px !important;
-              min-height: ${estimatedHeight}px !important;
-              max-height: 300px !important;
-              overflow-y: auto !important;
+              width: auto !important;
+              height: auto !important;
+              max-height: none !important;
+              overflow: visible !important;
               background: white !important;
               border: 2px solid #2563eb !important;
               box-shadow: 0 10px 40px rgba(0,0,0,0.3) !important;
