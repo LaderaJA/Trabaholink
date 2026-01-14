@@ -2716,10 +2716,37 @@
                         const isColorPicker = portalClone.classList.contains('ql-color-portal') || 
                                              portalClone.classList.contains('ql-background-portal');
                         
+                        // Calculate position - keep within viewport
+                        const dropdownWidth = isColorPicker ? 200 : rect.width;
+                        const viewportWidth = window.innerWidth;
+                        const viewportHeight = window.innerHeight;
+                        
+                        // Adjust left position if dropdown would overflow right edge
+                        let leftPos = rect.left;
+                        if (leftPos + dropdownWidth > viewportWidth - 20) {
+                            leftPos = viewportWidth - dropdownWidth - 20; // 20px margin
+                        }
+                        // Ensure not off left edge
+                        if (leftPos < 10) {
+                            leftPos = 10;
+                        }
+                        
+                        // Adjust top position if dropdown would overflow bottom
+                        let topPos = rect.bottom;
+                        const estimatedDropdownHeight = isColorPicker ? 300 : estimatedHeight;
+                        if (topPos + estimatedDropdownHeight > viewportHeight - 20) {
+                            // Position above the button instead
+                            topPos = rect.top - estimatedDropdownHeight - 5;
+                            // If still off-screen, position at bottom with scroll
+                            if (topPos < 10) {
+                                topPos = 10;
+                            }
+                        }
+                        
                         portalClone.style.cssText = `
                             position: fixed !important;
-                            top: ${rect.bottom}px !important;
-                            left: ${rect.left}px !important;
+                            top: ${topPos}px !important;
+                            left: ${leftPos}px !important;
                             z-index: 2147483647 !important;
                             display: ${isColorPicker ? 'grid' : 'block'} !important;
                             ${isColorPicker ? 'grid-template-columns: repeat(7, 1fr) !important;' : ''}
