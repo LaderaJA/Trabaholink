@@ -1461,6 +1461,10 @@ document.addEventListener('DOMContentLoaded', function() {
           console.log('[Dropdown Fix] Picker rect:', rect);
           console.log('[Dropdown Fix] Window scroll:', window.scrollY, window.scrollX);
           
+          // FIX: Remove aria-hidden to fix accessibility warning
+          options.removeAttribute('aria-hidden');
+          options.setAttribute('aria-expanded', 'true');
+          
           // Calculate and apply position
           options.style.cssText = `
             position: fixed !important;
@@ -1482,6 +1486,12 @@ document.addEventListener('DOMContentLoaded', function() {
             clip-path: none !important;
           `;
           console.log('[Dropdown Fix] Positioned dropdown at top:', rect.bottom + 2, 'left:', rect.left);
+        } else {
+          // When closed, restore aria-hidden
+          if (options) {
+            options.setAttribute('aria-hidden', 'true');
+            options.setAttribute('aria-expanded', 'false');
+          }
         }
       }
       

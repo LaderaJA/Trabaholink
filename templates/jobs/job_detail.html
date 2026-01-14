@@ -1623,12 +1623,28 @@
       transition: transform 0.3s ease;
   }
   
-  /* Remove any ::before pseudo-elements that might cause duplicates */
+  /* Remove any pseudo-elements that might cause duplicates */
   .cache-button-hero::before,
   .cache-button-header::before,
+  .cache-button-hero::after,
+  .cache-button-header::after,
   .cache-button-hero i::before,
-  .cache-button-header i::before {
+  .cache-button-header i::before,
+  .cache-button-hero i::after,
+  .cache-button-header i::after,
+  .cache-button-hero span::before,
+  .cache-button-header span::before,
+  .cache-button-hero span::after,
+  .cache-button-header span::after {
       content: none !important;
+      display: none !important;
+  }
+  
+  /* Ensure button structure is clean - no nested buttons */
+  .cache-button-hero button,
+  .cache-button-header button,
+  .cache-button-hero .button,
+  .cache-button-header .button {
       display: none !important;
   }
 
@@ -2488,6 +2504,10 @@
                     console.log('[Dropdown Fix] Picker rect:', rect);
                     console.log('[Dropdown Fix] Window scroll:', window.scrollY, window.scrollX);
                     
+                    // FIX: Remove aria-hidden to fix accessibility warning
+                    options.removeAttribute('aria-hidden');
+                    options.setAttribute('aria-expanded', 'true');
+                    
                     // Calculate and apply position
                     options.style.cssText = `
                         position: fixed !important;
@@ -2509,6 +2529,12 @@
                         clip-path: none !important;
                     `;
                     console.log('[Dropdown Fix] Positioned dropdown at top:', rect.bottom + 2, 'left:', rect.left);
+                } else {
+                    // When closed, restore aria-hidden
+                    if (options) {
+                        options.setAttribute('aria-hidden', 'true');
+                        options.setAttribute('aria-expanded', 'false');
+                    }
                 }
             }
             
