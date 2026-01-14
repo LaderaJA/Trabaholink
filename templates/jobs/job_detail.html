@@ -2742,6 +2742,9 @@
                         if (isColorPicker) {
                             const colorItems = portalClone.querySelectorAll('.ql-picker-item');
                             colorItems.forEach(item => {
+                                const dataValue = item.getAttribute('data-value');
+                                const bgColor = dataValue || '#ffffff';
+                                
                                 item.style.cssText = `
                                     display: block !important;
                                     width: 24px !important;
@@ -2751,6 +2754,7 @@
                                     border: 1px solid #ddd !important;
                                     border-radius: 3px !important;
                                     cursor: pointer !important;
+                                    background-color: ${bgColor} !important;
                                 `;
                             });
                         }
