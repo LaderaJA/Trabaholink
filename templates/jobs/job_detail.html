@@ -143,12 +143,29 @@
 .ql-snow .ql-picker-options {
   max-height: 250px;
   overflow-y: auto;
+  overflow-x: hidden;
   z-index: 9999 !important;
   position: absolute !important;
   background: white;
   border: 1px solid #ccc;
   box-shadow: 0 4px 12px rgba(0,0,0,0.15);
   margin-top: 2px;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f7fafc;
+}
+
+/* Webkit scrollbar for dropdowns */
+.ql-snow .ql-picker-options::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ql-snow .ql-picker-options::-webkit-scrollbar-track {
+  background: #f7fafc;
+}
+
+.ql-snow .ql-picker-options::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 3px;
 }
 
 /* Prevent body scroll when dropdown is open */
@@ -162,6 +179,29 @@
 .ql-snow .ql-background .ql-picker-options {
   min-width: 150px !important;
   padding: 5px;
+}
+
+/* Mobile responsive dropdown sizes */
+@media (max-width: 768px) {
+  .ql-snow .ql-picker-options {
+    max-height: 180px !important;
+    font-size: 14px;
+  }
+  
+  .ql-snow .ql-picker-item {
+    padding: 8px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ql-snow .ql-picker-options {
+    max-height: 150px !important;
+    font-size: 13px;
+  }
+  
+  .ql-snow .ql-picker-item {
+    padding: 6px 10px;
+  }
 }
 
 /* Prevent body scroll when dropdown is open */
