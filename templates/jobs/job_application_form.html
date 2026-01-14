@@ -114,14 +114,81 @@
   border-top-right-radius: 0 !important;
 }
 
+/* Toolbar Toggle Button */
+.toolbar-toggle-btn {
+  display: none;
+  width: 100%;
+  padding: 8px;
+  background: linear-gradient(to bottom, #ffffff, #f5f5f5);
+  border: none;
+  border-bottom: 1px solid #e0e0e0;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  color: #374151;
+  text-align: left;
+  transition: background 0.2s;
+}
+
+.toolbar-toggle-btn:hover {
+  background: #f3f4f6;
+}
+
+.toolbar-toggle-btn i {
+  margin-right: 8px;
+  transition: transform 0.3s;
+}
+
+.toolbar-toggle-btn.collapsed i {
+  transform: rotate(-90deg);
+}
+
+/* Collapsible toolbar */
+.ql-toolbar.collapsed {
+  display: none !important;
+}
+
 /* Responsive Design for Mobile */
 @media (max-width: 768px) {
+  .toolbar-toggle-btn {
+    display: block;
+  }
+  
   .ql-toolbar {
-    padding: 4px 8px;
+    padding: 6px 8px;
+    gap: 3px;
+  }
+  
+  .ql-toolbar .ql-formats {
+    padding: 0 8px;
+    gap: 3px;
+  }
+  
+  .ql-toolbar button {
+    width: 36px;
+    height: 36px;
+    flex-shrink: 0;
+  }
+  
+  .ql-snow .ql-picker {
+    flex-shrink: 0;
+  }
+  
+  .ql-snow .ql-picker-label {
+    padding: 6px 8px;
+    font-size: 13px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ql-toolbar {
+    padding: 4px 6px;
+    gap: 2px;
   }
   
   .ql-toolbar .ql-formats {
     padding: 0 6px;
+    gap: 2px;
   }
   
   .ql-toolbar button {
@@ -132,26 +199,6 @@
   .ql-snow .ql-picker-label {
     padding: 4px 6px;
     font-size: 12px;
-  }
-}
-
-@media (max-width: 480px) {
-  .ql-toolbar {
-    padding: 4px 6px;
-  }
-  
-  .ql-toolbar .ql-formats {
-    padding: 0 4px;
-  }
-  
-  .ql-toolbar button {
-    width: 28px;
-    height: 28px;
-  }
-  
-  .ql-snow .ql-picker-label {
-    padding: 3px 4px;
-    font-size: 11px;
   }
 }
 
@@ -801,6 +848,12 @@ input[type="number"].form-control {
                 {% if form.cover_letter.field.required %}<span class="required-indicator">*</span>{% endif %}
               </label>
               
+              <!-- Toolbar Toggle Button (Mobile Only) -->
+              <button type="button" class="toolbar-toggle-btn" id="coverLetterToolbarToggle">
+                <i class="fa fa-chevron-down"></i>
+                <span>Formatting Tools</span>
+              </button>
+              
               <!-- Quill Editor Container -->
               <div id="quill-cover-letter-editor" style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; min-height: 200px;"></div>
               
@@ -1260,6 +1313,31 @@ document.addEventListener('DOMContentLoaded', function() {
   
   // Add tooltips after a brief delay to ensure toolbar is fully rendered
   setTimeout(addQuillTooltips, 100);
+  
+  // Toolbar toggle functionality for mobile
+  const toolbarToggleBtn = document.getElementById('coverLetterToolbarToggle');
+  const toolbar = document.querySelector('#quill-cover-letter-editor').previousElementSibling;
+  
+  if (toolbarToggleBtn) {
+    // Start collapsed on mobile
+    if (window.innerWidth <= 768) {
+      toolbar.classList.add('collapsed');
+      toolbarToggleBtn.classList.add('collapsed');
+    }
+    
+    toolbarToggleBtn.addEventListener('click', function() {
+      toolbar.classList.toggle('collapsed');
+      toolbarToggleBtn.classList.toggle('collapsed');
+      
+      // Update text
+      const span = toolbarToggleBtn.querySelector('span');
+      if (toolbar.classList.contains('collapsed')) {
+        span.textContent = 'Show Formatting Tools';
+      } else {
+        span.textContent = 'Hide Formatting Tools';
+      }
+    });
+  }
   
   // Sync Quill content to hidden textarea
   quill.on('text-change', function() {

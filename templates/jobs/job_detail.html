@@ -112,56 +112,6 @@
   border-top: none !important;
   border-top-left-radius: 0 !important;
   border-top-right-radius: 0 !important;
-}
-
-/* Responsive Design for Mobile */
-@media (max-width: 768px) {
-  .ql-toolbar {
-    padding: 4px 8px;
-  }
-  
-  .ql-toolbar .ql-formats {
-    padding: 0 6px;
-  }
-  
-  .ql-toolbar button {
-    width: 32px;
-    height: 32px;
-  }
-  
-  .ql-snow .ql-picker-label {
-    padding: 4px 6px;
-    font-size: 12px;
-  }
-}
-
-@media (max-width: 480px) {
-  .ql-toolbar {
-    padding: 4px 6px;
-  }
-  
-  .ql-toolbar .ql-formats {
-    padding: 0 4px;
-  }
-  
-  .ql-toolbar button {
-    width: 28px;
-    height: 28px;
-  }
-  
-  .ql-snow .ql-picker-label {
-    padding: 3px 4px;
-    font-size: 11px;
-  }
-}
-
-/* Enhanced Tooltips for Toolbar */
-.ql-toolbar button[title],
-.ql-toolbar .ql-picker-label[title] {
-  position: relative;
-}
-
-.ql-toolbar button:hover::after,
 .ql-toolbar .ql-picker-label:hover::after {
 
 /* Enhanced Tooltips for Toolbar */
@@ -212,6 +162,7 @@
     transform: translateX(-50%) translateY(-4px);
   }
 }
+</style>
 </style>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1559,7 +1510,7 @@
           transform: scale(1.1);
       }
   }
-</style>
+
 {% endblock %}
 
 {% block content %}
@@ -1779,6 +1730,12 @@
                     {% csrf_token %}
                     <div class="mb-3">
                         <label for="cover_letter" class="form-label">Message to Employer (Optional)</label>
+                        
+                        <!-- Toolbar Toggle Button (Mobile Only) -->
+                        <button type="button" class="toolbar-toggle-btn" id="quickApplyToolbarToggle">
+                            <i class="fa fa-chevron-down"></i>
+                            <span>Formatting Tools</span>
+                        </button>
                         
                         <!-- Quill Editor Container -->
                         <div id="quill-quick-apply-editor" style="background: white; border: 1px solid #dee2e6; border-radius: 8px; min-height: 150px;"></div>
@@ -2462,7 +2419,6 @@
                         <style>
                             body { margin: 0; padding: 20px; display: flex; justify-content: center; align-items: center; min-height: 100vh; background: #f3f4f6; }
                             img { max-width: 100%; height: auto; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
-                        </style>
                     </head>
                     <body>
                         <img src="${cvUrl}" alt="CV" onload="parent.document.getElementById('cvLoadingSpinner').style.display='none'; this.parentElement.parentElement.style.display='block';">
