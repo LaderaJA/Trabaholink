@@ -77,6 +77,9 @@ def validate_video_file(file):
             # Cannot determine FPS, skip duration check
             pass
             
+    except ValidationError:
+        # Re-raise ValidationError to be caught by Django
+        raise
     except cv2.error as e:
         raise ValidationError(f'Error processing video: {str(e)}')
     except Exception as e:
@@ -85,3 +88,4 @@ def validate_video_file(file):
         import logging
         logger = logging.getLogger(__name__)
         logger.warning(f'Video validation warning: {str(e)}')
+        # Allow the upload to proceed if we can't validate duration

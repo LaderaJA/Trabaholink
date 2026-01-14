@@ -1960,13 +1960,16 @@ def post_progress_update(request, contract_pk):
     
     try:
         # Create progress update
-        JobProgress.objects.create(
+        progress = JobProgress(
             contract=contract,
             update_text=update_text,
             image=image,
             video=video,
             updated_by=request.user
         )
+        # Call full_clean() to trigger validators before saving
+        progress.full_clean()
+        progress.save()
         
         # Notify employer
         Notification.objects.create(
@@ -1979,10 +1982,24 @@ def post_progress_update(request, contract_pk):
         messages.success(request, "Progress update posted successfully!")
         
     except ValidationError as e:
-        # Handle video validation errors
-        error_message = str(e.message) if hasattr(e, 'message') else str(e)
-        messages.error(request, f"Video upload failed: {error_message}")
+        # Handle validation errors (including video validation)
+        if hasattr(e, 'message_dict'):
+            # Multiple field errors
+            error_messages = []
+            for field, errors in e.message_dict.items():
+                error_messages.extend([str(err) for err in errors])
+            messages.error(request, " ".join(error_messages))
+        elif hasattr(e, 'messages'):
+            # List of error messages
+            messages.error(request, " ".join(e.messages))
+        else:
+            # Single error message
+            messages.error(request, str(e))
     except Exception as e:
+        # Catch any other unexpected errors
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error posting progress update: {str(e)}", exc_info=True)
         messages.error(request, f"Error posting update: {str(e)}")
     
     return redirect("jobs:job_tracking", pk=contract_pk)
