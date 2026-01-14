@@ -1499,8 +1499,19 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!portalClone) {
               portalClone = options.cloneNode(true);
               portalClone.classList.add('ql-picker-options-portal');
+              
+              // Force dropdown to show all items (calculate height)
+              const items = portalClone.querySelectorAll('.ql-picker-item');
+              const itemCount = items.length;
+              const estimatedHeight = Math.min(itemCount * 30, 300); // 30px per item, max 300px
+              
+              portalClone.style.height = estimatedHeight + 'px';
+              portalClone.style.minHeight = estimatedHeight + 'px';
+              
               document.body.appendChild(portalClone);
               dropdownClones.set(picker, portalClone);
+              
+              console.log('[Dropdown Fix] Portal created with', itemCount, 'items, height:', estimatedHeight + 'px');
             }
             
             // Position portal with maximum visibility
