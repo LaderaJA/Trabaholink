@@ -202,6 +202,23 @@
     display: block;
   }
   
+  .ql-snow.ql-toolbar button,
+  .ql-snow .ql-toolbar button,
+  .ql-toolbar button {
+    width: 28px !important;
+    height: 28px !important;
+    flex-shrink: 0;
+  }
+  
+  .ql-toolbar button svg,
+  .ql-snow.ql-toolbar button svg,
+  .ql-snow .ql-toolbar button svg {
+    width: 16px !important;
+    height: 16px !important;
+    max-width: 16px !important;
+    max-height: 16px !important;
+  }
+  
   .ql-toolbar {
     padding: 6px 8px;
     gap: 3px;
@@ -210,12 +227,6 @@
   .ql-toolbar .ql-formats {
     padding: 0 8px;
     gap: 3px;
-  }
-  
-  .ql-toolbar button {
-    width: 32px;
-    height: 32px;
-    flex-shrink: 0;
   }
   
   .ql-snow .ql-picker {
