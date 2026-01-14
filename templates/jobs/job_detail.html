@@ -2545,22 +2545,18 @@
                         if (!portalClone) {
                             portalClone = options.cloneNode(true);
                             portalClone.classList.add('ql-picker-options-portal');
-                            
-                            // Force dropdown to show all items (calculate height)
-                            const items = portalClone.querySelectorAll('.ql-picker-item');
-                            const itemCount = items.length;
-                            const estimatedHeight = Math.min(itemCount * 30, 300); // 30px per item, max 300px
-                            
-                            portalClone.style.height = estimatedHeight + 'px';
-                            portalClone.style.minHeight = estimatedHeight + 'px';
-                            
                             document.body.appendChild(portalClone);
                             dropdownClones.set(picker, portalClone);
-                            
-                            console.log('[Dropdown Fix] Portal created with', itemCount, 'items, height:', estimatedHeight + 'px');
                         }
                         
-                        // Position portal with maximum visibility
+                        // Calculate dropdown height based on items
+                        const items = portalClone.querySelectorAll('.ql-picker-item');
+                        const itemCount = items.length;
+                        const estimatedHeight = Math.min(itemCount * 30, 300); // 30px per item, max 300px
+                        
+                        console.log('[Dropdown Fix] Portal created with', itemCount, 'items, height:', estimatedHeight + 'px');
+                        
+                        // Position portal with maximum visibility AND proper height
                         portalClone.style.cssText = `
                             position: fixed !important;
                             top: ${rect.bottom}px !important;
@@ -2571,6 +2567,8 @@
                             opacity: 1 !important;
                             pointer-events: auto !important;
                             min-width: ${rect.width}px !important;
+                            height: ${estimatedHeight}px !important;
+                            min-height: ${estimatedHeight}px !important;
                             max-height: 300px !important;
                             overflow-y: auto !important;
                             background: white !important;
