@@ -124,39 +124,48 @@
 }
 
 .ql-snow .ql-picker.ql-expanded {
-  background: #d3e3fd;
-  border-color: #a8c7fa;
-}
-/* Make container border match toolbar */
-#quill-cover-letter-editor {
-  border-top: none !important;
-  border-top-left-radius: 0 !important;
   border-top-right-radius: 0 !important;
-.ql-toolbar .ql-picker-label:hover::after {
-
-/* Enhanced Tooltips for Toolbar */
-.ql-toolbar button[title],
-.ql-toolbar .ql-picker-label[title] {
-  position: relative;
 }
 
-.ql-toolbar button:hover::after,
-.ql-toolbar .ql-picker-label:hover::after {
-  content: attr(title);
-  position: absolute;
-  bottom: 100%;
-  left: 50%;
-  transform: translateX(-50%) translateY(-4px);
-  background: #1f2937;
-  color: white;
-  padding: 6px 10px;
+/* Toolbar Toggle Button - Redesigned */
+.toolbar-toggle-btn {
+  display: none;
+  width: 100%;
+  padding: 10px 15px;
+  background: #f8f9fa;
+  border: 1px solid #dee2e6;
   border-radius: 6px;
-  font-size: 12px;
-  white-space: nowrap;
-  z-index: 1000;
-  pointer-events: none;
-  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  animation: tooltipFadeIn 0.2s ease-out;
+  margin-bottom: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  color: #495057;
+  text-align: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+}
+
+.toolbar-toggle-btn:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+}
+
+.toolbar-toggle-btn:active {
+  transform: translateY(1px);
+  box-shadow: none;
+}
+
+.toolbar-toggle-btn i {
+  margin-right: 6px;
+  font-size: 11px;
+  transition: transform 0.3s ease;
+}
+
+.toolbar-toggle-btn.collapsed i {
+  transform: rotate(180deg);
+}
+
+/* Collapsible toolbar */
 }
 
 .ql-toolbar button:hover::before,
@@ -2307,31 +2316,41 @@
         
         // Toolbar toggle functionality for mobile
         const quickToolbarToggleBtn = document.getElementById('quickApplyToolbarToggle');
-        // Find the actual Quill toolbar (it's created right before the editor, after the toggle button)
-        const quickEditorContainer = document.querySelector('#quill-quick-apply-editor');
-        const quickToolbar = quickEditorContainer.parentElement.querySelector('.ql-toolbar');
         
-        if (quickToolbarToggleBtn && quickToolbar) {
-            // Start collapsed on mobile
-            if (window.innerWidth <= 768) {
-                quickToolbar.classList.add('collapsed');
-                quickToolbarToggleBtn.classList.add('collapsed');
-                quickToolbarToggleBtn.querySelector('span').textContent = 'Show Formatting Tools';
-            }
+        // Wait for Quill to initialize and create toolbar
+        setTimeout(() => {
+            const quickToolbar = document.querySelector('#quill-quick-apply-editor').previousElementSibling;
             
-            quickToolbarToggleBtn.addEventListener('click', function() {
-                quickToolbar.classList.toggle('collapsed');
-                quickToolbarToggleBtn.classList.toggle('collapsed');
-                
-                // Update text
-                const span = quickToolbarToggleBtn.querySelector('span');
-                if (quickToolbar.classList.contains('collapsed')) {
-                    span.textContent = 'Show Formatting Tools';
-                } else {
-                    span.textContent = 'Hide Formatting Tools';
+            if (quickToolbarToggleBtn && quickToolbar && quickToolbar.classList.contains('ql-toolbar')) {
+                // Start collapsed on mobile
+                if (window.innerWidth <= 768) {
+                    quickToolbar.classList.add('collapsed');
+                    quickToolbarToggleBtn.classList.add('collapsed');
+                    const icon = quickToolbarToggleBtn.querySelector('i');
+                    const span = quickToolbarToggleBtn.querySelector('span');
+                    if (icon) icon.className = 'fa fa-chevron-down';
+                    if (span) span.textContent = 'Show Formatting Tools';
                 }
-            });
-        }
+                
+                quickToolbarToggleBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    quickToolbar.classList.toggle('collapsed');
+                    quickToolbarToggleBtn.classList.toggle('collapsed');
+                    
+                    // Update icon and text
+                    const icon = quickToolbarToggleBtn.querySelector('i');
+                    const span = quickToolbarToggleBtn.querySelector('span');
+                    
+                    if (quickToolbar.classList.contains('collapsed')) {
+                        if (icon) icon.className = 'fa fa-chevron-down';
+                        if (span) span.textContent = 'Show Formatting Tools';
+                    } else {
+                        if (icon) icon.className = 'fa fa-chevron-up';
+                        if (span) span.textContent = 'Hide Formatting Tools';
+                    }
+                });
+            }
+        }, 300);
         
         // Sync Quill content to hidden textarea
         quickQuill.on('text-change', function() {
