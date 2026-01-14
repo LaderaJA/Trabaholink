@@ -2861,16 +2861,18 @@
                         if (action === 'save') {
                             // Update button to saved state
                             button.classList.add('cached');
-                            const icon = button.querySelector('i');
-                            const text = button.querySelector('.cache-button-text');
+                            // Use :scope > i to get only direct child icon
+                            const icon = button.querySelector(':scope > i');
+                            const text = button.querySelector(':scope > .cache-button-text');
                             if (icon) icon.className = 'bi bi-bookmark-fill';
                             if (text) text.textContent = 'Saved';
                             button.setAttribute('title', 'Remove from offline storage');
                         } else if (action === 'unsave') {
                             // Update button to unsaved state
                             button.classList.remove('cached');
-                            const icon = button.querySelector('i');
-                            const text = button.querySelector('.cache-button-text');
+                            // Use :scope > i to get only direct child icon
+                            const icon = button.querySelector(':scope > i');
+                            const text = button.querySelector(':scope > .cache-button-text');
                             if (icon) icon.className = 'bi bi-bookmark';
                             if (text) text.textContent = 'Save Offline';
                             button.setAttribute('title', 'Save for offline viewing');
@@ -2886,8 +2888,9 @@
             const cached = window.offlineCache.getCachedJob(jobId);
             if (cached) {
                 button.classList.add('cached');
-                const icon = button.querySelector('i');
-                const text = button.querySelector('.cache-button-text');
+                // Use :scope > i to get only direct child icon
+                const icon = button.querySelector(':scope > i');
+                const text = button.querySelector(':scope > .cache-button-text');
                 if (icon) icon.className = 'bi bi-bookmark-fill';
                 if (text) text.textContent = 'Saved';
                 button.setAttribute('title', 'Remove from offline storage');
@@ -2902,8 +2905,9 @@
             // Remove from cache
             unsaveJob(jobId);
             button.classList.remove('cached');
-            const icon = button.querySelector('i');
-            const text = button.querySelector('.cache-button-text');
+            // Use :scope > i to get only direct child icon
+            const icon = button.querySelector(':scope > i');
+            const text = button.querySelector(':scope > .cache-button-text');
             if (icon) icon.className = 'bi bi-bookmark';
             if (text) text.textContent = 'Save Offline';
             button.setAttribute('title', 'Save for offline viewing');
@@ -2915,8 +2919,9 @@
             // Add to cache
             saveJobToCache(jobId);
             button.classList.add('cached');
-            const icon = button.querySelector('i');
-            const text = button.querySelector('.cache-button-text');
+            // Use :scope > i to get only direct child icon
+            const icon = button.querySelector(':scope > i');
+            const text = button.querySelector(':scope > .cache-button-text');
             if (icon) icon.className = 'bi bi-bookmark-fill';
             if (text) text.textContent = 'Saved';
             button.setAttribute('title', 'Remove from offline storage');
