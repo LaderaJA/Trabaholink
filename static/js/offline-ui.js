@@ -283,7 +283,13 @@ class OfflineUIManager {
      * Add manual save toggle button to card (mobile-optimized)
      */
     addSaveToggleButton(element, itemId, itemType = 'job') {
-        if (!element || element.querySelector('.tl-save-toggle')) {
+        // Skip if element is or contains a cache button (to prevent nested buttons)
+        if (!element || 
+            element.querySelector('.tl-save-toggle') ||
+            element.classList.contains('cache-button-hero') ||
+            element.classList.contains('cache-button-header') ||
+            element.closest('.cache-button-hero') ||
+            element.closest('.cache-button-header')) {
             return;
         }
 
