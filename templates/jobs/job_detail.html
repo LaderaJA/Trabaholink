@@ -1622,6 +1622,15 @@
       font-size: 18px;
       transition: transform 0.3s ease;
   }
+  
+  /* Remove any ::before pseudo-elements that might cause duplicates */
+  .cache-button-hero::before,
+  .cache-button-header::before,
+  .cache-button-hero i::before,
+  .cache-button-header i::before {
+      content: none !important;
+      display: none !important;
+  }
 
   .cache-button-hero.cached i,
   .cache-button-header.cached i {
@@ -2472,11 +2481,17 @@
                         document.body.appendChild(options);
                     }
                     
+                    // Get the picker LABEL (button), not the whole picker container
+                    const pickerLabel = picker.querySelector('.ql-picker-label');
+                    const rect = pickerLabel ? pickerLabel.getBoundingClientRect() : picker.getBoundingClientRect();
+                    
+                    console.log('[Dropdown Fix] Picker rect:', rect);
+                    console.log('[Dropdown Fix] Window scroll:', window.scrollY, window.scrollX);
+                    
                     // Calculate and apply position
-                    const rect = picker.getBoundingClientRect();
                     options.style.cssText = `
                         position: fixed !important;
-                        top: ${rect.bottom}px !important;
+                        top: ${rect.bottom + 2}px !important;
                         left: ${rect.left}px !important;
                         z-index: 999999 !important;
                         display: block !important;
@@ -2493,7 +2508,7 @@
                         clip: auto !important;
                         clip-path: none !important;
                     `;
-                    console.log('[Dropdown Fix] Positioned at', rect.bottom, rect.left);
+                    console.log('[Dropdown Fix] Positioned dropdown at top:', rect.bottom + 2, 'left:', rect.left);
                 }
             }
             
