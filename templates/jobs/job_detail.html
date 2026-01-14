@@ -1500,22 +1500,45 @@
       100% { transform: scale(1); }
   }
 
-  /* Mobile adjustments */
+  /* Mobile adjustments - icon only, no duplicate */
   @media (max-width: 768px) {
       .cache-button-hero,
       .cache-button-header {
-          padding: 8px 16px;
+          padding: 8px;
           font-size: 13px;
+          gap: 0;
+          width: 40px;
+          height: 40px;
+          justify-content: center;
       }
 
       .cache-button-text {
-          display: none;
+          display: none !important;
       }
 
       .cache-button-hero i,
       .cache-button-header i {
           font-size: 20px;
+          margin: 0;
       }
+  }
+  
+  /* Fix: Prevent image link interference with cache button */
+  .hero-badges-group,
+  .header-badges-group {
+      position: relative;
+      z-index: 20;
+  }
+  
+  .cache-button-hero,
+  .cache-button-header {
+      pointer-events: auto;
+  }
+  
+  /* Prevent clicks from propagating to parent links */
+  .hero-badges-group a,
+  .header-badges-group a {
+      pointer-events: none;
   }
 
   /* Desktop hover effects */
