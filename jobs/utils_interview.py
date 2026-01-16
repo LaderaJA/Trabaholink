@@ -31,9 +31,11 @@ def generate_jitsi_room(application):
         'startWithVideoMuted': False,
         'enableWelcomePage': False,
         'requireDisplayName': True,
-        # Security
+        # Security - Disabled lobby/moderator to allow direct access
         'enableLobbyChat': False,
         'disableInviteFunctions': True,
+        'lobbyEnabled': False,  # DISABLE LOBBY MODE
+        'enableInsecureRoomNameWarning': False,  # No warning for public rooms
         # UI customization
         'hideConferenceSubject': False,
         'hideConferenceTimer': False,
@@ -96,8 +98,8 @@ Interview Type: {interview.get_interview_type_display()}
     event.add('description', description.strip())
     
     # Add reminder (15 minutes before)
-    from icalendar import vAlarm
-    alarm = vAlarm()
+    from icalendar import Alarm
+    alarm = Alarm()
     alarm.add('action', 'DISPLAY')
     alarm.add('trigger', timedelta(minutes=-15))
     alarm.add('description', 'Interview reminder')
