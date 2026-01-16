@@ -800,10 +800,6 @@ body {
             </a>
             {% endif %}
             
-            <a href="{% url 'jobs:interview_calendar' interview.pk %}" class="btn btn-secondary">
-              <i class="bi bi-calendar-plus"></i> Add to Calendar
-            </a>
-            
             {% if request.user == application.job.owner and interview.status == 'scheduled' %}
             <button onclick="openRescheduleModal()" class="btn btn-secondary">
               <i class="bi bi-arrow-repeat"></i> Reschedule
@@ -1097,6 +1093,17 @@ body {
           <a href="{% url 'messaging:start_conversation_with_user' application.job.owner.username %}" class="btn btn-secondary">
             <i class="bi bi-chat-dots-fill"></i> Message Employer
           </a>
+          
+          <!-- Cancel Application Button (only if no finalized contract) -->
+          {% with worker_contract=application.current_contract %}
+            {% if not worker_contract or worker_contract.is_draft %}
+              <a href="{% url 'jobs:job_application_delete' application.pk %}" 
+                 class="btn btn-danger"
+                 onclick="return confirm('Are you sure you want to cancel this application? This action cannot be undone.');">
+                <i class="bi bi-x-circle-fill"></i> Cancel Application
+              </a>
+            {% endif %}
+          {% endwith %}
         {% endif %}
       
       </div>
@@ -1216,6 +1223,64 @@ body {
       </form>
     </div>
   </div>
+
+  <!-- Reschedule Interview Modal -->
+{% if interview %}
+<div id="rescheduleModal" class="modal-overlay">
+  <div class="modal-content">
+    <div class="modal-header">
+      <h3 style="margin: 0;">Reschedule Interview</h3>
+      <button onclick="closeRescheduleModal()" class="modal-close">&times;</button>
+    </div>
+    
+    <form method="post" action="{% url 'jobs:reschedule_interview' interview.pk %}">
+      {% csrf_token %}
+      
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">New Interview Date *</label>
+        <input type="date" name="scheduled_date" required 
+               min="{% now 'Y-m-d' %}"
+               value="{{ interview.scheduled_datetime|date:'Y-m-d' }}"
+               style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;">
+      </div>
+      
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">New Interview Time *</label>
+        <input type="time" name="scheduled_time" required 
+               value="{{ interview.scheduled_datetime|date:'H:i' }}"
+               style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;">
+      </div>
+      
+      <div style="margin-bottom: 1rem;">
+        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Duration (minutes)</label>
+        <select name="duration_minutes" 
+                style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;">
+          <option value="15" {% if interview.duration_minutes == 15 %}selected{% endif %}>15 minutes</option>
+          <option value="30" {% if interview.duration_minutes == 30 %}selected{% endif %}>30 minutes</option>
+          <option value="45" {% if interview.duration_minutes == 45 %}selected{% endif %}>45 minutes</option>
+          <option value="60" {% if interview.duration_minutes == 60 %}selected{% endif %}>60 minutes</option>
+        </select>
+      </div>
+      
+      <div style="margin-bottom: 1.5rem;">
+        <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Reason for Reschedule (Optional)</label>
+        <textarea name="reschedule_reason" rows="3" 
+                  placeholder="Brief explanation for rescheduling..."
+                  style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;"></textarea>
+      </div>
+      
+      <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+        <button type="submit" class="btn btn-primary" style="flex: 1;">
+          <i class="bi bi-arrow-repeat"></i> Reschedule Interview
+        </button>
+        <button type="button" onclick="closeRescheduleModal()" class="btn btn-secondary">
+          Cancel
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endif %}
 </div>
 
 <script>
@@ -1262,6 +1327,31 @@ document.addEventListener('DOMContentLoaded', function() {
       card.style.transform = 'translateY(0)';
     }, index * 100);
   });
+});
+
+// Reschedule Interview Modal Functions
+function openRescheduleModal() {
+  document.getElementById('rescheduleModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeRescheduleModal() {
+  document.getElementById('rescheduleModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+// Close reschedule modal on outside click
+document.getElementById('rescheduleModal')?.addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeRescheduleModal();
+  }
+});
+
+// Close reschedule modal on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeRescheduleModal();
+  }
 });
 </script>
 
