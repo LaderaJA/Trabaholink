@@ -852,6 +852,7 @@ class JobApplicationDetailView(LoginRequiredMixin, DetailView):
         context = super().get_context_data(**kwargs)
         from messaging.models import Conversation, Message
         from django.db.models import Q
+        from jobs.utils_interview import calculate_progress_percentage
         
         application = self.get_object()
         
@@ -876,6 +877,15 @@ class JobApplicationDetailView(LoginRequiredMixin, DetailView):
             print("DEBUG: No conversation found")
             context['conversation'] = None
             context['conversation_messages'] = []
+        
+        # Add workflow progress data
+        context['progress_percentage'] = calculate_progress_percentage(application.current_step, total_steps=4)
+        
+        # Add interview if exists
+        if hasattr(application, 'interview'):
+            context['interview'] = application.interview
+        else:
+            context['interview'] = None
         
         return context
 

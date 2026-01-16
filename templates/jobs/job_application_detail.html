@@ -448,6 +448,233 @@ body {
     padding: 1.5rem;
   }
 }
+
+/* Hiring Workflow Progress Tracker */
+.workflow-section {
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  padding: 2rem;
+  border-radius: 0.5rem;
+  margin-bottom: 0;
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.progress-bar-container {
+  background: #e5e7eb;
+  height: 8px;
+  border-radius: 10px;
+  margin-bottom: 2rem;
+  position: relative;
+}
+
+.progress-bar-fill {
+  background: linear-gradient(90deg, #3b82f6 0%, #1e40af 100%);
+  height: 100%;
+  border-radius: 10px;
+  transition: width 0.3s ease;
+}
+
+.workflow-steps {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.workflow-step {
+  text-align: center;
+}
+
+.step-circle {
+  width: 50px;
+  height: 50px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 0.5rem;
+  font-weight: bold;
+  font-size: 1.25rem;
+}
+
+.step-completed .step-circle {
+  background: #10b981;
+  color: white;
+}
+
+.step-current .step-circle {
+  background: #3b82f6;
+  color: white;
+  box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.2);
+}
+
+.step-pending .step-circle {
+  background: #e5e7eb;
+  color: #9ca3af;
+}
+
+.step-label {
+  font-size: 0.75rem;
+  color: #6b7280;
+  font-weight: 500;
+}
+
+.step-current .step-label {
+  color: #1e40af;
+  font-weight: 600;
+}
+
+/* Interview Card */
+.interview-card {
+  background: white;
+  border: 2px solid #3b82f6;
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  margin-top: 1rem;
+}
+
+.interview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.interview-details {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.interview-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.875rem;
+}
+
+/* Schedule Interview Modal */
+.modal-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.5);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.modal-overlay.active {
+  display: flex;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 1rem;
+  padding: 2rem;
+  max-width: 500px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.modal-close {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #6b7280;
+  line-height: 1;
+  padding: 0;
+}
+
+.modal-close:hover {
+  color: #374151;
+}
+
+/* Mobile Responsive Additions */
+@media (max-width: 768px) {
+  .workflow-section {
+    padding: 1.5rem;
+  }
+  
+  .workflow-steps {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0.75rem;
+  }
+  
+  .step-circle {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+  
+  .step-label {
+    font-size: 0.65rem;
+  }
+  
+  .interview-details {
+    grid-template-columns: 1fr;
+  }
+  
+  .progress-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .modal-content {
+    padding: 1.5rem;
+  }
+  
+  .interview-card {
+    padding: 1rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .workflow-section {
+    padding: 1rem;
+  }
+  
+  .workflow-steps {
+    gap: 0.5rem;
+  }
+  
+  .step-circle {
+    width: 32px;
+    height: 32px;
+    font-size: 0.875rem;
+  }
+  
+  .step-label {
+    font-size: 0.6rem;
+  }
+  
+  .progress-bar-container {
+    margin-bottom: 1.5rem;
+  }
+}
 </style>
 
 <!-- Page Header -->
@@ -485,6 +712,115 @@ body {
   <div class="content-grid">
     <!-- Main Content -->
     <div class="main-card">
+      <!-- Hiring Workflow Progress -->
+      <div class="card-section workflow-section">
+        <div class="progress-header">
+          <h3 class="section-title" style="margin: 0;">
+            <i class="bi bi-diagram-3-fill"></i>
+            Hiring Progress
+          </h3>
+          {% include 'jobs/components/status_badge.html' with status=application.workflow_status %}
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" style="width: {{ progress_percentage|default:12.5 }}%;"></div>
+        </div>
+        
+        <!-- Workflow Steps -->
+        <div class="workflow-steps">
+          <!-- Step 1: Submitted -->
+          <div class="workflow-step {% if application.current_step >= 1 %}step-completed{% else %}step-pending{% endif %}">
+            <div class="step-circle">{% if application.current_step > 1 %}✓{% else %}1{% endif %}</div>
+            <div class="step-label">Applied</div>
+          </div>
+          
+          <!-- Step 2: Review -->
+          <div class="workflow-step {% if application.current_step > 2 %}step-completed{% elif application.current_step == 2 %}step-current{% else %}step-pending{% endif %}">
+            <div class="step-circle">{% if application.current_step > 2 %}✓{% else %}2{% endif %}</div>
+            <div class="step-label">Review</div>
+          </div>
+          
+          <!-- Step 3: Interview -->
+          <div class="workflow-step {% if application.current_step > 3 %}step-completed{% elif application.current_step == 3 %}step-current{% else %}step-pending{% endif %}">
+            <div class="step-circle">{% if application.current_step > 3 %}✓{% else %}3{% endif %}</div>
+            <div class="step-label">Interview</div>
+          </div>
+          
+          <!-- Step 4: Hired -->
+          <div class="workflow-step {% if application.current_step >= 4 %}step-completed{% elif application.current_step == 4 %}step-current{% else %}step-pending{% endif %}">
+            <div class="step-circle">{% if application.current_step > 4 %}✓{% else %}4{% endif %}</div>
+            <div class="step-label">Hired</div>
+          </div>
+        </div>
+        
+        <!-- Interview Section (if exists) -->
+        {% if interview %}
+        <div class="interview-card">
+          <div class="interview-header">
+            <h4 style="margin: 0; color: #1e40af;">
+              <i class="bi bi-camera-video-fill"></i>
+              Interview Scheduled
+            </h4>
+            <span style="background: #dbeafe; color: #1e40af; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem; font-weight: 600;">
+              {{ interview.get_interview_type_display }}
+            </span>
+          </div>
+          
+          <div class="interview-details">
+            <div class="interview-detail-item">
+              <i class="bi bi-calendar3" style="color: #3b82f6;"></i>
+              <span>{{ interview.scheduled_datetime|date:"M d, Y" }}</span>
+            </div>
+            <div class="interview-detail-item">
+              <i class="bi bi-clock" style="color: #3b82f6;"></i>
+              <span>{{ interview.scheduled_datetime|time:"g:i A" }}</span>
+            </div>
+            <div class="interview-detail-item">
+              <i class="bi bi-hourglass-split" style="color: #3b82f6;"></i>
+              <span>{{ interview.duration_minutes }} minutes</span>
+            </div>
+            <div class="interview-detail-item">
+              <i class="bi bi-info-circle" style="color: #3b82f6;"></i>
+              <span>{{ interview.get_status_display }}</span>
+            </div>
+          </div>
+          
+          {% if interview.meeting_notes %}
+          <div style="background: #fef3c7; padding: 0.75rem; border-radius: 0.5rem; margin-bottom: 1rem;">
+            <strong style="color: #92400e;">📌 Notes:</strong>
+            <p style="margin: 0.25rem 0 0 0; color: #92400e;">{{ interview.meeting_notes }}</p>
+          </div>
+          {% endif %}
+          
+          <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+            {% if interview.can_join %}
+            <a href="{% url 'jobs:join_interview' interview.pk %}" class="btn btn-primary">
+              <i class="bi bi-camera-video-fill"></i> Join Interview
+            </a>
+            {% endif %}
+            
+            <a href="{% url 'jobs:interview_calendar' interview.pk %}" class="btn btn-secondary">
+              <i class="bi bi-calendar-plus"></i> Add to Calendar
+            </a>
+            
+            {% if request.user == application.job.owner and interview.status == 'scheduled' %}
+            <button onclick="openRescheduleModal()" class="btn btn-secondary">
+              <i class="bi bi-arrow-repeat"></i> Reschedule
+            </button>
+            {% endif %}
+          </div>
+        </div>
+        {% elif request.user == application.job.owner and application.status == 'Pending' and not application.current_contract %}
+        <!-- Schedule Interview Button (Employer only) -->
+        <div style="text-align: center; padding: 1rem; background: white; border-radius: 0.5rem;">
+          <button onclick="openScheduleModal()" class="btn btn-primary">
+            <i class="bi bi-calendar-plus-fill"></i> Schedule Interview
+          </button>
+        </div>
+        {% endif %}
+      </div>
+      
       <!-- Worker's Cover Letter -->
       <div class="card-section">
         <h3 class="section-title">
@@ -803,9 +1139,117 @@ body {
     <i class="bi bi-info-circle"></i> No conversation messages yet. Click "Message Employer/Worker" to start a conversation.
   </div>
   {% endif %}
+  
+  <!-- Schedule Interview Modal -->
+  <div id="scheduleModal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 style="margin: 0;">Schedule Interview</h3>
+        <button onclick="closeScheduleModal()" class="modal-close">&times;</button>
+      </div>
+      
+      <form method="post" action="{% url 'jobs:schedule_interview' application.pk %}">
+        {% csrf_token %}
+        
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Interview Date *</label>
+          <input type="date" name="scheduled_date" required 
+                 min="{% now 'Y-m-d' %}"
+                 style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;">
+        </div>
+        
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Interview Time *</label>
+          <input type="time" name="scheduled_time" required 
+                 style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;">
+        </div>
+        
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Duration (minutes)</label>
+          <select name="duration_minutes" style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;">
+            <option value="15">15 minutes</option>
+            <option value="30" selected>30 minutes</option>
+            <option value="45">45 minutes</option>
+            <option value="60">1 hour</option>
+          </select>
+        </div>
+        
+        <div style="margin-bottom: 1rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Interview Type *</label>
+          <select name="interview_type" id="interviewType" onchange="toggleInterviewFields()" 
+                  style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;">
+            <option value="video" selected>🎥 Video Call (Free - Jitsi Meet)</option>
+            <option value="phone">📞 Phone Call</option>
+            <option value="in_person">🏢 In Person</option>
+          </select>
+        </div>
+        
+        <div id="phoneField" style="margin-bottom: 1rem; display: none;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Phone Number</label>
+          <input type="tel" name="phone_number" 
+                 placeholder="+63 123 456 7890"
+                 style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;">
+        </div>
+        
+        <div id="locationField" style="margin-bottom: 1rem; display: none;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Meeting Location</label>
+          <textarea name="location_address" rows="2" 
+                    placeholder="Enter the complete address for in-person meeting..."
+                    style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;"></textarea>
+        </div>
+        
+        <div style="margin-bottom: 1.5rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Meeting Notes (Optional)</label>
+          <textarea name="meeting_notes" rows="3" 
+                    placeholder="Any special instructions or topics to discuss..."
+                    style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;"></textarea>
+        </div>
+        
+        <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+          <button type="submit" class="btn btn-primary" style="flex: 1;">
+            <i class="bi bi-calendar-check"></i> Schedule Interview
+          </button>
+          <button type="button" onclick="closeScheduleModal()" class="btn btn-secondary">
+            Cancel
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
 </div>
 
 <script>
+// Schedule Interview Modal Functions
+function openScheduleModal() {
+  document.getElementById('scheduleModal').classList.add('active');
+  document.body.style.overflow = 'hidden';
+}
+
+function closeScheduleModal() {
+  document.getElementById('scheduleModal').classList.remove('active');
+  document.body.style.overflow = '';
+}
+
+function toggleInterviewFields() {
+  const type = document.getElementById('interviewType').value;
+  document.getElementById('phoneField').style.display = type === 'phone' ? 'block' : 'none';
+  document.getElementById('locationField').style.display = type === 'in_person' ? 'block' : 'none';
+}
+
+// Close modal on outside click
+document.getElementById('scheduleModal')?.addEventListener('click', function(e) {
+  if (e.target === this) {
+    closeScheduleModal();
+  }
+});
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeScheduleModal();
+  }
+});
+
 // Add smooth animations
 document.addEventListener('DOMContentLoaded', function() {
   const cards = document.querySelectorAll('.main-card, .sidebar-card');
