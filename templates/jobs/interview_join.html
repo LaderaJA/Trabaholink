@@ -1,0 +1,181 @@
+{% extends "mainpages/base.html" %}
+{% load static %}
+
+{% block title %}Join Interview - {{ application.job.title }}{% endblock %}
+
+{% block css %}
+{{ block.super }}
+<style>
+    .interview-container {
+        max-width: 800px;
+        margin: 3rem auto;
+        padding: 0 1rem;
+    }
+
+    .interview-card {
+        background: white;
+        border-radius: 12px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        padding: 3rem;
+        text-align: center;
+    }
+
+    .interview-icon {
+        font-size: 4rem;
+        margin-bottom: 1rem;
+    }
+
+    .btn-join {
+        background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%);
+        color: white;
+        padding: 1rem 2rem;
+        border-radius: 8px;
+        border: none;
+        font-weight: 600;
+        font-size: 1.125rem;
+        cursor: pointer;
+        text-decoration: none;
+        display: inline-block;
+        margin-top: 2rem;
+    }
+
+    .btn-join:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3);
+    }
+
+    .interview-details {
+        background: #f9fafb;
+        border-radius: 8px;
+        padding: 1.5rem;
+        margin: 2rem 0;
+        text-align: left;
+    }
+
+    .detail-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 0.75rem 0;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    .detail-row:last-child {
+        border-bottom: none;
+    }
+
+    .tips-section {
+        background: #eff6ff;
+        border-left: 4px solid #3b82f6;
+        padding: 1.5rem;
+        margin-top: 2rem;
+        text-align: left;
+        border-radius: 4px;
+    }
+
+    .tips-section h3 {
+        color: #1e40af;
+        font-weight: 600;
+        margin-bottom: 1rem;
+    }
+
+    .tips-section ul {
+        list-style: none;
+        padding: 0;
+    }
+
+    .tips-section li {
+        padding: 0.5rem 0;
+        padding-left: 1.5rem;
+        position: relative;
+    }
+
+    .tips-section li::before {
+        content: "✓";
+        position: absolute;
+        left: 0;
+        color: #3b82f6;
+        font-weight: bold;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="interview-container">
+    <div class="interview-card">
+        <div class="interview-icon">🎥</div>
+        <h1 class="text-3xl font-bold text-gray-900 mb-2">Interview Ready</h1>
+        <p class="text-gray-600 mb-4">{{ application.job.title }}</p>
+
+        <div class="interview-details">
+            <div class="detail-row">
+                <span class="font-semibold text-gray-700">Interview Type:</span>
+                <span class="text-gray-900">{{ interview.get_interview_type_display }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="font-semibold text-gray-700">Date:</span>
+                <span class="text-gray-900">{{ interview.scheduled_datetime|date:"F d, Y" }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="font-semibold text-gray-700">Time:</span>
+                <span class="text-gray-900">{{ interview.scheduled_datetime|time:"g:i A" }}</span>
+            </div>
+            <div class="detail-row">
+                <span class="font-semibold text-gray-700">Duration:</span>
+                <span class="text-gray-900">{{ interview.duration_minutes }} minutes</span>
+            </div>
+            
+            {% if interview.interview_type == 'phone' and interview.phone_number %}
+            <div class="detail-row">
+                <span class="font-semibold text-gray-700">Phone Number:</span>
+                <span class="text-gray-900">{{ interview.phone_number }}</span>
+            </div>
+            {% elif interview.interview_type == 'in_person' and interview.location_address %}
+            <div class="detail-row">
+                <span class="font-semibold text-gray-700">Location:</span>
+                <span class="text-gray-900">{{ interview.location_address }}</span>
+            </div>
+            {% endif %}
+        </div>
+
+        {% if interview.meeting_notes %}
+        <div class="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-left">
+            <p class="font-semibold text-yellow-800 mb-1">📌 Important Notes:</p>
+            <p class="text-yellow-700">{{ interview.meeting_notes }}</p>
+        </div>
+        {% endif %}
+
+        {% if interview.interview_type == 'video' %}
+        <a href="{{ interview.video_room_url }}" target="_blank" class="btn-join">
+            🎥 Join Video Call
+        </a>
+        <p class="text-sm text-gray-500 mt-3">Opens in a new window</p>
+        {% elif interview.interview_type == 'phone' %}
+        <div class="mt-4">
+            <p class="text-lg text-gray-700">Please call: <strong>{{ interview.phone_number }}</strong></p>
+        </div>
+        {% elif interview.interview_type == 'in_person' %}
+        <div class="mt-4">
+            <p class="text-lg text-gray-700">Meet at: <strong>{{ interview.location_address }}</strong></p>
+        </div>
+        {% endif %}
+
+        <div class="tips-section">
+            <h3>💡 Interview Tips</h3>
+            <ul>
+                <li>Test your camera and microphone beforehand</li>
+                <li>Find a quiet, well-lit space</li>
+                <li>Be ready 5 minutes early</li>
+                <li>Have your resume or portfolio ready</li>
+                <li>Prepare questions about the job</li>
+                <li>Dress professionally</li>
+            </ul>
+        </div>
+
+        <div class="mt-6">
+            <a href="{% url 'jobs:hiring_workflow' application.pk %}" class="text-blue-600 hover:underline">
+                ← Back to Workflow
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

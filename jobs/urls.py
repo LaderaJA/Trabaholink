@@ -18,6 +18,7 @@ from .views import (
     reactivate_job
 )
 from .views_availability import manage_availability, get_availability_api, check_availability_conflicts
+from . import views_interview
 
 
 app_name = "jobs"
@@ -100,4 +101,15 @@ urlpatterns = [
     
     # Map demo
     path('map-demo/', TemplateView.as_view(template_name='jobs/map_bacoor_only.html'), name='map_demo'),
+    
+    # Interview Scheduling & Management
+    path('application/<int:application_pk>/schedule-interview/', views_interview.schedule_interview, name='schedule_interview'),
+    path('interview/<int:interview_pk>/join/', views_interview.join_interview, name='join_interview'),
+    path('interview/<int:interview_pk>/complete/', views_interview.complete_interview, name='complete_interview'),
+    path('interview/<int:interview_pk>/reschedule/', views_interview.reschedule_interview, name='reschedule_interview'),
+    path('interview/<int:interview_pk>/cancel/', views_interview.cancel_interview, name='cancel_interview'),
+    path('interview/<int:interview_pk>/calendar.ics', views_interview.download_interview_calendar, name='interview_calendar'),
+    
+    # Hiring Workflow
+    path('application/<int:application_pk>/workflow/', views_interview.hiring_workflow_view, name='hiring_workflow'),
 ]

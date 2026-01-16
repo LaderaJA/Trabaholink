@@ -305,6 +305,32 @@ class JobApplication(models.Model):
         choices=STATUS_CHOICES,
         default="Pending"
     )
+    
+    # New: Hiring Workflow Status
+    WORKFLOW_STATUS_CHOICES = [
+        ('submitted', 'Application Submitted'),
+        ('under_review', 'Under Review'),
+        ('shortlisted', 'Shortlisted for Interview'),
+        ('interview_scheduled', 'Interview Scheduled'),
+        ('interviewed', 'Interview Completed'),
+        ('offer_pending', 'Offer Pending'),
+        ('contract_sent', 'Contract Sent'),
+        ('contract_negotiation', 'Contract Negotiation'),
+        ('hired', 'Hired'),
+        ('rejected', 'Rejected'),
+        ('withdrawn', 'Withdrawn')
+    ]
+    workflow_status = models.CharField(
+        max_length=30, 
+        choices=WORKFLOW_STATUS_CHOICES, 
+        default='submitted',
+        help_text="Current stage in the hiring workflow"
+    )
+    current_step = models.IntegerField(
+        default=1, 
+        help_text="Current step in hiring process (1-8)"
+    )
+    
     applied_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_shortlisted = models.BooleanField(default=False)
@@ -863,6 +889,97 @@ class Feedback(models.Model):
     
     def __str__(self):
         return f"Feedback from {self.giver.username} for {self.receiver.username} - {self.rating} stars"
+
+
+class InterviewSchedule(models.Model):
+    """Manage interview scheduling for job applications"""
+    application = models.OneToOneField(JobApplication, on_delete=models.CASCADE, related_name='interview')
+    scheduled_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='scheduled_interviews')
+    
+    # Interview Details
+    scheduled_datetime = models.DateTimeField(help_text="When the interview is scheduled")
+    duration_minutes = models.IntegerField(default=30, help_text="Interview duration in minutes")
+    
+    INTERVIEW_TYPE_CHOICES = [
+        ('video', 'Video Call'),
+        ('phone', 'Phone Call'),
+        ('in_person', 'In Person')
+    ]
+    interview_type = models.CharField(max_length=20, choices=INTERVIEW_TYPE_CHOICES, default='video')
+    
+    # Video Conference (Jitsi Meet)
+    video_room_id = models.CharField(max_length=100, blank=True, help_text="Jitsi room ID")
+    video_room_url = models.URLField(blank=True, help_text="Jitsi room URL")
+    
+    # Status
+    STATUS_CHOICES = [
+        ('scheduled', 'Scheduled'),
+        ('rescheduled', 'Rescheduled'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+        ('no_show', 'No Show')
+    ]
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='scheduled')
+    
+    # Interview Notes & Feedback
+    employer_notes = models.TextField(blank=True, help_text="Notes before interview")
+    interview_feedback = models.TextField(blank=True, help_text="Feedback after interview")
+    interview_rating = models.IntegerField(null=True, blank=True, help_text="1-5 rating of candidate")
+    
+    # Meeting details
+    meeting_notes = models.TextField(blank=True, help_text="Additional meeting instructions")
+    phone_number = models.CharField(max_length=20, blank=True, help_text="Phone number for phone interviews")
+    location_address = models.TextField(blank=True, help_text="Address for in-person interviews")
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    
+    # Reminder tracking
+    reminder_sent_employer = models.BooleanField(default=False)
+    reminder_sent_worker = models.BooleanField(default=False)
+    
+    class Meta:
+        ordering = ['-scheduled_datetime']
+        verbose_name = "Interview Schedule"
+        verbose_name_plural = "Interview Schedules"
+    
+    def __str__(self):
+        return f"Interview for {self.application.worker.username} - {self.application.job.title} on {self.scheduled_datetime.strftime('%b %d, %Y at %I:%M %p')}"
+    
+    def is_upcoming(self):
+        """Check if interview is in the future"""
+        from datetime import timedelta
+        return self.scheduled_datetime > timezone.now() and self.status == 'scheduled'
+    
+    def can_join(self):
+        """Check if interview can be joined (5 minutes before to 30 minutes after)"""
+        from datetime import timedelta
+        now = timezone.now()
+        start_time = self.scheduled_datetime - timedelta(minutes=5)
+        end_time = self.scheduled_datetime + timedelta(minutes=self.duration_minutes + 30)
+        return start_time <= now <= end_time and self.status == 'scheduled'
+    
+    def mark_completed(self, feedback="", rating=None):
+        """Mark interview as completed"""
+        self.status = 'completed'
+        self.completed_at = timezone.now()
+        if feedback:
+            self.interview_feedback = feedback
+        if rating:
+            self.interview_rating = rating
+        self.save()
+        
+        # Update application workflow status
+        self.application.workflow_status = 'interviewed'
+        self.application.current_step = 4
+        self.application.save()
+    
+    def cancel(self):
+        """Cancel the interview"""
+        self.status = 'cancelled'
+        self.save()
 
 
 @receiver(post_save, sender=Job)
