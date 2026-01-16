@@ -140,82 +140,156 @@
 {% endblock %}
 
 {% block content %}
-<div class="interview-container">
-    <div class="interview-card">
-        <div class="interview-icon">🎥</div>
-        <h1 class="text-3xl font-bold text-gray-900 mb-2">Interview Ready</h1>
-        <p class="text-gray-600 mb-4">{{ application.job.title }}</p>
-
-        <div class="interview-details">
-            <div class="detail-row">
-                <span class="font-semibold text-gray-700">Interview Type:</span>
-                <span class="text-gray-900">{{ interview.get_interview_type_display }}</span>
-            </div>
-            <div class="detail-row">
-                <span class="font-semibold text-gray-700">Date:</span>
-                <span class="text-gray-900">{{ interview.scheduled_datetime|date:"F d, Y" }}</span>
-            </div>
-            <div class="detail-row">
-                <span class="font-semibold text-gray-700">Time:</span>
-                <span class="text-gray-900">{{ interview.scheduled_datetime|time:"g:i A" }}</span>
-            </div>
-            <div class="detail-row">
-                <span class="font-semibold text-gray-700">Duration:</span>
-                <span class="text-gray-900">{{ interview.duration_minutes }} minutes</span>
-            </div>
-            
-            {% if interview.interview_type == 'phone' and interview.phone_number %}
-            <div class="detail-row">
-                <span class="font-semibold text-gray-700">Phone Number:</span>
-                <span class="text-gray-900">{{ interview.phone_number }}</span>
-            </div>
-            {% elif interview.interview_type == 'in_person' and interview.location_address %}
-            <div class="detail-row">
-                <span class="font-semibold text-gray-700">Location:</span>
-                <span class="text-gray-900">{{ interview.location_address }}</span>
-            </div>
-            {% endif %}
-        </div>
-
-        {% if interview.meeting_notes %}
-        <div class="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-left">
-            <p class="font-semibold text-yellow-800 mb-1">📌 Important Notes:</p>
-            <p class="text-yellow-700">{{ interview.meeting_notes }}</p>
-        </div>
-        {% endif %}
-
+<div style="max-width: 1400px; margin: 2rem auto; padding: 0 1rem;">
+    <div style="background: white; border-radius: 1rem; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden;">
         {% if interview.interview_type == 'video' %}
-        <a href="{{ interview.video_room_url }}" target="_blank" class="btn-join">
-            🎥 Join Video Call
-        </a>
-        <p class="text-sm text-gray-500 mt-3">Opens in a new window</p>
-        {% elif interview.interview_type == 'phone' %}
-        <div class="mt-4">
-            <p class="text-lg text-gray-700">Please call: <strong>{{ interview.phone_number }}</strong></p>
+        <!-- Header -->
+        <div style="padding: 1.5rem; background: linear-gradient(135deg, #3b82f6 0%, #1e40af 100%); color: white;">
+            <h1 style="margin: 0; font-size: 1.5rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="bi bi-camera-video"></i> Video Interview
+            </h1>
+            <p style="margin: 0.5rem 0 0 0; opacity: 0.9;">{{ application.job.title }}</p>
         </div>
-        {% elif interview.interview_type == 'in_person' %}
-        <div class="mt-4">
-            <p class="text-lg text-gray-700">Meet at: <strong>{{ interview.location_address }}</strong></p>
+        
+        <!-- Daily.co Embedded Video Room -->
+        <div style="position: relative; background: #000; height: 700px;">
+            <iframe 
+                id="daily-frame"
+                allow="camera; microphone; fullscreen; display-capture; autoplay; compute-pressure"
+                src="{{ interview.video_room_url }}?t=&emb=&audioSource=true&videoSource=true"
+                style="width: 100%; height: 100%; border: none;">
+            </iframe>
         </div>
-        {% endif %}
-
-        <div class="tips-section">
-            <h3>💡 Interview Tips</h3>
-            <ul>
-                <li>Test your camera and microphone beforehand</li>
-                <li>Find a quiet, well-lit space</li>
-                <li>Be ready 5 minutes early</li>
-                <li>Have your resume or portfolio ready</li>
-                <li>Prepare questions about the job</li>
-                <li>Dress professionally</li>
-            </ul>
-        </div>
-
-        <div class="mt-6">
-            <a href="{% url 'jobs:hiring_workflow' application.pk %}" class="text-blue-600 hover:underline">
-                ← Back to Workflow
-            </a>
+        
+        <!-- Interview Details Below Video -->
+        <div style="padding: 2rem; background: #f9fafb; border-top: 1px solid #e5e7eb;">
+            <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 2rem;">
+                <div style="flex: 1; min-width: 250px;">
+                    <h3 style="font-size: 1.125rem; font-weight: 700; margin-bottom: 1rem; color: #1f2937;">
+                        <i class="bi bi-info-circle"></i> Interview Details
+                    </h3>
+                    <div style="font-size: 0.875rem; color: #4b5563; line-height: 2;">
+                        <p><i class="bi bi-briefcase"></i> <strong>Job:</strong> {{ application.job.title }}</p>
+                        <p><i class="bi bi-calendar3"></i> <strong>Date:</strong> {{ interview.scheduled_datetime|date:"M d, Y" }}</p>
+                        <p><i class="bi bi-clock"></i> <strong>Time:</strong> {{ interview.scheduled_datetime|time:"g:i A" }}</p>
+                        <p><i class="bi bi-hourglass-split"></i> <strong>Duration:</strong> {{ interview.duration_minutes }} min</p>
+                    </div>
+                </div>
+                
+                <div style="display: flex; align-items: start;">
+                    <a href="{% url 'jobs:job_application_detail' application.pk %}" 
+                       class="btn btn-secondary" 
+                       style="display: flex; align-items: center; gap: 0.5rem; white-space: nowrap;">
+                        <i class="bi bi-arrow-left"></i> Back to Application
+                    </a>
+                </div>
+            </div>
         </div>
     </div>
+    
+    
+    {% elif interview.interview_type == 'phone' %}
+    <div class="interview-container">
+        <div class="interview-card">
+            <div class="interview-icon"><i class="bi bi-telephone" style="font-size: 4rem;"></i></div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">Phone Interview</h1>
+            <p class="text-gray-600 mb-4">{{ application.job.title }}</p>
+            
+            <div class="interview-details">
+                <div class="detail-row">
+                    <span class="font-semibold text-gray-700">Date:</span>
+                    <span class="text-gray-900">{{ interview.scheduled_datetime|date:"F d, Y" }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="font-semibold text-gray-700">Time:</span>
+                    <span class="text-gray-900">{{ interview.scheduled_datetime|time:"g:i A" }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="font-semibold text-gray-700">Duration:</span>
+                    <span class="text-gray-900">{{ interview.duration_minutes }} minutes</span>
+                </div>
+            </div>
+            
+            <div style="margin: 2rem 0; padding: 2rem; background: #dbeafe; border-radius: 1rem; text-align: center;">
+                <p style="font-size: 1.25rem; font-weight: 600; color: #1e40af; margin-bottom: 0.5rem;">
+                    Call this number:
+                </p>
+                <p style="font-size: 2rem; color: #1e3a8a; font-weight: 700;">
+                    {{ interview.phone_number }}
+                </p>
+            </div>
+            
+            {% if interview.meeting_notes %}
+            <div class="mt-4 p-4 bg-yellow-50 border-l-4 border-yellow-400 text-left">
+                <p class="font-semibold text-yellow-800 mb-1"><i class="bi bi-pin-angle"></i> Important Notes:</p>
+                <p class="text-yellow-700">{{ interview.meeting_notes }}</p>
+            </div>
+            {% endif %}
+            
+            <div class="mt-6">
+                <a href="{% url 'jobs:job_application_detail' application.pk %}" class="text-blue-600 hover:underline">
+                    ← Back to Application
+                </a>
+            </div>
+        </div>
+    </div>
+    
+    {% elif interview.interview_type == 'in_person' %}
+    <div class="interview-container">
+        <div class="interview-card">
+            <div class="interview-icon"><i class="bi bi-building" style="font-size: 4rem;"></i></div>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2">In-Person Interview</h1>
+            <p class="text-gray-600 mb-4">{{ application.job.title }}</p>
+            
+            <div class="interview-details">
+                <div class="detail-row">
+                    <span class="font-semibold text-gray-700">Date:</span>
+                    <span class="text-gray-900">{{ interview.scheduled_datetime|date:"F d, Y" }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="font-semibold text-gray-700">Time:</span>
+                    <span class="text-gray-900">{{ interview.scheduled_datetime|time:"g:i A" }}</span>
+                </div>
+                <div class="detail-row">
+                    <span class="font-semibold text-gray-700">Duration:</span>
+                    <span class="text-gray-900">{{ interview.duration_minutes }} minutes</span>
+                </div>
+            </div>
+            
+            <div style="margin: 2rem 0; padding: 2rem; background: #fef3c7; border-radius: 1rem;">
+                <p style="font-size: 1.25rem; font-weight: 600; color: #92400e; margin-bottom: 0.5rem;">
+                    <i class="bi bi-geo-alt"></i> Meeting Location:
+                </p>
+                <p style="font-size: 1.125rem; color: #92400e; line-height: 1.6;">
+                    {{ interview.location_address }}
+                </p>
+            </div>
+            
+            {% if interview.meeting_notes %}
+            <div class="mt-4 p-4 bg-blue-50 border-l-4 border-blue-400 text-left">
+                <p class="font-semibold text-blue-800 mb-1"><i class="bi bi-pin-angle"></i> Important Notes:</p>
+                <p class="text-blue-700">{{ interview.meeting_notes }}</p>
+            </div>
+            {% endif %}
+            
+            <div class="tips-section">
+                <h3><i class="bi bi-lightbulb"></i> Interview Tips</h3>
+                <ul>
+                    <li>Arrive 10-15 minutes early</li>
+                    <li>Dress professionally</li>
+                    <li>Bring copies of your resume</li>
+                    <li>Prepare questions about the company</li>
+                    <li>Turn off your phone</li>
+                </ul>
+            </div>
+            
+            <div class="mt-6">
+                <a href="{% url 'jobs:job_application_detail' application.pk %}" class="text-blue-600 hover:underline">
+                    ← Back to Application
+                </a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
 </div>
 {% endblock %}

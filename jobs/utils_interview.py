@@ -7,45 +7,70 @@ from django.utils import timezone
 from datetime import timedelta
 
 
-def generate_jitsi_room(application):
+def generate_daily_room(application):
     """
-    Generate unique Jitsi Meet room for interview
+    Generate Daily.co video room for interview
     
     Args:
         application: JobApplication instance
     
     Returns:
-        dict with room_id, room_url, and config
+        dict with room_name, room_url
     """
-    # Create unique room ID
-    room_id = f"trabaholink_interview_{application.pk}_{uuid.uuid4().hex[:8]}"
+    import requests
+    from django.conf import settings
     
-    # Jitsi Meet public server URL
-    room_url = f"https://meet.jit.si/{room_id}"
+    # Get API key from settings
+    api_key = getattr(settings, 'DAILY_API_KEY', '49faac40d7730a5b418232f9206c7439f1b503e8bca746d76699aa1e3c4906fa')
     
-    config = {
-        'roomName': room_id,
-        'displayName': 'TrabahoLink Interview',
-        'prejoinPageEnabled': True,  # Show preview before joining
-        'startWithAudioMuted': False,
-        'startWithVideoMuted': False,
-        'enableWelcomePage': False,
-        'requireDisplayName': True,
-        # Security - Disabled lobby/moderator to allow direct access
-        'enableLobbyChat': False,
-        'disableInviteFunctions': True,
-        'lobbyEnabled': False,  # DISABLE LOBBY MODE
-        'enableInsecureRoomNameWarning': False,  # No warning for public rooms
-        # UI customization
-        'hideConferenceSubject': False,
-        'hideConferenceTimer': False,
-    }
+    # Create unique room name
+    room_name = f"trabaholink-interview-{application.pk}-{uuid.uuid4().hex[:8]}"
+    
+    try:
+        # Call Daily.co REST API to create room
+        response = requests.post(
+            'https://api.daily.co/v1/rooms',
+            headers={
+                'Authorization': f'Bearer {api_key}',
+                'Content-Type': 'application/json'
+            },
+            json={
+                'name': room_name,
+                'privacy': 'public',
+                'properties': {
+                    'enable_screenshare': True,
+                    'enable_chat': True,
+                    'enable_knocking': False,
+                    'enable_prejoin_ui': True,
+                    'exp': int(timezone.now().timestamp()) + (7 * 24 * 60 * 60),
+                }
+            },
+            timeout=10
+        )
+        
+        if response.status_code == 200:
+            room = response.json()
+            room_url = room['url']
+        else:
+            raise Exception(f"API returned status {response.status_code}: {response.text}")
+        
+    except Exception as e:
+        # Fallback: create room URL without API (works for demo)
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.warning(f'Daily.co API error: {e}. Using domain URL.')
+        room_url = f"https://trabaholink.daily.co/{room_name}"
     
     return {
-        'room_id': room_id,
+        'room_name': room_name,
         'room_url': room_url,
-        'config': config
     }
+
+
+# Keep old function name for backwards compatibility
+def generate_jitsi_room(application):
+    """Deprecated: Use generate_daily_room instead"""
+    return generate_daily_room(application)
 
 
 def create_calendar_event(interview):

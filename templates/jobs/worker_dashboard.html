@@ -1524,13 +1524,38 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
         eventDidMount: function(info) {
-            // Add tooltip with contract details
-            const tooltip = `${info.event.title}\nClient: ${info.event.extendedProps.client}\nStatus: ${info.event.extendedProps.status}`;
+            // Add tooltip with event details
+            const extProps = info.event.extendedProps;
+            let tooltip = `${info.event.title}`;
+            
+            if (extProps.type === 'interview') {
+                tooltip += `\nJob: ${extProps.job_title}\nType: ${extProps.interview_type}\nStatus: ${extProps.status}`;
+            } else {
+                tooltip += `\nClient: ${extProps.client}\nStatus: ${extProps.status}`;
+            }
+            
             info.el.title = tooltip;
             
-            // Add bold font weight for better visibility
+            // Style based on type
             info.el.style.fontWeight = '600';
             info.el.style.fontSize = '0.85rem';
+            info.el.style.borderRadius = '4px';
+            info.el.style.padding = '2px';
+            
+            // Add icon prefix for interviews
+            if (extProps.type === 'interview') {
+                const iconMap = {
+                    'Video': '🎥',
+                    'Phone': '📞',
+                    'In-Person': '🏢'
+                };
+                const interviewType = extProps.interview_type || 'Video';
+                const icon = iconMap[interviewType] || '📅';
+                const titleEl = info.el.querySelector('.fc-event-title');
+                if (titleEl) {
+                    titleEl.textContent = icon + ' ' + titleEl.textContent;
+                }
+            }
             
             // Add subtle shadow for depth
             info.el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.15)';
@@ -1543,10 +1568,30 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
         eventContent: function(arg) {
-            // Customize event display to show full title
-            return {
-                html: `<div style="padding: 2px 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${arg.event.title}</div>`
-            };
+            const extProps = arg.event.extendedProps;
+            
+            // Add icon based on type
+            let icon = '';
+            if (extProps.type === 'interview') {
+                const iconMap = {
+                    'Video': '🎥',
+                    'Phone': '📞',
+                    'In-Person': '🏢'
+                };
+                icon = iconMap[extProps.interview_type] || '📅';
+            }
+            
+            // Show join button for video interviews that can be joined
+            let content = `<div style="padding: 2px 4px; display: flex; align-items: center; gap: 4px;">
+                <span>${icon} ${arg.event.title}</span>`;
+            
+            if (extProps.type === 'interview' && extProps.interview_type === 'Video' && extProps.can_join) {
+                content += `<span style="background: #10b981; color: white; padding: 1px 4px; border-radius: 3px; font-size: 0.7rem; font-weight: bold;">JOIN</span>`;
+            }
+            
+            content += `</div>`;
+            
+            return { html: content };
         }
     });
     

@@ -106,3 +106,5 @@ pytest-xdist==3.6.1
 faker==39.0.0
 factory-boy==3.3.3
 coverage==7.6.10
+icalendar==6.3.2
+daily-python>=0.10.0

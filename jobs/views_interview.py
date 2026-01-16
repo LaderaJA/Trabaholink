@@ -11,7 +11,7 @@ from datetime import datetime, timedelta
 
 from .models import JobApplication, InterviewSchedule, Contract
 from .utils_interview import (
-    generate_jitsi_room, 
+    generate_daily_room, 
     create_calendar_event, 
     get_interview_time_display,
     get_workflow_step_info,
@@ -43,7 +43,7 @@ def schedule_interview(request, application_pk):
     # Validate required fields
     if not scheduled_date or not scheduled_time:
         messages.error(request, "Please provide both date and time for the interview.")
-        return redirect('jobs:application_detail', pk=application_pk)
+        return redirect('jobs:job_application_detail', pk=application_pk)
     
     # Parse datetime
     try:
@@ -54,24 +54,24 @@ def schedule_interview(request, application_pk):
         # Validate future date
         if scheduled_datetime <= timezone.now():
             messages.error(request, "Interview must be scheduled in the future.")
-            return redirect('jobs:application_detail', pk=application_pk)
+            return redirect('jobs:job_application_detail', pk=application_pk)
             
     except ValueError:
         messages.error(request, "Invalid date or time format.")
-        return redirect('jobs:application_detail', pk=application_pk)
+        return redirect('jobs:job_application_detail', pk=application_pk)
     
     # Check if interview already exists
     if hasattr(application, 'interview'):
         messages.warning(request, "An interview is already scheduled for this application.")
-        return redirect('jobs:application_detail', pk=application_pk)
+        return redirect('jobs:job_application_detail', pk=application_pk)
     
     # Generate video room if video interview
     video_room_id = ''
     video_room_url = ''
     if interview_type == 'video':
-        jitsi_data = generate_jitsi_room(application)
-        video_room_id = jitsi_data['room_id']
-        video_room_url = jitsi_data['room_url']
+        daily_data = generate_daily_room(application)
+        video_room_id = daily_data['room_name']
+        video_room_url = daily_data['room_url']
     
     # Create interview schedule
     interview = InterviewSchedule.objects.create(
@@ -103,7 +103,7 @@ def schedule_interview(request, application_pk):
     )
     
     messages.success(request, f"Interview scheduled successfully for {scheduled_datetime.strftime('%b %d, %Y at %I:%M %p')}!")
-    return redirect('jobs:application_detail', pk=application_pk)
+    return redirect('jobs:job_application_detail', pk=application_pk)
 
 
 @login_required
@@ -117,16 +117,13 @@ def join_interview(request, interview_pk):
         messages.error(request, "You don't have permission to join this interview.")
         return redirect('mainpages:home')
     
-    # Check if interview can be joined
-    if not interview.can_join():
-        messages.warning(request, "This interview is not available to join yet. Please wait until 5 minutes before the scheduled time.")
-        return redirect('jobs:application_detail', pk=application.pk)
+    # Render embedded interview page (no time restriction for testing)
+    # Remove or comment out the can_join check to allow testing anytime
+    # if not interview.can_join():
+    #     messages.warning(request, "This interview is not available to join yet. Please wait until 5 minutes before the scheduled time.")
+    #     return redirect('jobs:application_detail', pk=application.pk)
     
-    # For video interviews, redirect to Jitsi room
-    if interview.interview_type == 'video' and interview.video_room_url:
-        return redirect(interview.video_room_url)
-    
-    # For other types, show details
+    # Render the interview page with embedded Jitsi (for video) or details (for phone/in-person)
     context = {
         'interview': interview,
         'application': application,
@@ -144,7 +141,7 @@ def complete_interview(request, interview_pk):
     # Check permission: only employer can mark as completed
     if request.user != application.job.owner:
         messages.error(request, "Only the employer can mark the interview as completed.")
-        return redirect('jobs:application_detail', pk=application.pk)
+        return redirect('jobs:job_application_detail', pk=application.pk)
     
     # Get feedback and rating
     interview_feedback = request.POST.get('interview_feedback', '')
@@ -170,7 +167,7 @@ def complete_interview(request, interview_pk):
     )
     
     messages.success(request, "Interview marked as completed successfully!")
-    return redirect('jobs:application_detail', pk=application.pk)
+    return redirect('jobs:job_application_detail', pk=application.pk)
 
 
 @login_required
@@ -183,7 +180,7 @@ def reschedule_interview(request, interview_pk):
     # Check permission: only employer can reschedule
     if request.user != application.job.owner:
         messages.error(request, "Only the employer can reschedule interviews.")
-        return redirect('jobs:application_detail', pk=application.pk)
+        return redirect('jobs:job_application_detail', pk=application.pk)
     
     # Get new date/time
     scheduled_date = request.POST.get('scheduled_date')
@@ -191,7 +188,7 @@ def reschedule_interview(request, interview_pk):
     
     if not scheduled_date or not scheduled_time:
         messages.error(request, "Please provide both date and time.")
-        return redirect('jobs:application_detail', pk=application.pk)
+        return redirect('jobs:job_application_detail', pk=application.pk)
     
     # Parse datetime
     try:
@@ -201,11 +198,11 @@ def reschedule_interview(request, interview_pk):
         
         if scheduled_datetime <= timezone.now():
             messages.error(request, "Interview must be scheduled in the future.")
-            return redirect('jobs:application_detail', pk=application.pk)
+            return redirect('jobs:job_application_detail', pk=application.pk)
             
     except ValueError:
         messages.error(request, "Invalid date or time format.")
-        return redirect('jobs:application_detail', pk=application.pk)
+        return redirect('jobs:job_application_detail', pk=application.pk)
     
     # Update interview
     interview.scheduled_datetime = scheduled_datetime
@@ -221,7 +218,7 @@ def reschedule_interview(request, interview_pk):
     )
     
     messages.success(request, "Interview rescheduled successfully!")
-    return redirect('jobs:application_detail', pk=application.pk)
+    return redirect('jobs:job_application_detail', pk=application.pk)
 
 
 @login_required
@@ -234,7 +231,7 @@ def cancel_interview(request, interview_pk):
     # Check permission: only employer can cancel
     if request.user != application.job.owner:
         messages.error(request, "Only the employer can cancel interviews.")
-        return redirect('jobs:application_detail', pk=application.pk)
+        return redirect('jobs:job_application_detail', pk=application.pk)
     
     # Cancel interview
     interview.cancel()
@@ -253,7 +250,7 @@ def cancel_interview(request, interview_pk):
     )
     
     messages.success(request, "Interview cancelled successfully.")
-    return redirect('jobs:application_detail', pk=application.pk)
+    return redirect('jobs:job_application_detail', pk=application.pk)
 
 
 @login_required
@@ -272,7 +269,7 @@ def download_interview_calendar(request, interview_pk):
     
     if not ical_data:
         messages.error(request, "Calendar file generation is not available.")
-        return redirect('jobs:application_detail', pk=application.pk)
+        return redirect('jobs:job_application_detail', pk=application.pk)
     
     # Return as downloadable file
     response = HttpResponse(ical_data, content_type='text/calendar')

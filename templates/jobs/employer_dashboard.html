@@ -5,6 +5,9 @@
 {% block title %}Employer Dashboard - TrabahoLink{% endblock %}
 
 {% block css %}
+<!-- FullCalendar CSS -->
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
+
 <style>
     body {
         background: #f3f4f6 !important;
@@ -741,6 +744,30 @@
         </div>
     </div>
 
+    <!-- Calendar and Schedule Section -->
+    <div class="content-section" style="margin-bottom: 2rem;">
+        <div class="section-header" style="margin-bottom: 1.5rem;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; color: #111827; margin: 0;">
+                <i class="bi bi-calendar3" style="color: #2563eb;"></i> My Schedule
+            </h2>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
+            <!-- Calendar -->
+            <div class="calendar-main">
+                <div id="calendar-loading" style="background: white; border-radius: 8px; padding: 2rem; text-align: center; min-height: 600px; display: flex; align-items: center; justify-content: center;">
+                    <div>
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p style="margin-top: 1rem; color: #6b7280;">Loading calendar...</p>
+                    </div>
+                </div>
+                <div id="calendar" style="background: white; border-radius: 8px; padding: 1rem; min-height: 600px; display: none;"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- PROMINENT ACTIVE CONTRACTS TRACKING SECTION -->
     {% if active_contracts_list %}
     <div class="content-section" style="margin-bottom: 2rem; border: 2px solid #2563eb;">
@@ -1387,6 +1414,136 @@ function filterDeactivatedJobs() {
         card.style.display = title.includes(searchTerm) ? 'block' : 'none';
     });
 }
+</script>
+
+<!-- FullCalendar JS -->
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Initializing employer calendar...');
+    
+    const calendarEl = document.getElementById('calendar');
+    if (!calendarEl) {
+        console.error('Calendar element not found!');
+        return;
+    }
+    
+    if (typeof FullCalendar === 'undefined') {
+        console.error('FullCalendar library not loaded!');
+        return;
+    }
+    
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,listWeek'
+        },
+        height: 'auto',
+        events: function(info, successCallback, failureCallback) {
+            console.log('Fetching events from:', info.startStr, 'to:', info.endStr);
+            const url = `/api/jobs/schedule/events/?start=${info.startStr}&end=${info.endStr}`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Calendar events loaded:', data);
+                    
+                    // Flatten array if nested
+                    let flattenedData = data;
+                    if (data.length > 0 && Array.isArray(data[0])) {
+                        flattenedData = data.flat();
+                    }
+                    
+                    successCallback(flattenedData);
+                })
+                .catch(error => {
+                    console.error('Error loading calendar events:', error);
+                    failureCallback(error);
+                });
+        },
+        eventClick: function(info) {
+            if (info.event.url) {
+                window.location.href = info.event.url;
+                info.jsEvent.preventDefault();
+            }
+        },
+        eventDidMount: function(info) {
+            // Add tooltip
+            const extProps = info.event.extendedProps;
+            let tooltip = `${info.event.title}`;
+            
+            if (extProps.type === 'interview') {
+                tooltip += `\nJob: ${extProps.job_title}\nType: ${extProps.interview_type}\nStatus: ${extProps.status}`;
+            }
+            
+            info.el.title = tooltip;
+            info.el.style.fontWeight = '600';
+            info.el.style.fontSize = '0.85rem';
+            info.el.style.borderRadius = '4px';
+            info.el.style.padding = '2px';
+            
+            // Add icon prefix for interviews
+            if (extProps.type === 'interview') {
+                const iconMap = {
+                    'Video': '🎥',
+                    'Phone': '📞',
+                    'In-Person': '🏢'
+                };
+                const interviewType = extProps.interview_type || 'Video';
+                const icon = iconMap[interviewType] || '📅';
+                const titleEl = info.el.querySelector('.fc-event-title');
+                if (titleEl) {
+                    titleEl.textContent = icon + ' ' + titleEl.textContent;
+                }
+            }
+            
+            info.el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.15)';
+        },
+        dayCellDidMount: function(info) {
+            if (info.isToday) {
+                info.el.style.backgroundColor = '#eff6ff';
+                info.el.style.border = '2px solid #3b82f6';
+            }
+        },
+        eventContent: function(arg) {
+            const extProps = arg.event.extendedProps;
+            
+            // Add icon based on type
+            let icon = '';
+            if (extProps.type === 'interview') {
+                const iconMap = {
+                    'Video': '🎥',
+                    'Phone': '📞',
+                    'In-Person': '🏢'
+                };
+                icon = iconMap[extProps.interview_type] || '📅';
+            }
+            
+            // Show join button for video interviews that can be joined
+            let content = `<div style="padding: 2px 4px; display: flex; align-items: center; gap: 4px;">
+                <span>${icon} ${arg.event.title}</span>`;
+            
+            if (extProps.type === 'interview' && extProps.interview_type === 'Video' && extProps.can_join) {
+                content += `<span style="background: #10b981; color: white; padding: 1px 4px; border-radius: 3px; font-size: 0.7rem; font-weight: bold;">JOIN</span>`;
+            }
+            
+            content += `</div>`;
+            
+            return { html: content };
+        }
+    });
+    
+    calendar.render();
+    
+    // Hide loading, show calendar
+    document.getElementById('calendar-loading').style.display = 'none';
+    document.getElementById('calendar').style.display = 'block';
+    
+    console.log('Employer calendar initialized successfully');
+});
 </script>
 
 {% endblock %}

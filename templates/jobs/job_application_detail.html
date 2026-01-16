@@ -674,6 +674,22 @@ body {
   .progress-bar-container {
     margin-bottom: 1.5rem;
   }
+  
+  /* Mobile interview buttons */
+  .interview-card {
+    padding: 1rem;
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    font-size: 0.875rem !important;
+    padding: 0.75rem 1rem !important;
+  }
+  
+  .modal-content {
+    padding: 1rem;
+    width: 95%;
+  }
 }
 </style>
 
@@ -786,12 +802,6 @@ body {
             </div>
           </div>
           
-          {% if interview.meeting_notes %}
-          <div style="background: #fef3c7; padding: 0.75rem; border-radius: 0.5rem; margin-bottom: 1rem;">
-            <strong style="color: #92400e;">📌 Notes:</strong>
-            <p style="margin: 0.25rem 0 0 0; color: #92400e;">{{ interview.meeting_notes }}</p>
-          </div>
-          {% endif %}
           
           <!-- Primary Action: Join Interview -->
           <div style="margin-bottom: 1rem;">
@@ -800,7 +810,7 @@ body {
                class="btn btn-primary" 
                style="width: 100%; padding: 1rem; font-size: 1.125rem; background: linear-gradient(135deg, #10b981 0%, #059669 100%); border: none; display: flex; align-items: center; justify-content: center; gap: 0.5rem;">
               <i class="bi bi-camera-video-fill" style="font-size: 1.5rem;"></i>
-              <span style="font-weight: 700;">🎥 Join Video Interview</span>
+              <span style="font-weight: 700;">Join Video Interview</span>
             </a>
             <p style="text-align: center; margin-top: 0.5rem; font-size: 0.875rem; color: #6b7280;">
               {% if interview.can_join %}
@@ -833,8 +843,13 @@ body {
             {% if interview.interview_type == 'video' and interview.video_room_url %}
             <a href="{{ interview.video_room_url }}" target="_blank" 
                class="btn btn-secondary" style="flex: 1;">
-              <i class="bi bi-box-arrow-up-right"></i> Direct Link
+              <i class="bi bi-box-arrow-up-right"></i> Open Link
             </a>
+            
+            <button onclick="copyMeetingLink('{{ interview.video_room_url }}')" 
+                    class="btn btn-secondary" style="flex: 1;">
+              <i class="bi bi-clipboard"></i> Copy Link
+            </button>
             {% endif %}
             
             <a href="{% url 'jobs:interview_calendar' interview.pk %}" 
@@ -1227,9 +1242,9 @@ body {
           <label style="display: block; margin-bottom: 0.5rem; font-weight: 600;">Interview Type *</label>
           <select name="interview_type" id="interviewType" onchange="toggleInterviewFields()" 
                   style="width: 100%; padding: 0.5rem; border: 1px solid #d1d5db; border-radius: 0.375rem;">
-            <option value="video" selected>🎥 Video Call (Free - Jitsi Meet)</option>
-            <option value="phone">📞 Phone Call</option>
-            <option value="in_person">🏢 In Person</option>
+            <option value="video" selected>Video Call (Daily.co - No Login Required)</option>
+            <option value="phone">Phone Call</option>
+            <option value="in_person">In Person</option>
           </select>
         </div>
         
@@ -1326,6 +1341,78 @@ body {
 </div>
 
 <script>
+// Copy Meeting Link to Clipboard
+function copyMeetingLink(url) {
+  const btn = event.target.closest('button');
+  const originalHTML = btn.innerHTML;
+  
+  // Try modern clipboard API first
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url).then(() => {
+      showCopySuccess(btn, originalHTML);
+    }).catch(err => {
+      fallbackCopy(url, btn, originalHTML);
+    });
+  } else {
+    fallbackCopy(url, btn, originalHTML);
+  }
+}
+
+function showCopySuccess(btn, originalHTML) {
+  btn.innerHTML = '<i class="bi bi-check2"></i> Copied!';
+  btn.style.background = '#10b981';
+  btn.style.color = 'white';
+  
+  setTimeout(() => {
+    btn.innerHTML = originalHTML;
+    btn.style.background = '';
+    btn.style.color = '';
+  }, 2000);
+}
+
+function fallbackCopy(url, btn, originalHTML) {
+  // Fallback: create temporary textarea
+  const textarea = document.createElement('textarea');
+  textarea.value = url;
+  textarea.style.position = 'fixed';
+  textarea.style.left = '-9999px';
+  document.body.appendChild(textarea);
+  textarea.select();
+  
+  try {
+    const successful = document.execCommand('copy');
+    if (successful) {
+      showCopySuccess(btn, originalHTML);
+    } else {
+      promptManualCopy(url);
+    }
+  } catch (err) {
+    promptManualCopy(url);
+  } finally {
+    document.body.removeChild(textarea);
+  }
+}
+
+function promptManualCopy(url) {
+  const modal = document.createElement('div');
+  modal.style.cssText = 'position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 10000; display: flex; align-items: center; justify-content: center;';
+  modal.innerHTML = `
+    <div style="background: white; padding: 2rem; border-radius: 1rem; max-width: 500px; margin: 1rem;">
+      <h3 style="margin: 0 0 1rem 0; font-size: 1.25rem; font-weight: 700;">Meeting Link</h3>
+      <p style="margin-bottom: 1rem; color: #6b7280;">Copy this link to share:</p>
+      <input type="text" value="${url}" readonly 
+             onclick="this.select()" 
+             style="width: 100%; padding: 0.75rem; border: 2px solid #3b82f6; border-radius: 0.5rem; font-size: 0.875rem; margin-bottom: 1rem;">
+      <button onclick="this.closest('div').parentElement.remove()" 
+              style="width: 100%; padding: 0.75rem; background: #3b82f6; color: white; border: none; border-radius: 0.5rem; font-weight: 600; cursor: pointer;">
+        Close
+      </button>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  modal.onclick = (e) => { if (e.target === modal) modal.remove(); };
+}
+
 // Schedule Interview Modal Functions
 function openScheduleModal() {
   document.getElementById('scheduleModal').classList.add('active');

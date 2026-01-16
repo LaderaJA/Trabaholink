@@ -643,6 +643,11 @@ class JobApplicationCreateView(LoginRequiredMixin, CreateView):
     template_name = "jobs/job_application_form.html"
     
     def dispatch(self, request, *args, **kwargs):
+        # Ensure user is authenticated first
+        if not request.user.is_authenticated:
+            from django.contrib.auth.views import redirect_to_login
+            return redirect_to_login(request.get_full_path())
+        
         # Check if user has already applied to this job
         job = get_object_or_404(Job, pk=self.kwargs.get("pk"))
         existing_application = JobApplication.objects.filter(
@@ -911,6 +916,32 @@ class JobApplicationDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteVi
         application = self.get_object()
         # Allowed if the logged-in user is either the applicant or the job owner
         return self.request.user == application.worker or self.request.user == application.job.owner
+    
+    def dispatch(self, request, *args, **kwargs):
+        application = self.get_object()
+        
+        # Prevent deletion if contract is finalized
+        try:
+            if hasattr(application, 'contract') and application.contract:
+                if not application.contract.is_draft:
+                    messages.error(request, "Cannot cancel application - contract has been finalized.")
+                    return redirect(reverse("jobs:job_application_detail", kwargs={"pk": application.pk}))
+        except Contract.DoesNotExist:
+            pass
+        
+        return super().dispatch(request, *args, **kwargs)
+    
+    def delete(self, request, *args, **kwargs):
+        application = self.get_object()
+        job_pk = application.job.pk
+        
+        # Check if user is the worker (canceling their own application)
+        if request.user == application.worker:
+            messages.success(request, "Your application has been canceled successfully.")
+        else:
+            messages.success(request, "Application has been deleted.")
+        
+        return super().delete(request, *args, **kwargs)
     
     def get_success_url(self):
         return reverse_lazy("jobs:job_detail", kwargs={"pk": self.get_object().job.pk})
