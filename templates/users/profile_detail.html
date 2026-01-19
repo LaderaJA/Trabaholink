@@ -2650,7 +2650,7 @@ body {
           </li>
           {% elif user.verification_status == 'manual_review' %}
           <li>
-            <a href="{% url 'ekyc_pending' %}" class="action-link-modern">
+            <a href="{% url 'users:ekyc_pending' %}" class="action-link-modern">
               <div class="action-link-icon">
                 <i class="bi bi-clock-history"></i>
               </div>
