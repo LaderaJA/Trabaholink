@@ -2007,8 +2007,12 @@ function showCachedLocationInfo() {
   z-index: 9999 !important;
 }
 
-.modal-backdrop.show {
-  z-index: 9998 !important;
+/* Target modal backdrop with multiple selectors for specificity */
+.modal-backdrop,
+.modal-backdrop.fade,
+.modal-backdrop.show,
+div.modal-backdrop {
+  z-index: 1040 !important;
 }
 
 @keyframes spin {
