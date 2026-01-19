@@ -6,7 +6,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('jobs', '0022_add_interview_workflow'),
+        ('jobs', '0023_merge_20260114_1943'),
     ]
 
     operations = [
