@@ -1205,7 +1205,7 @@ body {
       <span>
         <i class="fa fa-user"></i>
         Posted by 
-        <a href="{% url 'profile' post.worker.pk %}" style="color: white; text-decoration: underline;">
+        <a href="{% url 'users:profile' post.worker.pk %}" style="color: white; text-decoration: underline;">
           {{ post.worker.get_full_name|default:post.worker.username }}
         </a>
       </span>
@@ -1347,7 +1347,7 @@ body {
         {% elif not user.is_authenticated %}
           <div class="login-prompt" style="background: #fef3c7; padding: 1rem; border-radius: 0.5rem; margin-top: 1rem; text-align: center;">
             <p style="margin: 0; color: #92400e;">
-              <i class="fa fa-sign-in-alt"></i> Please <a href="{% url 'login' %}?next={{ request.path }}" style="color: #92400e; text-decoration: underline;">log in</a> to write a review.
+              <i class="fa fa-sign-in-alt"></i> Please <a href="{% url 'users:login' %}?next={{ request.path }}" style="color: #92400e; text-decoration: underline;">log in</a> to write a review.
             </p>
           </div>
         {% endif %}

@@ -850,7 +850,7 @@
             <i class="bi bi-search"></i>
             Browse Jobs
         </a>
-        <a href="{% url 'profile' user.id %}" class="action-btn action-btn-secondary">
+        <a href="{% url 'users:profile' user.id %}" class="action-btn action-btn-secondary">
             <i class="bi bi-person-circle"></i>
             View My Profile
         </a>
@@ -873,7 +873,7 @@
             <div class="contract-tracking-card">
                 <div class="contract-card-header">
                     <h3 class="contract-card-title">{{ contract.job.title }}</h3>
-                    <span class="contract-card-badge" style="{% if contract.status == 'In Progress' %}background: #d1fae5; color: #065f46;{% elif contract.status == 'Accepted' %}background: #dbeafe; color: #1e40af;{% else %}background: #fef3c7; color: #92400e;{% endif %}">
+                    <span class="contract-card-badge" style="{% if contract.status == 'In Progress' %}background: #d1fae5; color: #065f46;{% elif contract.status == 'Finalized' %}background: #d1fae5; color: #065f46;{% else %}background: #fef3c7; color: #92400e;{% endif %}">
                         {{ contract.status }}
                     </span>
                 </div>
@@ -989,7 +989,7 @@
                                         {{ contract.start_date|date:"M d" }} - {% if contract.end_date %}{{ contract.end_date|date:"M d, Y" }}{% else %}Ongoing{% endif %}
                                     </div>
                                     <div style="margin-top: 0.25rem;">
-                                        <span style="font-size: 0.7rem; padding: 0.125rem 0.5rem; border-radius: 9999px; background: {% if contract.status == 'In Progress' %}#d1fae5; color: #059669{% elif contract.status == 'Accepted' %}#dbeafe; color: #2563eb{% else %}#e9d5ff; color: #7c3aed{% endif %};">
+                                        <span style="font-size: 0.7rem; padding: 0.125rem 0.5rem; border-radius: 9999px; background: {% if contract.status == 'In Progress' %}#d1fae5; color: #059669{% elif contract.status == 'Finalized' %}#d1fae5; color: #059669{% else %}#e9d5ff; color: #7c3aed{% endif %};">
                                             {{ contract.status }}
                                         </span>
                                     </div>

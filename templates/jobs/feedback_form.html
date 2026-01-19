@@ -6,276 +6,298 @@
 
 {% block css %}
 {{ block.super }}
-<script src="https://cdn.tailwindcss.com"></script>
+<style>
+:root {
+  --primary: #3b82f6; --primary-dark:#2563eb; --primary-light:#dbeafe;
+  --success:#10b981; --success-light:#d1fae5;
+  --warning:#f59e0b; --warning-light:#fef3c7;
+  --danger:#ef4444; --danger-light:#fee2e2;
+  --gray-900:#111827; --gray-700:#374151; --gray-500:#6b7280; --gray-300:#d1d5db; --gray-100:#f3f4f6; --gray-50:#f9fafb;
+}
+body { background: var(--gray-50); }
+.container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+.main-card { background: white; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,.1); overflow: hidden; }
+.card-section { padding: 1.5rem 2rem; border-bottom: 1px solid var(--gray-100); }
+.card-section:last-child { border-bottom: none; }
+.section-title { font-size: 1.25rem; font-weight: 600; color: var(--gray-900); display:flex; align-items:center; gap:.5rem; margin:0 0 1rem; }
+.section-title i { color: var(--primary); }
+.btn { display:inline-flex; align-items:center; gap:.5rem; padding:.75rem 1rem; border:none; border-radius:.5rem; font-weight:600; cursor:pointer; text-decoration:none; justify-content:center; }
+.btn-primary { background: var(--primary); color:#fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-secondary { background:#fff; color:var(--gray-700); border:1px solid var(--gray-300); }
+
+/* Workflow Progress Section */
+.workflow-section { background:white; padding:2rem; border-radius:1rem; margin-bottom:0; box-shadow:0 1px 3px rgba(0,0,0,.1); border-bottom:1px solid var(--gray-100); }
+.progress-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; }
+.status-badge { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem 1rem; border-radius:2rem; font-weight:600; font-size:.875rem; }
+.status-badge.negotiation { background:var(--warning-light); color:#92400e; }
+.status-badge.finalized, .status-badge.accepted { background:var(--success-light); color:#065f46; }
+.status-badge.inprogress, .status-badge.progress { background:var(--primary-light); color:#1e40af; }
+.status-badge.completed { background:var(--success-light); color:#065f46; }
+.status-badge.awaitingreview, .status-badge.submittedforreview { background:var(--warning-light); color:#92400e; }
+
+/* Progress Bar */
+.progress-bar-container { position:relative; height:8px; background:var(--gray-100); border-radius:10px; overflow:hidden; margin-bottom:3rem; }
+.progress-bar-fill { height:100%; background:var(--success); border-radius:10px; transition:width .6s ease; }
+
+/* Workflow Steps */
+.workflow-steps { display:flex; justify-content:space-between; gap:1rem; }
+.workflow-step { display:flex; flex-direction:column; align-items:center; text-align:center; flex:1; }
+.step-circle { width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.25rem; margin-bottom:0.75rem; border:3px solid transparent; box-shadow:0 4px 12px rgba(0,0,0,.1); }
+.step-pending .step-circle { background:white; color:var(--gray-500); border-color:var(--gray-200); }
+.step-current .step-circle { background:var(--primary); color:white; border-color:var(--primary-light); box-shadow:0 0 0 4px var(--primary-light); animation:pulse-glow 2s infinite; }
+.step-completed .step-circle { background:var(--success); color:white; border-color:var(--success-light); }
+@keyframes pulse-glow { 0%, 100% { box-shadow:0 0 0 4px var(--primary-light); } 50% { box-shadow:0 0 0 8px var(--primary-light); } }
+.step-label { font-size:.875rem; font-weight:600; color:var(--gray-700); max-width:140px; }
+.step-description { font-size:.75rem; color:var(--gray-500); margin-top:.25rem; max-width:140px; }
+.step-pending .step-label { color:var(--gray-500); }
+.step-current .step-label { color:var(--primary); }
+.step-completed .step-label { color:var(--success); }
+.info { font-size:.9rem; color: var(--gray-700); margin-bottom:.5rem; display:block; }
+textarea { width:100%; padding:.75rem 1rem; border:1px solid var(--gray-300); border-radius:.5rem; font-size:1rem; resize:vertical; }
+textarea:focus { outline:none; border-color: var(--primary); box-shadow:0 0 0 3px var(--primary-light); }
+.progress-track { height:8px; background: var(--gray-100); border-radius:8px; overflow:hidden; margin-bottom:1rem; }
+.progress-fill { height:100%; background: var(--success); transition: width .3s ease; }
+.step-grid { display:grid; grid-template-columns: repeat(4,1fr); gap:.5rem; text-align:center; font-size:.875rem; }
+.step-dot { width:32px; height:32px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-weight:700; margin:0 auto .25rem; }
+.step-done { background: var(--success); color:#fff; }
+.step-pending { background:#e5e7eb; color:#6b7280; }
+.alert-info { background: var(--primary-light); border-left: 4px solid var(--primary); padding: 1rem; border-radius: .5rem; margin-bottom: 1rem; }
+.star-rating { display: flex; gap: .5rem; justify-content: center; margin: 1.5rem 0; }
+.star-label { font-size: 3rem; cursor: pointer; color: #d1d5db; transition: all 0.2s; user-select: none; }
+.star-label:hover, .star-label.active { color: #fbbf24; transform: scale(1.1); }
+input[type="radio"] { display: none; }
+@media(max-width:768px){
+  .container{padding:1rem}
+  .card-section{padding:1rem 1.25rem}
+  .workflow-section{padding:1.5rem}
+  .workflow-steps{flex-direction:row; gap:.5rem}
+  .step-circle{width:36px; height:36px; font-size:1rem}
+  .step-label{font-size:.75rem}
+  .step-description{font-size:.65rem}
+  .btn{padding:.6rem .75rem;font-size:.875rem}
+  .section-title{font-size:1.1rem}
+}
+@media(max-width:480px){
+  .workflow-steps{gap:.25rem}
+  .step-circle{width:32px; height:32px; font-size:.875rem}
+  .step-label, .step-description{display:none}
+  .btn{font-size:.8rem}
+}
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8 max-w-3xl">
+<div class="container">
     <!-- Back Button -->
-    <div class="mb-4">
-        <a href="{% url 'jobs:contract_detail' contract.pk %}" class="inline-flex items-center gap-2 px-4 py-2 bg-white border-2 border-gray-300 rounded-lg hover:bg-gray-50 transition-colors">
-            <i class="bi bi-arrow-left"></i>
-            <span class="font-medium">Back to Contract</span>
+    <div style="margin-bottom:1rem">
+        <a href="{% url 'jobs:contract_detail' contract.pk %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i> Back to Contract
         </a>
     </div>
 
-    <!-- Header Card -->
-    <div class="bg-gradient-to-r from-blue-500 to-blue-600 rounded-2xl shadow-lg p-8 mb-6 text-white">
-        <div class="text-center">
-            <div class="text-7xl mb-4 animate-bounce">⭐</div>
-            <h1 class="text-4xl font-bold mb-3">Leave Feedback</h1>
-            <p class="text-blue-100 text-lg">{{ contract.job.title }}</p>
-        </div>
-    </div>
-
-    <!-- Receiver Info Card -->
-    <div class="bg-white rounded-xl shadow-md border-2 border-blue-200 p-6 mb-6">
-        <div class="flex items-start gap-4">
-            <div class="bg-blue-100 rounded-full p-3">
-                <i class="bi bi-person-circle text-3xl text-blue-600"></i>
+    <div class="main-card">
+        <!-- Contract Progress Section (Standardized) -->
+        <div class="card-section workflow-section">
+            <div class="progress-header">
+                <h3 class="section-title">
+                    <i class="bi bi-diagram-3-fill"></i>
+                    Contract Progress
+                </h3>
+                <span class="status-badge completed">
+                    <i class="bi bi-circle-fill" style="font-size: 0.5rem;"></i>
+                    Completed
+                </span>
             </div>
-            <div class="flex-1">
-                <p class="text-sm font-semibold text-gray-500 uppercase tracking-wide mb-1">Leaving feedback for:</p>
-                <p class="text-2xl font-bold text-gray-900 mb-2">
-                    {{ receiver.get_full_name|default:receiver.username }}
-                </p>
-                <p class="text-gray-600">
-                    {% if is_worker %}
-                        <i class="bi bi-briefcase text-blue-500"></i> Rate your experience working with this employer
-                    {% else %}
-                        <i class="bi bi-tools text-blue-500"></i> Rate your experience with this worker
-                    {% endif %}
-                </p>
-            </div>
-        </div>
-    </div>
-
-    <!-- Feedback Form Card -->
-    <div class="bg-white rounded-xl shadow-lg border-2 border-gray-200 p-8 mb-6">
-        <form method="post" id="feedback-form">
-            {% csrf_token %}
             
-            <!-- Rating Section -->
-            <div class="mb-8">
-                <label class="block text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <i class="bi bi-star-fill text-yellow-500"></i>
-                    Rating *
-                </label>
-                <div class="bg-gray-50 rounded-xl p-6 border-2 border-gray-200">
-                    <div class="flex justify-center gap-3 mb-3">
-                    <input type="radio" name="rating" value="1" id="star1" class="hidden" required>
-                    <label for="star1" class="star-label text-5xl cursor-pointer transition-transform hover:scale-110" data-rating="1">☆</label>
-                    
-                    <input type="radio" name="rating" value="2" id="star2" class="hidden">
-                    <label for="star2" class="star-label text-5xl cursor-pointer transition-transform hover:scale-110" data-rating="2">☆</label>
-                    
-                    <input type="radio" name="rating" value="3" id="star3" class="hidden">
-                    <label for="star3" class="star-label text-5xl cursor-pointer transition-transform hover:scale-110" data-rating="3">☆</label>
-                    
-                    <input type="radio" name="rating" value="4" id="star4" class="hidden">
-                    <label for="star4" class="star-label text-5xl cursor-pointer transition-transform hover:scale-110" data-rating="4">☆</label>
-                    
-                    <input type="radio" name="rating" value="5" id="star5" class="hidden">
-                    <label for="star5" class="star-label text-5xl cursor-pointer transition-transform hover:scale-110" data-rating="5">☆</label>
+            <!-- Progress Bar -->
+            <div class="progress-bar-container">
+                <div class="progress-bar-fill" style="width: 100%;"></div>
+            </div>
+            
+            <!-- Workflow Steps -->
+            <div class="workflow-steps">
+                <!-- Step 1: Negotiation -->
+                <div class="workflow-step step-completed">
+                    <div class="step-circle">✓</div>
+                    <div>
+                        <div class="step-label">Negotiation</div>
+                        <div class="step-description">Agreed</div>
                     </div>
-                    <p class="text-center text-lg font-semibold text-gray-700" id="rating-text">Click to rate</p>
+                </div>
+                
+                <!-- Step 2: Finalized -->
+                <div class="workflow-step step-completed">
+                    <div class="step-circle">✓</div>
+                    <div>
+                        <div class="step-label">Finalized</div>
+                        <div class="step-description">Ready</div>
+                    </div>
+                </div>
+                
+                <!-- Step 3: In Progress -->
+                <div class="workflow-step step-completed">
+                    <div class="step-circle">✓</div>
+                    <div>
+                        <div class="step-label">In Progress</div>
+                        <div class="step-description">Done</div>
+                    </div>
+                </div>
+                
+                <!-- Step 4: Completed -->
+                <div class="workflow-step step-completed">
+                    <div class="step-circle">✓</div>
+                    <div>
+                        <div class="step-label">Completed</div>
+                        <div class="step-description">Finished</div>
+                    </div>
                 </div>
             </div>
+        </div>
 
-            <!-- Feedback Message -->
-            <div class="mb-8">
-                <label for="message" class="block text-xl font-bold text-gray-900 mb-4 flex items-center gap-2">
-                    <i class="bi bi-chat-left-text-fill text-blue-500"></i>
-                    Your Feedback *
-                </label>
-                <textarea name="message" id="message" required
-                          class="w-full px-5 py-4 border-2 border-gray-300 rounded-xl focus:ring-4 focus:ring-blue-200 focus:border-blue-500 transition-all text-base"
-                          rows="8" 
-                          placeholder="Share your experience working together..."></textarea>
-                <div class="flex items-start gap-2 mt-3 bg-blue-50 border-l-4 border-blue-400 p-3 rounded">
-                    <i class="bi bi-info-circle text-blue-600 mt-0.5"></i>
-                    <p class="text-sm text-blue-800">
-                        Be honest and constructive. Your feedback helps build trust in the community.
+        <!-- Feedback Form -->
+        <div class="card-section">
+            <h2 class="section-title"><i class="bi bi-star-fill"></i> {% if is_editing %}Edit Feedback{% else %}Leave Feedback{% endif %}</h2>
+            
+            <div class="alert-info">
+                <p style="margin:0;display:flex;align-items:start;gap:.5rem">
+                    <i class="bi bi-info-circle" style="margin-top:.125rem"></i>
+                    <span><strong>Leaving feedback for:</strong> {{ receiver.get_full_name|default:receiver.username }} 
+                    {% if is_worker %}(Employer){% else %}(Worker){% endif %}</span>
+                </p>
+            </div>
+
+            <form method="post" id="feedback-form">
+                {% csrf_token %}
+                
+                <!-- Rating Section -->
+                <div style="margin-bottom:2rem">
+                    <label class="info" style="text-align:center;font-size:1.1rem;font-weight:600">
+                        <i class="bi bi-star"></i> Rate Your Experience *
+                    </label>
+                    <div class="star-rating">
+                        <input type="radio" name="rating" value="1" id="star1" required {% if initial_data.rating == 1 %}checked{% endif %}>
+                        <label for="star1" class="star-label" data-rating="1">☆</label>
+                        
+                        <input type="radio" name="rating" value="2" id="star2" {% if initial_data.rating == 2 %}checked{% endif %}>
+                        <label for="star2" class="star-label" data-rating="2">☆</label>
+                        
+                        <input type="radio" name="rating" value="3" id="star3" {% if initial_data.rating == 3 %}checked{% endif %}>
+                        <label for="star3" class="star-label" data-rating="3">☆</label>
+                        
+                        <input type="radio" name="rating" value="4" id="star4" {% if initial_data.rating == 4 %}checked{% endif %}>
+                        <label for="star4" class="star-label" data-rating="4">☆</label>
+                        
+                        <input type="radio" name="rating" value="5" id="star5" {% if initial_data.rating == 5 %}checked{% endif %}>
+                        <label for="star5" class="star-label" data-rating="5">☆</label>
+                    </div>
+                    <p style="text-align:center;font-size:.875rem;color:var(--gray-500);margin-top:.5rem">
+                        Click to rate from 1 (poor) to 5 (excellent) stars
                     </p>
                 </div>
-            </div>
 
-            <!-- Submit Buttons -->
-            <div class="flex flex-col sm:flex-row gap-4">
-                <button type="submit" 
-                        class="flex-1 bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 text-white font-bold py-4 px-8 rounded-xl transition-all duration-200 flex items-center justify-center gap-3 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5">
-                    <i class="bi bi-send-fill text-xl"></i>
-                    <span class="text-lg">Submit Feedback</span>
-                </button>
-                
-                <a href="{% url 'jobs:contract_detail' contract.pk %}" 
-                   class="flex-1 bg-gray-100 hover:bg-gray-200 text-gray-700 font-bold py-4 px-8 rounded-xl transition-all duration-200 text-center border-2 border-gray-300 hover:border-gray-400 flex items-center justify-center gap-2">
-                    <i class="bi bi-skip-forward"></i>
-                    <span>Skip for Now</span>
-                </a>
-            </div>
-        </form>
-    </div>
+                <!-- Message Section -->
+                <div style="margin-bottom:1.5rem">
+                    <label for="message" class="info">
+                        <i class="bi bi-chat-left-text"></i> Your Feedback *
+                    </label>
+                    <textarea name="message" id="message" rows="6" required 
+                              placeholder="Share your experience working with this person. What went well? Any issues? Would you work together again?">{{ initial_data.message }}</textarea>
+                    <p style="font-size:.75rem;color:var(--gray-500);margin-top:.5rem">
+                        <i class="bi bi-exclamation-triangle"></i> Your feedback will be publicly visible on the user's profile. Please be honest and respectful.
+                    </p>
+                </div>
 
-    <!-- Info Box -->
-    <div class="bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-400 rounded-xl p-6 shadow-md">
-        <div class="flex items-start gap-4">
-            <div class="bg-yellow-400 rounded-full p-2 flex-shrink-0">
-                <i class="bi bi-exclamation-triangle-fill text-white text-xl"></i>
-            </div>
-            <div>
-                <p class="font-bold text-gray-900 mb-2 text-lg">Important Note</p>
-                <p class="text-gray-700">
-                    Your feedback will be <strong>publicly visible</strong> on the user's profile and helps other users make informed decisions. 
-                    Please be respectful and honest.
-                </p>
+                <!-- Action Buttons -->
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-send-fill"></i> {% if is_editing %}Update Feedback{% else %}Submit Feedback{% endif %}
+                    </button>
+                    <a href="{% url 'jobs:contract_detail' contract.pk %}" class="btn btn-secondary">
+                        <i class="bi bi-{% if is_editing %}x-circle{% else %}skip-forward{% endif %}"></i> {% if is_editing %}Cancel{% else %}Skip for Now{% endif %}
+                    </a>
+                </div>
+            </form>
+        </div>
+
+        <!-- Contract Info -->
+        <div class="card-section" style="background:var(--gray-50)">
+            <h3 style="font-size:1rem;font-weight:600;color:var(--gray-900);margin-bottom:.75rem">
+                <i class="bi bi-briefcase"></i> Contract: {{ contract.job.title }}
+            </h3>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.75rem;font-size:.875rem">
+                <div>
+                    <span style="color:var(--gray-500)">Rate:</span>
+                    <strong style="color:var(--gray-900)">₱{{ contract.agreed_rate }}</strong>
+                </div>
+                <div>
+                    <span style="color:var(--gray-500)">Duration:</span>
+                    <strong style="color:var(--gray-900)">{{ contract.duration }}</strong>
+                </div>
+                <div>
+                    <span style="color:var(--gray-500)">Completed:</span>
+                    <strong style="color:var(--gray-900)">{{ contract.completed_at|date:"M d, Y" }}</strong>
+                </div>
             </div>
         </div>
     </div>
 </div>
 
-<style>
-    .star-label {
-        color: #d1d5db;
-        user-select: none;
-        filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
-    }
-
-    .star-label.active,
-    .star-label.hover {
-        color: #fbbf24;
-        filter: drop-shadow(0 4px 8px rgba(251, 191, 36, 0.4));
-    }
-
-    textarea:focus {
-        outline: none;
-    }
-
-    @keyframes bounce {
-        0%, 100% { transform: translateY(0); }
-        50% { transform: translateY(-10px); }
-    }
-
-    .animate-bounce {
-        animation: bounce 2s infinite;
-    }
-</style>
-
 <script>
-    // Star rating functionality
-    const stars = document.querySelectorAll('.star-label');
-    const ratingInputs = document.querySelectorAll('input[name="rating"]');
-    const ratingText = document.getElementById('rating-text');
-    let selectedRating = 0;
+// Star rating functionality
+const stars = document.querySelectorAll('.star-label');
+const ratingInputs = document.querySelectorAll('input[name="rating"]');
+let selectedRating = 0;
 
-    const ratingDescriptions = {
-        1: 'Poor - Not satisfied',
-        2: 'Fair - Below expectations',
-        3: 'Good - Met expectations',
-        4: 'Very Good - Exceeded expectations',
-        5: 'Excellent - Outstanding!'
-    };
-
-    // Handle star click
-    stars.forEach((star, index) => {
-        star.addEventListener('click', () => {
-            selectedRating = index + 1;
-            ratingInputs[index].checked = true;
-            updateStars(selectedRating);
-            ratingText.textContent = ratingDescriptions[selectedRating];
-        });
-
-        // Handle hover
-        star.addEventListener('mouseenter', () => {
-            updateStars(index + 1, true);
-        });
-    });
-
-    // Reset on mouse leave
-    document.querySelector('.flex.justify-center').addEventListener('mouseleave', () => {
+stars.forEach((star, index) => {
+    star.addEventListener('click', () => {
+        selectedRating = index + 1;
+        ratingInputs[index].checked = true;
         updateStars(selectedRating);
-        if (selectedRating > 0) {
-            ratingText.textContent = ratingDescriptions[selectedRating];
+    });
+    
+    star.addEventListener('mouseenter', () => {
+        updateStars(index + 1, true);
+    });
+});
+
+document.querySelector('.star-rating').addEventListener('mouseleave', () => {
+    updateStars(selectedRating);
+});
+
+function updateStars(rating, isHover = false) {
+    stars.forEach((star, index) => {
+        if (index < rating) {
+            star.textContent = '★';
+            star.classList.add('active');
         } else {
-            ratingText.textContent = 'Click to rate';
+            star.textContent = '☆';
+            star.classList.remove('active');
         }
     });
-
-    function updateStars(rating, isHover = false) {
-        stars.forEach((star, index) => {
-            star.classList.remove('active', 'hover');
-            if (index < rating) {
-                star.classList.add(isHover ? 'hover' : 'active');
-                star.textContent = '★';
-            } else {
-                star.textContent = '☆';
-            }
-        });
-    }
-
-    // Form validation
-    const form = document.getElementById('feedback-form');
-    form.addEventListener('submit', (e) => {
-        const rating = document.querySelector('input[name="rating"]:checked');
-        const message = document.getElementById('message').value.trim();
-
-        if (!rating) {
-            e.preventDefault();
-            alert('Please select a rating.');
-            return;
-        }
-
-        if (!message) {
-            e.preventDefault();
-            alert('Please write your feedback message.');
-            return;
-        }
-
-        if (message.length < 10) {
-            e.preventDefault();
-            alert('Please write a more detailed feedback (at least 10 characters).');
-            return;
-        }
-
-        // Confirmation
-        const confirmed = confirm('Are you sure you want to submit this feedback? This action cannot be undone.');
-        if (!confirmed) {
-            e.preventDefault();
-        }
-    });
-
-    // Character counter
-    const messageTextarea = document.getElementById('message');
-    messageTextarea.addEventListener('input', () => {
-        const length = messageTextarea.value.length;
-        if (length < 10) {
-            messageTextarea.style.borderColor = '#ef4444';
-        } else {
-            messageTextarea.style.borderColor = '#d1d5db';
-        }
-    });
-</script>
-{% endblock %}
-
-
-{% block guide_data %}
-{
-    "enabled": true,
-    "page_name": "feedback_form",
-    "title": "Submit Feedback Guide",
-    "steps": [
-        {
-            "title": "Rate Your Experience \u2b50",
-            "content": "<h3>Provide Feedback</h3><p>Share your experience working with this user. Your feedback helps build trust in the community.</p>"
-        },
-        {
-            "title": "Be Fair and Honest \ud83d\udcaf",
-            "content": "<h3>Rating Guidelines</h3><ul><li>\u2b50\u2b50\u2b50\u2b50\u2b50 Excellent work</li><li>\u2b50\u2b50\u2b50\u2b50 Good, minor issues</li><li>\u2b50\u2b50\u2b50 Okay, some problems</li><li>\u2b50\u2b50 Poor quality</li><li>\u2b50 Unacceptable</li></ul>"
-        },
-        {
-            "title": "Written Review \ud83d\udcdd",
-            "content": "<h3>Add Details</h3><p>Write a brief review explaining:</p><ul><li>What went well</li><li>Any issues encountered</li><li>Overall experience</li><li>Would you work together again?</li></ul><div class='guide-tip'><strong>\ud83d\udca1 Tip:</strong> Constructive feedback helps everyone improve!</div>"
-        }
-    ]
 }
+
+// Form validation
+document.getElementById('feedback-form').addEventListener('submit', (e) => {
+    const rating = document.querySelector('input[name="rating"]:checked');
+    const message = document.getElementById('message').value.trim();
+    
+    if (!rating) {
+        e.preventDefault();
+        alert('Please select a rating.');
+        return;
+    }
+    
+    if (!message || message.length < 10) {
+        e.preventDefault();
+        alert('Please write a more detailed feedback (at least 10 characters).');
+        return;
+    }
+    
+    const confirmed = confirm('Are you sure you want to submit this feedback? This action cannot be undone.');
+    if (!confirmed) {
+        e.preventDefault();
+    }
+});
+</script>
 {% endblock %}

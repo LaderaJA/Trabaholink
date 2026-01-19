@@ -94,7 +94,7 @@
                   </div>
                   
                   <div class="form-footer-links">
-                    <a href="{% url 'password_reset' %}" class="forgot-link">
+                    <a href="{% url 'users:password_reset' %}" class="forgot-link">
                       <i class="bi bi-question-circle me-1"></i>{% trans "Forgot password?" %}
                     </a>
                   </div>
@@ -124,7 +124,7 @@
                 </div>
                 
                 <div class="auth-switch">
-                  <p>{% trans "Don't have an account?" %} <a href="{% url 'register' %}" class="switch-link">{% trans "Create Account" %}</a></p>
+                  <p>{% trans "Don't have an account?" %} <a href="{% url 'users:register' %}" class="switch-link">{% trans "Create Account" %}</a></p>
                 </div>
               </div>
             </div>

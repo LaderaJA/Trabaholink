@@ -6,48 +6,142 @@
 {% block css %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@yaireo/tagify/dist/tagify.css">
 <style>
+/* ============================================================================
+   SITE-WIDE THEME - Matching Home, Postings & All Pages
+   ============================================================================ */
 :root {
-  --primary-color: #1a94d4;
-  --primary-dark: #0d6efd;
-  --primary-light: #e6f4ff;
-  --success-color: #10b981;
-  --warning-color: #f59e0b;
-  --danger-color: #ef4444;
-  --text-dark: #2d3748;
-  --text-medium: #4a5568;
-  --text-light: #718096;
-  --bg-light: #f7fafc;
+  /* Primary Blue - Matches Site Logo & Navbar */
+  --primary-blue: #1e40af;
+  --primary-blue-light: #3b82f6;
+  --primary-blue-dark: #1e3a8a;
+  --yellow: #fbbf24;
+  --yellow-light: #fcd34d;
+  --yellow-dark: #f59e0b;
+  
+  /* Site-Wide Gradients */
+  --gradient-primary: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  --gradient-blue-yellow: linear-gradient(135deg, #1e40af 0%, #fbbf24 100%);
+  --gradient-yellow-blue: linear-gradient(135deg, #fbbf24 0%, #3b82f6 100%);
+  
+  /* Main Theme Colors */
+  --primary: #1e40af;
+  --primary-dark: #1e3a8a;
+  --primary-light: #3b82f6;
+  --accent: #fbbf24;
+  --accent-dark: #f59e0b;
+  --success: #10b981;
+  --danger: #ef4444;
+  --info: #3b82f6;
+  
+  /* Rich Neutrals */
+  --gray-50: #fafbfc;
+  --gray-100: #f7f8fa;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  
+  /* Premium Shadows with Depth */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-colored: 0 8px 24px rgba(102, 126, 234, 0.25);
+  
+  /* Border Radius - Modern & Smooth */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  
+  /* Legacy Support */
+  --primary-color: var(--primary);
+  --primary-light: #e8ebfe;
+  --success-color: var(--success);
+  --warning-color: var(--accent);
+  --danger-color: var(--danger);
+  --text-dark: var(--gray-900);
+  --text-medium: var(--gray-600);
+  --text-light: var(--gray-500);
+  --bg-light: var(--gray-50);
   --bg-white: #ffffff;
-  --border-color: #e2e8f0;
-  --gradient-primary: linear-gradient(135deg, #1a94d4 0%, #0d6efd 100%);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --border-color: var(--gray-200);
+  --accent-color: var(--accent);
 }
 
 body {
-  background: var(--bg-light);
+  background: #ffffff;
+  min-height: 100vh;
+  position: relative;
 }
 
-/* Header */
+/* Animated Background Elements */
+body::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  right: -20%;
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, rgba(30, 64, 175, 0.05) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: float 20s ease-in-out infinite;
+  pointer-events: none;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -30%;
+  left: -20%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.05) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: float 15s ease-in-out infinite reverse;
+  pointer-events: none;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(30px, 30px) rotate(5deg); }
+}
+
+/* Header - Clean with Animation */
 .edit-header {
-  background: var(--gradient-primary);
-  color: white;
-  padding: 2rem 0;
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  padding: 2.5rem 0;
   margin-bottom: 2rem;
+  box-shadow: 0 4px 20px rgba(30, 64, 175, 0.15);
   position: relative;
   overflow: hidden;
+  animation: slideDown 0.5s ease-out;
+}
+
+@keyframes slideDown {
+  from { transform: translateY(-100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
 }
 
 .edit-header::before {
   content: '';
   position: absolute;
   top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  opacity: 0.3;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.3), transparent);
+  animation: shine 3s ease-in-out infinite;
+}
+
+@keyframes shine {
+  0% { left: -100%; }
+  50%, 100% { left: 100%; }
 }
 
 .edit-header .container {
@@ -56,18 +150,36 @@ body {
 }
 
 .edit-header h1 {
-  font-size: 2rem;
+  color: white !important;
+  font-size: 2.25rem;
   font-weight: 700;
   margin: 0 0 0.5rem 0;
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  letter-spacing: -0.02em;
+  position: relative;
+  z-index: 1;
+}
+
+.edit-header h1 i {
+  color: var(--yellow) !important;
+  font-size: 2rem;
+  animation: bounce 2s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-5px); }
 }
 
 .edit-header p {
+  color: rgba(255, 255, 255, 0.95) !important;
   margin: 0;
-  opacity: 0.9;
-  font-size: 1.05rem;
+  font-size: 1.125rem;
+  font-weight: 400;
+  position: relative;
+  z-index: 1;
 }
 
 /* Form Container */
@@ -97,78 +209,318 @@ body {
   padding: 2rem;
 }
 
-/* Section */
+/* Clean Animated Cards */
 .section-edit {
-  margin-bottom: 2.5rem;
+  margin-bottom: 2rem;
+  background: white;
+  border-radius: 16px;
+  padding: 0;
+  border: 2px solid #f0f0f0;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  position: relative;
+  max-width: 100%;
+  animation: fadeInUp 0.6s ease-out backwards;
+}
+
+/* Collapsible Section Styles - DISABLED */
+/* All sections are now always visible */
+
+.section-edit:nth-child(1) { animation-delay: 0.1s; }
+.section-edit:nth-child(2) { animation-delay: 0.2s; }
+.section-edit:nth-child(3) { animation-delay: 0.3s; }
+.section-edit:nth-child(4) { animation-delay: 0.4s; }
+.section-edit:nth-child(5) { animation-delay: 0.5s; }
+
+@keyframes fadeInUp {
+  from { 
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to { 
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.section-edit::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 4px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--yellow) 100%);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.5s ease;
+}
+
+.section-edit:hover {
+  box-shadow: 0 12px 32px rgba(30, 64, 175, 0.15);
+  transform: translateY(-4px);
+  border-color: var(--primary);
+}
+
+.section-edit:hover::before {
+  transform: scaleX(1);
 }
 
 .section-title-edit {
-  font-size: 1.25rem;
+  font-size: 1.375rem;
   font-weight: 700;
-  color: var(--text-dark);
-  margin: 0 0 1.5rem 0;
-  padding-bottom: 0.75rem;
-  border-bottom: 3px solid var(--primary-color);
+  color: white;
+  margin: 0;
+  padding: 1.75rem 2rem;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 1rem;
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  border-bottom: 2px solid #1e40af;
+  position: relative;
+  cursor: default;
+  user-select: none;
+}
+
+.section-title-edit:hover {
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
 }
 
 .section-title-edit i {
-  color: var(--primary-color);
+  color: #fbbf24;
+}
+
+.section-title-edit::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #fbbf24 0%, #f59e0b 50%, #fbbf24 100%);
+  transition: width 0.5s ease;
+  box-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+}
+
+.section-edit:hover .section-title-edit::after {
+  width: 100%;
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -100% 0;
+  }
+  100% {
+    background-position: 200% 0;
+  }
+}
+
+.section-title-edit i {
+  font-size: 1.5rem;
+  color: #fbbf24;
+  animation: iconGlow 3s ease-in-out infinite;
+  filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.3));
+}
+
+@keyframes iconGlow {
+  0%, 100% { 
+    transform: scale(1);
+    filter: drop-shadow(0 0 3px rgba(251, 191, 36, 0.3));
+  }
+  50% { 
+    transform: scale(1.1);
+    filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+  }
+}
+
+.section-edit .section-content {
+  padding: 2rem 2.5rem 2.5rem 2.5rem;
+}
+
+/* Add padding to form groups inside sections */
+.section-edit > .form-group-edit,
+.section-edit > .form-row-edit,
+.section-edit > div:not(.section-title-edit) {
+  padding-left: 2.5rem;
+  padding-right: 2.5rem;
+}
+
+.section-edit > .form-group-edit:last-child {
+  padding-bottom: 2rem;
+}
+
+@media (max-width: 768px) {
+  .section-edit .section-content {
+    padding: 1.5rem 2rem;
+  }
+  
+  .section-edit > .form-group-edit,
+  .section-edit > .form-row-edit,
+  .section-edit > div:not(.section-title-edit) {
+    padding-left: 2rem;
+    padding-right: 2rem;
+  }
+}
+
+/* Consistent Professional Theme */
+.section-edit .section-title-edit {
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%) !important;
+  color: white !important;
+}
+
+.section-edit .section-title-edit i {
+  color: #fbbf24 !important;
 }
 
 /* Form Groups */
 .form-group-edit {
   margin-bottom: 1.5rem;
+  width: 100%;
 }
 
 .form-label-edit {
   display: block;
-  font-weight: 600;
-  color: var(--text-dark);
-  margin-bottom: 0.5rem;
-  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--gray-800);
+  margin-bottom: 0.625rem;
+  font-size: 0.9375rem;
+  letter-spacing: -0.01em;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .form-label-edit i {
-  color: var(--primary-color);
-  margin-right: 0.35rem;
+  color: var(--primary);
+  font-size: 1.125rem;
+  opacity: 0.85;
 }
 
 .form-control-edit {
   width: 100%;
-  padding: 0.875rem 1rem;
-  border: 2px solid var(--border-color);
+  padding: 0.875rem 1.25rem !important;
+  border: 1.5px solid #e5e7eb;
   border-radius: 10px;
-  font-size: 1rem;
-  transition: all 0.3s;
-  background: var(--bg-white);
+  font-size: 0.9375rem;
+  transition: all 0.3s ease;
+  background: white;
+  color: var(--gray-900);
+  font-weight: 400;
+  line-height: 1.5;
+}
+
+/* Slick and Elegant Form Controls */
+input.form-control-edit,
+select.form-control-edit,
+textarea.form-control-edit,
+input[type="text"].form-control-edit,
+input[type="email"].form-control-edit,
+input[type="tel"].form-control-edit,
+input[type="date"].form-control-edit {
+  padding: 0.875rem 1.25rem !important;
+  font-size: 0.9375rem;
+  border-radius: 10px;
+  border: 1.5px solid #e5e7eb;
+}
+
+.form-control-edit:hover {
+  border-color: #cbd5e1;
+  background: white;
 }
 
 .form-control-edit:focus {
   outline: none;
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 3px rgba(26, 148, 212, 0.1);
+  border-color: var(--primary);
+  background: white;
+  box-shadow: 0 0 0 3px rgba(30, 64, 175, 0.1);
+}
+
+.form-control-edit:disabled {
+  background: var(--gray-100);
+  cursor: not-allowed;
+  opacity: 0.7;
+  border-color: var(--gray-200);
+}
+
+/* Required field indicator - Yellow Badge */
+.form-label-edit span[style*="color: #dc3545"],
+.form-label-edit span[style*="color:#dc3545"] {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--yellow) !important;
+  color: var(--royal-blue-dark) !important;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  box-shadow: 0 2px 8px rgba(251, 191, 36, 0.4);
+  margin-left: auto;
+}
+
+/* Hide required indicators for address fields, education, and experience */
+label[for="id_province"] span[style*="color: #dc3545"],
+label[for="id_city"] span[style*="color: #dc3545"],
+label[for="id_barangay"] span[style*="color: #dc3545"],
+label[for="id_zip_code"] span[style*="color: #dc3545"] {
+  display: none !important;
+}
+
+/* Hide yellow asterisks in Education and Experience sections */
+.education-section .form-label-edit span[style*="color: #dc3545"],
+.experience-section .form-label-edit span[style*="color: #dc3545"],
+.education-form .form-label-edit span[style*="color: #dc3545"],
+.experience-form .form-label-edit span[style*="color: #dc3545"] {
+  display: none !important;
 }
 
 textarea.form-control-edit {
-  min-height: 120px;
+  min-height: 150px;
   resize: vertical;
   font-family: inherit;
+  width: 100%;
+}
+
+select.form-control-edit {
+  width: 100%;
 }
 
 .form-text-edit {
   font-size: 0.85rem;
-  color: var(--text-light);
+  color: var(--gray-500);
   margin-top: 0.5rem;
   display: flex;
   align-items: center;
   gap: 0.35rem;
+  padding: 0.5rem 0.75rem;
+  background: var(--gray-50);
+  border-radius: 8px;
+  border-left: 3px solid var(--primary);
 }
 
 .form-text-edit i {
   font-size: 0.9rem;
+  color: var(--primary);
+}
+
+/* Helper text variants */
+small.form-text {
+  display: inline-block;
+  padding: 0.35rem 0.75rem;
+  background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+  border-radius: 6px;
+  border-left: 3px solid #3b82f6;
+  color: #1e40af;
+  font-weight: 500;
+}
+
+small[style*="color: #6c757d"] {
+  background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
+  border-left-color: #9ca3af;
+  color: #4b5563 !important;
 }
 
 .text-danger {
@@ -191,10 +543,12 @@ textarea.form-control-edit {
   align-items: center;
   gap: 1rem;
   margin-bottom: 1rem;
+  flex-wrap: wrap;
 }
 
 .cv-file-details {
   flex: 1;
+  min-width: 0;
 }
 
 .cv-file-name {
@@ -202,12 +556,14 @@ textarea.form-control-edit {
   color: var(--text-dark);
   margin-bottom: 0.25rem;
   word-break: break-word;
+  overflow-wrap: break-word;
 }
 
 .cv-file-date {
   font-size: 0.85rem;
   color: var(--text-light);
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   gap: 0.5rem;
 }
@@ -225,6 +581,7 @@ textarea.form-control-edit {
   font-size: 0.875rem;
   transition: all 0.3s ease;
   box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+  white-space: nowrap;
 }
 
 .btn-cv-preview:hover {
@@ -433,18 +790,20 @@ textarea.form-control-edit {
 
 /* Education/Experience Forms */
 .formset-item {
-  background: var(--bg-light);
-  border: 2px solid var(--border-color);
-  border-radius: 12px;
+  background: linear-gradient(to bottom, #ffffff 0%, #fafbfc 100%);
+  border: 2px solid var(--gray-200);
+  border-radius: var(--radius-md);
   padding: 1.5rem;
-  margin-bottom: 1rem;
+  margin-bottom: 1.25rem;
   position: relative;
-  transition: all 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: var(--shadow-xs);
 }
 
 .formset-item:hover {
-  border-color: var(--primary-color);
-  box-shadow: var(--shadow-sm);
+  border-color: var(--primary);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2px);
 }
 
 .formset-header {
@@ -461,6 +820,69 @@ textarea.form-control-edit {
   color: var(--text-dark);
 }
 
+.formset-title-editable {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.formset-title-editable input {
+  flex: 1;
+  border: none;
+  border-bottom: 2px solid transparent;
+  padding: 4px 8px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  background: transparent;
+  transition: border-color 0.3s;
+  color: var(--text-dark);
+}
+
+.formset-title-editable input:hover {
+  border-bottom-color: rgba(245, 158, 11, 0.3);
+}
+
+.formset-title-editable input:focus {
+  outline: none;
+  border-bottom-color: var(--accent-color);
+  background-color: rgba(245, 158, 11, 0.05);
+}
+
+.formset-title-editable input::placeholder {
+  color: #9ca3af;
+  font-weight: 500;
+  font-size: 0.95rem;
+}
+
+.drag-handle {
+  cursor: grab;
+  padding: 8px;
+  margin-right: 8px;
+  color: #9ca3af;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.drag-handle:hover {
+  color: var(--accent-color);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.formset-item.dragging {
+  opacity: 0.5;
+  border: 2px dashed var(--accent-color);
+  background-color: rgba(245, 158, 11, 0.05);
+}
+
+.formset-item.drag-over {
+  border-top: 3px solid var(--accent-color);
+  margin-top: 10px;
+}
+
 .delete-checkbox {
   display: flex;
   align-items: center;
@@ -473,19 +895,58 @@ textarea.form-control-edit {
   display: inline-flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  background: white;
-  color: var(--primary-color);
-  border: 2px solid var(--primary-color);
-  border-radius: 10px;
-  font-weight: 600;
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 500;
+  font-size: 0.875rem;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 2px 6px rgba(30, 64, 175, 0.15);
+  position: relative;
+  overflow: hidden;
+  margin: 1.5rem 0 1.5rem 1rem !important;
+}
+
+.add-formset-btn::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.3);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
 }
 
 .add-formset-btn:hover {
-  background: var(--primary-light);
-  transform: translateY(-2px);
+  background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.25);
+  transform: translateY(-1px);
+}
+
+.add-formset-btn:hover::before {
+  width: 300px;
+  height: 300px;
+}
+
+.add-formset-btn i {
+  position: relative;
+  z-index: 1;
+  font-size: 1rem;
+}
+
+.add-formset-btn span {
+  position: relative;
+  z-index: 1;
+}
+
+.add-formset-btn:active {
+  transform: translateY(0);
 }
 
 /* Submit Section */
@@ -499,46 +960,64 @@ textarea.form-control-edit {
 }
 
 .btn-submit-edit {
-  padding: 1rem 2rem;
-  background: var(--gradient-primary);
+  padding: 0.875rem 2rem;
+  background: var(--primary);
   color: white;
   border: none;
-  border-radius: 12px;
-  font-size: 1.05rem;
-  font-weight: 700;
+  border-radius: 6px;
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  box-shadow: 0 4px 15px rgba(26, 148, 212, 0.3);
+  gap: 0.625rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
 }
 
 .btn-submit-edit:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(26, 148, 212, 0.4);
+  background: var(--primary-dark);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  transform: translateY(-1px);
+}
+
+.btn-submit-edit i {
+  font-size: 1.125rem;
 }
 
 .btn-cancel-edit {
-  padding: 1rem 2rem;
+  padding: 1.125rem 2.75rem;
   background: white;
-  color: var(--text-dark);
-  border: 2px solid var(--border-color);
-  border-radius: 12px;
-  font-size: 1.05rem;
-  font-weight: 600;
+  color: var(--gray-700);
+  border: 2px solid var(--gray-300);
+  border-radius: var(--radius-md);
+  font-size: 1.125rem;
+  font-weight: 700;
+  letter-spacing: -0.01em;
   cursor: pointer;
-  transition: all 0.3s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-decoration: none;
   display: flex;
   align-items: center;
   gap: 0.75rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
 }
 
 .btn-cancel-edit:hover {
-  background: var(--bg-light);
+  background: var(--gray-50);
+  border-color: var(--gray-400);
   transform: translateY(-2px);
-  color: var(--text-dark);
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+  color: var(--gray-900);
+}
+
+.btn-cancel-edit:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.btn-cancel-edit i {
+  font-size: 1.125rem;
 }
 
 /* Guidelines */
@@ -618,7 +1097,80 @@ textarea.form-control-edit {
   .btn-submit-edit,
   .btn-cancel-edit {
     width: 100%;
+  }
+  
+  /* Mobile section title adjustments */
+  .section-title-edit {
+    font-size: 1.125rem;
+    padding: 1.25rem 1.5rem;
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  }
+  
+  .section-title-edit:hover {
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+  }
+  
+  .section-title-edit i {
+    font-size: 1.25rem;
+    color: #fbbf24;
+  }
+  
+  /* Add Education/Experience Buttons - Mobile */
+  .add-formset-btn {
+    width: 100%;
     justify-content: center;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  .add-formset-btn i {
+    font-size: 1rem;
+  }
+  
+  /* CV Section Mobile Responsive */
+  .current-cv-display {
+    padding: 1rem;
+  }
+  
+  .cv-file-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.75rem;
+  }
+  
+  .cv-file-info > i {
+    font-size: 1.5rem !important;
+  }
+  
+  .cv-file-name {
+    font-size: 0.9rem;
+  }
+  
+  .cv-file-date {
+    font-size: 0.75rem;
+  }
+  
+  .btn-cv-preview {
+    width: 100%;
+    justify-content: center;
+    padding: 0.75rem 1rem;
+  }
+  
+  .cv-replace-note {
+    font-size: 0.75rem;
+    padding: 0.5rem;
+  }
+  
+  .cv-upload-wrapper input[type="file"] {
+    padding: 0.5rem;
+    font-size: 0.875rem;
+  }
+  
+  /* Address dropdowns mobile - prevents iOS zoom */
+  #id_province,
+  #id_city,
+  #id_barangay {
+    font-size: 16px !important;
   }
 }
 </style>
@@ -688,6 +1240,7 @@ textarea.form-control-edit {
             <h2 class="section-title-edit">
               <i class="bi bi-person-circle"></i>
               Profile Picture
+              
             </h2>
             
             <div class="profile-pic-upload">
@@ -713,6 +1266,7 @@ textarea.form-control-edit {
             <h2 class="section-title-edit">
               <i class="bi bi-image"></i>
               Cover Photo
+              
             </h2>
             
             <div class="cover-photo-selector">
@@ -773,6 +1327,7 @@ textarea.form-control-edit {
             <h2 class="section-title-edit">
               <i class="bi bi-person"></i>
               Personal Details
+              
             </h2>
             
             <div class="form-row-edit">
@@ -838,18 +1393,83 @@ textarea.form-control-edit {
               </div>
             </div>
             
+            <!-- Address Fields (Cascading Dropdowns) -->
             <div class="form-row-edit">
               <div class="form-group-edit">
-                <label for="{{ form.address.id_for_label }}" class="form-label-edit">
-                  <i class="bi bi-house"></i>
-                  Address
+                <label for="{{ form.province.id_for_label }}" class="form-label-edit">
+                  <i class="bi bi-geo-alt"></i>
+                  Province <span style="color: #dc3545;">*</span>
                 </label>
-                {{ form.address }}
-                {% if form.address.errors %}
-                  <div class="text-danger">{{ form.address.errors }}</div>
+                {{ form.province }}
+                {% if form.province.errors %}
+                  <div class="text-danger">{{ form.province.errors }}</div>
                 {% endif %}
               </div>
               
+              <div class="form-group-edit">
+                <label for="{{ form.city.id_for_label }}" class="form-label-edit">
+                  <i class="bi bi-building"></i>
+                  City/Municipality <span style="color: #dc3545;">*</span>
+                </label>
+                {{ form.city }}
+                {% if form.city.errors %}
+                  <div class="text-danger">{{ form.city.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <div class="form-row-edit">
+              <div class="form-group-edit">
+                <label for="{{ form.barangay.id_for_label }}" class="form-label-edit">
+                  <i class="bi bi-pin-map"></i>
+                  Barangay <span style="color: #dc3545;">*</span>
+                </label>
+                {{ form.barangay }}
+                {% if form.barangay.errors %}
+                  <div class="text-danger">{{ form.barangay.errors }}</div>
+                {% endif %}
+              </div>
+              
+              <div class="form-group-edit">
+                <label for="{{ form.zip_code.id_for_label }}" class="form-label-edit">
+                  <i class="bi bi-mailbox"></i>
+                  ZIP Code <small style="color: #6c757d;">(Auto-fills)</small>
+                </label>
+                {{ form.zip_code }}
+                <small class="form-text" style="color: #6c757d; font-size: 0.875rem; display: block; margin-top: 0.25rem;">
+                  Automatically filled when you select a city
+                </small>
+                {% if form.zip_code.errors %}
+                  <div class="text-danger">{{ form.zip_code.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <div class="form-row-edit">
+              <div class="form-group-edit">
+                <label for="{{ form.subdivision.id_for_label }}" class="form-label-edit">
+                  <i class="bi bi-houses"></i>
+                  Subdivision <small style="color: #6c757d;">(Optional)</small>
+                </label>
+                {{ form.subdivision }}
+                {% if form.subdivision.errors %}
+                  <div class="text-danger">{{ form.subdivision.errors }}</div>
+                {% endif %}
+              </div>
+              
+              <div class="form-group-edit">
+                <label for="{{ form.street.id_for_label }}" class="form-label-edit">
+                  <i class="bi bi-signpost"></i>
+                  Street <small style="color: #6c757d;">(Optional)</small>
+                </label>
+                {{ form.street }}
+                {% if form.street.errors %}
+                  <div class="text-danger">{{ form.street.errors }}</div>
+                {% endif %}
+              </div>
+            </div>
+            
+            <div class="form-row-edit">
               <div class="form-group-edit">
                 <label for="{{ form.gender.id_for_label }}" class="form-label-edit">
                   <i class="bi bi-gender-ambiguous"></i>
@@ -868,6 +1488,7 @@ textarea.form-control-edit {
             <h2 class="section-title-edit">
               <i class="bi bi-chat-quote"></i>
               Personal Summary
+              
             </h2>
             
             <div class="form-group-edit">
@@ -906,6 +1527,7 @@ textarea.form-control-edit {
             <h2 class="section-title-edit">
               <i class="bi bi-file-earmark-text"></i>
               CV/Resume
+              
             </h2>
             
             <div class="form-group-edit">
@@ -960,14 +1582,31 @@ textarea.form-control-edit {
             <h2 class="section-title-edit">
               <i class="bi bi-mortarboard"></i>
               Education
+              
             </h2>
             
             <div id="education-formset">
               {% for edu_form in education_formset %}
-                <div class="formset-item education-form">
+                <div class="formset-item education-form" draggable="true">
                   {{ edu_form.id }}
+                  {{ edu_form.order }}
                   <div class="formset-header">
-                    <div class="formset-title">Education Entry #{{ forloop.counter }}</div>
+                    <div class="drag-handle" title="Drag to reorder">
+                      <i class="bi bi-grip-vertical"></i>
+                    </div>
+                    <div class="formset-title-editable">
+                      <i class="bi bi-mortarboard-fill" style="color: var(--accent-color); margin-right: 8px;"></i>
+                      <input 
+                        type="text" 
+                        name="{{ edu_form.title.html_name }}" 
+                        value="{{ edu_form.title.value|default:'' }}"
+                        placeholder="Enter a custom title (e.g., Bachelor's Degree)"
+                        class="form-control-inline"
+                        style="flex: 1; border: none; border-bottom: 2px solid transparent; padding: 4px 8px; font-size: 1.1rem; font-weight: 600; background: transparent; transition: border-color 0.3s;"
+                        onfocus="this.style.borderBottomColor='var(--accent-color)'"
+                        onblur="this.style.borderBottomColor='transparent'"
+                      />
+                    </div>
                     {% if edu_form.instance.pk %}
                       <label class="delete-checkbox">
                         {{ edu_form.DELETE }}
@@ -991,14 +1630,23 @@ textarea.form-control-edit {
                   
                   <div class="form-row-edit">
                     <div class="form-group-edit">
-                      {{ edu_form.start_date.label_tag }}
-                      {{ edu_form.start_date }}
-                      {{ edu_form.start_date.errors }}
+                      <label for="{{ edu_form.start_year.id_for_label }}" class="form-label-edit">
+                        <i class="bi bi-calendar-event"></i>
+                        Start Year <span style="color: #dc3545;">*</span>
+                      </label>
+                      {{ edu_form.start_year }}
+                      {{ edu_form.start_year.errors }}
                     </div>
                     <div class="form-group-edit">
-                      {{ edu_form.end_date.label_tag }}
-                      {{ edu_form.end_date }}
-                      {{ edu_form.end_date.errors }}
+                      <label for="{{ edu_form.end_year.id_for_label }}" class="form-label-edit">
+                        <i class="bi bi-calendar-check"></i>
+                        End Year <span style="color: #dc3545;">*</span>
+                      </label>
+                      {{ edu_form.end_year }}
+                      <small class="form-text" style="color: #6c757d; font-size: 0.875rem; display: block; margin-top: 0.25rem;">
+                        Select "Present" if currently studying
+                      </small>
+                      {{ edu_form.end_year.errors }}
                     </div>
                   </div>
                   
@@ -1022,14 +1670,31 @@ textarea.form-control-edit {
             <h2 class="section-title-edit">
               <i class="bi bi-briefcase"></i>
               Work Experience
+              
             </h2>
             
             <div id="experience-formset">
               {% for exp_form in experience_formset %}
-                <div class="formset-item experience-form">
+                <div class="formset-item experience-form" draggable="true">
                   {{ exp_form.id }}
+                  {{ exp_form.order }}
                   <div class="formset-header">
-                    <div class="formset-title">Experience Entry #{{ forloop.counter }}</div>
+                    <div class="drag-handle" title="Drag to reorder">
+                      <i class="bi bi-grip-vertical"></i>
+                    </div>
+                    <div class="formset-title-editable">
+                      <i class="bi bi-briefcase-fill" style="color: var(--accent-color); margin-right: 8px;"></i>
+                      <input 
+                        type="text" 
+                        name="{{ exp_form.title.html_name }}" 
+                        value="{{ exp_form.title.value|default:'' }}"
+                        placeholder="Enter a custom title (e.g., Senior Developer Role)"
+                        class="form-control-inline"
+                        style="flex: 1; border: none; border-bottom: 2px solid transparent; padding: 4px 8px; font-size: 1.1rem; font-weight: 600; background: transparent; transition: border-color 0.3s;"
+                        onfocus="this.style.borderBottomColor='var(--accent-color)'"
+                        onblur="this.style.borderBottomColor='transparent'"
+                      />
+                    </div>
                     {% if exp_form.instance.pk %}
                       <label class="delete-checkbox">
                         {{ exp_form.DELETE }}
@@ -1053,14 +1718,23 @@ textarea.form-control-edit {
                   
                   <div class="form-row-edit">
                     <div class="form-group-edit">
-                      {{ exp_form.start_date.label_tag }}
-                      {{ exp_form.start_date }}
-                      {{ exp_form.start_date.errors }}
+                      <label for="{{ exp_form.start_year.id_for_label }}" class="form-label-edit">
+                        <i class="bi bi-calendar-event"></i>
+                        Start Year <span style="color: #dc3545;">*</span>
+                      </label>
+                      {{ exp_form.start_year }}
+                      {{ exp_form.start_year.errors }}
                     </div>
                     <div class="form-group-edit">
-                      {{ exp_form.end_date.label_tag }}
-                      {{ exp_form.end_date }}
-                      {{ exp_form.end_date.errors }}
+                      <label for="{{ exp_form.end_year.id_for_label }}" class="form-label-edit">
+                        <i class="bi bi-calendar-check"></i>
+                        End Year <span style="color: #dc3545;">*</span>
+                      </label>
+                      {{ exp_form.end_year }}
+                      <small class="form-text" style="color: #6c757d; font-size: 0.875rem; display: block; margin-top: 0.25rem;">
+                        Select "Present" if currently working here
+                      </small>
+                      {{ exp_form.end_year.errors }}
                     </div>
                   </div>
                   
@@ -1089,7 +1763,7 @@ textarea.form-control-edit {
           <span>Skip for now</span>
         </a>
         {% else %}
-        <a href="{% url 'profile' user.pk %}" class="btn-cancel-edit">
+        <a href="{% url 'users:profile' user.pk %}" class="btn-cancel-edit">
           <i class="bi bi-x-circle"></i>
           <span>{% trans "Cancel" %}</span>
         </a>
@@ -1115,6 +1789,519 @@ textarea.form-control-edit {
 <script src="https://cdn.jsdelivr.net/npm/@yaireo/tagify"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+  // ========================================================================
+  // PSGC API Cascading Dropdowns for Philippine Address
+  // ========================================================================
+  const provinceInput = document.getElementById('id_province');
+  const cityInput = document.getElementById('id_city');
+  const barangayInput = document.getElementById('id_barangay');
+  const zipCodeInput = document.getElementById('id_zip_code');
+  
+  // Cache for API responses
+  const addressCache = {
+    provinces: null,
+    cities: {},
+    barangays: {}
+  };
+  
+  // Philippine ZIP Code Mapping (Major Cities and Municipalities)
+  const zipCodeMap = {
+    // Metro Manila
+    'Manila': '1000', 'Quezon City': '1100', 'Caloocan': '1400', 'Las Piñas': '1740',
+    'Makati': '1200', 'Malabon': '1470', 'Mandaluyong': '1550', 'Marikina': '1800',
+    'Muntinlupa': '1770', 'Navotas': '1485', 'Parañaque': '1700', 'Pasay': '1300',
+    'Pasig': '1600', 'Pateros': '1620', 'San Juan': '1500', 'Taguig': '1630',
+    'Valenzuela': '1440',
+    
+    // Cavite
+    'Bacoor': '4102', 'Cavite City': '4100', 'Dasmariñas': '4114', 'Imus': '4103',
+    'Tagaytay': '4120', 'Trece Martires': '4109', 'General Trias': '4107',
+    'Silang': '4118', 'Carmona': '4116', 'Kawit': '4104', 'Naic': '4110',
+    'Rosario': '4106', 'Tanza': '4108', 'Noveleta': '4105', 'Maragondon': '4112',
+    'Ternate': '4111', 'Alfonso': '4123', 'Amadeo': '4119', 'Gen. Mariano Alvarez': '4117',
+    'Indang': '4122', 'Magallanes': '4113', 'Mendez': '4124', 'Tagaytay City': '4120',
+    
+    // Laguna
+    'San Pedro': '4023', 'Biñan': '4024', 'Santa Rosa': '4026', 'Cabuyao': '4025',
+    'Calamba': '4027', 'Los Baños': '4030', 'Bay': '4033', 'Calauan': '4012',
+    'San Pablo': '4000', 'Alaminos': '4001', 'Pila': '4010', 'Victoria': '4002',
+    'Nagcarlan': '4002', 'Liliw': '4004', 'Majayjay': '4005', 'Magdalena': '4007',
+    'Paete': '4016', 'Kalayaan': '4015', 'Lumban': '4014', 'Cavinti': '4013',
+    'Luisiana': '4032', 'Mabitac': '4020', 'Famy': '4021', 'Siniloan': '4029',
+    'Pangil': '4018', 'Pakil': '4017', 'Pagsanjan': '4008', 'Santa Cruz': '4009',
+    
+    // Rizal
+    'Antipolo': '1870', 'Cainta': '1900', 'Taytay': '1920', 'Angono': '1930',
+    'Binangonan': '1940', 'Cardona': '1950', 'Morong': '1960', 'Baras': '1970',
+    'Tanay': '1980', 'Pililla': '1910', 'Rodriguez': '1860', 'San Mateo': '1850',
+    'Teresa': '1880', 'Jalajala': '1990',
+    
+    // Bulacan
+    'Malolos': '3000', 'Meycauayan': '3020', 'Marilao': '3019', 'Bocaue': '3018',
+    'Balagtas': '3016', 'Guiguinto': '3015', 'Pandi': '3014', 'Santa Maria': '3022',
+    'Obando': '3021', 'Hagonoy': '3002', 'Calumpit': '3003', 'Plaridel': '3004',
+    'Pulilan': '3005', 'Baliuag': '3006', 'Bustos': '3007', 'San Rafael': '3008',
+    'Angat': '3012', 'Norzagaray': '3013', 'San Ildefonso': '3010', 'San Miguel': '3011',
+    'Doña Remedios Trinidad': '3009',
+    
+    // Pampanga
+    'San Fernando': '2000', 'Angeles': '2009', 'Mabalacat': '2010', 'Porac': '2008',
+    'Guagua': '2003', 'Lubao': '2005', 'Floridablanca': '2006', 'Santa Rita': '2001',
+    'Bacolor': '2001', 'Mexico': '2021', 'Apalit': '2016', 'Macabebe': '2018',
+    'Masantol': '2017', 'Minalin': '2019', 'San Luis': '2014', 'San Simon': '2015',
+    'Santo Tomas': '2020', 'Sasmuan': '2002', 'Candaba': '2013', 'Arayat': '2012',
+    'Magalang': '2011',
+    
+    // Batangas
+    'Batangas City': '4200', 'Lipa': '4217', 'Tanauan': '4232', 'Santo Tomas': '4234',
+    'Lemery': '4209', 'Taal': '4208', 'Balayan': '4213', 'Nasugbu': '4231',
+    'Calaca': '4212', 'Calatagan': '4215', 'Lian': '4216', 'Tuy': '4214',
+    'Mabini': '4202', 'Tingloy': '4226', 'San Pascual': '4204', 'Bauan': '4201',
+    'San Luis': '4210', 'Taysan': '4227', 'Lobo': '4229', 'San Juan': '4226',
+    'Rosario': '4106', 'Ibaan': '4230', 'Padre Garcia': '4224', 'Cuenca': '4222',
+    
+    // Cebu
+    'Cebu City': '6000', 'Mandaue': '6014', 'Lapu-Lapu': '6015', 'Talisay': '6045',
+    'Naga': '6037', 'Carcar': '6019', 'Toledo': '6038', 'Danao': '6004',
+    'Bogo': '6010', 'Consolacion': '6001', 'Liloan': '6002', 'Compostela': '6003',
+    'Minglanilla': '6046', 'San Fernando': '6047',
+    
+    // Davao
+    'Davao City': '8000', 'Tagum': '8100', 'Panabo': '8105', 'Digos': '8002',
+    'Mati': '8200', 'Samal': '8119',
+    
+    // Iloilo
+    'Iloilo City': '5000', 'Passi': '5037', 'Pototan': '5008', 'Janiuay': '5034',
+    'Mina': '5032', 'Barotac Nuevo': '5007', 'Dumangas': '5014',
+    
+    // Pangasinan
+    'Dagupan': '2400', 'Alaminos': '2404', 'Urdaneta': '2428', 'San Carlos': '2420',
+    'Lingayen': '2401', 'Malasiqui': '2421', 'Binalonan': '2436',
+    
+    // Baguio and Benguet
+    'Baguio': '2600', 'La Trinidad': '2601', 'Itogon': '2602', 'Tuba': '2603',
+    
+    // Others
+    'Laoag': '2900', 'Vigan': '2700', 'Tuguegarao': '3500', 'Santiago': '3311',
+    'Cabanatuan': '3100', 'Palayan': '3132', 'Olongapo': '2200', 'Subic': '2222',
+    'Puerto Princesa': '5300', 'Legazpi': '4500', 'Naga': '4400', 'Iriga': '4431',
+    'Bacolod': '6100', 'Tacloban': '6500', 'Ormoc': '6541', 'Calbayog': '6710',
+    'Zamboanga': '7000', 'Pagadian': '7016', 'Butuan': '8600', 'Cagayan de Oro': '9000',
+    'Iligan': '9200', 'General Santos': '9500', 'Koronadal': '9506', 'Cotabato City': '9600'
+  };
+  
+  // Convert text inputs to select dropdowns
+  function convertToSelect(input, placeholder) {
+    const select = document.createElement('select');
+    select.id = input.id;
+    select.name = input.name;
+    select.className = input.className;
+    select.required = input.required;
+    
+    const defaultOption = document.createElement('option');
+    defaultOption.value = '';
+    defaultOption.textContent = placeholder;
+    select.appendChild(defaultOption);
+    
+    input.parentNode.replaceChild(select, input);
+    return select;
+  }
+  
+  // Initialize dropdowns
+  if (provinceInput && cityInput && barangayInput) {
+    const provinceSelect = convertToSelect(provinceInput, 'Select Province');
+    const citySelect = convertToSelect(cityInput, 'Select City/Municipality');
+    const barangaySelect = convertToSelect(barangayInput, 'Select Barangay');
+    
+    // Store original values if editing
+    const originalProvince = provinceInput.value;
+    const originalCity = cityInput.value;
+    const originalBarangay = barangayInput.value;
+    
+    // Fetch provinces
+    function loadProvinces() {
+      if (addressCache.provinces) {
+        populateProvinces(addressCache.provinces);
+        return;
+      }
+      
+      fetch('https://psgc.gitlab.io/api/provinces/')
+        .then(response => response.json())
+        .then(data => {
+          addressCache.provinces = data;
+          populateProvinces(data);
+        })
+        .catch(error => {
+          console.error('Error loading provinces:', error);
+          alert('Failed to load provinces. Please refresh the page.');
+        });
+    }
+    
+    function populateProvinces(provinces) {
+      provinceSelect.innerHTML = '<option value="">Select Province</option>';
+      
+      provinces.sort((a, b) => a.name.localeCompare(b.name));
+      
+      provinces.forEach(province => {
+        const option = document.createElement('option');
+        option.value = province.name;
+        option.dataset.code = province.code;
+        option.textContent = province.name;
+        provinceSelect.appendChild(option);
+      });
+      
+      // Restore original value if editing
+      if (originalProvince) {
+        provinceSelect.value = originalProvince;
+        if (provinceSelect.value === originalProvince) {
+          const selectedOption = provinceSelect.options[provinceSelect.selectedIndex];
+          loadCities(selectedOption.dataset.code, originalCity);
+        }
+      }
+    }
+    
+    // Fetch cities when province is selected
+    function loadCities(provinceCode, preselectedCity = null) {
+      citySelect.innerHTML = '<option value="">Loading cities...</option>';
+      citySelect.disabled = true;
+      barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+      barangaySelect.disabled = true;
+      
+      if (addressCache.cities[provinceCode]) {
+        populateCities(addressCache.cities[provinceCode], preselectedCity);
+        return;
+      }
+      
+      fetch(`https://psgc.gitlab.io/api/provinces/${provinceCode}/cities-municipalities/`)
+        .then(response => response.json())
+        .then(data => {
+          addressCache.cities[provinceCode] = data;
+          populateCities(data, preselectedCity);
+        })
+        .catch(error => {
+          console.error('Error loading cities:', error);
+          citySelect.innerHTML = '<option value="">Failed to load cities</option>';
+        });
+    }
+    
+    function populateCities(cities, preselectedCity = null) {
+      citySelect.innerHTML = '<option value="">Select City/Municipality</option>';
+      
+      cities.sort((a, b) => a.name.localeCompare(b.name));
+      
+      cities.forEach(city => {
+        const option = document.createElement('option');
+        option.value = city.name;
+        option.dataset.code = city.code;
+        option.textContent = city.name;
+        citySelect.appendChild(option);
+      });
+      
+      citySelect.disabled = false;
+      
+      // Restore original value if editing
+      if (preselectedCity) {
+        citySelect.value = preselectedCity;
+        if (citySelect.value === preselectedCity) {
+          const selectedOption = citySelect.options[citySelect.selectedIndex];
+          loadBarangays(selectedOption.dataset.code, originalBarangay);
+        }
+      }
+    }
+    
+    // Fetch barangays when city is selected
+    function loadBarangays(cityCode, preselectedBarangay = null) {
+      barangaySelect.innerHTML = '<option value="">Loading barangays...</option>';
+      barangaySelect.disabled = true;
+      
+      if (addressCache.barangays[cityCode]) {
+        populateBarangays(addressCache.barangays[cityCode], preselectedBarangay);
+        return;
+      }
+      
+      fetch(`https://psgc.gitlab.io/api/cities-municipalities/${cityCode}/barangays/`)
+        .then(response => response.json())
+        .then(data => {
+          addressCache.barangays[cityCode] = data;
+          populateBarangays(data, preselectedBarangay);
+        })
+        .catch(error => {
+          console.error('Error loading barangays:', error);
+          barangaySelect.innerHTML = '<option value="">Failed to load barangays</option>';
+        });
+    }
+    
+    function populateBarangays(barangays, preselectedBarangay = null) {
+      barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+      
+      barangays.sort((a, b) => a.name.localeCompare(b.name));
+      
+      barangays.forEach(barangay => {
+        const option = document.createElement('option');
+        option.value = barangay.name;
+        option.textContent = barangay.name;
+        barangaySelect.appendChild(option);
+      });
+      
+      barangaySelect.disabled = false;
+      
+      // Restore original value if editing
+      if (preselectedBarangay) {
+        // Remove "Brgy. " prefix if present for matching
+        const cleanBarangay = preselectedBarangay.replace(/^Brgy\.\s*/i, '');
+        barangaySelect.value = cleanBarangay;
+      }
+    }
+    
+    // Event listeners for cascading
+    provinceSelect.addEventListener('change', function() {
+      const selectedOption = this.options[this.selectedIndex];
+      if (selectedOption.dataset.code) {
+        loadCities(selectedOption.dataset.code);
+      } else {
+        citySelect.innerHTML = '<option value="">Select City/Municipality</option>';
+        citySelect.disabled = true;
+        barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+        barangaySelect.disabled = true;
+      }
+    });
+    
+    citySelect.addEventListener('change', function() {
+      const selectedOption = this.options[this.selectedIndex];
+      if (selectedOption.dataset.code) {
+        loadBarangays(selectedOption.dataset.code);
+        
+        // Auto-fill ZIP code if available
+        const cityName = selectedOption.value;
+        if (zipCodeInput && zipCodeMap[cityName]) {
+          zipCodeInput.value = zipCodeMap[cityName];
+          zipCodeInput.style.backgroundColor = '#e8f5e9'; // Light green to indicate auto-filled
+          setTimeout(() => {
+            zipCodeInput.style.backgroundColor = '';
+          }, 1500);
+        } else if (zipCodeInput) {
+          // Clear ZIP if no match found
+          if (!zipCodeInput.value || zipCodeInput.dataset.autoFilled === 'true') {
+            zipCodeInput.value = '';
+          }
+        }
+      } else {
+        barangaySelect.innerHTML = '<option value="">Select Barangay</option>';
+        barangaySelect.disabled = true;
+        if (zipCodeInput) {
+          zipCodeInput.value = '';
+        }
+      }
+    });
+    
+    // Initialize: Load provinces
+    loadProvinces();
+  }
+  
+  // ========================================================================
+  // DRAG AND DROP REORDERING FOR EDUCATION CARDS
+  // ========================================================================
+  
+  const educationContainer = document.getElementById('education-formset');
+  
+  if (educationContainer) {
+    let draggedElement = null;
+    
+    // Get all education form items
+    const educationForms = educationContainer.querySelectorAll('.education-form');
+    
+    educationForms.forEach((formItem, index) => {
+      // Set initial order values
+      const orderInput = formItem.querySelector('.education-order-field');
+      if (orderInput && !orderInput.value) {
+        orderInput.value = index;
+      }
+      
+      // Drag start
+      formItem.addEventListener('dragstart', function(e) {
+        draggedElement = this;
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.innerHTML);
+      });
+      
+      // Drag end
+      formItem.addEventListener('dragend', function(e) {
+        this.classList.remove('dragging');
+        
+        // Remove all drag-over classes
+        educationContainer.querySelectorAll('.education-form').forEach(item => {
+          item.classList.remove('drag-over');
+        });
+        
+        // Update order values
+        updateEducationOrder();
+      });
+      
+      // Drag over
+      formItem.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        
+        if (this !== draggedElement) {
+          this.classList.add('drag-over');
+        }
+        
+        return false;
+      });
+      
+      // Drag enter
+      formItem.addEventListener('dragenter', function(e) {
+        if (this !== draggedElement) {
+          this.classList.add('drag-over');
+        }
+      });
+      
+      // Drag leave
+      formItem.addEventListener('dragleave', function(e) {
+        this.classList.remove('drag-over');
+      });
+      
+      // Drop
+      formItem.addEventListener('drop', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        
+        if (draggedElement !== this) {
+          // Get bounding rectangles
+          const draggingRect = draggedElement.getBoundingClientRect();
+          const targetRect = this.getBoundingClientRect();
+          
+          // Determine if we should insert before or after
+          if (e.clientY < targetRect.top + targetRect.height / 2) {
+            // Insert before
+            educationContainer.insertBefore(draggedElement, this);
+          } else {
+            // Insert after
+            educationContainer.insertBefore(draggedElement, this.nextSibling);
+          }
+        }
+        
+        this.classList.remove('drag-over');
+        return false;
+      });
+    });
+    
+    // Update order field values based on current DOM order
+    function updateEducationOrder() {
+      const forms = educationContainer.querySelectorAll('.education-form');
+      forms.forEach((form, index) => {
+        const orderInput = form.querySelector('.education-order-field');
+        if (orderInput) {
+          orderInput.value = index;
+          console.log(`Updated order for education form ${index}:`, orderInput.value);
+        }
+      });
+    }
+  }
+  
+  // ========================================================================
+  // DRAG AND DROP REORDERING FOR EXPERIENCE CARDS
+  // ========================================================================
+  
+  const experienceContainer = document.getElementById('experience-formset');
+  
+  if (experienceContainer) {
+    let draggedElement = null;
+    
+    // Get all experience form items
+    const experienceForms = experienceContainer.querySelectorAll('.experience-form');
+    
+    experienceForms.forEach((formItem, index) => {
+      // Set initial order values
+      const orderInput = formItem.querySelector('.experience-order-field');
+      if (orderInput && !orderInput.value) {
+        orderInput.value = index;
+      }
+      
+      // Drag start
+      formItem.addEventListener('dragstart', function(e) {
+        draggedElement = this;
+        this.classList.add('dragging');
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/html', this.innerHTML);
+      });
+      
+      // Drag end
+      formItem.addEventListener('dragend', function(e) {
+        this.classList.remove('dragging');
+        
+        // Remove all drag-over classes
+        experienceContainer.querySelectorAll('.experience-form').forEach(item => {
+          item.classList.remove('drag-over');
+        });
+        
+        // Update order values
+        updateExperienceOrder();
+      });
+      
+      // Drag over
+      formItem.addEventListener('dragover', function(e) {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        
+        if (this !== draggedElement) {
+          this.classList.add('drag-over');
+        }
+        
+        return false;
+      });
+      
+      // Drag enter
+      formItem.addEventListener('dragenter', function(e) {
+        if (this !== draggedElement) {
+          this.classList.add('drag-over');
+        }
+      });
+      
+      // Drag leave
+      formItem.addEventListener('dragleave', function(e) {
+        this.classList.remove('drag-over');
+      });
+      
+      // Drop
+      formItem.addEventListener('drop', function(e) {
+        e.stopPropagation();
+        e.preventDefault();
+        
+        if (draggedElement !== this) {
+          // Get bounding rectangles
+          const draggingRect = draggedElement.getBoundingClientRect();
+          const targetRect = this.getBoundingClientRect();
+          
+          // Determine if we should insert before or after
+          if (e.clientY < targetRect.top + targetRect.height / 2) {
+            // Insert before
+            experienceContainer.insertBefore(draggedElement, this);
+          } else {
+            // Insert after
+            experienceContainer.insertBefore(draggedElement, this.nextSibling);
+          }
+        }
+        
+        this.classList.remove('drag-over');
+        return false;
+      });
+    });
+    
+    // Update order field values based on current DOM order
+    function updateExperienceOrder() {
+      const forms = experienceContainer.querySelectorAll('.experience-form');
+      forms.forEach((form, index) => {
+        const orderInput = form.querySelector('.experience-order-field');
+        if (orderInput) {
+          orderInput.value = index;
+          console.log(`Updated order for experience form ${index}:`, orderInput.value);
+        }
+      });
+    }
+  }
+  
   // Apply modern styling to form controls
   const formControls = document.querySelectorAll('input[type="text"], input[type="email"], input[type="date"], select, textarea');
   formControls.forEach(control => {

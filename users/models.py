@@ -226,27 +226,85 @@ class Skill(models.Model):
 # New model: Education
 class Education(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='education')
+    title = models.CharField(max_length=100, blank=True, help_text="Custom title for this education entry (e.g., 'Bachelor's Degree', 'High School')")
     degree = models.CharField(max_length=255)
     institution = models.CharField(max_length=255)
-    start_date = models.DateField()
-    end_date = models.DateField(null=True, blank=True)
+    start_year = models.CharField(max_length=10, blank=True, null=True, help_text="Year started")
+    end_year = models.CharField(max_length=10, blank=True, null=True, help_text="Year ended or 'Present' if currently studying")
     description = models.TextField(blank=True)
+    order = models.IntegerField(default=0, help_text="Display order (lower numbers appear first)")
+    
+    # Legacy fields - kept for backward compatibility during migration
+    year_graduated = models.CharField(max_length=10, blank=True, null=True)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['order', '-end_year', '-start_year']  # Manual order first, then by end year
     
     def __str__(self):
         return f"{self.degree} from {self.institution}"
+    
+    def get_display_title(self):
+        """Return custom title or default"""
+        if self.title:
+            return self.title
+        elif self.degree:
+            return f"{self.degree}"
+        return "Education Entry"
+    
+    def get_year_range_display(self):
+        """Return formatted year range for display"""
+        if self.start_year and self.end_year:
+            return f"{self.start_year} - {self.end_year}"
+        elif self.start_year:
+            return f"{self.start_year} - Present"
+        elif self.year_graduated:
+            # Fallback to old format
+            return self.year_graduated
+        return "N/A"
 
 
 # New model: Experience (Work Experience)
 class Experience(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='experiences')
+    title = models.CharField(max_length=100, blank=True, help_text="Custom title for this experience entry")
     job_title = models.CharField(max_length=255)
     company = models.CharField(max_length=255)
-    start_date = models.DateField()
-    end_date = models.DateField(null=True, blank=True)
+    start_year = models.CharField(max_length=10, blank=True, null=True, help_text="Year started")
+    end_year = models.CharField(max_length=10, blank=True, null=True, help_text="Year ended or 'Present' if currently working")
     description = models.TextField(blank=True)
+    order = models.IntegerField(default=0, help_text="Display order (lower numbers appear first)")
+    
+    # Legacy fields - kept for backward compatibility
+    year_ended = models.CharField(max_length=10, blank=True, null=True)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['order', '-end_year', '-start_year']  # Manual order first, then by end year
     
     def __str__(self):
         return f"{self.job_title} at {self.company}"
+    
+    def get_display_title(self):
+        """Return custom title or default"""
+        if self.title:
+            return self.title
+        elif self.job_title:
+            return f"{self.job_title} at {self.company}"
+        return "Experience Entry"
+    
+    def get_year_range_display(self):
+        """Return formatted year range for display"""
+        if self.start_year and self.end_year:
+            return f"{self.start_year} - {self.end_year}"
+        elif self.start_year:
+            return f"{self.start_year} - Present"
+        elif self.year_ended:
+            # Fallback to old format
+            return self.year_ended
+        return "N/A"
 
 
 class CompletedJobGallery(models.Model):

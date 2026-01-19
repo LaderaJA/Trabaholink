@@ -497,7 +497,7 @@
       {% endfor %}
 
       <div class="action-buttons">
-        <a href="{% url 'profile' user.pk %}" class="btn-secondary">{% trans "Cancel" %}</a>
+        <a href="{% url 'users:profile' user.pk %}" class="btn-secondary">{% trans "Cancel" %}</a>
         <button type="submit" class="btn-primary">
           💾 Save Availability
         </button>
@@ -624,7 +624,7 @@ document.getElementById('availabilityForm').addEventListener('submit', async fun
     if (data.success) {
       showAlert(data.message, 'success');
       setTimeout(() => {
-        window.location.href = '{% url "profile" user.pk %}';
+        window.location.href = '{% url "users:profile" user.pk %}';
       }, 1500);
     } else {
       showAlert(data.message, 'error');

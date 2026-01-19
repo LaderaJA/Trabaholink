@@ -82,6 +82,45 @@ body {
   transform: scale(1.02);
 }
 
+/* View Cover Photo Text */
+.cover-view-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--primary-color);
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  z-index: 5;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.profile-cover-section:hover .cover-view-text {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+.profile-cover-section.clickable {
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .cover-view-text {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+  }
+}
+
 .cover-overlay {
   position: absolute;
   top: 0;
@@ -137,13 +176,13 @@ body {
 /* Stats Section */
 .stats-section {
   background: var(--bg-light);
-  padding: 0;
+  padding: 2rem 0;
 }
 
 /* Content Section */
 .content-section {
   background: var(--bg-light);
-  padding: 0;
+  padding: 2rem 0 4rem 0;
 }
 
 .profile-header-card-modern {
@@ -1966,20 +2005,52 @@ body {
 }
 
 .close-modal {
-  position: absolute;
-  top: 20px;
-  right: 40px;
-  color: white;
-  font-size: 48px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  z-index: 10000;
+  position: absolute !important;
+  top: 20px !important;
+  right: 40px !important;
+  color: white !important;
+  font-size: 48px !important;
+  font-weight: bold !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  z-index: 10001 !important;
+  background: rgba(0, 0, 0, 0.8) !important;
+  width: 60px !important;
+  height: 60px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  user-select: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  border: 2px solid white !important;
+}
+
+.close-modal i {
+  color: white !important;
+  font-size: 32px !important;
+  pointer-events: none !important;
 }
 
 .close-modal:hover {
-  color: #ff4444;
-  transform: rotate(90deg);
+  color: #ff4444 !important;
+  background: rgba(255, 68, 68, 0.9) !important;
+  transform: rotate(90deg) scale(1.1) !important;
+  border-color: #ff4444 !important;
+}
+
+/* Mobile responsive close button */
+@media (max-width: 768px) {
+  .close-modal {
+    top: 10px;
+    right: 10px;
+    width: 50px;
+    height: 50px;
+    font-size: 36px;
+  }
 }
 
 /* Profile Actions Sidebar Redesign */
@@ -2255,7 +2326,7 @@ body {
 
 {% block content %}
 <!-- Cover Photo Section -->
-<div class="profile-cover-section" {% if user.cover_photo_custom %}onclick="openImageModal('{{ user.cover_photo_custom.url }}')" style="cursor: pointer;"{% endif %}>
+<div class="profile-cover-section clickable" onclick="openCoverPhotoModal()">
   {% if user.cover_photo_custom %}
     <img src="{{ user.cover_photo_custom.url }}" alt="Cover Photo" class="profile-cover-photo clickable-image img-fluid">
   {% elif user.cover_photo %}
@@ -2264,8 +2335,14 @@ body {
     <div class="profile-cover-photo" style="background: linear-gradient(135deg, #1a94d4 0%, #0d6efd 100%);"></div>
   {% endif %}
   <div class="cover-overlay"></div>
+  
+  <!-- View Text Overlay -->
+  <div class="cover-view-text">
+    Click to view
+  </div>
+  
   {% if user.pk == request.user.pk %}
-  <a href="{% url 'profile_edit' request.user.pk %}" class="cover-edit-btn" onclick="event.stopPropagation();">
+  <a href="{% url 'users:profile_edit' request.user.pk %}" class="cover-edit-btn" onclick="event.stopPropagation();">
     <i class="bi bi-camera"></i>
     <span>Edit Cover</span>
   </a>
@@ -2285,7 +2362,7 @@ body {
           <img src="{% static 'images/default_avatar.svg' %}" class="profile-picture-modern" alt="Default Profile">
         {% endif %}
         {% if user.pk == request.user.pk %}
-        <a href="{% url 'profile_edit' request.user.pk %}" class="profile-picture-edit-modern" onclick="event.stopPropagation();">
+        <a href="{% url 'users:profile_edit' request.user.pk %}" class="profile-picture-edit-modern" onclick="event.stopPropagation();">
           <i class="bi bi-camera-fill"></i>
         </a>
         {% endif %}
@@ -2511,7 +2588,7 @@ body {
                 Download CV
               </a>
               {% if user.pk == request.user.pk %}
-              <a href="{% url 'profile_edit' request.user.pk %}" class="btn-cv-update">
+              <a href="{% url 'users:profile_edit' request.user.pk %}" class="btn-cv-update">
                 <i class="bi bi-arrow-repeat"></i>
                 Update CV
               </a>
@@ -2525,7 +2602,7 @@ body {
             </div>
             <p class="cv-empty-text">No CV uploaded yet</p>
             {% if user.pk == request.user.pk %}
-            <a href="{% url 'profile_edit' request.user.pk %}" class="btn-cv-upload">
+            <a href="{% url 'users:profile_edit' request.user.pk %}" class="btn-cv-upload">
               <i class="bi bi-upload"></i>
               Upload Your CV
             </a>
@@ -2544,7 +2621,7 @@ body {
         </h3>
         <ul class="action-links-modern">
           <li>
-            <a href="{% url 'profile_edit' request.user.pk %}" class="action-link-modern highlight">
+            <a href="{% url 'users:profile_edit' request.user.pk %}" class="action-link-modern highlight">
               <div class="action-link-icon">
                 <i class="bi bi-pencil-square"></i>
               </div>
@@ -2582,7 +2659,7 @@ body {
           {% endif %}
           
           <li>
-            <a href="{% url 'change_password' %}" class="action-link-modern">
+            <a href="{% url 'users:change_password' %}" class="action-link-modern">
               <div class="action-link-icon">
                 <i class="bi bi-shield-lock"></i>
               </div>
@@ -2593,7 +2670,7 @@ body {
             </a>
           </li>
           <li>
-            <a href="{% url 'privacy_settings' %}" class="action-link-modern">
+            <a href="{% url 'users:privacy_settings' %}" class="action-link-modern">
               <div class="action-link-icon">
                 <i class="bi bi-eye"></i>
               </div>
@@ -2605,7 +2682,7 @@ body {
           </li>
           {% if user.role == 'worker' %}
           <li>
-            <a href="{% url 'set_location' %}" class="action-link-modern">
+            <a href="{% url 'users:set_location' %}" class="action-link-modern">
               <div class="action-link-icon">
                 <i class="bi bi-bell"></i>
               </div>
@@ -2704,7 +2781,7 @@ body {
         </h3>
         <div class="settings-info">
           <p class="settings-text">Need to deactivate your account?</p>
-          <a href="{% url 'profile_delete' user.pk %}" class="settings-link">
+          <a href="{% url 'users:profile_delete' user.pk %}" class="settings-link">
             <i class="bi bi-box-arrow-right"></i>
             <span>Manage Account</span>
           </a>
@@ -2769,7 +2846,7 @@ body {
           <div class="content-card-header-modern">
             <h3 class="content-card-title-modern">Personal Details</h3>
             {% if user.pk == request.user.pk %}
-            <a href="{% url 'profile_edit' request.user.pk %}" class="btn-modern btn-outline-modern btn-sm-modern">
+            <a href="{% url 'users:profile_edit' request.user.pk %}" class="btn-modern btn-outline-modern btn-sm-modern">
               <i class="bi bi-pencil"></i>
               <span>Edit</span>
             </a>
@@ -3025,7 +3102,7 @@ body {
           <div class="content-card-header-modern">
             <h3 class="content-card-title-modern">Skills & Certifications</h3>
             {% if user.pk == request.user.pk %}
-            <a href="{% url 'submit_skill_verification' %}" class="btn-modern btn-primary-modern btn-sm-modern">
+            <a href="{% url 'users:submit_skill_verification' %}" class="btn-modern btn-primary-modern btn-sm-modern">
               <i class="bi bi-plus-circle"></i>
               <span>Add Skill</span>
             </a>
@@ -3059,13 +3136,13 @@ body {
                   </div>
                   {% if user.pk == request.user.pk %}
                   <div class="job-actions-modern">
-                    <a href="{% url 'skill_detail' skill.id %}" class="btn-modern btn-outline-modern btn-sm-modern">
+                    <a href="{% url 'users:skill_detail' skill.id %}" class="btn-modern btn-outline-modern btn-sm-modern">
                       <i class="bi bi-eye"></i> View
                     </a>
-                    <a href="{% url 'skill_edit' skill.id %}" class="btn-modern btn-outline-modern btn-sm-modern">
+                    <a href="{% url 'users:skill_edit' skill.id %}" class="btn-modern btn-outline-modern btn-sm-modern">
                       <i class="bi bi-pencil"></i> Edit
                     </a>
-                    <a href="{% url 'skill_delete' skill.id %}" class="btn-modern btn-outline-modern btn-sm-modern" style="color: var(--danger-color); border-color: var(--danger-color);">
+                    <a href="{% url 'users:skill_delete' skill.id %}" class="btn-modern btn-outline-modern btn-sm-modern" style="color: var(--danger-color); border-color: var(--danger-color);">
                       <i class="bi bi-trash"></i>{% trans "Delete" %}</a>
                   </div>
                   {% endif %}
@@ -3077,7 +3154,7 @@ body {
               <i class="bi bi-star empty-icon-modern"></i>
               <p class="empty-text-modern">No skills added yet.</p>
               {% if user.pk == request.user.pk %}
-              <a href="{% url 'submit_skill_verification' %}" class="btn-modern btn-primary-modern">
+              <a href="{% url 'users:submit_skill_verification' %}" class="btn-modern btn-primary-modern">
                 <i class="bi bi-plus-circle"></i>
                 <span>Add Your First Skill</span>
               </a>
@@ -3176,7 +3253,7 @@ body {
           <div class="content-card-header-modern">
             <h3 class="content-card-title-modern">Completed Jobs Gallery</h3>
             {% if user.pk == request.user.pk %}
-            <a href="{% url 'gallery_add' %}" class="btn-modern btn-primary-modern btn-sm-modern">
+            <a href="{% url 'users:gallery_add' %}" class="btn-modern btn-primary-modern btn-sm-modern">
               <i class="bi bi-plus-circle"></i>
               <span>Add Photo</span>
             </a>
@@ -3191,10 +3268,10 @@ body {
                     <p style="margin: 0;">{{ item.description|truncatechars:50 }}</p>
                     {% if user.pk == request.user.pk %}
                     <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                      <a href="{% url 'gallery_edit' item.pk %}" style="color: white; font-size: 0.9rem;">
+                      <a href="{% url 'users:gallery_edit' item.pk %}" style="color: white; font-size: 0.9rem;">
                         <i class="bi bi-pencil"></i>
                       </a>
-                      <a href="{% url 'gallery_delete' item.pk %}" style="color: white; font-size: 0.9rem;">
+                      <a href="{% url 'users:gallery_delete' item.pk %}" style="color: white; font-size: 0.9rem;">
                         <i class="bi bi-trash"></i>
                       </a>
                     </div>
@@ -3208,7 +3285,7 @@ body {
               <i class="bi bi-images empty-icon-modern"></i>
               <p class="empty-text-modern">No gallery items yet.</p>
               {% if user.pk == request.user.pk %}
-              <a href="{% url 'gallery_add' %}" class="btn-modern btn-primary-modern">
+              <a href="{% url 'users:gallery_add' %}" class="btn-modern btn-primary-modern">
                 <i class="bi bi-plus-circle"></i>
                 <span>Add Your First Photo</span>
               </a>
@@ -3409,6 +3486,52 @@ function openImageModal(imageSrc) {
   }
 }
 
+function openCoverPhotoModal() {
+  const coverPhoto = document.querySelector('.profile-cover-photo');
+  const modal = document.getElementById('imageModal');
+  const modalImg = document.getElementById('modalImage');
+  const closeBtn = document.querySelector('.close-modal');
+  
+  console.log('Opening modal...', {modal, modalImg, coverPhoto, closeBtn});
+  
+  if (modal && modalImg && coverPhoto) {
+    // Check if it's a custom image
+    if (coverPhoto.tagName === 'IMG') {
+      modal.style.display = 'flex';
+      modalImg.src = coverPhoto.src;
+      document.body.style.overflow = 'hidden';
+    } else {
+      // For gradient backgrounds, create a temporary canvas
+      const canvas = document.createElement('canvas');
+      canvas.width = coverPhoto.offsetWidth;
+      canvas.height = coverPhoto.offsetHeight;
+      const ctx = canvas.getContext('2d');
+      
+      // Get the computed background style
+      const bgStyle = window.getComputedStyle(coverPhoto).background;
+      ctx.fillStyle = bgStyle;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      modal.style.display = 'flex';
+      modalImg.src = canvas.toDataURL();
+      document.body.style.overflow = 'hidden';
+    }
+    
+    // Ensure close button is visible
+    if (closeBtn) {
+      closeBtn.style.display = 'flex';
+      closeBtn.style.visibility = 'visible';
+      closeBtn.style.opacity = '1';
+      closeBtn.style.zIndex = '10001';
+      console.log('Close button styled:', closeBtn);
+    } else {
+      console.error('Close button not found!');
+    }
+  } else {
+    console.error('Modal elements not found!', {modal, modalImg, coverPhoto});
+  }
+}
+
 function closeImageModal() {
   const modal = document.getElementById('imageModal');
   if (modal) {
@@ -3507,7 +3630,9 @@ function toggleJobStatus(jobId, jobTitle, toggleUrl) {
 
 <!-- Image Modal -->
 <div id="imageModal" class="image-modal" onclick="closeImageModal()">
-  <span class="close-modal" onclick="closeImageModal()">&times;</span>
+  <span class="close-modal" onclick="closeImageModal()">
+    <i class="bi bi-x-lg"></i>
+  </span>
   <img class="modal-content" id="modalImage" onclick="event.stopPropagation();">
 </div>
 

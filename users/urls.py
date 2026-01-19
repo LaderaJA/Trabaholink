@@ -13,6 +13,8 @@ from django.contrib.auth import views as auth_views
 from .views import UserLocationUpdateView, IdentityVerificationView, SkipIdentityVerificationView
 
 
+app_name = 'users'
+
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('verify-otp/<str:email>/', VerifyOTPView.as_view(), name='verify_otp'),

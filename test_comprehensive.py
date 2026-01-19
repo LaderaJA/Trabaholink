@@ -185,13 +185,13 @@ class ProfileTest(TestCase):
     
     def test_profile_view(self):
         """Test profile page loads"""
-        response = self.client.get(reverse('profile', args=[self.user.pk]))
+        response = self.client.get(reverse('users:profile', args=[self.user.pk]))
         self.assertEqual(response.status_code, 200)
         print("✅ Profile view test passed")
     
     def test_profile_edit(self):
         """Test profile can be edited"""
-        response = self.client.post(reverse('profile_edit', args=[self.user.pk]), {
+        response = self.client.post(reverse('users:profile_edit', args=[self.user.pk]), {
             'bio': 'Updated bio',
             'phone_number': '09123456789',
             'city': 'Manila',

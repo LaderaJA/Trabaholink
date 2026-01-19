@@ -46,13 +46,18 @@ from notifications.models import Notification
 logger = logging.getLogger(__name__)
 
 # Formsets for education and experience
-EducationFormSet = inlineformset_factory(
+# Custom base class to order education by highest to lowest (most recent first)
+BaseEducationFormSet = inlineformset_factory(
     CustomUser,
     Education,
-    fields=('degree', 'institution', 'start_date', 'end_date', 'description'),
+    fields=('title', 'degree', 'institution', 'start_year', 'end_year', 'description', 'order'),
     extra=1,
     can_delete=True,
     widgets={
+        'title': forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': "e.g. Bachelor's Degree, High School Diploma"
+        }),
         'degree': forms.TextInput(attrs={
             'class': 'form-control', 
             'placeholder': 'e.g. Bachelor of Science in Computer Science'
@@ -61,31 +66,62 @@ EducationFormSet = inlineformset_factory(
             'class': 'form-control', 
             'placeholder': 'Enter the institution name'
         }),
-        'start_date': DateInput(attrs={
-            'type': 'date', 
-            'class': 'form-control', 
-            'placeholder': 'Select start date'
+        'start_year': forms.Select(attrs={
+            'class': 'form-control',
         }),
-        'end_date': DateInput(attrs={
-            'type': 'date', 
-            'class': 'form-control', 
-            'placeholder': 'Select end date (or leave blank if ongoing)'
+        'end_year': forms.Select(attrs={
+            'class': 'form-control',
         }),
         'description': forms.Textarea(attrs={
             'class': 'form-control', 
             'rows': 3, 
             'placeholder': 'Additional details about your studies'
         }),
+        'order': forms.HiddenInput(attrs={
+            'class': 'education-order-field'
+        }),
     }
 )
 
-ExperienceFormSet = inlineformset_factory(
+# Override to order education entries by year DESC (highest/most recent first)
+class EducationFormSet(BaseEducationFormSet):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Generate year choices from current year down to 1950, plus "Present"
+        from datetime import datetime
+        current_year = datetime.now().year
+        year_choices = [(str(year), str(year)) for year in range(current_year, 1949, -1)]
+        year_choices_with_present = [('Present', 'Present (Currently Studying)')] + year_choices
+        
+        # Apply year choices to all forms in the formset
+        for form in self.forms:
+            if 'start_year' in form.fields:
+                form.fields['start_year'].widget = forms.Select(
+                    choices=[('', 'Select Year')] + year_choices,
+                    attrs={'class': 'form-control'}
+                )
+            if 'end_year' in form.fields:
+                form.fields['end_year'].widget = forms.Select(
+                    choices=[('', 'Select Year')] + year_choices_with_present,
+                    attrs={'class': 'form-control'}
+                )
+    
+    def get_queryset(self):
+        qs = super().get_queryset()
+        # Order by manual order field first, then by end year
+        return qs.order_by('order', '-end_year', '-start_year')
+
+BaseExperienceFormSet = inlineformset_factory(
     CustomUser,
     Experience,
-    fields=('job_title', 'company', 'start_date', 'end_date', 'description'),
+    fields=('title', 'job_title', 'company', 'start_year', 'end_year', 'description', 'order'),
     extra=1,
     can_delete=True,
     widgets={
+        'title': forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': "e.g. Senior Developer Role, First Job"
+        }),
         'job_title': forms.TextInput(attrs={
             'class': 'form-control', 
             'placeholder': 'e.g. Software Engineer'
@@ -94,23 +130,48 @@ ExperienceFormSet = inlineformset_factory(
             'class': 'form-control', 
             'placeholder': 'Enter the company name'
         }),
-        'start_date': DateInput(attrs={
-            'type': 'date', 
-            'class': 'form-control', 
-            'placeholder': 'Select start date'
+        'start_year': forms.Select(attrs={
+            'class': 'form-control',
         }),
-        'end_date': DateInput(attrs={
-            'type': 'date', 
-            'class': 'form-control', 
-            'placeholder': 'Select end date (or leave blank if current)'
+        'end_year': forms.Select(attrs={
+            'class': 'form-control',
         }),
         'description': forms.Textarea(attrs={
             'class': 'form-control', 
             'rows': 3, 
             'placeholder': 'Describe your role and responsibilities'
         }),
+        'order': forms.HiddenInput(attrs={
+            'class': 'experience-order-field'
+        }),
     }
 )
+
+class ExperienceFormSet(BaseExperienceFormSet):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Generate year choices from current year down to 1950, plus "Present"
+        from datetime import datetime
+        current_year = datetime.now().year
+        year_choices = [(str(year), str(year)) for year in range(current_year, 1949, -1)]
+        year_choices_with_present = [('Present', 'Present (Currently Working)')] + year_choices
+        
+        # Apply year choices to all forms in the formset
+        for form in self.forms:
+            if 'start_year' in form.fields:
+                form.fields['start_year'].widget = forms.Select(
+                    choices=[('', 'Select Year')] + year_choices,
+                    attrs={'class': 'form-control'}
+                )
+            if 'end_year' in form.fields:
+                form.fields['end_year'].widget = forms.Select(
+                    choices=[('', 'Select Year')] + year_choices_with_present,
+                    attrs={'class': 'form-control'}
+                )
+    
+    def get_queryset(self):
+        qs = super().get_queryset()
+        return qs.order_by('order', '-end_year', '-start_year')
 
 # Register View - Now with Email OTP Verification
 class RegisterView(CreateView):
@@ -250,7 +311,7 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
             logger.error("Error during password reset confirm for uid=%s: %s", uidb64[:6], str(e))
             print(f"[PWD RESET] confirm error uid={uidb64[:6]} err={e}")
             messages.error(request, 'There was a problem validating the reset link.')
-            return redirect('password_reset')
+            return redirect('users:password_reset')
 
     def form_valid(self, form):
         try:
@@ -300,7 +361,7 @@ class ChangePasswordView(FormView):
         return super().form_valid(form)
         
     def get_success_url(self):
-        return reverse('profile_edit', kwargs={'pk': self.request.user.pk})
+        return reverse('users:profile_edit', kwargs={'pk': self.request.user.pk})
 
 # Privacy Settings View
 @method_decorator(login_required, name='dispatch')
@@ -518,7 +579,7 @@ class UserProfileUpdateView(LoginRequiredMixin, UpdateView):
         # If coming from onboarding, redirect to home instead of profile view
         if self.request.GET.get('onboarding') == 'true':
             return reverse_lazy('jobs:home')
-        return reverse_lazy('profile', kwargs={'pk': self.object.pk})
+        return reverse_lazy('users:profile', kwargs={'pk': self.object.pk})
 
 # Skill Verification View
 @method_decorator(login_required, name='dispatch')
@@ -526,7 +587,7 @@ class SkillVerificationView(CreateView):
     model = Skill
     form_class = SkillVerificationForm
     template_name = "skills/submit_skill_verification.html"
-    success_url = reverse_lazy('profile')
+    success_url = reverse_lazy('users:profile')
 
     def get_object(self):
         # Get the skill ID from the URL if we're editing
@@ -607,7 +668,7 @@ class SkillVerificationView(CreateView):
             return self.form_invalid(form)
 
     def get_success_url(self):
-        return reverse_lazy('profile', kwargs={'pk': self.request.user.pk})
+        return reverse_lazy('users:profile', kwargs={'pk': self.request.user.pk})
     
     
 # Profile Delete View
@@ -660,7 +721,7 @@ def submit_skill_verification(request):
             skill = form.save(commit=False)
             skill.user = request.user
             skill.save()
-            return redirect('profile', pk=request.user.pk)
+            return redirect('users:profile', pk=request.user.pk)
     else:
         form = SkillVerificationForm()
     return render(request, 'skills/submit_skill_verification.html', {'form': form})
@@ -707,7 +768,7 @@ class SkillUpdateView(LoginRequiredMixin, UpdateView):
         return Skill.objects.filter(user=self.request.user)
 
     def get_success_url(self):
-        return reverse_lazy('profile', kwargs={'pk': self.request.user.pk})
+        return reverse_lazy('users:profile', kwargs={'pk': self.request.user.pk})
 
 # Skill Delete View
 class SkillDeleteView(LoginRequiredMixin, DeleteView):
@@ -720,7 +781,7 @@ class SkillDeleteView(LoginRequiredMixin, DeleteView):
         return Skill.objects.filter(user=self.request.user)
 
     def get_success_url(self):
-        return reverse_lazy('profile', kwargs={'pk': self.request.user.pk})
+        return reverse_lazy('users:profile', kwargs={'pk': self.request.user.pk})
 
 # Completed Job Gallery Create View
 class CompletedJobGalleryCreateView(LoginRequiredMixin, CreateView):
@@ -733,7 +794,7 @@ class CompletedJobGalleryCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
     def get_success_url(self):
-        return reverse_lazy('profile', kwargs={'pk': self.request.user.pk})
+        return reverse_lazy('users:profile', kwargs={'pk': self.request.user.pk})
 
 # Completed Job Gallery Update View
 class CompletedJobGalleryUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -746,7 +807,7 @@ class CompletedJobGalleryUpdateView(LoginRequiredMixin, UserPassesTestMixin, Upd
         return gallery_item.user == self.request.user
 
     def get_success_url(self):
-        return reverse_lazy('profile', kwargs={'pk': self.request.user.pk})
+        return reverse_lazy('users:profile', kwargs={'pk': self.request.user.pk})
 
 # Completed Job Gallery Delete View
 class CompletedJobGalleryDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteView):
@@ -758,7 +819,7 @@ class CompletedJobGalleryDeleteView(LoginRequiredMixin, UserPassesTestMixin, Del
         return gallery_item.user == self.request.user
 
     def get_success_url(self):
-        return reverse_lazy('profile', kwargs={'pk': self.request.user.pk})
+        return reverse_lazy('users:profile', kwargs={'pk': self.request.user.pk})
 
 # Job Notification Settings View (formerly User Location Update)
 class UserLocationUpdateView(LoginRequiredMixin, UpdateView):
@@ -772,7 +833,7 @@ class UserLocationUpdateView(LoginRequiredMixin, UpdateView):
         # Only allow workers to access this view
         if request.user.role != 'worker':
             messages.error(request, 'Job notifications are only available for workers. Employers do not need this feature.')
-            return redirect('profile', pk=request.user.pk)
+            return redirect('users:profile', pk=request.user.pk)
         return super().dispatch(request, *args, **kwargs)
     
     def get_object(self):
@@ -838,7 +899,7 @@ class UserLocationUpdateView(LoginRequiredMixin, UpdateView):
         return redirect(self.get_success_url())
 
     def get_success_url(self):
-        return reverse_lazy('set_location')  # Redirect back to settings page
+        return reverse_lazy('users:set_location')  # Redirect back to settings page
 
 # Identity Verification View
 class IdentityVerificationView(LoginRequiredMixin, UpdateView):
@@ -850,7 +911,7 @@ class IdentityVerificationView(LoginRequiredMixin, UpdateView):
         return self.request.user
     
     def get_success_url(self):
-        return reverse_lazy('profile', kwargs={'pk': self.request.user.pk})
+        return reverse_lazy('users:profile', kwargs={'pk': self.request.user.pk})
 
     def form_valid(self, form):
         user = form.save(commit=False)
@@ -867,7 +928,7 @@ class SkipIdentityVerificationView(LoginRequiredMixin, View):
         user = request.user
         user.identity_verification_status = "skipped"
         user.save()
-        return redirect(reverse_lazy('profile', kwargs={'pk': user.pk}))
+        return redirect(reverse_lazy('users:profile', kwargs={'pk': user.pk}))
 
 
 # User Search API View
@@ -1020,7 +1081,7 @@ class VerificationStep1View(LoginRequiredMixin, FormView):
         # Convert date to string for JSON serialization
         self.request.session['verification_step1']['date_of_birth'] = \
             form.cleaned_data['date_of_birth'].isoformat()
-        return redirect('ekyc_step2')
+        return redirect('users:ekyc_step2')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1037,7 +1098,7 @@ class VerificationStep2View(LoginRequiredMixin, FormView):
         # Ensure step 1 is completed
         if 'verification_step1' not in request.session:
             messages.warning(request, 'Please complete Step 1 first.')
-            return redirect('ekyc_step1')
+            return redirect('users:ekyc_step1')
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -1084,10 +1145,10 @@ class VerificationStep2View(LoginRequiredMixin, FormView):
         except SuspiciousFileOperation:
             messages.error(request, 'We detected an invalid ID image upload. Please try again.')
             cleanup_temp_files(request.session, ['temp_id_front_path', 'temp_id_back_path'])
-            return redirect('ekyc_step2')
+            return redirect('users:ekyc_step2')
 
         request.session['verification_step2'] = step2_data
-        return redirect('ekyc_step3')
+        return redirect('users:ekyc_step3')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1104,7 +1165,7 @@ class VerificationStep3View(LoginRequiredMixin, FormView):
         # Ensure previous steps are completed
         if 'verification_step1' not in request.session or 'verification_step2' not in request.session:
             messages.warning(request, 'Please complete previous steps first.')
-            return redirect('ekyc_step1')
+            return redirect('users:ekyc_step1')
         return super().dispatch(request, *args, **kwargs)
 
     def form_valid(self, form):
@@ -1116,10 +1177,10 @@ class VerificationStep3View(LoginRequiredMixin, FormView):
             selfie_path = save_temporary_file(selfie, prefix='selfie')
         except SuspiciousFileOperation:
             messages.error(request, 'Invalid selfie upload detected. Please retake your selfie.')
-            return redirect('ekyc_step3')
+            return redirect('users:ekyc_step3')
         request.session['temp_selfie_path'] = selfie_path
 
-        return redirect('ekyc_step4')
+        return redirect('users:ekyc_step4')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
@@ -1135,7 +1196,7 @@ class VerificationStep4View(LoginRequiredMixin, View):
         # Ensure all previous steps are completed
         if not all(key in request.session for key in ['verification_step1', 'verification_step2']):
             messages.warning(request, 'Please complete all previous steps.')
-            return redirect('ekyc_step1')
+            return redirect('users:ekyc_step1')
         return super().dispatch(request, *args, **kwargs)
     
     def get(self, request):
@@ -1148,7 +1209,7 @@ class VerificationStep4View(LoginRequiredMixin, View):
             # Validate that we have required data
             if not step1_data or not step2_data:
                 messages.error(request, 'Session data is missing. Please start the verification process again.')
-                return redirect('ekyc_step1')
+                return redirect('users:ekyc_step1')
             
             # Convert date string back to date object for display
             if 'date_of_birth' in step1_data and isinstance(step1_data['date_of_birth'], str):
@@ -1180,7 +1241,7 @@ class VerificationStep4View(LoginRequiredMixin, View):
         except Exception as e:
             logger.error(f"Error in VerificationStep4View.get: {e}", exc_info=True)
             messages.error(request, 'An error occurred while loading the review page. Please try again.')
-            return redirect('ekyc_step1')
+            return redirect('users:ekyc_step1')
     
     def post(self, request):
         from datetime import datetime
@@ -1193,7 +1254,7 @@ class VerificationStep4View(LoginRequiredMixin, View):
             # Validate required data
             if not step1_data or not step2_data:
                 messages.error(request, 'Session data is missing. Please start the verification process again.')
-                return redirect('ekyc_step1')
+                return redirect('users:ekyc_step1')
             
             # Convert date string back to date object
             if isinstance(step1_data.get('date_of_birth'), str):
@@ -1202,7 +1263,7 @@ class VerificationStep4View(LoginRequiredMixin, View):
                 except (ValueError, TypeError) as e:
                     logger.error(f"Error parsing date_of_birth: {e}")
                     messages.error(request, 'Invalid date format. Please start again.')
-                    return redirect('ekyc_step1')
+                    return redirect('users:ekyc_step1')
             
             # Load temporary files from storage
             id_front_path = request.session.get('temp_id_front_path')
@@ -1216,7 +1277,7 @@ class VerificationStep4View(LoginRequiredMixin, View):
             if not id_front_file or not selfie_file:
                 messages.error(request, 'We could not process your uploaded files. Please upload them again.')
                 cleanup_temp_files(request.session, ['temp_id_front_path', 'temp_id_back_path', 'temp_selfie_path'])
-                return redirect('ekyc_step2')
+                return redirect('users:ekyc_step2')
 
             # Create verification submission
             verification = AccountVerification.objects.create(
@@ -1302,12 +1363,12 @@ class VerificationStep4View(LoginRequiredMixin, View):
                 request.session.pop(key, None)
 
             # Redirect immediately to pending page
-            return redirect('ekyc_pending')
+            return redirect('users:ekyc_pending')
             
         except Exception as e:
             logger.error(f"Error in VerificationStep4View.post: {e}", exc_info=True)
             messages.error(request, 'An error occurred while submitting your verification. Please try again.')
-            return redirect('ekyc_step4')
+            return redirect('users:ekyc_step4')
 
 
 class VerificationPendingView(LoginRequiredMixin, View):
@@ -1386,7 +1447,7 @@ class VerifyOTPView(View):
             if existing_user:
                 # User already exists and email is already verified
                 messages.info(request, 'This email is already registered. Please login instead.')
-                return redirect('login')
+                return redirect('users:login')
             
             # Create the user account
             try:
@@ -1422,7 +1483,7 @@ class VerifyOTPView(View):
                 logger = logging.getLogger(__name__)
                 logger.error(f"Error creating account for {otp_record.email}: {str(e)}")
                 messages.error(request, f'Error creating account: {str(e)}')
-                return redirect('register')
+                return redirect('users:register')
         else:
             messages.error(request, message)
             return redirect('verify_otp', email=email)

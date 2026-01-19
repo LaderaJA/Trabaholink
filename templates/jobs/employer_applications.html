@@ -309,7 +309,7 @@
                 <select name="status" class="filter-select" onchange="this.form.submit()">
                     <option value="">All Statuses</option>
                     <option value="Pending" {% if request.GET.status == 'Pending' %}selected{% endif %}>Pending</option>
-                    <option value="Accepted" {% if request.GET.status == 'Accepted' %}selected{% endif %}>Accepted</option>
+                    
                     <option value="Negotiation" {% if request.GET.status == 'Negotiation' %}selected{% endif %}>Negotiation</option>
                     <option value="Rejected" {% if request.GET.status == 'Rejected' %}selected{% endif %}>Rejected</option>
                 </select>
@@ -384,7 +384,7 @@
             </div>
 
             <div class="application-actions">
-                <a href="{% url 'users:profile_detail' application.worker.username %}" 
+                <a href="{% url 'users:profile' application.worker.pk %}" 
                    class="btn btn-primary" target="_blank">
                     <i class="bi bi-person"></i> View Profile
                 </a>
@@ -412,7 +412,7 @@
                         <i class="bi bi-x-circle"></i> Reject
                     </button>
                 </form>
-                {% elif application.status == 'Negotiation' or application.status == 'Accepted' %}
+                {% elif application.status == 'Negotiation' %}
                 {% with negotiation_contract=application.current_contract %}
                 {% if negotiation_contract %}
                 <a href="{% url 'jobs:contract_negotiation' negotiation_contract.pk %}" 

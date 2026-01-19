@@ -728,6 +728,13 @@ class ContractDetailView(LoginRequiredMixin, DetailView):
         context['contract_terms_html'] = mark_safe(
             escape(final_terms).replace('\n', '<br>')
         )
+        
+        # Check if user has already left feedback
+        user_feedback = Feedback.objects.filter(
+            contract=contract,
+            giver=self.request.user
+        ).first()
+        context['user_feedback'] = user_feedback
 
         history_entries = []
         field_labels = {
@@ -1013,6 +1020,10 @@ class ContractUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def test_func(self):
         contract = self.get_object()
         return self.request.user == contract.client or self.request.user == contract.worker
+    
+    def form_valid(self, form):
+        messages.success(self.request, "Contract updated successfully!")
+        return super().form_valid(form)
     
     def get_success_url(self):
         return reverse_lazy("jobs:contract_detail", kwargs={"pk": self.object.pk})
@@ -1737,7 +1748,7 @@ def accept_application_new(request, pk):
 class ContractNegotiationView(LoginRequiredMixin, UpdateView):
     """View for contract negotiation - both parties can edit"""
     model = Contract
-    template_name = "jobs/contract_negotiation.html"
+    template_name = "jobs/contract_negotiation_workflow.html"
     fields = [
         'job_title',
         'job_description',
@@ -1813,7 +1824,21 @@ class ContractNegotiationView(LoginRequiredMixin, UpdateView):
         return form
 
     def form_valid(self, form):
+        action = self.request.POST.get('action', 'save')
         contract = form.save(commit=False)
+        
+        # If action is "save", just save changes without acceptance
+        if action == 'save':
+            contract.status = "Negotiation"
+            contract.updated_at = timezone.now()
+            contract.terms = normalize_contract_terms_text(contract.terms) or DEFAULT_CONTRACT_TERMS
+            contract.save()
+            form.save_m2m()
+            
+            messages.success(self.request, "Contract changes saved successfully!")
+            return redirect("jobs:contract_negotiation", pk=contract.pk)
+        
+        # Default behavior for other actions
         contract.status = "Negotiation"
         contract.is_finalized = False
         contract.finalized_by_worker = False
@@ -1970,7 +1995,7 @@ class JobTrackingView(LoginRequiredMixin, DetailView):
         context['has_activity'] = progress_updates.exists() or progress_logs.exists()
         context['is_worker'] = self.request.user == contract.worker
         context['is_employer'] = self.request.user == contract.client
-        context['can_start'] = context['is_worker'] and contract.status in {"Finalized", "Accepted"}
+        context['can_start'] = context['is_worker'] and contract.status in {"Finalized"}
         context['can_post_progress'] = context['is_worker'] and contract.status == "In Progress"
         context['can_mark_completed'] = context['is_worker'] and contract.status == "In Progress"
         context['show_revision_request'] = context['is_worker'] and contract.is_revision_requested
@@ -2170,44 +2195,81 @@ def feedback_form(request, contract_pk):
         messages.error(request, "Feedback can only be given for completed contracts.")
         return redirect("jobs:contract_detail", pk=contract_pk)
 
-    if Feedback.objects.filter(contract=contract, giver=request.user).exists():
-        messages.info(request, "You have already provided feedback for this contract.")
-        return redirect("jobs:contract_detail", pk=contract_pk)
+    # Check if user already gave feedback (for editing) - DO NOT redirect, allow editing
+    existing_feedback = Feedback.objects.filter(contract=contract, giver=request.user).first()
+    is_editing = existing_feedback is not None
 
     receiver = contract.client if request.user == contract.worker else contract.worker
 
     if request.method == "POST":
+        from better_profanity import profanity
+        from admin_dashboard.utils import load_banned_words
+        
         rating = request.POST.get('rating')
-        message = request.POST.get('message')
+        message = request.POST.get('message', '').strip()
         
         if not rating or not message:
             messages.error(request, "Please provide both rating and feedback message.")
             return redirect("jobs:feedback_form", contract_pk=contract_pk)
         
-        # Create feedback
-        Feedback.objects.create(
-            contract=contract,
-            giver=request.user,
-            receiver=receiver,
-            rating=int(rating),
-            message=message
-        )
+        # Profanity filtering
+        banned_words = load_banned_words()
+        profanity.load_censor_words([word for word in banned_words if ' ' not in word])
         
-        # Notify receiver
-        Notification.objects.create(
-            user=receiver,
-            message=f"{request.user.username} left you feedback for '{contract.job.title}'.",
-            notif_type="feedback",
-            object_id=contract.pk
-        )
+        # Censor single words
+        censored_message = profanity.censor(message)
         
-        messages.success(request, "Feedback submitted successfully!")
+        # Censor multi-word phrases
+        for phrase in banned_words:
+            if ' ' in phrase:
+                censored_message = censored_message.replace(phrase, '*' * len(phrase))
+        
+        # Warn if censored
+        if censored_message != message:
+            messages.warning(request, "Your feedback contained inappropriate language and has been censored.")
+        
+        # Create or update feedback
+        if is_editing:
+            existing_feedback.rating = int(rating)
+            existing_feedback.message = censored_message
+            existing_feedback.save()
+            messages.success(request, "Feedback updated successfully!")
+        else:
+            Feedback.objects.create(
+                contract=contract,
+                giver=request.user,
+                receiver=receiver,
+                rating=int(rating),
+                message=censored_message
+            )
+            messages.success(request, "Feedback submitted successfully!")
+        
+        # Notify receiver (only for new feedback, not edits)
+        if not is_editing:
+            Notification.objects.create(
+                user=receiver,
+                message=f"{request.user.username} left you feedback for '{contract.job.title}'.",
+                notif_type="feedback",
+                object_id=contract.pk
+            )
+        
         return redirect("jobs:contract_detail", pk=contract_pk)
+    
+    # Pre-populate form if editing
+    initial_data = {}
+    if is_editing:
+        initial_data = {
+            'rating': existing_feedback.rating,
+            'message': existing_feedback.message
+        }
     
     context = {
         'contract': contract,
         'receiver': receiver,
-        'is_worker': request.user == contract.worker
+        'is_worker': request.user == contract.worker,
+        'is_editing': is_editing,
+        'existing_feedback': existing_feedback,
+        'initial_data': initial_data
     }
 
     return render(request, "jobs/feedback_form.html", context)
@@ -2338,7 +2400,7 @@ def start_contract_work(request, pk):
         messages.info(request, "Work on this contract has already started.")
         return redirect("jobs:job_tracking", pk=pk)
 
-    if contract.status not in ["Finalized", "Accepted"]:
+    if contract.status not in ["Finalized"]:
         messages.warning(request, "This contract must be finalized before work can start.")
         return redirect("jobs:contract_detail", pk=pk)
 

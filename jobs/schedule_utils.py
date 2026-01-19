@@ -33,7 +33,7 @@ def check_schedule_conflicts(
     # Get active contracts for the worker
     active_contracts = Contract.objects.filter(
         worker_id=worker_id,
-        status__in=['Accepted', 'In Progress', 'Finalized', 'Awaiting Review']
+        status__in=['Finalized', 'In Progress', 'Awaiting Review']
     ).exclude(
         start_date__isnull=True
     )
@@ -120,7 +120,7 @@ def get_worker_schedule(worker_id: int, start_date: datetime.date, end_date: dat
     """
     contracts = Contract.objects.filter(
         worker_id=worker_id,
-        status__in=['Accepted', 'In Progress', 'Finalized', 'Awaiting Review', 'Completed']
+        status__in=['Finalized', 'In Progress', 'Awaiting Review', 'Completed']
     ).exclude(
         start_date__isnull=True
     ).filter(

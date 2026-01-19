@@ -895,7 +895,7 @@ body {
       </div>
 
       <!-- Worker's CV/Resume -->
-      {% if application.attach_profile_cv and application.worker.cv_url %}
+      {% if application.attach_profile_cv and application.worker.cv_file %}
       <div class="card-section">
         <h3 class="section-title">
           <i class="bi bi-file-earmark-pdf-fill"></i>
@@ -913,11 +913,11 @@ body {
               </p>
             </div>
             <div class="cv-actions">
-              <a href="{{ application.worker.cv_url }}" target="_blank" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
+              <a href="{{ application.worker.cv_file.url }}" target="_blank" class="btn btn-primary" style="display: inline-flex; align-items: center; gap: 8px;">
                 <i class="bi bi-eye-fill"></i>
                 View CV
               </a>
-              <a href="{{ application.worker.cv_url }}" download class="btn btn-outline-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
+              <a href="{{ application.worker.cv_file.url }}" download class="btn btn-outline-secondary" style="display: inline-flex; align-items: center; gap: 8px;">
                 <i class="bi bi-download"></i>
                 Download
               </a>
@@ -1023,7 +1023,7 @@ body {
           <i class="bi bi-person-fill"></i>
         </div>
         <h4 class="profile-name">{{ application.worker.get_full_name|default:application.worker.username }}</h4>
-        <a href="{% url 'profile' application.worker.pk %}" class="profile-link">
+        <a href="{% url 'users:profile' application.worker.pk %}" class="profile-link">
           <i class="bi bi-eye-fill"></i> View Full Profile
         </a>
       </div>

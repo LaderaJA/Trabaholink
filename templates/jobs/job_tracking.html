@@ -5,407 +5,461 @@
 {% block title %}Job Tracking - {{ contract.job.title }}{% endblock %}
 
 {% block css %}
-    {{ block.super }}
-    <script src="https://cdn.tailwindcss.com"></script>
+{{ block.super }}
+<style>
+:root {
+  --primary: #3b82f6; --primary-dark:#2563eb; --primary-light:#dbeafe;
+  --success:#10b981; --success-light:#d1fae5;
+  --warning:#f59e0b; --warning-light:#fef3c7;
+  --danger:#ef4444; --danger-light:#fee2e2;
+  --gray-900:#111827; --gray-700:#374151; --gray-500:#6b7280; --gray-300:#d1d5db; --gray-100:#f3f4f6; --gray-50:#f9fafb;
+}
+body { background: var(--gray-50); }
+.container { max-width: 1200px; margin: 0 auto; padding: 1.5rem; }
+.main-card { background: white; border-radius: 1rem; box-shadow: 0 1px 3px rgba(0,0,0,.1); overflow: hidden; }
+.card-section { padding: 1.5rem 2rem; border-bottom: 1px solid var(--gray-100); }
+.card-section:last-child { border-bottom: none; }
+.section-title { font-size: 1.25rem; font-weight: 600; color: var(--gray-900); display:flex; align-items:center; gap:.5rem; margin:0 0 1rem; }
+.section-title i { color: var(--primary); }
+.btn { display:inline-flex; align-items:center; gap:.5rem; padding:.75rem 1rem; border:none; border-radius:.5rem; font-weight:600; cursor:pointer; text-decoration:none; }
+.btn-primary { background: var(--primary); color:#fff; }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-success { background: var(--success); color:#fff; }
+.btn-success:hover { background:#059669; }
+.btn-secondary { background:#fff; color:var(--gray-700); border:1px solid var(--gray-300); }
+.badge { display:inline-block; padding:.25rem .75rem; border-radius:999px; font-size:.75rem; font-weight:600; }
+.badge-status { background: var(--primary-light); color:#1e40af; border:1px solid #bfdbfe; }
+
+/* Workflow Progress Section */
+.workflow-section { background:white; padding:2rem; border-radius:1rem; margin-bottom:0; box-shadow:0 1px 3px rgba(0,0,0,.1); border-bottom:1px solid var(--gray-100); }
+.progress-header { display:flex; justify-content:space-between; align-items:center; margin-bottom:2rem; }
+.status-badge { display:inline-flex; align-items:center; gap:.5rem; padding:.5rem 1rem; border-radius:2rem; font-weight:600; font-size:.875rem; }
+.status-badge.negotiation { background:var(--warning-light); color:#92400e; }
+.status-badge.finalized, .status-badge.accepted { background:var(--success-light); color:#065f46; }
+.status-badge.inprogress, .status-badge.progress { background:var(--primary-light); color:#1e40af; }
+.status-badge.completed { background:var(--success-light); color:#065f46; }
+.status-badge.awaitingreview, .status-badge.submittedforreview { background:var(--warning-light); color:#92400e; }
+
+/* Progress Bar */
+.progress-bar-container { position:relative; height:8px; background:var(--gray-100); border-radius:10px; overflow:hidden; margin-bottom:3rem; }
+.progress-bar-fill { height:100%; background:var(--success); border-radius:10px; transition:width .6s ease; }
+
+/* Workflow Steps */
+.workflow-steps { display:flex; justify-content:space-between; gap:1rem; }
+.workflow-step { display:flex; flex-direction:column; align-items:center; text-align:center; flex:1; }
+.step-circle { width:48px; height:48px; border-radius:50%; display:flex; align-items:center; justify-content:center; font-weight:700; font-size:1.25rem; margin-bottom:0.75rem; border:3px solid transparent; box-shadow:0 4px 12px rgba(0,0,0,.1); }
+.step-pending .step-circle { background:white; color:var(--gray-500); border-color:var(--gray-200); }
+.step-current .step-circle { background:var(--primary); color:white; border-color:var(--primary-light); box-shadow:0 0 0 4px var(--primary-light); animation:pulse-glow 2s infinite; }
+.step-completed .step-circle { background:var(--success); color:white; border-color:var(--success-light); }
+@keyframes pulse-glow { 0%, 100% { box-shadow:0 0 0 4px var(--primary-light); } 50% { box-shadow:0 0 0 8px var(--primary-light); } }
+.step-label { font-size:.875rem; font-weight:600; color:var(--gray-700); max-width:140px; }
+.step-description { font-size:.75rem; color:var(--gray-500); margin-top:.25rem; max-width:140px; }
+.step-pending .step-label { color:var(--gray-500); }
+.step-current .step-label { color:var(--primary); }
+.step-completed .step-label { color:var(--success); }
+.info { font-size:.9rem; color: var(--gray-700); }
+.input, textarea { width:100%; padding:.75rem 1rem; border:1px solid var(--gray-300); border-radius:.5rem; }
+.input:focus, textarea:focus { outline:none; border-color: var(--primary); box-shadow:0 0 0 3px var(--primary-light); }
+.preview { border:1px solid var(--gray-300); border-radius:.5rem; }
+@media(max-width:768px){ .container{ padding:1rem; } .card-section{ padding:1rem 1.25rem; } }
+</style>
 {% endblock %}
 
 {% block content %}
-<div class="container mx-auto px-4 py-8 max-w-6xl">
-    <!-- Breadcrumb -->
-    <nav aria-label="Job tracking breadcrumb" class="mb-6 text-sm text-gray-600">
-        <ol class="flex flex-wrap items-center gap-2">
-            <li>
-                <a href="{% url 'jobs:home' %}" class="text-blue-600 hover:text-blue-700">Home</a>
-                <span class="text-gray-400">/</span>
-            </li>
-            <li>
-                {% if is_worker %}
-                <a href="{% url 'jobs:worker_dashboard' %}" class="text-blue-600 hover:text-blue-700">Dashboard</a>
-                {% elif is_employer %}
-                <a href="{% url 'jobs:employer_dashboard' %}" class="text-blue-600 hover:text-blue-700">Dashboard</a>
-                {% else %}
-                <span class="text-gray-500">Dashboard</span>
-                {% endif %}
-                <span class="text-gray-400">/</span>
-            </li>
-            <li>
-                <a href="{% url 'jobs:contract_detail' contract.pk %}" class="text-blue-600 hover:text-blue-700">Contract</a>
-                <span class="text-gray-400">/</span>
-            </li>
-            <li class="text-gray-500">Job Tracking</li>
-        </ol>
-    </nav>
-
-    <!-- Header -->
-    <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-        <div class="flex justify-between items-start mb-4">
+<style>
+:root{--primary:#3b82f6;--primary-dark:#2563eb;--primary-light:#dbeafe;--success:#10b981;--success-light:#d1fae5;--warning:#f59e0b;--warning-light:#fef3c7;--danger:#ef4444;--danger-light:#fee2e2;--gray-900:#111827;--gray-700:#374151;--gray-500:#6b7280;--gray-300:#d1d5db;--gray-100:#f3f4f6;--gray-50:#f9fafb}
+body{background:var(--gray-50)}
+.container{max-width:1100px;margin:0 auto;padding:1.5rem}
+.main-card{background:#fff;border-radius:1rem;box-shadow:0 1px 3px rgba(0,0,0,.1);overflow:hidden}
+.card-section{padding:1.5rem 2rem;border-bottom:1px solid var(--gray-100)}
+.card-section:last-child{border-bottom:none}
+.section-title{font-size:1.25rem;font-weight:600;color:var(--gray-900);display:flex;align-items:center;gap:.5rem;margin:0 0 1rem}
+.section-title i{color:var(--primary)}
+.btn{display:inline-flex;align-items:center;gap:.5rem;padding:.75rem 1rem;border:none;border-radius:.5rem;font-weight:600;cursor:pointer;text-decoration:none}
+.btn-primary{background:var(--primary);color:#fff}
+.btn-primary:hover{background:var(--primary-dark)}
+.btn-success{background:var(--success);color:#fff}
+.btn-success:hover{background:#059669}
+.btn-secondary{background:#fff;color:var(--gray-700);border:1px solid var(--gray-300)}
+.btn-danger{background:var(--danger);color:#fff}
+.badge{display:inline-block;padding:.25rem .75rem;border-radius:999px;font-size:.75rem;font-weight:600}
+.badge-status{background:var(--primary-light);color:#1e40af;border:1px solid #bfdbfe}
+.progress-track{height:8px;background:var(--gray-100);border-radius:8px;overflow:hidden;margin-bottom:1rem}
+.progress-fill{height:100%;background:var(--success);transition:width .3s ease}
+.step-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;text-align:center;font-size:.875rem}
+.step-dot{width:32px;height:32px;border-radius:50%;display:inline-flex;align-items:center;justify-content:center;font-weight:700;margin:0 auto .25rem}
+.step-done{background:var(--success);color:#fff}
+.step-pending{background:#e5e7eb;color:#6b7280}
+.info{font-size:.9rem;color:var(--gray-700);margin-bottom:.5rem;display:block}
+.input,textarea{width:100%;padding:.75rem 1rem;border:1px solid var(--gray-300);border-radius:.5rem;font-size:1rem}
+.input:focus,textarea:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px var(--primary-light)}
+textarea{resize:vertical}
+.preview{border:1px solid var(--gray-300);border-radius:.5rem;max-width:100%;height:auto}
+.alert-warning{background:var(--warning-light);border-left:4px solid var(--warning);padding:1rem;border-radius:.5rem;margin-bottom:1rem}
+.alert-success{background:var(--success-light);border-left:4px solid var(--success);padding:1rem;border-radius:.5rem;margin-bottom:1rem}
+@media(max-width:768px){
+  .container{padding:1rem}
+  .card-section{padding:1rem 1.25rem}
+  .workflow-section{padding:1.5rem}
+  .workflow-steps{flex-direction:row; gap:.5rem}
+  .step-circle{width:36px; height:36px; font-size:1rem}
+  .step-label{font-size:.75rem}
+  .step-description{font-size:.65rem}
+  .btn{padding:.6rem .75rem;font-size:.875rem;white-space:nowrap}
+  .section-title{font-size:1.1rem}
+  .btn i{font-size:.9rem}
+  textarea{font-size:.875rem}
+}
+@media(max-width:480px){
+  .workflow-steps{gap:.25rem}
+  .step-circle{width:32px; height:32px; font-size:.875rem}
+  .step-label, .step-description{display:none}
+  .btn{min-width:120px!important;font-size:.8rem}
+}
+</style>
+<div class="container">
+    <div class="main-card">
+      <!-- Contract Progress Section (Standardized) -->
+      <div class="card-section workflow-section">
+        <div class="progress-header">
+          <h3 class="section-title">
+            <i class="bi bi-diagram-3-fill"></i>
+            Contract Progress
+          </h3>
+          <span class="status-badge {{ contract.status|lower|cut:' ' }}">
+            <i class="bi bi-circle-fill" style="font-size: 0.5rem;"></i>
+            {{ contract.status }}
+          </span>
+        </div>
+        
+        <!-- Progress Bar -->
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" style="width: {% if contract.status == 'Completed' %}100{% elif contract.status == 'Awaiting Review' or contract.status == 'Submitted for Review' %}75{% elif contract.status == 'In Progress' %}50{% elif contract.status == 'Finalized' %}25{% else %}12.5{% endif %}%;"></div>
+        </div>
+        
+        <!-- Workflow Steps -->
+        <div class="workflow-steps">
+          <!-- Step 1: Negotiation -->
+          <div class="workflow-step {% if contract.status != 'Draft' and contract.status != 'Negotiation' %}step-completed{% elif contract.status == 'Negotiation' %}step-current{% else %}step-pending{% endif %}">
+            <div class="step-circle">{% if contract.status != 'Draft' and contract.status != 'Negotiation' %}✓{% else %}1{% endif %}</div>
             <div>
-                <h1 class="text-3xl font-bold text-gray-800 mb-2">Job Tracking</h1>
-                <p class="text-gray-600">{{ contract.job.title }}</p>
+              <div class="step-label">Negotiation</div>
+              <div class="step-description">Agreed</div>
             </div>
-            <span class="px-4 py-2 rounded-full font-semibold text-white
-                {% if contract.status == 'In Progress' %}bg-orange-500
-                {% elif contract.status == 'Awaiting Review' %}bg-yellow-500
-                {% elif contract.status == 'Completed' %}bg-purple-500
-                {% else %}bg-gray-500{% endif %}">
-                {{ contract.status }}
-            </span>
+          </div>
+          
+          <!-- Step 2: Finalized -->
+          <div class="workflow-step {% if contract.status == 'In Progress' or contract.status == 'Submitted for Review' or contract.status == 'Awaiting Review' or contract.status == 'Completed' %}step-completed{% elif contract.status == 'Finalized' %}step-current{% else %}step-pending{% endif %}">
+            <div class="step-circle">{% if contract.status == 'In Progress' or contract.status == 'Submitted for Review' or contract.status == 'Awaiting Review' or contract.status == 'Completed' %}✓{% else %}2{% endif %}</div>
+            <div>
+              <div class="step-label">Finalized</div>
+              <div class="step-description">Ready</div>
+            </div>
+          </div>
+          
+          <!-- Step 3: In Progress -->
+          <div class="workflow-step {% if contract.status == 'Submitted for Review' or contract.status == 'Awaiting Review' or contract.status == 'Completed' %}step-completed{% elif contract.status == 'In Progress' %}step-current{% else %}step-pending{% endif %}">
+            <div class="step-circle">{% if contract.status == 'Submitted for Review' or contract.status == 'Awaiting Review' or contract.status == 'Completed' %}✓{% else %}3{% endif %}</div>
+            <div>
+              <div class="step-label">In Progress</div>
+              <div class="step-description">{% if contract.status == 'Completed' %}Done{% elif contract.status == 'In Progress' %}Working{% else %}Not Started{% endif %}</div>
+            </div>
+          </div>
+          
+          <!-- Step 4: Completed -->
+          <div class="workflow-step {% if contract.status == 'Completed' %}step-completed{% elif contract.status == 'Submitted for Review' or contract.status == 'Awaiting Review' %}step-current{% else %}step-pending{% endif %}">
+            <div class="step-circle">{% if contract.status == 'Completed' %}✓{% else %}4{% endif %}</div>
+            <div>
+              <div class="step-label">Completed</div>
+              <div class="step-description">{% if contract.status == 'Completed' %}Finished{% else %}Pending{% endif %}</div>
+            </div>
+          </div>
         </div>
+      </div>
 
-        <!-- Contract Summary -->
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-            <div class="bg-gray-50 p-4 rounded-lg">
-                <p class="text-sm text-gray-600">Worker</p>
-                <p class="font-semibold text-gray-800">{{ contract.worker.get_full_name|default:contract.worker.username }}</p>
-            </div>
-            <div class="bg-gray-50 p-4 rounded-lg">
-                <p class="text-sm text-gray-600">Employer</p>
-                <p class="font-semibold text-gray-800">{{ contract.client.get_full_name|default:contract.client.username }}</p>
-            </div>
-            <div class="bg-gray-50 p-4 rounded-lg">
-                <p class="text-sm text-gray-600">Agreed Rate</p>
-                <p class="font-semibold text-gray-800">₱{{ contract.agreed_rate|default:contract.job.budget }}</p>
-            </div>
-        </div>
-    </div>
-
-    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <!-- Main Content - Progress Feed -->
-        <div class="lg:col-span-2">
-            <!-- Worker Actions -->
+    
+<div class="card-section">
+  <h2 class="section-title"><i class="bi bi-tools"></i> Worker Actions</h2>
             {% if is_worker %}
                 {% if show_revision_request %}
-                <div class="bg-red-50 border border-red-200 text-red-700 rounded-lg p-4 mb-6">
-                    <h2 class="text-lg font-semibold mb-2">Revision Requested</h2>
-                    <p>The employer has requested additional work or revisions. Please review their notes in the progress feed and update your progress before resubmitting.</p>
+                <div class="alert-warning" style="margin-bottom:1rem">
+                    <h3 style="font-size:1.125rem;font-weight:600;margin-bottom:.5rem">Revision Requested</h3>
+                    <p class="info">The employer has requested additional work or revisions. Please review their notes in the progress feed and update your progress before resubmitting.</p>
                 </div>
                 {% endif %}
                 {% if can_start %}
-                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4">Ready to Start?</h2>
-                    <form method="post" action="{% url 'jobs:start_contract_work' contract.pk %}" 
-                          onsubmit="return confirm('Are you sure you want to start this job?');">
-                        {% csrf_token %}
-                        <input type="hidden" name="action" value="start_work">
-                        <button type="submit" 
-                                class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
-                            🚀 Start Job
-                        </button>
-                    </form>
-                </div>
+                <form method="post" action="{% url 'jobs:start_contract_work' contract.pk %}" 
+                      onsubmit="return confirm('Are you sure you want to start this job?');" style="margin-bottom:1rem">
+                    {% csrf_token %}
+                    <input type="hidden" name="action" value="start_work">
+                    <button type="submit" class="btn btn-success" style="max-width:200px;width:100%">
+                        <i class="bi bi-play-circle"></i> Start Job
+                    </button>
+                </form>
                 {% endif %}
 
                 {% if can_post_progress %}
                 <!-- Post Progress Update -->
-                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4">📝 Post Progress Update</h2>
                     <form id="progress-form" method="post" action="{% url 'jobs:post_progress_update' contract.pk %}" enctype="multipart/form-data">
                         {% csrf_token %}
-                        <div class="mb-4">
-                            <label for="update_text" class="block text-sm font-medium text-gray-700 mb-2">
+                        <div style="margin-bottom:1rem">
+                            <label for="update_text" class="info">
                                 Update Description *
                             </label>
-                            <textarea name="update_text" id="update_text" required
-                                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                            <textarea name="update_text" id="update_text" required class="input"
                                       rows="4" placeholder="Describe your progress..."></textarea>
                         </div>
 
-                        <div class="mb-4">
-                            <label for="image" class="block text-sm font-medium text-gray-700 mb-2">
-                                📷 Progress Photo (Optional)
+                        <div style="margin-bottom:1rem">
+                            <label for="image" class="info">
+                                <i class="bi bi-camera"></i> Progress Photo (Optional)
                             </label>
-                            <input type="file" name="image" id="image" accept="image/*"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <p class="text-xs text-gray-500 mt-1">Supported: JPG, PNG, GIF</p>
+                            <input type="file" name="image" id="image" accept="image/*" class="input">
+                            <p style="font-size:.75rem;color:var(--gray-500);margin-top:.25rem">Supported: JPG, PNG, GIF</p>
                             
                             <!-- Image Preview -->
-                            <div id="imagePreview" class="mt-3 hidden">
-                                <img id="imagePreviewImg" src="" alt="Preview" class="max-w-xs rounded-lg border border-gray-300">
-                                <button type="button" onclick="clearImagePreview()" class="text-sm text-red-600 mt-2 hover:text-red-700">Remove</button>
+                            <div id="imagePreview" style="margin-top:.75rem;display:none">
+                                <img id="imagePreviewImg" src="" alt="Preview" class="preview" style="max-width:320px">
+                                <button type="button" onclick="clearImagePreview()" style="font-size:.875rem;color:var(--danger);margin-top:.5rem;background:none;border:none;cursor:pointer">Remove</button>
                             </div>
                         </div>
 
-                        <div class="mb-4">
-                            <label for="video" class="block text-sm font-medium text-gray-700 mb-2">
-                                🎥 Progress Video (Optional)
+                        <div style="margin-bottom:1rem">
+                            <label for="video" class="info">
+                                <i class="bi bi-camera-video"></i> Progress Video (Optional)
                             </label>
                             <input type="file" name="video" id="video" 
-                                   accept="video/mp4,video/quicktime,video/webm,video/x-msvideo"
-                                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                            <div class="flex items-start gap-2 mt-1">
-                                <span class="text-xs text-gray-500">
-                                    📹 Max 30 seconds, 25MB | Formats: MP4, MOV, WEBM, AVI
-                                </span>
-                            </div>
+                                   accept="video/mp4,video/quicktime,video/webm,video/x-msvideo" class="input">
+                            <p style="font-size:.75rem;color:var(--gray-500);margin-top:.25rem">
+                                Max 30 seconds, 25MB | Formats: MP4, MOV, WEBM, AVI
+                            </p>
                             
                             <!-- Video Preview -->
-                            <div id="videoPreview" class="mt-3 hidden">
-                                <video id="videoPreviewPlayer" controls class="max-w-md rounded-lg border border-gray-300" style="max-height: 300px;">
+                            <div id="videoPreview" style="margin-top:.75rem;display:none">
+                                <video id="videoPreviewPlayer" controls class="preview" style="max-height:300px;max-width:100%">
                                     <source id="videoPreviewSource" src="" type="video/mp4">
                                     Your browser does not support video playback.
                                 </video>
-                                <div class="flex items-center gap-4 mt-2">
-                                    <span id="videoInfo" class="text-sm text-gray-600"></span>
-                                    <button type="button" onclick="clearVideoPreview()" class="text-sm text-red-600 hover:text-red-700">Remove</button>
+                                <div style="display:flex;align-items:center;gap:1rem;margin-top:.5rem">
+                                    <span id="videoInfo" style="font-size:.875rem;color:var(--gray-600)"></span>
+                                    <button type="button" onclick="clearVideoPreview()" style="font-size:.875rem;color:var(--danger);background:none;border:none;cursor:pointer">Remove</button>
                                 </div>
                             </div>
                         </div>
 
-                        <button type="submit" 
-                                class="w-full bg-blue-600 hover:bg-blue-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
-                            📤 Post Update
-                        </button>
+                        <!-- Action Buttons Side by Side -->
+                        <div style="display:flex;gap:1rem;flex-wrap:wrap">
+                            <button type="submit" class="btn btn-primary" style="flex:1;min-width:150px">
+                                <i class="bi bi-upload"></i> Post Update
+                            </button>
+                            {% if can_mark_completed %}
+                            <button type="button" onclick="document.getElementById('completeJobForm').submit();" class="btn btn-success" style="flex:1;min-width:150px">
+                                <i class="bi bi-check-circle"></i> Mark Complete
+                            </button>
+                            {% endif %}
+                        </div>
                     </form>
-                </div>
 
-                <!-- Mark as Completed -->
+                <!-- Hidden form for Mark as Completed -->
                 {% if can_mark_completed %}
-                <div class="bg-white rounded-lg shadow-md p-6 mb-6">
-                    <h2 class="text-xl font-bold text-gray-800 mb-4">Job Complete?</h2>
-                    <form method="post" action="{% url 'jobs:mark_job_completed' contract.pk %}" 
-                          onsubmit="return confirm('Are you sure you want to mark this job as completed? The employer will review your work.');">
-                        {% csrf_token %}
-                        <button type="submit" 
-                                class="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-3 px-6 rounded-lg transition duration-200">
-                            ✓ Mark as Completed
-                        </button>
-                    </form>
-                </div>
+                <form id="completeJobForm" method="post" action="{% url 'jobs:mark_job_completed' contract.pk %}" 
+                      onsubmit="return confirm('Are you sure you want to mark this job as completed? The employer will review your work.');" style="display:none">
+                    {% csrf_token %}
+                </form>
                 {% endif %}
                 {% endif %}
             {% endif %}
 
-            <!-- Employer Actions -->
+            </div>
+<div class="card-section">
+  <h2 class="section-title"><i class="bi bi-clipboard-check"></i> Employer Actions</h2>
             {% if show_employer_review_actions %}
-            <div class="bg-gradient-to-br from-white to-gray-50 rounded-xl shadow-lg border-2 border-gray-100 p-8 mb-6">
-                <div class="flex items-center gap-3 mb-4">
-                    <div class="bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full p-3">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                        </svg>
-                    </div>
-                    <h2 class="text-2xl font-bold text-gray-800">Review Completed Work</h2>
-                </div>
-                <p class="text-gray-600 mb-6 text-base leading-relaxed">The worker has marked this job as completed. Review the work and choose an action below.</p>
+            <div style="padding:1.5rem;margin-bottom:1rem">
+                <h3 style="font-size:1.5rem;font-weight:700;color:var(--gray-900);margin-bottom:.5rem">
+                    <i class="bi bi-clipboard-check"></i> Review Completed Work
+                </h3>
+                <p class="info" style="margin-bottom:1.5rem">The worker has marked this job as completed. Review the work and choose an action below.</p>
                 
-                <!-- Action Buttons Container -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <!-- Request Revisions Form -->
-                    <form method="post" action="{% url 'jobs:oppose_job_completion' contract.pk %}" class="flex flex-col"
-                          onsubmit="return confirm('Send this revision request to the worker?');">
-                        {% csrf_token %}
-                        <div class="mb-4">
-                            <label for="revision_reason" class="block text-sm font-semibold text-gray-700 mb-2 flex items-center gap-2">
-                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
-                                </svg>
-                                Reason for Revision *
-                            </label>
-                            <textarea id="revision_reason" name="reason" required rows="4"
-                                      class="w-full px-4 py-3 border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-red-500 transition-all duration-200 resize-none"
-                                      placeholder="Describe what needs to be corrected or improved..."></textarea>
-                        </div>
-                        <button type="submit"
-                                class="w-full bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center gap-3 group">
-                            <svg class="w-5 h-5 transform group-hover:rotate-180 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6"></path>
-                            </svg>
-                            Request Revisions
-                        </button>
-                    </form>
-                    
-                    <!-- End Job Form -->
-                    <form method="post" action="{% url 'jobs:end_job' contract.pk %}" class="flex flex-col justify-end"
-                          onsubmit="return confirm('Are you sure you want to end this job? You will be prompted to leave feedback.');">
-                        {% csrf_token %}
-                        <div class="mb-4 bg-gradient-to-r from-purple-50 to-indigo-50 p-4 rounded-lg border border-purple-200">
-                            <p class="text-sm text-purple-800 flex items-start gap-2">
-                                <svg class="w-5 h-5 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20">
-                                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path>
-                                </svg>
-                                <span>Ending the job will prompt you to leave feedback and finalize payment. This action cannot be undone.</span>
-                            </p>
-                        </div>
-                        <button type="submit" 
-                                class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold py-4 px-6 rounded-xl transition-all duration-300 transform hover:scale-105 hover:shadow-xl flex items-center justify-center gap-3 group">
-                            <svg class="w-5 h-5 group-hover:animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path>
-                            </svg>
-                            End Job & Leave Feedback
-                        </button>
-                    </form>
-                </div>
+                <!-- Request Revisions Form -->
+                <form method="post" action="{% url 'jobs:oppose_job_completion' contract.pk %}"
+                      onsubmit="return confirm('Send this revision request to the worker?');" style="margin-bottom:1.5rem">
+                    {% csrf_token %}
+                    <label for="revision_reason" class="info">
+                        <i class="bi bi-pencil"></i> Reason for Revision *
+                    </label>
+                    <textarea id="revision_reason" name="reason" required rows="4" class="input"
+                              placeholder="Describe what needs to be corrected or improved..." style="margin-bottom:1rem"></textarea>
+                    <button type="submit" class="btn btn-danger" style="max-width:300px;width:100%">
+                        <i class="bi bi-arrow-counterclockwise"></i> Request Revisions
+                    </button>
+                </form>
+                
+                <!-- End Job Form -->
+                <form method="post" action="{% url 'jobs:end_job' contract.pk %}"
+                      onsubmit="return confirm('Are you sure you want to end this job? You will be prompted to leave feedback.');">
+                    {% csrf_token %}
+                    <div class="alert-warning" style="margin-bottom:1rem">
+                        <p style="font-size:.875rem;display:flex;align-items:start;gap:.5rem">
+                            <i class="bi bi-exclamation-triangle" style="margin-top:.125rem"></i>
+                            <span>Ending the job will prompt you to leave feedback and finalize payment. This action cannot be undone.</span>
+                        </p>
+                    </div>
+                    <button type="submit" class="btn btn-success" style="max-width:300px;width:100%">
+                        <i class="bi bi-check-circle"></i> End Job
+                    </button>
+                </form>
             </div>
             {% endif %}
 
-            <!-- Progress Feed -->
-            <div class="bg-white rounded-lg shadow-md p-6">
-                <h2 class="text-2xl font-bold text-gray-800 mb-4">Progress Updates</h2>
+            </div>
+<div class="card-section">
+  <h2 class="section-title"><i class="bi bi-graph-up"></i> Progress Feed</h2>
                 
                 {% if has_activity %}
-                    <div class="space-y-4">
+                    <div style="display:flex;flex-direction:column;gap:1rem">
                         <!-- Worker updates -->
                         {% for update in progress_updates %}
-                        <div class="border-l-4 border-blue-500 pl-4 py-3 bg-gray-50 rounded-r-lg">
-                            <div class="flex items-start justify-between mb-2">
-                                <div class="flex items-center gap-2">
-                                    <span class="font-semibold text-gray-800">
+                        <div style="border-left:4px solid var(--primary);padding-left:1rem;padding-top:.75rem;padding-bottom:.75rem;background:var(--gray-50);border-radius:0 .5rem .5rem 0">
+                            <div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:.5rem">
+                                <div style="display:flex;align-items:center;gap:.5rem">
+                                    <span style="font-weight:600;color:var(--gray-900)">
                                         {{ update.updated_by.get_full_name|default:update.updated_by.username }}
                                     </span>
-                                    <span class="text-xs text-gray-500">
+                                    <span style="font-size:.75rem;color:var(--gray-500)">
                                         {{ update.created_at|timesince }} ago
                                     </span>
                                 </div>
                             </div>
                             
-                            <p class="text-gray-700 mb-3">{{ update.update_text }}</p>
+                            <p style="color:var(--gray-700);margin-bottom:.75rem">{{ update.update_text }}</p>
                             
                             {% if update.image %}
-                            <div class="mt-3">
+                            <div style="margin-top:.75rem">
                                 <img src="{{ update.image.url }}" alt="Progress photo" 
-                                     class="rounded-lg max-w-full h-auto cursor-pointer hover:opacity-90 transition"
+                                     class="preview"
                                      onclick="window.open('{{ update.image.url }}', '_blank')"
-                                     style="max-height: 400px;">
+                                     style="max-height:400px;cursor:pointer">
                             </div>
                             {% endif %}
                             
                             {% if update.video %}
-                            <div class="mt-3">
-                                <video controls 
-                                       class="rounded-lg max-w-full h-auto border border-gray-300"
-                                       style="max-height: 400px;"
-                                       preload="metadata">
+                            <div style="margin-top:.75rem">
+                                <video controls class="preview" style="max-height:400px" preload="metadata">
                                     <source src="{{ update.video.url }}" type="video/mp4">
                                     <source src="{{ update.video.url }}" type="video/quicktime">
                                     <source src="{{ update.video.url }}" type="video/webm">
                                     Your browser does not support video playback. 
-                                    <a href="{{ update.video.url }}" target="_blank" class="text-blue-600 underline">Download video</a>
+                                    <a href="{{ update.video.url }}" target="_blank" style="color:var(--primary);text-decoration:underline">Download video</a>
                                 </video>
                             </div>
                             {% endif %}
                             
-                            <p class="text-xs text-gray-500 mt-2">
-                                📅 {{ update.created_at|date:"F d, Y - g:i A" }}
+                            <p style="font-size:.75rem;color:var(--gray-500);margin-top:.5rem">
+                                <i class="bi bi-calendar3"></i> {{ update.created_at|date:"F d, Y - g:i A" }}
                             </p>
                         </div>
                         {% empty %}
-                        <div class="text-center py-8 border border-dashed border-blue-200 rounded-lg bg-blue-50/50">
-                            <p class="text-gray-500">No progress updates from the worker yet.</p>
+                        <div style="text-align:center;padding:2rem;border:1px dashed var(--primary-light);border-radius:.5rem;background:var(--primary-light)">
+                            <p class="info">No progress updates from the worker yet.</p>
                         </div>
                         {% endfor %}
 
                         <!-- Employer/system logs -->
                         {% for log in progress_logs %}
-                        <div class="border-l-4 border-red-500 pl-4 py-3 bg-red-50 rounded-r-lg">
-                            <div class="flex items-start justify-between mb-2">
-                                <div class="flex items-center gap-2">
-                                    <span class="font-semibold text-gray-800">
+                        <div style="border-left:4px solid var(--danger);padding-left:1rem;padding-top:.75rem;padding-bottom:.75rem;background:var(--danger-light);border-radius:0 .5rem .5rem 0">
+                            <div style="display:flex;align-items:start;justify-content:space-between;margin-bottom:.5rem">
+                                <div style="display:flex;align-items:center;gap:.5rem">
+                                    <span style="font-weight:600;color:var(--gray-900)">
                                         {% if log.updated_by %}
                                             {{ log.updated_by.get_full_name|default:log.updated_by.username }}
                                         {% else %}
                                             System
                                         {% endif %}
                                     </span>
-                                    <span class="text-xs text-gray-500">
+                                    <span style="font-size:.75rem;color:var(--gray-500)">
                                         {{ log.timestamp|timesince }} ago
                                     </span>
                                 </div>
-                                <span class="text-xs font-semibold uppercase text-red-600">{{ log.status }}</span>
+                                <span style="font-size:.75rem;font-weight:600;text-transform:uppercase;color:var(--danger)">{{ log.status }}</span>
                             </div>
 
-                            <p class="text-gray-700 mb-2">{{ log.message }}</p>
+                            <p style="color:var(--gray-700);margin-bottom:.5rem">{{ log.message }}</p>
 
-                            <p class="text-xs text-gray-500">
-                                📅 {{ log.timestamp|date:"F d, Y - g:i A" }}
+                            <p style="font-size:.75rem;color:var(--gray-500)">
+                                <i class="bi bi-calendar3"></i> {{ log.timestamp|date:"F d, Y - g:i A" }}
                             </p>
                         </div>
                         {% empty %}
-                        <div class="text-center py-8 border border-dashed border-red-200 rounded-lg bg-red-50/50">
-                            <p class="text-gray-500">No employer or system actions yet.</p>
+                        <div style="text-align:center;padding:2rem;border:1px dashed var(--danger-light);border-radius:.5rem;background:var(--danger-light)">
+                            <p class="info">No employer or system actions yet.</p>
                         </div>
                         {% endfor %}
                     </div>
                 {% else %}
-                    <div class="text-center py-12">
-                        <div class="text-6xl mb-4">📋</div>
-                        <p class="text-gray-500 text-lg">No progress activity yet</p>
+                    <div style="text-align:center;padding:3rem">
+                        <div style="font-size:3rem;margin-bottom:1rem"><i class="bi bi-clipboard"></i></div>
+                        <p class="info" style="font-size:1.125rem">No progress activity yet</p>
                         {% if can_post_progress %}
-                        <p class="text-gray-400 text-sm mt-2">Post your first update above!</p>
+                        <p style="color:var(--gray-500);font-size:.875rem;margin-top:.5rem">Post your first update above!</p>
                         {% endif %}
                     </div>
                 {% endif %}
-            </div>
         </div>
 
-        <!-- Sidebar - Contract Details -->
-        <div class="lg:col-span-1">
-            <div class="bg-white rounded-lg shadow-md p-6 sticky top-4">
-                <h3 class="text-lg font-bold text-gray-800 mb-4">Contract Details</h3>
-                
-                <div class="space-y-3">
-                    <div>
-                        <p class="text-xs text-gray-500 uppercase">Duration</p>
-                        <p class="font-semibold text-gray-800">{{ contract.duration|default:"Not specified" }}</p>
-                    </div>
-                    
-                    <div>
-                        <p class="text-xs text-gray-500 uppercase">Schedule</p>
-                        <p class="font-semibold text-gray-800">{{ contract.schedule|default:"Not specified" }}</p>
-                    </div>
-                    
-                    <div>
-                        <p class="text-xs text-gray-500 uppercase">Start Date</p>
-                        <p class="font-semibold text-gray-800">
-                            {{ contract.start_date|date:"F d, Y"|default:"Not specified" }}
-                        </p>
-                    </div>
-                    
-                    {% if contract.started_at %}
-                    <div>
-                        <p class="text-xs text-gray-500 uppercase">Started</p>
-                        <p class="font-semibold text-gray-800">{{ contract.started_at|date:"F d, Y" }}</p>
-                    </div>
-                    {% endif %}
-                    
-                    {% if contract.completed_at %}
-                    <div>
-                        <p class="text-xs text-gray-500 uppercase">Completed</p>
-                        <p class="font-semibold text-gray-800">{{ contract.completed_at|date:"F d, Y" }}</p>
-                    </div>
-                    {% endif %}
-                </div>
+<div class="card-section">
+  <h2 class="section-title"><i class="bi bi-file-text"></i> Contract Details</h2>
+  
+  <div style="display:flex;flex-direction:column;gap:.75rem">
+    <div>
+      <p style="font-size:.75rem;color:var(--gray-500);text-transform:uppercase;margin-bottom:.25rem">Duration</p>
+      <p style="font-weight:600;color:var(--gray-900)">{{ contract.duration|default:"Not specified" }}</p>
+    </div>
+    
+    <div>
+      <p style="font-size:.75rem;color:var(--gray-500);text-transform:uppercase;margin-bottom:.25rem">Schedule</p>
+      <p style="font-weight:600;color:var(--gray-900)">{{ contract.schedule|default:"Not specified" }}</p>
+    </div>
+    
+    <div>
+      <p style="font-size:.75rem;color:var(--gray-500);text-transform:uppercase;margin-bottom:.25rem">Start Date</p>
+      <p style="font-weight:600;color:var(--gray-900)">{{ contract.start_date|date:"F d, Y"|default:"Not specified" }}</p>
+    </div>
+    
+    {% if contract.started_at %}
+    <div>
+      <p style="font-size:.75rem;color:var(--gray-500);text-transform:uppercase;margin-bottom:.25rem">Started</p>
+      <p style="font-weight:600;color:var(--gray-900)">{{ contract.started_at|date:"F d, Y" }}</p>
+    </div>
+    {% endif %}
+    
+    {% if contract.completed_at %}
+    <div>
+      <p style="font-size:.75rem;color:var(--gray-500);text-transform:uppercase;margin-bottom:.25rem">Completed</p>
+      <p style="font-weight:600;color:var(--gray-900)">{{ contract.completed_at|date:"F d, Y" }}</p>
+    </div>
+    {% endif %}
+  </div>
 
-                <hr class="my-4">
+  <hr style="margin:1rem 0;border:none;border-top:1px solid var(--gray-100)">
 
-                <div class="space-y-2">
-                    <a href="{% url 'jobs:contract_detail' contract.pk %}" 
-                       class="block w-full text-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded-lg transition duration-200">
-                        📄 View Contract
-                    </a>
-                    
-                    {% if is_employer %}
-                    <a href="{% url 'jobs:employer_dashboard' %}" 
-                       class="block w-full text-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded-lg transition duration-200">
-                        🏠 Dashboard
-                    </a>
-                    {% else %}
-                    <a href="{% url 'jobs:worker_dashboard' %}" 
-                       class="block w-full text-center bg-gray-100 hover:bg-gray-200 text-gray-800 font-semibold py-2 px-4 rounded-lg transition duration-200">
-                        🏠 Dashboard
-                    </a>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:.5rem">
+    <a href="{% url 'jobs:contract_detail' contract.pk %}" class="btn btn-secondary" style="text-align:center">
+      <i class="bi bi-file-earmark-text"></i> Contract
+    </a>
+    
+    {% if is_employer %}
+    <a href="{% url 'jobs:employer_dashboard' %}" class="btn btn-secondary" style="text-align:center">
+      <i class="bi bi-house"></i> Dashboard
+    </a>
+    {% else %}
+    <a href="{% url 'jobs:worker_dashboard' %}" class="btn btn-secondary" style="text-align:center">
+      <i class="bi bi-house"></i> Dashboard
+    </a>
+    {% endif %}
+  </div>
     </div>
 </div>
-
-<style>
-    .sticky {
-        position: -webkit-sticky;
-        position: sticky;
-    }
-</style>
+</div>
 
 <script>
 // Image preview
@@ -415,7 +469,7 @@ document.getElementById('image')?.addEventListener('change', function(e) {
         const reader = new FileReader();
         reader.onload = function(e) {
             document.getElementById('imagePreviewImg').src = e.target.result;
-            document.getElementById('imagePreview').classList.remove('hidden');
+            document.getElementById('imagePreview').style.display = 'block';
         };
         reader.readAsDataURL(file);
     }
@@ -423,7 +477,7 @@ document.getElementById('image')?.addEventListener('change', function(e) {
 
 function clearImagePreview() {
     document.getElementById('image').value = '';
-    document.getElementById('imagePreview').classList.add('hidden');
+    document.getElementById('imagePreview').style.display = 'none';
 }
 
 // Video preview with validation
@@ -468,7 +522,7 @@ document.getElementById('video')?.addEventListener('change', function(e) {
             // Show video info
             document.getElementById('videoInfo').textContent = 
                 `${(file.size / (1024*1024)).toFixed(1)}MB · ${duration.toFixed(1)}s`;
-            document.getElementById('videoPreview').classList.remove('hidden');
+            document.getElementById('videoPreview').style.display = 'block';
         }, { once: true });
     }
 });
@@ -480,7 +534,7 @@ function clearVideoPreview() {
     videoInput.value = '';
     videoPlayer.pause();
     videoPlayer.src = '';
-    document.getElementById('videoPreview').classList.add('hidden');
+    document.getElementById('videoPreview').style.display = 'none';
 }
 </script>
 

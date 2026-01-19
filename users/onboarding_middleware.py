@@ -40,7 +40,7 @@ class ProfileSetupMiddleware:
             
             if not is_exempt:
                 # Redirect to user's profile edit page with onboarding flag
-                profile_edit_url = reverse('profile_edit', kwargs={'pk': request.user.pk})
+                profile_edit_url = reverse('users:profile_edit', kwargs={'pk': request.user.pk})
                 return redirect(f"{profile_edit_url}?onboarding=true")
         
         response = self.get_response(request)

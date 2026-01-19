@@ -113,9 +113,79 @@ class UserProfileForm(forms.ModelForm):
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Software Developer, Electrician, Plumber'})
     )
-    address = forms.CharField(
+    # Normalized address fields (stored combined in single address field)
+    house_number = forms.CharField(
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your address'})
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'e.g., 123, Blk 4 Lot 5',
+            'id': 'id_house_number'
+        }),
+        label='House/Unit/Block & Lot No.'
+    )
+    
+    street = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'e.g., Mabini Street',
+            'id': 'id_street'
+        }),
+        label='Street Name (Optional)'
+    )
+    
+    subdivision = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'e.g., Greenwoods Subdivision',
+            'id': 'id_subdivision'
+        }),
+        label='Subdivision/Village (Optional)'
+    )
+    
+    barangay = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'Start typing barangay name',
+            'id': 'id_barangay',
+            'autocomplete': 'off'
+        }),
+        label='Barangay'
+    )
+    
+    city = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'Start typing city/municipality',
+            'id': 'id_city',
+            'autocomplete': 'off'
+        }),
+        label='City/Municipality'
+    )
+    
+    province = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'Start typing province',
+            'id': 'id_province',
+            'autocomplete': 'off'
+        }),
+        label='Province'
+    )
+    
+    zip_code = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'e.g., 1100',
+            'id': 'id_zip_code',
+            'maxlength': '4'
+        }),
+        label='ZIP Code (Optional)'
     )
     gender = forms.ChoiceField(
         choices=[('male', 'Male'), ('female', 'Female'), ('other', 'Other')],
@@ -166,6 +236,57 @@ class UserProfileForm(forms.ModelForm):
             'gender',
             'cv_file'
         ]
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Parse existing address into components if available
+        if self.instance and self.instance.address:
+            parts = [p.strip() for p in self.instance.address.split(',')]
+            # Expected format: House, Street, Subdivision, Brgy. X, City, Province ZIP
+            for i, part in enumerate(parts):
+                if part.startswith('Brgy.'):
+                    self.fields['barangay'].initial = part.replace('Brgy. ', '').strip()
+                    if i > 0:
+                        if i >= 3:
+                            self.fields['subdivision'].initial = parts[i-1]
+                        if i >= 2:
+                            self.fields['street'].initial = parts[i-2]
+                        if i >= 1:
+                            self.fields['house_number'].initial = parts[0]
+                    if i + 1 < len(parts):
+                        self.fields['city'].initial = parts[i+1]
+                    if i + 2 < len(parts):
+                        province_zip = parts[i+2].split()
+                        self.fields['province'].initial = province_zip[0]
+                        if len(province_zip) > 1:
+                            self.fields['zip_code'].initial = province_zip[1]
+                    break
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        # Combine normalized address fields into single address string
+        address_parts = []
+        
+        if cleaned_data.get('house_number'):
+            address_parts.append(cleaned_data['house_number'])
+        if cleaned_data.get('street'):
+            address_parts.append(cleaned_data['street'])
+        if cleaned_data.get('subdivision'):
+            address_parts.append(cleaned_data['subdivision'])
+        if cleaned_data.get('barangay'):
+            address_parts.append(f"Brgy. {cleaned_data['barangay']}")
+        if cleaned_data.get('city'):
+            address_parts.append(cleaned_data['city'])
+        if cleaned_data.get('province'):
+            province = cleaned_data['province']
+            if cleaned_data.get('zip_code'):
+                province += f" {cleaned_data['zip_code']}"
+            address_parts.append(province)
+        
+        # Store combined address in the address field
+        cleaned_data['address'] = ', '.join(address_parts)
+        
+        return cleaned_data
 
     def save(self, commit=True):
         user = super().save(commit=False)

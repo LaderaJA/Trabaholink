@@ -7,7 +7,7 @@
       {% csrf_token %}
       {{ form.as_p }}
       <button type="submit" class="btn btn-primary">{% if object %}Update{% else %}Add{% endif %}</button>
-      <a href="{% url 'profile' request.user.pk %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
+      <a href="{% url 'users:profile' request.user.pk %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
   </form>
 </div>
 {% endblock %}

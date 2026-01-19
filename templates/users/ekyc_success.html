@@ -263,7 +263,7 @@
             </div>
 
             <div class="action-buttons">
-                <a href="{% url 'profile' request.user.pk %}" class="btn btn-primary">
+                <a href="{% url 'users:profile' request.user.pk %}" class="btn btn-primary">
                     <i class="bi bi-person-circle"></i> View My Profile
                 </a>
                 <a href="{% url 'jobs:job_list' %}" class="btn btn-secondary">

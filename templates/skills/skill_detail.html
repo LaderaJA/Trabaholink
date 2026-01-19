@@ -25,10 +25,10 @@
       <p><small>Submitted on: {{ skill.submitted_at|date:"M d, Y" }}</small></p>
     </div>
     <div class="card-footer">
-      <a href="{% url 'profile' request.user.pk %}" class="btn btn-secondary">Back to Profile</a>
+      <a href="{% url 'users:profile' request.user.pk %}" class="btn btn-secondary">Back to Profile</a>
       {% if request.user.is_staff or skill.user == request.user %}
-        <a href="{% url 'skill_edit' skill.pk %}" class="btn btn-outline-primary ms-2">Edit</a>
-        <a href="{% url 'skill_delete' skill.pk %}" class="btn btn-outline-danger ms-2">{% trans "Delete" %}</a>
+        <a href="{% url 'users:skill_edit' skill.pk %}" class="btn btn-outline-primary ms-2">Edit</a>
+        <a href="{% url 'users:skill_delete' skill.pk %}" class="btn btn-outline-danger ms-2">{% trans "Delete" %}</a>
       {% endif %}
     </div>
   </div>

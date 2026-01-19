@@ -3,6 +3,12 @@
   {% load i18n %}
 
 {% block content %}
+<!-- Floating Shapes Background -->
+<div class="job-list-page-wrapper">
+  <div class="floating-shape shape-1"></div>
+  <div class="floating-shape shape-2"></div>
+  <div class="floating-shape shape-3"></div>
+
 <style>
 :root {
   /* Bacoor City Official Colors */
@@ -28,6 +34,78 @@
   --shadow-sm: 0 1px 3px 0 rgba(30, 64, 175, 0.1);
   --shadow-md: 0 4px 6px -1px rgba(30, 64, 175, 0.1);
   --shadow-lg: 0 10px 15px -3px rgba(30, 64, 175, 0.1);
+}
+
+/* Job List Page Wrapper - Floating Shapes Background */
+.job-list-page-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #dbeafe 0%, #fef3c7 100%);
+  position: relative;
+  overflow: hidden;
+  animation: backgroundShift 20s ease infinite;
+  background-size: 200% 200%;
+}
+
+@keyframes backgroundShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Floating Shapes Animation */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}
+
+.floating-shape {
+  position: absolute;
+  opacity: 0.08;
+  animation: float 15s infinite ease-in-out;
+  z-index: 1;
+}
+
+.shape-1 {
+  top: 10%;
+  left: 5%;
+  width: 120px;
+  height: 120px;
+  background: #1e40af;
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  animation-delay: 0s;
+  filter: blur(2px);
+}
+
+.shape-2 {
+  top: 60%;
+  right: 10%;
+  width: 100px;
+  height: 100px;
+  background: #fbbf24;
+  border-radius: 50%;
+  animation-delay: 2s;
+  animation-duration: 18s;
+  filter: blur(2px);
+}
+
+.shape-3 {
+  bottom: 15%;
+  left: 15%;
+  width: 90px;
+  height: 90px;
+  background: #1e3a8a;
+  border-radius: 15% 85% 35% 65% / 65% 35% 65% 35%;
+  animation-delay: 4s;
+  animation-duration: 20s;
+  filter: blur(2px);
+}
+
+.compact-hero, .main-wrapper {
+  position: relative;
+  z-index: 2;
 }
 
 /* Compact Hero Section - Bacoor Theme */
@@ -2454,3 +2532,4 @@ document.addEventListener('DOMContentLoaded', function() {
     ]
 }
 {% endblock %}
+</div> <!-- End job-list-page-wrapper -->

@@ -631,7 +631,7 @@
     </div>
 
     <div class="negotiation-content">
-      <!-- Negotiation Progress -->
+      <!-- Contract Progress -->
       <div class="negotiation-progress">
         <div class="progress-steps">
           <div class="progress-step {% if object.is_draft %}active{% else %}completed{% endif %}">
@@ -1322,5 +1322,20 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+</script>
+<script>
+(function() {
+  const startInput = document.getElementById('{{ form.start_date.id_for_label }}');
+  const endInput = document.getElementById('{{ form.end_date.id_for_label }}');
+  const durationInput = document.querySelector('input[name="duration"]');
+  if (!startInput || !endInput) return;
+  function parseYMD(val){if(!val)return null;const p=val.split('-');if(p.length!==3)return null;const y=parseInt(p[0],10),m=parseInt(p[1],10)-1,d=parseInt(p[2],10);const dt=new Date(Date.UTC(y,m,d));return isNaN(dt.getTime())?null:dt;}
+  function formatYMD(date){const y=date.getUTCFullYear();const m=String(date.getUTCMonth()+1).padStart(2,'0');const d=String(date.getUTCDate()).padStart(2,'0');return `${y}-${m}-${d}`;}
+  function computeDays(s,e){return Math.round((e.getTime()-s.getTime())/(1000*60*60*24));}
+  function validate(){const s=parseYMD(startInput.value);const e=parseYMD(endInput.value);if(s&&e){if(e<=s){endInput.setCustomValidity('End date must be after start date');}else{endInput.setCustomValidity('');if(durationInput){durationInput.value=computeDays(s,e);}}}}
+  startInput.addEventListener('change',function(){validate(); if(durationInput && (durationInput.value||'').trim()){const s=parseYMD(startInput.value);if(s){const days=parseInt(durationInput.value,10);if(!isNaN(days)){const end=new Date(s.getTime());end.setUTCDate(end.getUTCDate()+days);endInput.value=formatYMD(end);endInput.setCustomValidity('');}}}});
+  endInput.addEventListener('change',validate);
+  if(startInput.value && endInput.value){validate();}
+})();
 </script>
 {% endblock js %}

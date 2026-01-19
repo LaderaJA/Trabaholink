@@ -6,7 +6,11 @@
   <title>{% block title %}TrabahoLink{% endblock %}</title>
   {% load static %}
   {% load i18n %}
-  <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}?v=2" />
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}?v=4" />
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon-32x32.png' %}?v=4" />
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon-16x16.png' %}?v=4" />
+  <link rel="apple-touch-icon" href="{% static 'images/favicon.png' %}?v=4" />
   <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
   <link rel="stylesheet" href="{% static 'css/base.css' %}" />
   <link rel="stylesheet" href="{% static 'css/mobile-fixes.css' %}" />
@@ -16,6 +20,10 @@
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
   />
+  <!-- Google Fonts for Logo Capital Letters -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gagalin&family=Righteous&family=Bebas+Neue&family=Oswald:wght@700&display=swap" rel="stylesheet">
   <!-- Alpine.js for interactive components -->
   <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <style>
@@ -92,7 +100,8 @@
     
     /* Brand logo - Modern & Clean */
     .tl-navbar-brand {
-      font-size: clamp(24px, 2.4vw, 28px); line-height: 1.05;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
+      font-size: clamp(32px, 3.5vw, 36px); line-height: 1.05;
       font-weight: 800;
       text-decoration: none;
       z-index: 1031;
@@ -113,10 +122,34 @@
       .tl-navbar-brand {
         margin-left: 0;
         padding: 0;
+        gap: 0.3rem;
       }
       
       .tl-navbar-content {
         gap: 1rem;
+      }
+      
+      .tl-brand-icon {
+        width: 24px;
+        height: 24px;
+      }
+      
+      .tl-brand-link-icon {
+        width: 18px;
+        height: 18px;
+      }
+      
+      .tl-letter-icon {
+        width: 18px;
+        height: 18px;
+      }
+      
+      .tl-brand-text, .tl-brand-highlight {
+        font-size: 1.65rem;
+      }
+      
+      .tl-capital-letter {
+        font-size: 1em !important;
       }
     }
     
@@ -127,7 +160,42 @@
       
       .tl-navbar-brand {
         margin-left: 0;
-        gap: 0.1rem;
+        gap: 0.2rem;
+      }
+      
+      .tl-brand-icon {
+        width: 20px;
+        height: 20px;
+      }
+      
+      .tl-brand-link-icon {
+        width: 16px;
+        height: 16px;
+        margin-left: 2px;
+      }
+      
+      .tl-letter-icon {
+        width: 15px;
+        height: 15px;
+        margin: 0 -1px;
+      }
+      
+      .tl-location-icon {
+        transform: translateY(-1px);
+      }
+      
+      .tl-brand-text, .tl-brand-highlight {
+        font-size: 1.4rem;
+        letter-spacing: -0.3px;
+      }
+      
+      .tl-brand-highlight {
+        letter-spacing: 0.3px;
+      }
+      
+      .tl-capital-letter {
+        font-size: 1em !important;
+        font-weight: 400 !important;
       }
     }
     
@@ -135,19 +203,102 @@
       opacity: 0.85;
     }
 
-    /* Brand colors */
+    /* Skilled Worker Brand Design - Bacoor City */
+    .tl-brand-icon {
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+    
+    .tl-brand-link-icon {
+      flex-shrink: 0;
+      margin-left: 4px;
+      transition: all 0.3s ease;
+    }
+    
     .tl-brand-text {
-      color: #4169E1 !important; /* Royal Blue */
-      font-weight: 900;
-      transition: color 0.2s ease;
+      color: #1e40af !important; /* Deep Blue - High Contrast */
+      font-weight: 700;
+      font-size: 1.85rem;
+      letter-spacing: -0.5px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      display: inline-flex;
+      align-items: center;
+      gap: 0px;
     }
+    
+    /* Icon-Letter Integration */
+    .tl-letter-icon {
+      display: inline-block;
+      vertical-align: middle;
+      margin: 0 -2px;
+      transition: all 0.3s ease;
+    }
+    
+    .tl-location-icon {
+      transform: translateY(-2px);
+    }
+    
     .tl-brand-highlight {
-      color: #FFD60A !important; /* Yellow */
-      font-weight: 900;
-      transition: color 0.2s ease;
+      color: #fbbf24 !important; /* Bright Yellow - Consistent with icons */
+      font-weight: 700;
+      font-size: 1.85rem !important; /* Same size as tl-brand-text */
+      letter-spacing: 0.5px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      margin-left: 0;
+      text-shadow: 
+        0 1px 2px rgba(30, 64, 175, 0.6),
+        0 2px 4px rgba(30, 64, 175, 0.5),
+        1px 1px 3px rgba(30, 64, 175, 0.4);
     }
-    .tl-navbar-brand:hover .tl-brand-text { color: #3157c7 !important; }
-    .tl-navbar-brand:hover .tl-brand-highlight { color: #e6c200 !important; }
+    
+    /* Capital letters T and L - Normal size with distinctive font */
+    .tl-capital-letter {
+      font-family: 'Gagalin', 'Righteous', 'Bebas Neue', 'Oswald', 'Impact', sans-serif;
+      font-size: 1em;
+      font-weight: 400;
+      line-height: 1;
+      display: inline-block;
+      transform: translateY(0);
+      letter-spacing: normal;
+      margin-right: 0;
+    }
+    
+    /* T gets blue shadow (inside .tl-brand-text) */
+    .tl-brand-text .tl-capital-letter {
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    }
+    
+    /* L gets yellow/blue shadow (inside .tl-brand-highlight) */
+    .tl-brand-highlight .tl-capital-letter {
+      text-shadow: 
+        0 1px 2px rgba(30, 64, 175, 0.6),
+        0 2px 4px rgba(30, 64, 175, 0.5),
+        1px 1px 3px rgba(30, 64, 175, 0.4);
+    }
+    
+    /* Hover effects for entire logo */
+    .tl-navbar-brand:hover .tl-brand-icon {
+      transform: rotate(90deg);
+    }
+    
+    .tl-navbar-brand:hover .tl-brand-link-icon {
+      transform: scale(1.1);
+    }
+    
+    .tl-navbar-brand:hover .tl-location-icon {
+      transform: translateY(-4px) scale(1.1);
+    }
+    
+    .tl-navbar-brand:hover .tl-brand-text { 
+      color: #1e3a8a !important;
+    }
+    
+    .tl-navbar-brand:hover .tl-brand-highlight { 
+      color: #f59e0b !important; /* Slightly darker yellow on hover */
+    }
 
   
     
@@ -1246,14 +1397,104 @@
     }
   </style>
   {% block css %}{% endblock %}
+  
+  <style>
+  /* Global Floating Shapes Background */
+  body {
+    background: linear-gradient(135deg, #dbeafe 0%, #fef3c7 100%);
+    background-attachment: fixed;
+    animation: backgroundShift 20s ease infinite;
+    background-size: 200% 200%;
+    position: relative;
+  }
+  
+  @keyframes backgroundShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  
+  /* Floating Shapes */
+  body::before,
+  body::after {
+    content: '';
+    position: fixed;
+    opacity: 0.08;
+    animation: float 15s infinite ease-in-out;
+    z-index: 0;
+    pointer-events: none;
+  }
+  
+  body::before {
+    top: 10%;
+    left: 5%;
+    width: 120px;
+    height: 120px;
+    background: #1e40af;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    filter: blur(2px);
+  }
+  
+  body::after {
+    top: 60%;
+    right: 10%;
+    width: 100px;
+    height: 100px;
+    background: #fbbf24;
+    border-radius: 50%;
+    animation-delay: 2s;
+    animation-duration: 18s;
+    filter: blur(2px);
+  }
+  
+  .floating-shape-3 {
+    position: fixed;
+    bottom: 15%;
+    left: 15%;
+    width: 90px;
+    height: 90px;
+    background: #1e3a8a;
+    border-radius: 15% 85% 35% 65% / 65% 35% 65% 35%;
+    opacity: 0.08;
+    animation: float 20s infinite ease-in-out;
+    animation-delay: 4s;
+    filter: blur(2px);
+    z-index: 0;
+    pointer-events: none;
+  }
+  
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-20px) rotate(5deg);
+    }
+  }
+  
+  /* Ensure content appears above shapes */
+  nav, main, footer, .container, .tl-navbar {
+    position: relative;
+    z-index: 1;
+  }
+  </style>
 </head>
 <body class="d-flex flex-column min-vh-100" style="padding-top: var(--navbar-height) !important;">
+  <div class="floating-shape-3"></div>
   <nav class="tl-navbar">
     <div class="container">
       <div class="tl-navbar-content">
         <a class="tl-navbar-brand" href="{% url 'jobs:home' %}">
-          <span class="tl-brand-text">Trabaho</span>
-          <span class="tl-brand-text tl-brand-highlight">Link</span>
+          <span class="tl-brand-text">
+            <span class="tl-capital-letter">T</span>rabah
+            <!-- Location pin icon replacing 'O' -->
+            <svg class="tl-letter-icon tl-location-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C8.13401 2 5 5.13401 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13401 15.866 2 12 2Z" stroke="#1e40af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="9" r="2.5" fill="#f59e0b"/>
+            </svg>
+          </span>
+          <span class="tl-brand-text tl-brand-highlight">
+            <span class="tl-capital-letter">L</span>ink
+          </span>
         </a>
         
         <button class="tl-navbar-toggler" id="navbarToggler" type="button">
@@ -1326,7 +1567,7 @@
               </button>
 
               <div class="tl-profile-dropdown" id="profileDropdown" role="menu" aria-label="Profile options">
-                <a href="{% url 'profile' request.user.pk %}" class="dropdown-item" role="menuitem">
+                <a href="{% url 'users:profile' request.user.pk %}" class="dropdown-item" role="menuitem">
                   <i class="bi bi-person"></i>
                   <span>{% trans "View Profile" %}</span>
                 </a>
@@ -1348,7 +1589,7 @@
                   <span>{% trans "Admin Dashboard" %}</span>
                 </a>
                 {% endif %}
-                <form method="post" action="{% url 'logout' %}" id="logoutForm" style="margin: 0;">
+                <form method="post" action="{% url 'users:logout' %}" id="logoutForm" style="margin: 0;">
                   {% csrf_token %}
                   <button type="button" onclick="confirmLogout()" role="menuitem">
                     <i class="bi bi-box-arrow-right"></i>
@@ -1361,7 +1602,7 @@
             <li class="tl-nav-item me-3">
               <a
                 class="tl-nav-link {% if request.path == '/users/login/' %}active{% endif %}"
-                href="{% url 'login' %}"
+                href="{% url 'users:login' %}"
               >
                 <i class="bi bi-box-arrow-in-right nav-icon"></i>
                 <span class="nav-text">{% trans "Login" %}</span>
@@ -1370,7 +1611,7 @@
             <li class="tl-nav-item">
               <a
                 class="tl-nav-link {% if request.path == '/users/register/' %}active{% endif %}"
-                href="{% url 'register' %}"
+                href="{% url 'users:register' %}"
               >
                 <i class="bi bi-person-plus nav-icon"></i>
                 <span class="nav-text">{% trans "Register" %}</span>
@@ -1547,9 +1788,20 @@
               </label>
               <select id="reportType" class="form-select" name="report_type" required style="padding: 0.75rem; border: 2px solid #cbd5e1; border-radius: 0.5rem; font-size: 1rem; transition: all 0.2s;" onchange="handleReportTypeChange()">
                 <option value="">Select report type...</option>
-                <option value="user">👤 Suspicious User</option>
-                <option value="job">💼 Fraudulent Job Posting</option>
+                <option value="user">Report a User</option>
+                <option value="job">Report a Job Posting</option>
               </select>
+            </div>
+
+            <!-- Report Category Selection -->
+            <div class="mb-4" id="reportCategoryField" style="display: none;">
+              <label for="reportCategory" class="form-label" style="font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="bi bi-tags" style="color: #3b82f6;"></i> Category <span style="color: #ef4444;">*</span>
+              </label>
+              <select id="reportCategory" class="form-select" name="report_category" style="padding: 0.75rem; border: 2px solid #cbd5e1; border-radius: 0.5rem; font-size: 1rem; transition: all 0.2s;">
+                <option value="">Select a category...</option>
+              </select>
+              <small style="color: #64748b; display: block; margin-top: 0.5rem;">Choose the category that best describes your concern</small>
             </div>
 
             <!-- User Search Field -->
@@ -2021,25 +2273,69 @@
     let userSearchTimeout;
     let jobSearchTimeout;
 
+    // Report categories
+    const reportCategories = {
+      user: [
+        { value: 'harassment', label: 'Harassment or Bullying', icon: 'bi-exclamation-triangle' },
+        { value: 'scam', label: 'Scam or Fraud', icon: 'bi-shield-x' },
+        { value: 'fake_profile', label: 'Fake Profile', icon: 'bi-person-x' },
+        { value: 'inappropriate_content', label: 'Inappropriate Content', icon: 'bi-slash-circle' },
+        { value: 'spam', label: 'Spam or Advertising', icon: 'bi-megaphone' },
+        { value: 'impersonation', label: 'Impersonation', icon: 'bi-person-badge' },
+        { value: 'other', label: 'Other Issues', icon: 'bi-three-dots' }
+      ],
+      job: [
+        { value: 'misleading', label: 'Misleading Information', icon: 'bi-exclamation-circle' },
+        { value: 'scam', label: 'Scam or Fraud', icon: 'bi-shield-x' },
+        { value: 'inappropriate', label: 'Inappropriate Content', icon: 'bi-slash-circle' },
+        { value: 'duplicate', label: 'Duplicate Posting', icon: 'bi-files' },
+        { value: 'illegal', label: 'Illegal Activity', icon: 'bi-ban' },
+        { value: 'spam', label: 'Spam or Low Quality', icon: 'bi-megaphone' },
+        { value: 'other', label: 'Other Issues', icon: 'bi-three-dots' }
+      ]
+    };
+
     // Handle report type change
     function handleReportTypeChange() {
       const reportType = document.getElementById('reportType').value;
+      const categoryField = document.getElementById('reportCategoryField');
+      const categorySelect = document.getElementById('reportCategory');
       const userField = document.getElementById('userSearchField');
       const jobField = document.getElementById('jobSearchField');
       
-      // Hide both fields first
+      // Hide all fields first
+      categoryField.style.display = 'none';
       userField.style.display = 'none';
       jobField.style.display = 'none';
       
       // Clear selections
+      categorySelect.innerHTML = '<option value="">Select a category...</option>';
       clearUserSelection();
       clearJobSelection();
       
-      // Show appropriate field
+      // Show category and search fields based on report type
       if (reportType === 'user') {
+        categoryField.style.display = 'block';
         userField.style.display = 'block';
+        
+        // Populate user categories
+        reportCategories.user.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat.value;
+          option.textContent = cat.label;
+          categorySelect.appendChild(option);
+        });
       } else if (reportType === 'job') {
+        categoryField.style.display = 'block';
         jobField.style.display = 'block';
+        
+        // Populate job categories
+        reportCategories.job.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat.value;
+          option.textContent = cat.label;
+          categorySelect.appendChild(option);
+        });
       }
     }
 
@@ -2206,8 +2502,15 @@
       
       const form = event.target;
       const reportType = document.getElementById('reportType').value;
+      const reportCategory = document.getElementById('reportCategory').value;
       const userId = document.getElementById('userId').value;
       const jobId = document.getElementById('jobId').value;
+      
+      // Validate category selection
+      if (!reportCategory) {
+        alert('Please select a report category.');
+        return false;
+      }
       
       // Validate selection
       if (reportType === 'user' && !userId) {

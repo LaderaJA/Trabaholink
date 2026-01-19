@@ -439,7 +439,7 @@ class ContractViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
         
-        if contract.status != "Accepted":
+        if contract.status != "Finalized":
             return Response(
                 {'error': 'Contract must be accepted before starting work'},
                 status=status.HTTP_400_BAD_REQUEST

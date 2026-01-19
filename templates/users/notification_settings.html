@@ -252,6 +252,20 @@
                     <i class="fas fa-check-double"></i> Select All / Deselect All
                 </button>
 
+                <!-- Search Bar for Categories -->
+                <div class="category-search-wrapper" style="margin-top: 1rem; margin-bottom: 1rem;">
+                    <div style="position: relative;">
+                        <i class="bi bi-search" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #6b7280; font-size: 1.1rem;"></i>
+                        <input type="text" 
+                               id="categorySearchInput" 
+                               class="category-search-input" 
+                               placeholder="Search categories..." 
+                               onkeyup="filterCategories()"
+                               style="width: 100%; padding: 0.75rem 1rem 0.75rem 2.5rem; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 0.95rem; transition: all 0.2s;">
+                    </div>
+                    <div id="searchResultCount" style="margin-top: 0.5rem; font-size: 0.875rem; color: #6b7280;"></div>
+                </div>
+
                 <div class="category-grid" id="categoryGrid">
                     {% for category in general_categories %}
                     <div class="category-item {% if category in selected_categories %}selected{% endif %}" data-category-id="{{ category.id }}">
@@ -278,7 +292,7 @@
 
             <!-- Save Button -->
             <div class="text-end">
-                <a href="{% url 'profile' user.pk %}" class="btn btn-secondary me-2">
+                <a href="{% url 'users:profile' user.pk %}" class="btn btn-secondary me-2">
                     <i class="fas fa-times"></i> Cancel
                 </a>
                 <button type="submit" class="btn-save">
@@ -412,9 +426,47 @@
         });
     }
     
+    function filterCategories() {
+        const searchInput = document.getElementById('categorySearchInput');
+        const filter = searchInput.value.toLowerCase().trim();
+        const categoryItems = document.querySelectorAll('.category-item');
+        const searchResultCount = document.getElementById('searchResultCount');
+        let visibleCount = 0;
+        
+        categoryItems.forEach(item => {
+            const label = item.querySelector('label');
+            const categoryName = label.textContent.toLowerCase();
+            
+            if (categoryName.includes(filter)) {
+                item.style.display = '';
+                visibleCount++;
+            } else {
+                item.style.display = 'none';
+            }
+        });
+        
+        // Update search result count
+        if (filter === '') {
+            searchResultCount.textContent = '';
+        } else {
+            searchResultCount.textContent = `Showing ${visibleCount} of ${categoryItems.length} categories`;
+        }
+    }
+    
     // Initialize map when page loads
     document.addEventListener('DOMContentLoaded', function() {
         initMap();
+        
+        // Add focus/blur effects to search input
+        const searchInput = document.getElementById('categorySearchInput');
+        searchInput.addEventListener('focus', function() {
+            this.style.borderColor = '#6366f1';
+            this.style.boxShadow = '0 0 0 3px rgba(99, 102, 241, 0.1)';
+        });
+        searchInput.addEventListener('blur', function() {
+            this.style.borderColor = '#e5e7eb';
+            this.style.boxShadow = 'none';
+        });
     });
 </script>
 {% endblock %}

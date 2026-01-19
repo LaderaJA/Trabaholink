@@ -255,6 +255,22 @@
 }
 
 
+/* CV Attachment Section Mobile Responsive */
+@media (max-width: 768px) {
+  .form-group .fa-file-pdf {
+    font-size: 1.5rem !important;
+  }
+  
+  .form-group input[type="checkbox"] {
+    width: 18px !important;
+    height: 18px !important;
+  }
+  
+  .form-group label[for="attach_cv"] {
+    font-size: 0.9rem !important;
+  }
+}
+
 /* Responsive Design for Mobile */
 @media (max-width: 768px) {
   .toolbar-toggle-btn {
@@ -1255,6 +1271,45 @@ input[type="number"].form-control {
                   {{ form.additional_notes.errors }}
                 </div>
               {% endif %}
+            </div>
+            
+            <!-- CV/Resume Attachment -->
+            <div class="form-group" style="margin-top: 1.5rem;">
+              <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #3b82f6; border-radius: 12px; padding: 1.25rem;">
+                <div style="display: flex; align-items: start; gap: 1rem;">
+                  <div style="flex-shrink: 0;">
+                    <i class="fa fa-file-pdf" style="font-size: 2rem; color: #3b82f6;"></i>
+                  </div>
+                  <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                      <input type="checkbox" id="attach_cv" name="attach_cv" style="width: 20px; height: 20px; cursor: pointer;">
+                      <label for="attach_cv" style="font-weight: 600; color: #1e40af; margin: 0; cursor: pointer; font-size: 1rem;">
+                        Attach my CV/Resume from profile
+                      </label>
+                    </div>
+                    {% if user.cv_file %}
+                    <p style="margin: 0.5rem 0 0 0; font-size: 0.875rem; color: #475569;">
+                      <i class="fa fa-check-circle" style="color: #10b981;"></i>
+                      <strong>CV Available:</strong> {{ user.cv_file.name|slice:"9:" }}
+                      <a href="{{ user.cv_file.url }}" target="_blank" style="color: #3b82f6; text-decoration: none; margin-left: 0.5rem;">
+                        <i class="fa fa-eye"></i> Preview
+                      </a>
+                    </p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.8rem; color: #64748b;">
+                      Checking this box will include your CV with this application for the employer to review.
+                    </p>
+                    {% else %}
+                    <p style="margin: 0.5rem 0 0 0; font-size: 0.875rem; color: #dc2626;">
+                      <i class="fa fa-exclamation-circle"></i>
+                      <strong>No CV uploaded yet.</strong> 
+                      <a href="{% url 'users:profile_edit' user.username %}" style="color: #3b82f6; text-decoration: none;">
+                        Upload CV in your profile
+                      </a>
+                    </p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
             </div>
           </div>
         </div>

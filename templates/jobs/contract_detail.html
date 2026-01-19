@@ -1,1126 +1,789 @@
-{% extends 'mainpages/base.html' %}
+{% extends "mainpages/base.html" %}
 {% load static %}
 {% load i18n %}
 
-{% block title %}Contract - {{ contract.job.title }} - TrabahoLink{% endblock %}
+{% block title %}Contract Details - {{ contract.job.title }}{% endblock %}
 
 {% block css %}
 {{ block.super }}
-<script src="https://cdn.tailwindcss.com"></script>
 <style>
 :root {
-  --bacoor-blue: #1e40af;
-  --bacoor-blue-light: #3b82f6;
-  --bacoor-gold: #f59e0b;
-  --primary-color: #1e40af;
-  --primary-dark: #1e3a8a;
-  --success-color: #059669;
-  --warning-color: #f59e0b;
-  --danger-color: #ef4444;
-  --text-dark: #0f172a;
-  --text-medium: #475569;
-  --text-light: #64748b;
-  --bg-light: #f8fafc;
-  --border-color: #e2e8f0;
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+  --primary-light: #dbeafe;
+  --success: #10b981;
+  --success-light: #d1fae5;
+  --warning: #f59e0b;
+  --warning-light: #fef3c7;
+  --danger: #ef4444;
+  --danger-light: #fee2e2;
+  --gray-900: #111827;
+  --gray-700: #374151;
+  --gray-500: #6b7280;
+  --gray-100: #f3f4f6;
+  --gray-50: #f9fafb;
 }
 
 body {
-  background: var(--bg-light) !important;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--gray-50);
 }
 
-.contract-container {
-  max-width: 1200px !important;
-  margin: 0 auto !important;
-  padding: 2rem 1rem !important;
+.page-header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  padding: 2rem 0;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* Status Badge */
-.status-badge {
-  display: inline-flex !important;
-  align-items: center !important;
-  gap: 0.5rem !important;
-  padding: 0.5rem 1rem !important;
-  border-radius: 50px !important;
-  font-size: 0.875rem !important;
-  font-weight: 600 !important;
-  text-transform: capitalize !important;
-}
-
-.status-negotiation {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  color: #92400e;
-  border: 2px solid #fbbf24;
-}
-
-.status-accepted {
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-  color: #065f46;
-  border: 2px solid #34d399;
-}
-
-.status-progress {
-  background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
-  color: #1e40af;
-  border: 2px solid #60a5fa;
-}
-
-.status-completed {
-  background: linear-gradient(135deg, #d1fae5 0%, #6ee7b7 100%);
-  color: #065f46;
-  border: 2px solid #10b981;
-}
-
-/* Card Styles */
-.card {
-  background: white !important;
-  border-radius: 16px !important;
-  border: 1px solid var(--border-color) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04) !important;
-  overflow: hidden !important;
-  margin-bottom: 1.5rem !important;
-}
-
-.card-header {
-  padding: 1.5rem !important;
-  border-bottom: 1px solid var(--border-color) !important;
-  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%) !important;
-}
-
-.card-title {
-  font-size: 1.25rem !important;
-  font-weight: 700 !important;
-  color: var(--text-dark) !important;
-  display: flex !important;
-  align-items: center !important;
-  gap: 0.75rem !important;
-  margin: 0 !important;
-}
-
-.card-title i {
-  color: var(--primary-color) !important;
-  font-size: 1.5rem !important;
-}
-
-.card-body {
-  padding: 1.5rem !important;
-}
-
-/* Hero Section */
-.contract-hero {
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%) !important;
-  color: white !important;
-  padding: 2rem !important;
-  border-radius: 16px !important;
-  margin-bottom: 2rem !important;
-  position: relative !important;
-  overflow: hidden !important;
-}
-
-.contract-hero::before {
-  content: '';
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-  opacity: 0.3;
-}
-
-.contract-hero-content {
-  position: relative;
-  z-index: 1;
-}
-
-.contract-number {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.1em;
-  opacity: 0.9;
-  margin-bottom: 0.5rem;
-}
-
-.contract-title {
+.page-title {
   font-size: 2rem;
-  font-weight: 800;
+  font-weight: 700;
   margin: 0 0 0.5rem 0;
-}
-
-.contract-meta {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1.5rem;
-  margin-top: 1rem;
-  opacity: 0.95;
-}
-
-.contract-meta-item {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-}
-
-/* Participants */
-.participants-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1rem;
-  margin-top: 1.5rem;
-}
-
-.participant-card {
-  background: white !important;
-  border: 2px solid var(--border-color) !important;
-  border-radius: 12px !important;
-  padding: 1.25rem !important;
-  transition: all 0.3s ease !important;
-}
-
-.participant-card:hover {
-  border-color: var(--primary-color) !important;
-  box-shadow: 0 4px 12px rgba(30, 64, 175, 0.1) !important;
-  transform: translateY(-2px) !important;
-}
-
-.participant-label {
-  font-size: 0.75rem;
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  color: var(--text-light);
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-.participant-name {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--text-dark);
-  margin-bottom: 0.25rem;
-}
-
-.participant-email {
-  font-size: 0.875rem;
-  color: var(--text-medium);
-}
-
-/* Alert Boxes */
-.alert {
-  padding: 1.25rem !important;
-  border-radius: 12px !important;
-  margin-bottom: 1.5rem !important;
-  display: flex !important;
-  gap: 1rem !important;
-  align-items: start !important;
-}
-
-.alert-negotiation {
-  background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
-  border: 2px solid #fbbf24;
-}
-
-.alert-danger {
-  background: linear-gradient(135deg, #fee2e2 0%, #fecaca 100%);
-  border: 2px solid #f87171;
-}
-
-.alert-icon {
-  font-size: 1.5rem;
-  flex-shrink: 0;
-}
-
-.alert-content h3 {
-  font-size: 1rem;
-  font-weight: 700;
-  margin: 0 0 0.5rem 0;
-}
-
-.alert-content p {
-  font-size: 0.875rem;
-  margin: 0.25rem 0;
-}
-
-/* Info Grid */
-.info-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-}
-
-.info-item h3 {
-  font-size: 0.875rem;
-  font-weight: 700;
-  color: var(--text-light);
-  text-transform: uppercase;
-  letter-spacing: 0.05em;
-  margin: 0 0 0.5rem 0;
-}
-
-.info-item p {
-  font-size: 1rem;
-  font-weight: 600;
-  color: var(--text-dark);
-  margin: 0;
-}
-
-.info-box {
-  background: var(--bg-light);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 1rem;
-  white-space: pre-line;
-  color: var(--text-dark);
-  line-height: 1.6;
-}
-
-/* Signature Section */
-.signatures-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: 1.5rem;
-}
-
-.signature-card {
-  border: 2px solid var(--border-color);
-  border-radius: 12px;
-  padding: 2rem;
-  text-align: center;
-  transition: all 0.3s ease;
-}
-
-.signature-card.signed {
-  background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
-  border-color: #34d399;
-}
-
-.signature-card.pending {
-  background: var(--bg-light);
-}
-
-.signature-icon {
-  font-size: 3rem;
-  margin-bottom: 1rem;
-}
-
-.signature-icon.signed {
-  color: #059669;
-}
-
-.signature-icon.pending {
-  color: #cbd5e1;
-}
-
-.signature-name {
-  font-size: 1.125rem;
-  font-weight: 700;
-  color: var(--text-dark);
-  margin-bottom: 0.5rem;
-}
-
-.signature-date {
-  font-size: 0.875rem;
-  color: var(--text-medium);
-}
-
-/* Action Buttons */
-.actions-bar {
-  display: flex;
-  flex-wrap: wrap;
   gap: 0.75rem;
-  padding: 1.5rem;
-  background: white;
-  border-radius: 12px;
-  border: 1px solid var(--border-color);
-  margin-top: 2rem;
 }
 
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.5rem;
-  padding: 0.75rem 1.5rem;
-  border-radius: 8px;
-  font-size: 0.875rem;
-  font-weight: 600;
-  border: none;
-  cursor: pointer;
-  transition: all 0.3s ease;
+.breadcrumb {
+  background: white;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.breadcrumb a {
+  color: var(--primary);
   text-decoration: none;
 }
 
-.btn:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+/* Content Grid Layout */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-.btn-primary {
-  background: linear-gradient(135deg, var(--primary-color) 0%, var(--primary-dark) 100%);
-  color: white;
-}
-
-.btn-success {
-  background: linear-gradient(135deg, #059669 0%, #047857 100%);
-  color: white;
-}
-
-.btn-warning {
-  background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%);
-  color: white;
-}
-
-.btn-danger {
-  background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
-  color: white;
-}
-
-.btn-secondary {
-  background: #f1f5f9;
-  color: var(--text-dark);
-  border: 1px solid var(--border-color);
-}
-
-.checkbox-label {
-  display: flex;
-  align-items: start;
-  gap: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--text-medium);
-  margin-bottom: 0.75rem;
-}
-
-.checkbox-label input[type="checkbox"] {
-  margin-top: 0.25rem;
-}
-
-/* Progress Timeline */
-.progress-timeline {
-  position: relative;
-  padding-left: 2rem;
-}
-
-.progress-timeline::before {
-  content: '';
-  position: absolute;
-  left: 0.5rem;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: var(--border-color);
-}
-
-.progress-item {
-  position: relative;
-  padding-bottom: 1.5rem;
-}
-
-.progress-item::before {
-  content: '';
-  position: absolute;
-  left: -1.5rem;
-  top: 0.25rem;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  background: var(--primary-color);
-  border: 3px solid white;
-  box-shadow: 0 0 0 2px var(--primary-color);
-}
-
-.progress-content {
-  background: var(--bg-light);
-  border: 1px solid var(--border-color);
-  border-radius: 8px;
-  padding: 1rem;
+/* Workflow Progress Section */
+.workflow-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  margin-bottom: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid var(--gray-100);
 }
 
 .progress-header {
   display: flex;
   justify-content: space-between;
-  margin-bottom: 0.5rem;
-  font-size: 0.875rem;
-  color: var(--text-medium);
+  align-items: center;
+  margin-bottom: 2rem;
 }
 
-.progress-message {
-  color: var(--text-dark);
-  line-height: 1.6;
-}
-
-/* Breadcrumb */
-.breadcrumb {
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gray-900);
   display: flex;
-  flex-wrap: wrap;
+  align-items: center;
   gap: 0.5rem;
+  margin: 0;
+}
+
+.section-title i {
+  color: var(--primary);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  font-weight: 600;
   font-size: 0.875rem;
-  margin-bottom: 1.5rem;
-  color: var(--text-medium);
 }
 
-.breadcrumb a {
-  color: var(--primary-color);
+.status-badge.negotiation {
+  background: var(--warning-light);
+  color: #92400e;
+}
+
+.status-badge.finalized,
+.status-badge.accepted {
+  background: var(--success-light);
+  color: #065f46;
+}
+
+.status-badge.inprogress,
+.status-badge.progress {
+  background: var(--primary-light);
+  color: #1e40af;
+}
+
+.status-badge.completed {
+  background: var(--success-light);
+  color: #065f46;
+}
+
+/* Progress Bar */
+.progress-bar-container {
+  position: relative;
+  height: 8px;
+  background: var(--gray-100);
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 3rem;
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: var(--success);
+  border-radius: 10px;
+  transition: width 0.6s ease;
+}
+
+/* Workflow Steps */
+.workflow-steps {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  gap: 1rem;
+}
+
+.workflow-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.step-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+  transition: all 0.3s ease;
+  border: 3px solid transparent;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.step-pending .step-circle {
+  background: white;
+  color: var(--gray-500);
+  border-color: var(--gray-200);
+}
+
+.step-current .step-circle {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 4px var(--primary-light);
+  animation: pulse-glow 2s infinite;
+}
+
+.step-completed .step-circle {
+  background: var(--success);
+  color: white;
+  border-color: var(--success-light);
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 4px var(--primary-light);
+  }
+  50% {
+    box-shadow: 0 0 0 8px var(--primary-light);
+  }
+}
+
+.step-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  max-width: 140px;
+}
+
+.step-description {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  margin-top: 0.25rem;
+  max-width: 140px;
+}
+
+.step-pending .step-label {
+  color: var(--gray-500);
+}
+
+.step-current .step-label {
+  color: var(--primary);
+}
+
+.step-completed .step-label {
+  color: var(--success);
+}
+
+/* Main Card */
+.main-card {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+.card-section {
+  padding: 2rem;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.card-section:last-child {
+  border-bottom: none;
+}
+
+.card-section h4 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  margin: 0 0 1.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.card-section h4 i {
+  color: var(--primary);
+}
+
+.info-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1rem;
+}
+
+.info-item {
+  background: var(--gray-50);
+  padding: 1rem;
+  border-radius: 0.5rem;
+  border: 1px solid var(--gray-100);
+}
+
+.info-label {
+  font-size: 0.875rem;
+  color: var(--gray-500);
+  margin-bottom: 0.25rem;
+}
+
+.info-value {
+  font-size: 1rem;
+  font-weight: 600;
+  color: var(--gray-900);
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
   text-decoration: none;
-  transition: color 0.2s;
 }
 
-.breadcrumb a:hover {
-  color: var(--primary-dark);
-  text-decoration: underline;
+.btn-primary {
+  background: var(--primary);
+  color: white;
 }
 
-/* Responsive */
+.btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.btn-success {
+  background: var(--success);
+  color: white;
+}
+
+.btn-success:hover {
+  background: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.btn-secondary {
+  background: white;
+  color: var(--gray-700);
+  border: 1px solid var(--gray-300);
+}
+
+.btn-secondary:hover {
+  background: var(--gray-50);
+}
+
+.btn-danger {
+  background: var(--danger);
+  color: white;
+}
+
+.btn-danger:hover {
+  background: #dc2626;
+}
+
+/* Info Cards */
+.info-card {
+  background: var(--gray-50);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border-left: 4px solid var(--primary);
+  margin-bottom: 1.5rem;
+}
+
+.info-card.success {
+  border-left-color: var(--success);
+  background: var(--success-light);
+}
+
+.info-card.warning {
+  border-left-color: var(--warning);
+  background: var(--warning-light);
+}
+
+.info-card.danger {
+  border-left-color: var(--danger);
+  background: var(--danger-light);
+}
+
+/* Mobile Responsive */
 @media (max-width: 768px) {
-  .contract-container {
-    padding: 1rem;
-  }
-  
-  .contract-title {
-    font-size: 1.5rem;
-  }
-  
-  .contract-meta {
+  .workflow-steps {
     flex-direction: column;
-    gap: 0.75rem;
+    gap: 2rem;
   }
   
-  .info-grid,
-  .participants-grid,
-  .signatures-grid {
+  .workflow-step {
+    flex-direction: row;
+    width: 100%;
+    text-align: left;
+  }
+  
+  .step-circle {
+    margin-right: 1rem;
+    margin-bottom: 0;
+  }
+  
+  .info-grid {
     grid-template-columns: 1fr;
   }
   
-  .actions-bar {
-    flex-direction: column;
+  .page-header {
+    padding: 1.5rem 0;
   }
   
-  .btn {
-    width: 100%;
-    justify-content: center;
+  .page-title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .workflow-section {
+    padding: 1rem;
+  }
+  
+  .step-circle {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+  
+  .step-label {
+    font-size: 0.75rem;
+  }
+  
+  .card-section {
+    padding: 1.5rem;
   }
 }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="contract-container">
-    <!-- Breadcrumb -->
-    <nav class="breadcrumb">
-        <a href="{% url 'jobs:home' %}"><i class="bi bi-house-door"></i> Home</a>
-        <span>/</span>
+<!-- Page Header -->
+<div class="page-header">
+  <div class="container">
+    <h1 class="page-title">
+      <i class="bi bi-file-earmark-text-fill"></i>
+      Contract Details
+    </h1>
+    <p style="margin: 0; opacity: 0.9;">{{ contract.job.title }}</p>
+  </div>
+</div>
+
+<div class="container">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'jobs:home' %}"><i class="bi bi-house-fill"></i> Home</a>
+      </li>
+      <li class="breadcrumb-item">
         {% if user == contract.worker %}
-        <a href="{% url 'jobs:worker_dashboard' %}">Dashboard</a>
-        {% elif user == contract.client %}
-        <a href="{% url 'jobs:employer_dashboard' %}">Dashboard</a>
+        <a href="{% url 'jobs:worker_dashboard' %}"><i class="bi bi-speedometer2"></i> Dashboard</a>
         {% else %}
-        <span>Dashboard</span>
+        <a href="{% url 'jobs:employer_dashboard' %}"><i class="bi bi-speedometer2"></i> Dashboard</a>
         {% endif %}
-        <span>/</span>
-        <span>Contract Details</span>
-    </nav>
+      </li>
+      <li class="breadcrumb-item active" aria-current="page">Contract #{{ contract.id }}</li>
+    </ol>
+  </nav>
 
-    <!-- Hero Section -->
-    <div class="contract-hero">
-        <div class="contract-hero-content">
-            <div class="contract-number">Contract #{{ contract.id|stringformat:"05d" }}</div>
-            <h1 class="contract-title">{{ contract.job.title }}</h1>
-            <div class="contract-meta">
-                <div class="contract-meta-item">
-                    <i class="bi bi-calendar3"></i>
-                    <span>Created {{ contract.created_at|date:"F d, Y" }}</span>
-                </div>
-                <div class="contract-meta-item">
-                    <i class="bi bi-clock-history"></i>
-                    <span>Updated {{ contract.updated_at|date:"F d, Y" }}</span>
-                </div>
-                {% if contract.history.exists %}
-                <button type="button" onclick="openHistoryModal()" class="contract-meta-item" style="cursor: pointer; background: rgba(255,255,255,0.2); padding: 0.5rem 1rem; border-radius: 50px; border: 1px solid rgba(255,255,255,0.3);">
-                    <i class="bi bi-clock-history"></i>
-                    <span>View History</span>
-                </button>
-                {% endif %}
-            </div>
-            
-            <!-- Status and Signatures -->
-            <div style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1.5rem; align-items: center;">
-                <span class="status-badge status-{{ contract.status|lower|cut:' ' }}">
-                    <i class="bi bi-circle-fill" style="font-size: 0.5rem;"></i>
-                    {{ contract.status }}
-                </span>
-                <div style="display: flex; gap: 1rem; align-items: center; background: rgba(255,255,255,0.15); padding: 0.5rem 1rem; border-radius: 50px;">
-                    <span style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem;">
-                        <i class="bi bi-{% if contract.finalized_by_employer %}check-circle-fill{% else %}circle{% endif %}" style="font-size: 1.25rem;"></i>
-                        Client
-                    </span>
-                    <span style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.875rem;">
-                        <i class="bi bi-{% if contract.finalized_by_worker %}check-circle-fill{% else %}circle{% endif %}" style="font-size: 1.25rem;"></i>
-                        Worker
-                    </span>
-                </div>
-            </div>
+  <div class="content-grid">
+    <!-- Main Content -->
+    <div class="main-card">
+      <!-- Workflow Progress -->
+      <div class="card-section workflow-section">
+        <div class="progress-header">
+          <h3 class="section-title">
+            <i class="bi bi-diagram-3-fill"></i>
+            Contract Progress
+          </h3>
+          <span class="status-badge {{ contract.status|lower|cut:' ' }}">
+            <i class="bi bi-circle-fill" style="font-size: 0.5rem;"></i>
+            {{ contract.status }}
+          </span>
         </div>
-    </div>
-    
-    <!-- Participants -->
-    <div class="card">
-        <div class="card-header">
-            <h2 class="card-title">
-                <i class="bi bi-people"></i>
-                Contract Participants
-            </h2>
+        
+        <!-- Progress Bar -->
+        <div class="progress-bar-container">
+          <div class="progress-bar-fill" style="width: {% if contract.status == 'Completed' or contract.status == 'Cancelled' %}100{% elif contract.status == 'In Progress' or contract.status == 'Submitted for Review' %}75{% elif contract.status == 'Finalized' %}50{% elif contract.finalized_by_worker or contract.finalized_by_employer %}25{% else %}12.5{% endif %}%;"></div>
         </div>
-        <div class="card-body">
-            <div class="participants-grid">
-                <div class="participant-card">
-                    <div class="participant-label"><i class="bi bi-briefcase"></i> Client</div>
-                    <div class="participant-name">{{ contract.client.get_full_name|default:contract.client.username }}</div>
-                    <div class="participant-email"><i class="bi bi-envelope"></i> {{ contract.client.email }}</div>
-                </div>
-                <div class="participant-card">
-                    <div class="participant-label"><i class="bi bi-person-workspace"></i> Worker</div>
-                    <div class="participant-name">{{ contract.worker.get_full_name|default:contract.worker.username }}</div>
-                    <div class="participant-email"><i class="bi bi-envelope"></i> {{ contract.worker.email }}</div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-        {% if contract.status == 'Negotiation' %}
-        <div class="bg-white border border-indigo-200 rounded-xl shadow-sm overflow-hidden">
-            <div class="px-6 py-5 bg-indigo-50 flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-                <div>
-                    <h2 class="text-sm font-semibold text-indigo-800 flex items-center gap-2">
-                        <svg class="h-5 w-5" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h2a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" /></svg>
-                        Negotiation in Progress
-                    </h2>
-                    <p class="mt-1 text-sm text-indigo-700">Both parties can continue editing until everyone accepts the latest version.</p>
-                    {% if contract.history.exists %}
-                    <p class="mt-2 text-xs text-indigo-600">
-                        Last updated {{ contract.updated_at|timesince }} ago
-                        {% if contract.history.first.history_user %}
-                            by {{ contract.history.first.history_user.get_full_name|default:contract.history.first.history_user.username }}
-                        {% endif %}
-                    </p>
-                    {% endif %}
-                </div>
-                <div class="flex flex-col sm:flex-row gap-2">
-                    <a href="{% url 'jobs:contract_negotiation' contract.pk %}" class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                        <i class="bi bi-pencil-square"></i>
-                        Edit Terms
-                    </a>
-                    {% if user == contract.client and not contract.finalized_by_employer %}
-                    <form method="post" action="{% url 'jobs:accept_contract_terms' contract.pk %}" onsubmit="return confirmAcceptContract('client')" class="inline-flex flex-col gap-2">
-                        {% csrf_token %}
-                        <label class="inline-flex items-start gap-2 text-xs text-gray-600">
-                            <input type="checkbox" name="agree_terms" value="on" required class="mt-0.5 h-4 w-4 text-indigo-600 border-gray-300 rounded">
-                            <span>I confirm that I have reviewed and agree to the contract terms.</span>
-                        </label>
-                        <button type="submit" class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-indigo-700 bg-white border border-indigo-200 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <i class="bi bi-check-circle"></i>
-                            Accept (Client)
-                        </button>
-                    </form>
-                    {% endif %}
-                    {% if user == contract.worker and not contract.finalized_by_worker %}
-                    <form method="post" action="{% url 'jobs:accept_contract_terms' contract.pk %}" onsubmit="return confirmAcceptContract('worker')" class="inline-flex flex-col gap-2">
-                        {% csrf_token %}
-                        <label class="inline-flex items-start gap-2 text-xs text-gray-600">
-                            <input type="checkbox" name="agree_terms" value="on" required class="mt-0.5 h-4 w-4 text-indigo-600 border-gray-300 rounded">
-                            <span>I confirm that I have reviewed and agree to the contract terms.</span>
-                        </label>
-                        <button type="submit" class="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-indigo-700 bg-white border border-indigo-200 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <i class="bi bi-check-circle"></i>
-                            Accept (Worker)
-                        </button>
-                    </form>
-                    {% endif %}
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        {% if contract.termination_requested_by %}
-        <div class="bg-white border-l-4 border-red-500 rounded-xl shadow-sm p-5 flex gap-3">
-            <i class="bi bi-exclamation-triangle-fill text-red-500 text-xl"></i>
+        
+        <!-- Workflow Steps -->
+        <div class="workflow-steps">
+          <!-- Step 1: Negotiation -->
+          <div class="workflow-step {% if contract.status != 'Draft' %}step-completed{% elif contract.status == 'Negotiation' %}step-current{% else %}step-pending{% endif %}">
+            <div class="step-circle">{% if contract.status != 'Draft' and contract.status != 'Negotiation' %}✓{% else %}1{% endif %}</div>
             <div>
-                <h3 class="text-sm font-semibold text-red-700">Termination Requested</h3>
-                <p class="text-sm text-red-600">{{ contract.termination_requested_by.get_full_name }} requested termination on {{ contract.termination_requested_at|date:"M d, Y" }}.</p>
-                {% if contract.termination_reason %}
-                <p class="text-sm text-red-600 mt-1"><strong>Reason:</strong> {{ contract.termination_reason }}</p>
-                {% endif %}
+              <div class="step-label">Negotiation</div>
+              <div class="step-description">{% if contract.finalized_by_worker and contract.finalized_by_employer %}Agreed{% elif contract.status == 'Negotiation' %}In Progress{% else %}Pending{% endif %}</div>
             </div>
+          </div>
+          
+          <!-- Step 2: Finalized -->
+          <div class="workflow-step {% if contract.status == 'Finalized' or contract.status == 'In Progress' or contract.status == 'Submitted for Review' or contract.status == 'Completed' %}step-completed{% elif contract.finalized_by_worker and contract.finalized_by_employer %}step-current{% else %}step-pending{% endif %}">
+            <div class="step-circle">{% if contract.status == 'Finalized' or contract.status == 'In Progress' or contract.status == 'Submitted for Review' or contract.status == 'Completed' %}✓{% else %}2{% endif %}</div>
+            <div>
+              <div class="step-label">Finalized</div>
+              <div class="step-description">{% if contract.status == 'Finalized' or contract.status == 'In Progress' or contract.status == 'Submitted for Review' or contract.status == 'Completed' %}Ready{% else %}Awaiting{% endif %}</div>
+            </div>
+          </div>
+          
+          <!-- Step 3: In Progress -->
+          <div class="workflow-step {% if contract.status == 'In Progress' or contract.status == 'Submitted for Review' or contract.status == 'Completed' %}step-completed{% elif contract.status == 'Finalized' %}step-current{% else %}step-pending{% endif %}">
+            <div class="step-circle">{% if contract.status == 'In Progress' or contract.status == 'Submitted for Review' or contract.status == 'Completed' %}✓{% else %}3{% endif %}</div>
+            <div>
+              <div class="step-label">In Progress</div>
+              <div class="step-description">{% if contract.status == 'In Progress' or contract.status == 'Submitted for Review' %}Working{% elif contract.status == 'Completed' %}Done{% else %}Not Started{% endif %}</div>
+            </div>
+          </div>
+          
+          <!-- Step 4: Completed -->
+          <div class="workflow-step {% if contract.status == 'Completed' %}step-completed{% elif contract.status == 'Submitted for Review' %}step-current{% else %}step-pending{% endif %}">
+            <div class="step-circle">{% if contract.status == 'Completed' %}✓{% else %}4{% endif %}</div>
+            <div>
+              <div class="step-label">Completed</div>
+              <div class="step-description">{% if contract.status == 'Completed' %}Finished{% else %}Pending{% endif %}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Contract Participants -->
+      <div class="card-section">
+        <h4>
+          <i class="bi bi-people-fill"></i>
+          Contract Parties
+        </h4>
+        <div class="info-grid" style="grid-template-columns: repeat(2, 1fr);">
+          <div class="info-item">
+            <div class="info-label">Employer</div>
+            <div class="info-value">{{ contract.client.get_full_name|default:contract.client.username }}</div>
+            <div style="font-size: 0.875rem; color: var(--gray-500); margin-top: 0.25rem;">
+              <i class="bi bi-envelope"></i> {{ contract.client.email }}
+            </div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Worker</div>
+            <div class="info-value">{{ contract.worker.get_full_name|default:contract.worker.username }}</div>
+            <div style="font-size: 0.875rem; color: var(--gray-500); margin-top: 0.25rem;">
+              <i class="bi bi-envelope"></i> {{ contract.worker.email }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Job Details -->
+      <div class="card-section">
+        <h4>
+          <i class="bi bi-briefcase-fill"></i>
+          Job Details
+        </h4>
+        <div style="margin-bottom: 1.5rem;">
+          <div class="info-label">Job Title</div>
+          <div class="info-value">{{ contract.job_title|default:contract.job.title }}</div>
+        </div>
+        <div>
+          <div class="info-label">Job Description</div>
+          <div style="background: var(--gray-50); padding: 1rem; border-radius: 0.5rem; border: 1px solid var(--gray-100); color: var(--gray-700); line-height: 1.6;">
+            {{ contract.job_description|default:contract.job.description|linebreaks }}
+          </div>
+        </div>
+      </div>
+
+      <!-- Payment Terms -->
+      <div class="card-section">
+        <h4>
+          <i class="bi bi-cash-stack"></i>
+          Payment Terms
+        </h4>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Agreed Rate</div>
+            <div class="info-value">₱{{ contract.agreed_rate|floatformat:2 }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Rate Type</div>
+            <div class="info-value">{{ contract.get_rate_type_display }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Payment Schedule</div>
+            <div class="info-value">{{ contract.payment_schedule|default:"Not specified" }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Schedule & Duration -->
+      <div class="card-section">
+        <h4>
+          <i class="bi bi-calendar-check"></i>
+          Schedule & Duration
+        </h4>
+        <div class="info-grid">
+          <div class="info-item">
+            <div class="info-label">Duration</div>
+            <div class="info-value">{% if contract.duration %}{{ contract.duration }} days{% else %}Not specified{% endif %}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Work Schedule</div>
+            <div class="info-value">{{ contract.schedule|default:"Not specified" }}</div>
+          </div>
+          <div class="info-item">
+            <div class="info-label">Start Date</div>
+            <div class="info-value">{{ contract.start_date|date:"M d, Y"|default:"TBD" }}</div>
+          </div>
+          {% if contract.end_date %}
+          <div class="info-item">
+            <div class="info-label">End Date</div>
+            <div class="info-value">{{ contract.end_date|date:"M d, Y" }}</div>
+          </div>
+          {% endif %}
+        </div>
+      </div>
+
+      <!-- Terms & Conditions -->
+      <div class="card-section">
+        <h4>
+          <i class="bi bi-file-earmark-text"></i>
+          Terms & Conditions
+        </h4>
+        <div style="background: var(--gray-50); padding: 1.5rem; border-radius: 0.5rem; border: 1px solid var(--gray-100);">
+          <p style="white-space: pre-line; margin: 0; line-height: 1.8; color: var(--gray-700);">{{ contract.terms }}</p>
+        </div>
+      </div>
+
+      {% if contract.notes %}
+      <!-- Additional Notes -->
+      <div class="card-section">
+        <h4>
+          <i class="bi bi-sticky"></i>
+          Additional Notes
+        </h4>
+        <div style="background: var(--gray-50); padding: 1rem; border-radius: 0.5rem; border: 1px solid var(--gray-100); color: var(--gray-700); line-height: 1.6;">
+          {{ contract.notes|linebreaks }}
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Signatures -->
+      {% if not contract.is_draft %}
+      <div class="card-section">
+        <h4>
+          <i class="bi bi-pen"></i>
+          Signatures
+        </h4>
+        <div class="info-grid" style="grid-template-columns: repeat(2, 1fr);">
+          <div style="text-align: center; padding: 2rem; {% if contract.finalized_by_employer %}background: var(--success-light); border: 2px solid var(--success);{% else %}background: var(--gray-50); border: 2px solid var(--gray-200);{% endif %} border-radius: 0.75rem;">
+            <div style="font-size: 3rem; {% if contract.finalized_by_employer %}color: var(--success);{% else %}color: var(--gray-300);{% endif %}">
+              <i class="bi bi-{% if contract.finalized_by_employer %}check-circle-fill{% else %}circle{% endif %}"></i>
+            </div>
+            <p style="margin: 1rem 0 0 0; font-weight: 600; color: var(--gray-900);">{{ contract.client.get_full_name|default:contract.client.username }}</p>
+            <p style="margin: 0.5rem 0 0 0; font-size: 0.875rem; color: var(--gray-500);">
+              {% if contract.finalized_by_employer %}
+                Signed on {{ contract.updated_at|date:"F d, Y" }}
+              {% else %}
+                Awaiting signature
+              {% endif %}
+            </p>
+          </div>
+          <div style="text-align: center; padding: 2rem; {% if contract.finalized_by_worker %}background: var(--success-light); border: 2px solid var(--success);{% else %}background: var(--gray-50); border: 2px solid var(--gray-200);{% endif %} border-radius: 0.75rem;">
+            <div style="font-size: 3rem; {% if contract.finalized_by_worker %}color: var(--success);{% else %}color: var(--gray-300);{% endif %}">
+              <i class="bi bi-{% if contract.finalized_by_worker %}check-circle-fill{% else %}circle{% endif %}"></i>
+            </div>
+            <p style="margin: 1rem 0 0 0; font-weight: 600; color: var(--gray-900);">{{ contract.worker.get_full_name|default:contract.worker.username }}</p>
+            <p style="margin: 0.5rem 0 0 0; font-size: 0.875rem; color: var(--gray-500);">
+              {% if contract.finalized_by_worker %}
+                Signed on {{ contract.updated_at|date:"F d, Y" }}
+              {% else %}
+                Awaiting signature
+              {% endif %}
+            </p>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Action Buttons -->
+      <div class="card-section" style="background: var(--gray-50);">
+        {% if contract.status == 'Negotiation' %}
+        {% if not contract.finalized_by_worker or not contract.finalized_by_employer %}
+        <!-- Accept Contract Section -->
+        <div style="border-bottom: 2px solid var(--gray-200); padding-bottom: 1.5rem; margin-bottom: 1.5rem;">
+          <h4 style="margin: 0 0 1rem 0; font-size: 1.125rem;">
+            <i class="bi bi-check-circle"></i>
+            Accept Contract Terms
+          </h4>
+          
+          {% if user == contract.worker and not contract.finalized_by_worker %}
+          <form method="post" action="{% url 'jobs:accept_contract_terms' contract.pk %}" onsubmit="return confirmAcceptContract('worker')">
+            {% csrf_token %}
+            <div style="display: flex; align-items: start; gap: 1rem; margin-bottom: 1rem; padding: 1rem; background: white; border-radius: 0.5rem; border: 1px solid var(--gray-300);">
+              <input type="checkbox" name="agree_terms" id="agree_terms_worker" required style="width: 20px; height: 20px; margin-top: 2px;">
+              <label for="accept_terms_worker" style="font-weight: 600; color: var(--gray-900); cursor: pointer;">
+                I confirm that I have reviewed and agree to the contract terms as the Worker. I understand that accepting this contract creates a binding agreement.
+              </label>
+            </div>
+            <button type="submit" class="btn btn-success">
+              <i class="bi bi-check-circle-fill"></i>
+              Accept Terms as Worker
+            </button>
+          </form>
+          {% elif user == contract.client and not contract.finalized_by_employer %}
+          <form method="post" action="{% url 'jobs:accept_contract_terms' contract.pk %}" onsubmit="return confirmAcceptContract('client')">
+            {% csrf_token %}
+            <div style="display: flex; align-items: start; gap: 1rem; margin-bottom: 1rem; padding: 1rem; background: white; border-radius: 0.5rem; border: 1px solid var(--gray-300);">
+              <input type="checkbox" name="agree_terms" id="agree_terms_employer" required style="width: 20px; height: 20px; margin-top: 2px;">
+              <label for="accept_terms_employer" style="font-weight: 600; color: var(--gray-900); cursor: pointer;">
+                I confirm that I have reviewed and agree to the contract terms as the Employer. I understand that accepting this contract creates a binding agreement.
+              </label>
+            </div>
+            <button type="submit" class="btn btn-success">
+              <i class="bi bi-check-circle-fill"></i>
+              Accept Terms as Employer
+            </button>
+          </form>
+          {% else %}
+          <div class="info-card success">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <i class="bi bi-check-circle-fill" style="font-size: 2rem; color: var(--success);"></i>
+              <div>
+                <h5 style="margin: 0 0 0.25rem 0; font-weight: 700; color: var(--success);">You've accepted the terms!</h5>
+                <p style="margin: 0; font-size: 0.875rem; color: var(--gray-700);">Waiting for the other party to accept.</p>
+              </div>
+            </div>
+          </div>
+          {% endif %}
         </div>
         {% endif %}
-
-        <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-            <div class="px-6 py-5 border-b border-gray-200 flex items-center justify-between">
-                <h2 class="text-lg font-semibold text-gray-900">Contract Overview</h2>
-                <span class="text-sm text-gray-500">Updated {{ contract.updated_at|date:"F d, Y" }}</span>
-            </div>
-            <div class="px-6 py-5 space-y-6">
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <h3 class="text-sm font-semibold text-gray-700 mb-2">Job Title</h3>
-                        <p class="text-gray-900 font-medium">{{ contract.job_title|default:contract.job.title }}</p>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-semibold text-gray-700 mb-2">Rate</h3>
-                        <p class="text-gray-900 font-medium">
-                            {% if contract.agreed_rate %}
-                                ₱{{ contract.agreed_rate|floatformat:2 }} {% if contract.rate_type == 'hourly' %}/ hour{% else %}/ project{% endif %}
-                            {% else %}
-                                Not specified
-                            {% endif %}
-                        </p>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-semibold text-gray-700 mb-2">Payment Schedule</h3>
-                        <p class="text-gray-900 font-medium">{{ contract.payment_schedule|default:"Not specified" }}</p>
-                    </div>
-                    <div>
-                        <h3 class="text-sm font-semibold text-gray-700 mb-2">Timeframe</h3>
-                        <p class="text-gray-900 font-medium">{{ contract.start_date|date:"F d, Y"|default:"Start TBD" }} – {{ contract.end_date|date:"F d, Y"|default:"End TBD" }}</p>
-                        {% if contract.start_time or contract.end_time %}
-                        <p class="text-gray-600 text-sm mt-2">
-                            <i class="fas fa-clock"></i> Daily Hours: 
-                            {{ contract.start_time|time:"g:i A"|default:"Not set" }} – {{ contract.end_time|time:"g:i A"|default:"Not set" }}
-                        </p>
-                        {% endif %}
-                    </div>
-                </div>
-                <div>
-                    <h3 class="text-sm font-semibold text-gray-700 mb-2">Job Description</h3>
-                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-gray-700 whitespace-pre-line">
-                        {{ contract.job_description|default:"Not specified" }}
-                    </div>
-                </div>
-                <div>
-                    <h3 class="text-sm font-semibold text-gray-700 mb-2">Terms &amp; Conditions</h3>
-                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-gray-700 whitespace-pre-line">
-                        {{ contract_terms_text|default:default_contract_terms|linebreaksbr }}
-                    </div>
-                </div>
-                {% if contract.notes %}
-                <div>
-                    <h3 class="text-sm font-semibold text-gray-700 mb-2">Additional Notes</h3>
-                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-gray-700 whitespace-pre-line">
-                        {{ contract.notes|linebreaks }}
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-        </div>
-
-        {% if contract.scope_of_work or contract.payment_terms or contract.deliverables %}
-        <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-            <div class="px-6 py-5 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    <i class="bi bi-archive text-indigo-600"></i>
-                    Legacy Information
-                </h2>
-                <p class="mt-1 text-sm text-gray-500">Historical details retained for reference.</p>
-            </div>
-            <div class="px-6 py-5 space-y-6">
-                {% if contract.scope_of_work %}
-                <div>
-                    <h3 class="text-sm font-semibold text-gray-700 mb-2">Scope of Work</h3>
-                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-gray-700 whitespace-pre-line">
-                        {{ contract.scope_of_work }}
-                    </div>
-                </div>
-                {% endif %}
-                {% if contract.payment_terms %}
-                <div>
-                    <h3 class="text-sm font-semibold text-gray-700 mb-2">Payment Terms</h3>
-                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-gray-700 whitespace-pre-line">
-                        {{ contract.payment_terms }}
-                    </div>
-                </div>
-                {% endif %}
-                {% if contract.deliverables %}
-                <div>
-                    <h3 class="text-sm font-semibold text-gray-700 mb-2">Deliverables</h3>
-                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4 text-gray-700 whitespace-pre-line">
-                        {{ contract.deliverables }}
-                    </div>
-                </div>
-                {% endif %}
-            </div>
-        </div>
         {% endif %}
-
-        {% if contract.progress_logs.exists %}
-        <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-            <div class="px-6 py-5 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    <i class="bi bi-clock-history text-indigo-600"></i>
-                    Progress Updates
-                </h2>
-            </div>
-            <div class="px-6 py-5 space-y-4">
-                {% for log in contract.progress_logs.all %}
-                <div class="border border-gray-200 rounded-lg p-4">
-                    <div class="flex justify-between text-sm text-gray-500">
-                        <span>{{ log.timestamp|date:"M d, Y - g:i A" }}</span>
-                        <span class="font-medium text-indigo-600">{{ log.updated_by.get_full_name|default:log.updated_by.username }}</span>
-                    </div>
-                    <p class="mt-2 text-gray-700">{{ log.message }}</p>
-                </div>
-                {% endfor %}
-            </div>
-        </div>
-        {% endif %}
-
-        {% if not contract.is_draft %}
-        <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-            <div class="px-6 py-5 border-b border-gray-200">
-                <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                    <i class="bi bi-pen text-indigo-600"></i>
-                    Signatures
-                </h2>
-            </div>
-            <div class="px-6 py-5 grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="border border-gray-200 rounded-lg p-6 text-center {% if contract.finalized_by_employer %}bg-green-50 border-green-200{% else %}bg-gray-50{% endif %}">
-                    <div class="text-3xl {% if contract.finalized_by_employer %}text-green-500{% else %}text-gray-300{% endif %}">
-                        <i class="bi bi-{% if contract.finalized_by_employer %}check-circle-fill{% else %}circle{% endif %}"></i>
-                    </div>
-                    <p class="mt-4 text-sm font-semibold text-gray-700">{{ contract.client.get_full_name|default:contract.client.username }}</p>
-                    <p class="text-xs text-gray-500 mt-1">
-                        {% if contract.finalized_by_employer %}
-                            Signed on {{ contract.updated_at|date:"F d, Y" }}
-                        {% else %}
-                            Awaiting signature
-                        {% endif %}
-                    </p>
-                </div>
-                <div class="border border-gray-200 rounded-lg p-6 text-center {% if contract.finalized_by_worker %}bg-green-50 border-green-200{% else %}bg-gray-50{% endif %}">
-                    <div class="text-3xl {% if contract.finalized_by_worker %}text-green-500{% else %}text-gray-300{% endif %}">
-                        <i class="bi bi-{% if contract.finalized_by_worker %}check-circle-fill{% else %}circle{% endif %}"></i>
-                    </div>
-                    <p class="mt-4 text-sm font-semibold text-gray-700">{{ contract.worker.get_full_name|default:contract.worker.username }}</p>
-                    <p class="text-xs text-gray-500 mt-1">
-                        {% if contract.finalized_by_worker %}
-                            Signed on {{ contract.updated_at|date:"F d, Y" }}
-                        {% else %}
-                            Awaiting signature
-                        {% endif %}
-                    </p>
-                </div>
-            </div>
-        </div>
-        {% endif %}
-
-        {% if contract.status == 'Completed' %}
-            {% if contract.feedback_by_client or contract.feedback_by_worker %}
-            <div class="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-                <div class="px-6 py-5 border-b border-gray-200">
-                    <h2 class="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                        <i class="bi bi-star text-indigo-600"></i>
-                        Feedback & Ratings
-                    </h2>
-                </div>
-                <div class="px-6 py-5 grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {% if contract.feedback_by_client %}
-                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                        <h3 class="text-sm font-semibold text-gray-700 mb-2">Client Feedback</h3>
-                        {% if contract.rating_by_client %}
-                        <div class="flex items-center gap-1 mb-2 text-yellow-500">
-                            {% for i in "12345" %}
-                                {% if forloop.counter <= contract.rating_by_client %}
-                                <i class="bi bi-star-fill"></i>
-                                {% else %}
-                                <i class="bi bi-star"></i>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                        <p class="text-sm text-gray-700">{{ contract.feedback_by_client }}</p>
-                    </div>
-                    {% endif %}
-                    {% if contract.feedback_by_worker %}
-                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                        <h3 class="text-sm font-semibold text-gray-700 mb-2">Worker Feedback</h3>
-                        {% if contract.rating_by_worker %}
-                        <div class="flex items-center gap-1 mb-2 text-yellow-500">
-                            {% for i in "12345" %}
-                                {% if forloop.counter <= contract.rating_by_worker %}
-                                <i class="bi bi-star-fill"></i>
-                                {% else %}
-                                <i class="bi bi-star"></i>
-                                {% endif %}
-                            {% endfor %}
-                        </div>
-                        {% endif %}
-                        <p class="text-sm text-gray-700">{{ contract.feedback_by_worker }}</p>
-                    </div>
-                    {% endif %}
-                </div>
-            </div>
+        
+        <!-- Navigation & Actions -->
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: space-between; align-items: center;">
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            <a href="javascript:history.back()" class="btn btn-secondary">
+              <i class="bi bi-arrow-left"></i>
+              Back
+            </a>
+            
+            {% if contract.status == 'Negotiation' %}
+              <a href="{% url 'jobs:contract_negotiation' contract.pk %}" class="btn btn-primary">
+                <i class="bi bi-pencil-square"></i>
+                Edit Terms
+              </a>
+            {% elif contract.status == 'In Progress' %}
+              <a href="{% url 'jobs:job_tracking' contract.pk %}" class="btn btn-primary">
+                <i class="bi bi-graph-up"></i>
+                Track Progress
+              </a>
+            {% elif contract.status == 'Completed' %}
+              <a href="{% url 'jobs:feedback_form' contract.pk %}" class="btn btn-primary">
+                <i class="bi bi-star-fill"></i>
+                {% if user_feedback %}Edit Feedback{% else %}Leave Feedback{% endif %}
+              </a>
             {% endif %}
-        {% endif %}
-
-        <div class="bg-white border border-gray-200 rounded-xl shadow-sm p-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-            <div class="flex flex-wrap gap-2">
-                {% if user == contract.client or user == contract.worker %}
-                    {% if contract.is_draft %}
-                        {% if user == contract.client and not contract.client_accepted %}
-                        <form method="post" action="{% url 'jobs:accept_contract' contract.pk %}" onsubmit="return confirmAcceptContract('client')">
-                            {% csrf_token %}
-                            <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
-                                <i class="bi bi-check-circle"></i>
-                                Accept (Client)
-                            </button>
-                        </form>
-                        {% endif %}
-                        {% if user == contract.worker and not contract.worker_accepted %}
-                        <form method="post" action="{% url 'jobs:accept_contract' contract.pk %}" onsubmit="return confirmAcceptContract('worker')">
-                            {% csrf_token %}
-                            <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
-                                <i class="bi bi-check-circle"></i>
-                                Accept (Worker)
-                            </button>
-                        </form>
-                        {% endif %}
-                        <a href="{% url 'jobs:contract_negotiation' contract.pk %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-indigo-700 bg-indigo-100 hover:bg-indigo-200 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <i class="bi bi-pencil"></i>
-                            Edit Draft
-                        </a>
-                    {% elif contract.status == 'Accepted' and contract.client_accepted and contract.worker_accepted %}
-                        {% if user == contract.client and not contract.is_finalized %}
-                        <form method="post" action="{% url 'jobs:finalize_contract' contract.pk %}" onsubmit="return confirmFinalizeContract()">
-                            {% csrf_token %}
-                            <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                                <i class="bi bi-check-circle-fill"></i>
-                                Finalize Contract
-                            </button>
-                        </form>
-                        {% endif %}
-                        {% if user == contract.worker and contract.is_finalized %}
-                        <form method="post" action="{% url 'jobs:contract_edit' contract.pk %}" onsubmit="return confirmStartWork()">
-                            {% csrf_token %}
-                            <input type="hidden" name="status" value="In Progress">
-                            <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <i class="bi bi-play-circle"></i>
-                                Start Work
-                            </button>
-                        </form>
-                        {% endif %}
-                    {% elif contract.status == 'In Progress' %}
-                        <a href="{% url 'jobs:job_tracking' contract.pk %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-500">
-                            <i class="bi bi-graph-up"></i>
-                            Track Progress
-                        </a>
-                        {% if user == contract.worker %}
-                        <a href="{% url 'jobs:job_tracking' contract.pk %}#progress-form" class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
-                            <i class="bi bi-plus-circle"></i>
-                            Add Update
-                        </a>
-                        <a href="{% url 'jobs:job_tracking' contract.pk %}#progress-form" class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
-                            <i class="bi bi-check-circle"></i>
-                            Submit for Review
-                        </a>
-                        {% endif %}
-                    {% elif contract.status == 'Submitted for Review' and user == contract.client %}
-                        <form method="post" action="{% url 'jobs:finalize_contract' contract.pk %}">
-                            {% csrf_token %}
-                            <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500">
-                                <i class="bi bi-check-circle-fill"></i>
-                                Approve & Complete
-                            </button>
-                        </form>
-                        <a href="{% url 'jobs:contract_edit' contract.pk %}" class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-white bg-yellow-500 hover:bg-yellow-600 focus:outline-none focus:ring-2 focus:ring-yellow-400">
-                            <i class="bi bi-arrow-clockwise"></i>
-                            Request Revision
-                        </a>
-                    {% endif %}
-
-                    {% if contract.status != 'Completed' and contract.status != 'Cancelled' %}
-                    <form method="post" action="{% url 'jobs:contract_cancel' contract.pk %}" onsubmit="return confirm('Are you sure you want to cancel this contract?');">
-                        {% csrf_token %}
-                        <button type="submit" class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500">
-                            <i class="bi bi-x-circle"></i>
-                            Cancel Contract
-                        </button>
-                    </form>
-                    {% endif %}
-                {% endif %}
-            </div>
-            <a href="javascript:history.back()" class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-gray-700 bg-gray-100 hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-300">
-                <i class="bi bi-arrow-left"></i>{% trans "Back" %}</a>
+          </div>
+          
+          <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+            {% if contract.status != 'Completed' and contract.status != 'Cancelled' %}
+              <button onclick="if(confirm('Are you sure you want to cancel this contract?')) { document.getElementById('cancelForm').submit(); }" class="btn btn-danger">
+                <i class="bi bi-x-circle"></i>
+                Cancel Contract
+              </button>
+              <form id="cancelForm" method="post" action="{% url 'jobs:contract_cancel' contract.pk %}" style="display: none;">
+                {% csrf_token %}
+              </form>
+            {% endif %}
+          </div>
         </div>
+      </div>
+
     </div>
+    <!-- End Main Card -->
+  </div>
+  <!-- End Content Grid -->
 </div>
+<!-- End Container -->
 
-{% if contract.history.exists %}
-<!-- History Modal -->
-<div id="historyModal" class="hidden fixed inset-0 z-50 overflow-y-auto" aria-labelledby="history-modal-title" role="dialog" aria-modal="true">
-    <div class="flex items-center justify-center min-h-screen px-4">
-        <div class="fixed inset-0 bg-gray-900 bg-opacity-60 transition-opacity" onclick="closeHistoryModal()"></div>
-        <div class="relative bg-white rounded-xl shadow-2xl max-w-3xl w-full mx-auto overflow-hidden">
-            <div class="px-6 py-4 border-b border-gray-200 flex items-start justify-between">
-                <div>
-                    <h2 id="history-modal-title" class="text-lg font-semibold text-gray-900 flex items-center gap-2">
-                        <i class="bi bi-clock-history text-indigo-600"></i>
-                        Negotiation History
-                    </h2>
-                    <p class="mt-1 text-sm text-gray-500">Review the latest changes made during negotiation.</p>
-                </div>
-                <button type="button" class="text-gray-400 hover:text-gray-600" onclick="closeHistoryModal()">
-                    <span class="sr-only">Close</span>
-                    <i class="bi bi-x-lg"></i>
-                </button>
-            </div>
-            <div class="px-6 py-5 max-h-[70vh] overflow-y-auto space-y-4">
-                {% if history_entries %}
-                    {% for entry in history_entries %}
-                    <div class="bg-gray-50 border border-gray-200 rounded-lg p-4">
-                        <div class="flex flex-wrap items-start justify-between gap-2 text-sm text-gray-500">
-                            <div class="flex items-center gap-2 text-gray-700">
-                                <span class="inline-flex items-center justify-center w-7 h-7 rounded-full bg-indigo-100 text-indigo-600">
-                                    <i class="bi bi-person"></i>
-                                </span>
-                                <div>
-                                    <p class="font-semibold">
-                                        {{ entry.user.get_full_name|default:entry.user.username|default:"System" }}
-                                    </p>
-                                    <p class="text-xs uppercase tracking-wide text-gray-400">{{ entry.role }}</p>
-                                </div>
-                            </div>
-                            <span>{{ entry.timestamp|date:"M d, Y - g:i A" }}</span>
-                        </div>
-                        <div class="mt-3 text-sm text-gray-700">
-                            {% if entry.type == '+' %}
-                                <p class="flex items-center gap-2 text-green-600 font-medium">
-                                    <i class="bi bi-plus-circle"></i>
-                                    Contract created
-                                </p>
-                            {% elif entry.type == '~' %}
-                                <p class="flex items-center gap-2 text-yellow-600 font-medium">
-                                    <i class="bi bi-pencil-square"></i>
-                                    Terms updated
-                                </p>
-                            {% elif entry.type == '-' %}
-                                <p class="flex items-center gap-2 text-red-600 font-medium">
-                                    <i class="bi bi-trash"></i>
-                                    Contract deleted
-                                </p>
-                            {% endif %}
-
-                            {% if entry.changes %}
-                            <div class="mt-3 space-y-2">
-                                {% for change in entry.changes %}
-                                <div class="bg-white border border-gray-200 rounded-lg p-3">
-                                    <p class="text-xs uppercase tracking-wide text-gray-400">{{ change.field }}</p>
-                                    <div class="mt-1 text-xs text-gray-500">
-                                        <p><span class="font-semibold text-gray-600">Previous:</span> {{ change.old }}</p>
-                                        <p class="mt-1"><span class="font-semibold text-gray-600">Updated:</span> {{ change.new }}</p>
-                                    </div>
-                                </div>
-                                {% endfor %}
-                            </div>
-                            {% else %}
-                            <p class="mt-2 text-xs text-gray-500">No field-level changes recorded.</p>
-                            {% endif %}
-                        </div>
-                    </div>
-                    {% endfor %}
-                    {% if contract.history.count > 10 %}
-                    <p class="text-xs text-gray-400 text-center">Showing 10 most recent changes ({{ contract.history.count }} total)</p>
-                    {% endif %}
-                {% else %}
-                    <p class="text-sm text-gray-500">No negotiation changes recorded yet.</p>
-                {% endif %}
-            </div>
-            <div class="px-6 py-4 border-t border-gray-200 bg-gray-50 flex justify-end">
-                <button type="button" class="inline-flex items-center gap-2 px-4 py-2 rounded-md text-sm font-medium text-gray-700 bg-white border border-gray-200 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-indigo-500" onclick="closeHistoryModal()">
-                    Close
-                </button>
-            </div>
-        </div>
-    </div>
-</div>
-{% endif %}
-
+<!-- Modals and Scripts from original page -->
 <script>
-function openHistoryModal() {
-    const modal = document.getElementById('historyModal');
-    if (modal) {
-        modal.classList.remove('hidden');
-        document.body.classList.add('overflow-hidden');
-    }
-}
-
-function closeHistoryModal() {
-    const modal = document.getElementById('historyModal');
-    if (modal) {
-        modal.classList.add('hidden');
-        document.body.classList.remove('overflow-hidden');
-    }
-}
-
-document.addEventListener('keydown', (event) => {
-    if (event.key === 'Escape') {
-        closeHistoryModal();
-    }
-});
-
 function confirmAcceptContract(role) {
-    const roleText = role === 'client' ? 'Client' : 'Worker';
-    return confirm(
-        '<i class="fa fa-exclamation-triangle"></i> IMPORTANT REMINDERS BEFORE ACCEPTING CONTRACT:\n\n' +
-        '✓ You are accepting the contract terms as the ' + roleText + '\n' +
-        '✓ You agree to all scope of work, payment terms, and deliverables\n' +
-        '✓ You agree to the start and end dates specified\n' +
-        '✓ This is a binding agreement\n' +
-        '✓ The other party will be notified of your acceptance\n' +
-        '✓ You can still negotiate if both parties haven\'t accepted yet\n\n' +
-        'Do you want to proceed with accepting this contract?'
-    );
+  return confirm('Are you sure you want to accept this contract as ' + role + '?');
 }
 
 function confirmFinalizeContract() {
-    return confirm(
-        '<i class="fa fa-exclamation-triangle"></i> IMPORTANT REMINDERS BEFORE FINALIZING CONTRACT:\n\n' +
-        '✓ Both parties have accepted the contract terms\n' +
-        '✓ Finalizing will lock the contract - no more changes allowed\n' +
-        '✓ The worker will be able to start work after finalization\n' +
-        '✓ This action cannot be undone\n' +
-        '✓ Make sure all terms are correct before finalizing\n\n' +
-        'Do you want to finalize this contract?'
-    );
+  return confirm('Are you sure you want to finalize this contract? This action cannot be undone.');
 }
 
 function confirmStartWork() {
-    return confirm(
-        '<i class="fa fa-exclamation-triangle"></i> IMPORTANT REMINDERS BEFORE STARTING WORK:\n\n' +
-        '✓ The contract has been finalized by the client\n' +
-        '✓ You are committing to complete the work as specified\n' +
-        '✓ You should provide regular progress updates\n' +
-        '✓ Complete the work by the agreed deadline\n' +
-        '✓ The client will be notified that work has started\n\n' +
-        'Are you ready to start work on this contract?'
-    );
+  return confirm('Are you sure you want to start work on this contract?');
 }
 </script>
-{% endblock %}
 
-
-{% block guide_data %}
-{
-    "enabled": true,
-    "page_name": "contract_detail",
-    "title": "Contract Details Guide",
-    "steps": [
-        {
-            "title": "Your Contract Overview \ud83d\udcc4",
-            "content": "<h3>Contract Information</h3><p>View all details of your work contract including terms, schedule, payment, and status.</p>"
-        },
-        {
-            "title": "Contract Status \ud83d\udd04",
-            "content": "<h3>Track Your Progress</h3><ul><li><strong>Negotiation:</strong> Terms being finalized</li><li><strong>In Progress:</strong> Work is active</li><li><strong>Completed:</strong> Job finished</li><li><strong>Cancelled:</strong> Contract terminated</li></ul>"
-        },
-        {
-            "title": "Update Progress \ud83d\udcca",
-            "content": "<h3>Keep Everyone Informed</h3><p>Regularly update your work progress so employers can track completion. Click 'Update Progress' to submit updates.</p>"
-        }
-    ]
-}
 {% endblock %}

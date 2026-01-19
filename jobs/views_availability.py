@@ -22,7 +22,10 @@ def manage_availability(request):
     GET: Display current availability settings
     POST: Save/update availability settings
     """
-    if not request.user.is_worker:
+    # Allow both legacy flag (is_worker) and role-based check
+    is_worker_flag = getattr(request.user, 'is_worker', False)
+    is_worker_role = getattr(request.user, 'role', '') == 'worker'
+    if not (is_worker_flag or is_worker_role):
         messages.error(request, "Only workers can manage availability schedules.")
         return redirect('users:profile', pk=request.user.pk)
     

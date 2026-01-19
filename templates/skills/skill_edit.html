@@ -214,7 +214,7 @@
       
       <div class="button-group">
         <button type="submit" class="btn-primary">Update Skill</button>
-        <a href="{% url 'profile' request.user.pk %}" class="btn-secondary">{% trans "Cancel" %}</a>
+        <a href="{% url 'users:profile' request.user.pk %}" class="btn-secondary">{% trans "Cancel" %}</a>
       </div>
     </form>
   </div>

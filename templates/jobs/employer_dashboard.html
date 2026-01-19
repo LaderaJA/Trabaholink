@@ -785,7 +785,7 @@
             <div class="contract-tracking-card">
                 <div class="contract-card-header">
                     <h3 class="contract-card-title">{{ contract.job.title }}</h3>
-                    <span class="contract-card-badge" style="{% if contract.status == 'In Progress' %}background: #d1fae5; color: #065f46;{% elif contract.status == 'Accepted' %}background: #dbeafe; color: #1e40af;{% else %}background: #fef3c7; color: #92400e;{% endif %}">
+                    <span class="contract-card-badge" style="{% if contract.status == 'In Progress' %}background: #d1fae5; color: #065f46;{% elif contract.status == 'Finalized' %}background: #d1fae5; color: #065f46;{% else %}background: #fef3c7; color: #92400e;{% endif %}">
                         {{ contract.status }}
                     </span>
                 </div>
@@ -1163,7 +1163,7 @@
                             <i class="bi bi-pencil"></i> Edit Terms
                         </a>
                         {% endif %}
-                        {% if contract.status == 'Finalized' or contract.status == 'Accepted' or contract.status == 'In Progress' or contract.status == 'Awaiting Review' %}
+                        {% if contract.status == 'Finalized' or contract.status == 'In Progress' or contract.status == 'Awaiting Review' %}
                         <a href="{% url 'jobs:job_tracking' contract.pk %}" class="btn-action btn-success">
                             <i class="bi bi-graph-up"></i> Track Progress
                         </a>
