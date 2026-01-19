@@ -2330,7 +2330,7 @@ body {
 
 {% block content %}
 <!-- Cover Photo Section -->
-<div class="profile-cover-section clickable" onclick="openCoverPhotoModal()">
+<div class="profile-cover-section {% if user.cover_photo_custom %}clickable{% endif %}" {% if user.cover_photo_custom %}onclick="openCoverPhotoModal()"{% endif %}>
   {% if user.cover_photo_custom %}
     <img src="{{ user.cover_photo_custom.url }}" alt="Cover Photo" class="profile-cover-photo clickable-image img-fluid">
   {% elif user.cover_photo %}
