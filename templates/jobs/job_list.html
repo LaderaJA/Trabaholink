@@ -2009,12 +2009,16 @@ function showCachedLocationInfo() {
 div.modal-backdrop {
   z-index: 1050 !important; /* Bootstrap default for backdrop */
   pointer-events: auto !important; /* Block clicks to page content */
+  transform: none !important; /* Prevent stacking context issues */
+  will-change: auto !important;
 }
 
 /* Modal must be ABOVE backdrop */
 #locationModal {
   z-index: 1055 !important; /* Higher than backdrop (1050) */
   pointer-events: none !important; /* Allow backdrop clicks to pass through to close modal */
+  transform: translateZ(0) !important; /* Force GPU layer to render above backdrop */
+  isolation: isolate !important; /* Create new stacking context */
 }
 
 #locationModal .modal-dialog {
