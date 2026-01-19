@@ -8,7 +8,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('jobs', '0021_add_video_to_jobprogress'),
+        ('jobs', '0024_add_time_fields_to_historical_contract'),
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
     ]
 
