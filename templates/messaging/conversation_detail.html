@@ -968,14 +968,10 @@ main {
     font-size: 0.75rem;
   }
   
-  /* Adjust messages area */
+  /* Adjust messages area - add padding for mobile input field */
   .messages-area {
     padding: 0.75rem;
-    padding-bottom: 0.75rem; /* Natural spacing, no extra gap */
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end; /* Push messages to bottom naturally */
-    min-height: 100%; /* Allow flex to work properly */
+    padding-bottom: 80px; /* Space for fixed input field on mobile */
   }
   
   .message-bubble {
