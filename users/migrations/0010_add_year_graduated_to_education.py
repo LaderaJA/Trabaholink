@@ -5,7 +5,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('users', '0009_add_notification_preference'),
+        ('users', '0009_notificationpreference'),
     ]
 
     operations = [
