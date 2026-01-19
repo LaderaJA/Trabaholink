@@ -26,36 +26,49 @@ main {
     margin: 0 !important;
 }
 
-/* Fix navbar collapse for tablet view - ensure vertical dropdown */
+/* Fix navbar collapse for tablet/mobile view - ensure vertical dropdown */
+/* Use higher specificity and override base template styles */
 @media (max-width: 991px) {
-  body .tl-navbar .tl-navbar-collapse {
+  /* Override navbar collapse to be vertical dropdown */
+  .tl-navbar .tl-navbar-collapse.show,
+  .tl-navbar .tl-navbar-collapse {
+    display: flex !important;
     position: absolute !important;
     top: 100% !important;
     left: 0 !important;
     right: 0 !important;
+    width: 100% !important;
     background: white !important;
     flex-direction: column !important;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
     z-index: 1050 !important;
     justify-content: flex-start !important;
-    align-items: stretch !important;
+    align-items: flex-start !important;
+    padding: 1rem !important;
   }
   
-  body .tl-navbar .tl-navbar-nav {
+  /* Force navbar nav to stack vertically */
+  .tl-navbar .tl-navbar-nav {
+    display: flex !important;
     flex-direction: column !important;
     width: 100% !important;
-    align-items: stretch !important;
+    align-items: flex-start !important;
+    row-gap: 0.5rem !important;
   }
   
-  body .tl-navbar .tl-nav-item {
+  /* Full width nav items */
+  .tl-navbar .tl-nav-item {
     width: 100% !important;
     display: block !important;
+    margin: 0 !important;
   }
   
-  body .tl-navbar .tl-nav-link {
+  /* Full width nav links */
+  .tl-navbar .tl-nav-link {
     width: 100% !important;
     display: block !important;
     text-align: left !important;
+    padding: 0.5rem 1rem !important;
   }
 }
 /* Ensure CSS variables from base.html are available */
