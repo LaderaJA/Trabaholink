@@ -2002,9 +2002,14 @@ function showCachedLocationInfo() {
 </div>
 
 <style>
-/* Fix modal backdrop z-index to appear below modal */
+/* Fix modal backdrop and wrapper to allow clicks only on content */
 #locationModal {
   z-index: 9999 !important;
+  pointer-events: none !important; /* Don't block clicks on transparent area */
+}
+
+#locationModal .modal-dialog {
+  pointer-events: auto !important; /* Only the content box captures clicks */
 }
 
 /* Make modal backdrop non-blocking - allow clicks to pass through */
@@ -2453,8 +2458,14 @@ document.addEventListener('DOMContentLoaded', function() {
                 backdrop.style.pointerEvents = 'none';
             }
             
-            // Ensure modal itself can receive clicks
-            this.style.pointerEvents = 'auto';
+            // Modal wrapper should not block clicks
+            this.style.pointerEvents = 'none';
+            
+            // Only the modal-dialog (content box) should capture clicks
+            const modalDialog = this.querySelector('.modal-dialog');
+            if (modalDialog) {
+                modalDialog.style.pointerEvents = 'auto';
+            }
         });
     }
     
