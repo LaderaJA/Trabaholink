@@ -136,7 +136,15 @@
                 <div class="flex-1 min-w-0">
                     <div class="flex items-start justify-between mb-2">
                         <div>
-                            <h4 class="text-base font-semibold text-gray-800">{{ report.report_type }} Report</h4>
+                            <h4 class="text-base font-semibold text-gray-800">
+                                {% if report.reported_user %}
+                                    Report Against User: <span class="text-trabaholink-blue">{{ report.reported_user.username }}</span>
+                                {% elif report.reported_post %}
+                                    Report Against Job: <span class="text-trabaholink-blue">{{ report.reported_post.title|truncatewords:8 }}</span>
+                                {% else %}
+                                    {{ report.report_type }} Report
+                                {% endif %}
+                            </h4>
                             <p class="text-sm text-gray-500">
                                 {% if report.reporter %}
                                     Reported by <span class="font-medium text-gray-700">{{ report.reporter.username }}</span>
