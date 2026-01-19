@@ -25,6 +25,29 @@ main {
     padding: 0 !important;
     margin: 0 !important;
 }
+
+/* Fix navbar collapse for tablet view - ensure vertical dropdown */
+@media (max-width: 991px) {
+  .tl-navbar-collapse {
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    background: white !important;
+    flex-direction: column !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    z-index: 1050 !important;
+  }
+  
+  .tl-navbar-nav {
+    flex-direction: column !important;
+    width: 100% !important;
+  }
+  
+  .tl-nav-item {
+    width: 100% !important;
+  }
+}
 /* Ensure CSS variables from base.html are available */
 :root {
   --navbar-height: 80px;
