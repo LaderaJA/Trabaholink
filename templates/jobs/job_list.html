@@ -2454,6 +2454,12 @@ document.addEventListener('DOMContentLoaded', function() {
     if (locationModal) {
         locationModal.addEventListener('shown.bs.modal', function () {
             const backdrop = document.querySelector('.modal-backdrop');
+            const modal = this;
+            
+            // Move backdrop BEFORE modal in DOM to fix rendering order
+            if (backdrop && modal.parentNode) {
+                modal.parentNode.insertBefore(backdrop, modal);
+            }
             
             // Ensure proper z-index order with setProperty for !important
             if (backdrop) {
@@ -2462,17 +2468,18 @@ document.addEventListener('DOMContentLoaded', function() {
             }
             
             // Modal wrapper above backdrop, but allows clicks through
-            this.style.setProperty('z-index', '1055', 'important');
-            this.style.setProperty('pointer-events', 'none', 'important');
+            modal.style.setProperty('z-index', '1055', 'important');
+            modal.style.setProperty('pointer-events', 'none', 'important');
             
             // Only the modal-dialog (content box) should capture clicks
-            const modalDialog = this.querySelector('.modal-dialog');
+            const modalDialog = modal.querySelector('.modal-dialog');
             if (modalDialog) {
                 modalDialog.style.setProperty('pointer-events', 'auto', 'important');
             }
             
-            console.log('Modal z-index:', this.style.zIndex);
+            console.log('Modal z-index:', modal.style.zIndex);
             console.log('Backdrop z-index:', backdrop ? backdrop.style.zIndex : 'not found');
+            console.log('DOM order fixed: backdrop moved before modal');
         });
     }
     
