@@ -22,6 +22,7 @@
                     <tr>
                         <th>Reporter</th>
                         <th>Type</th>
+                        <th>Category</th>
                         <th>Entity</th>
                         <th>Content</th>
                         <th>Screenshot</th>
@@ -34,6 +35,13 @@
                     <tr data-status="{{ report.status }}">
                         <td>{{ report.reporter.username|default:"Anonymous" }}</td>
                         <td>{{ report.report_type }}</td>
+                        <td>
+                            {% if report.report_category %}
+                                <span class="badge bg-info">{{ report.get_report_category_display }}</span>
+                            {% else %}
+                                <span class="badge bg-secondary">Not specified</span>
+                            {% endif %}
+                        </td>
                         <td>
                             {% if report.reported_user %}
                                 User: {{ report.reported_user.username }}
@@ -63,7 +71,7 @@
                     </tr>
                     {% empty %}
                     <tr>
-                        <td colspan="7" class="text-center">No reports found.</td>
+                        <td colspan="8" class="text-center">No reports found.</td>
                     </tr>
                     {% endfor %}
                 </tbody>
