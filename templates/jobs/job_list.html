@@ -2007,12 +2007,12 @@ function showCachedLocationInfo() {
   z-index: 9999 !important;
 }
 
-/* Target modal backdrop with multiple selectors for specificity */
+/* Make modal backdrop non-blocking - allow clicks to pass through */
 .modal-backdrop,
 .modal-backdrop.fade,
 .modal-backdrop.show,
 div.modal-backdrop {
-  z-index: 1040 !important;
+  pointer-events: none !important;
 }
 
 @keyframes spin {
@@ -2444,17 +2444,17 @@ document.addEventListener('DOMContentLoaded', function() {
     const locationModal = document.getElementById('locationModal');
     const searchForm = document.getElementById('searchForm');
     
-    // Fix z-index when modal is shown
+    // Fix modal backdrop pointer events when modal is shown
     if (locationModal) {
         locationModal.addEventListener('shown.bs.modal', function () {
-            // Ensure modal is above backdrop
-            this.style.zIndex = '9999';
-            
-            // Find and set backdrop z-index
+            // Make backdrop non-blocking
             const backdrop = document.querySelector('.modal-backdrop');
             if (backdrop) {
-                backdrop.style.zIndex = '1040';
+                backdrop.style.pointerEvents = 'none';
             }
+            
+            // Ensure modal itself can receive clicks
+            this.style.pointerEvents = 'auto';
         });
     }
     
