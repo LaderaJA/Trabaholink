@@ -379,7 +379,7 @@ class PrivacySettingsView(UpdateView):
 
     def get_success_url(self):
         messages.success(self.request, 'Your privacy settings have been updated successfully!')
-        return reverse_lazy('privacy_settings')
+        return reverse_lazy('users:privacy_settings')
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
