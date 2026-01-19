@@ -2634,7 +2634,7 @@ body {
           
           {% if user.verification_status == 'pending' or user.verification_status == 'failed' %}
           <li>
-            <a href="{% url 'ekyc_start' %}" class="action-link-modern highlight">
+            <a href="{% url 'users:ekyc_start' %}" class="action-link-modern highlight">
               <div class="action-link-icon">
                 <i class="bi bi-shield-check"></i>
               </div>
