@@ -126,13 +126,15 @@
 /* Main Chat Interface */
 .chat-interface {
   display: flex;
-  height: calc(100vh - var(--navbar-height)); /* Account for navbar height */
+  min-height: calc(100vh - var(--navbar-height)); /* Account for navbar height */
+  height: calc(100vh - var(--navbar-height));
   background: white;
   position: fixed;
   top: var(--navbar-height); /* Position below navbar */
   left: 0;
   right: 0;
   bottom: 0;
+  overflow: hidden;
 }
 
 /* ===== SIDEBAR (Conversations List) ===== */
