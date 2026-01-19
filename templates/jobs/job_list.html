@@ -2002,6 +2002,15 @@ function showCachedLocationInfo() {
 </div>
 
 <style>
+/* Fix modal backdrop z-index to appear below modal */
+#locationModal {
+  z-index: 9999 !important;
+}
+
+.modal-backdrop.show {
+  z-index: 9998 !important;
+}
+
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
