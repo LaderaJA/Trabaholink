@@ -2444,6 +2444,20 @@ document.addEventListener('DOMContentLoaded', function() {
     const locationModal = document.getElementById('locationModal');
     const searchForm = document.getElementById('searchForm');
     
+    // Fix z-index when modal is shown
+    if (locationModal) {
+        locationModal.addEventListener('shown.bs.modal', function () {
+            // Ensure modal is above backdrop
+            this.style.zIndex = '9999';
+            
+            // Find and set backdrop z-index
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) {
+                backdrop.style.zIndex = '1040';
+            }
+        });
+    }
+    
     // Add event listeners to modal inputs
     const cityInput = document.getElementById('manualCity');
     const barangayInput = document.getElementById('manualBarangay');
