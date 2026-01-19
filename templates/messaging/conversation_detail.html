@@ -6,9 +6,24 @@
 
 {% block css %}
 <style>
-/* Hide guide toggle button on messaging page */
+/* Hide guide toggle button and footer on messaging page */
 #guideToggleBtn {
     display: none !important;
+}
+
+/* Hide footer on messaging page since chat is full screen */
+footer {
+    display: none !important;
+}
+
+/* Remove padding from body and main for full screen chat */
+body {
+    padding-top: 0 !important;
+}
+
+main {
+    padding: 0 !important;
+    margin: 0 !important;
 }
 /* Ensure CSS variables from base.html are available */
 :root {
