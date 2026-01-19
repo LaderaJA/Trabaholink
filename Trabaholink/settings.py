@@ -289,7 +289,7 @@ AUTHENTICATION_BACKENDS = [
 # Redirect users after login/logout
 LOGIN_URL = '/users/login/'
 LOGIN_REDIRECT_URL = 'jobs:home'  
-LOGOUT_REDIRECT_URL = 'login'
+LOGOUT_REDIRECT_URL = 'users:login'
 
 EMAIL_BACKEND = os.environ.get('EMAIL_BACKEND', 'django.core.mail.backends.console.EmailBackend')
 DEFAULT_FROM_EMAIL = os.environ.get('DEFAULT_FROM_EMAIL', 'trabaholinka@gmail.com')
