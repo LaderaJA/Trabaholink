@@ -974,7 +974,7 @@ def schedule_events_api(request):
     events = []
     
     # Get user's contracts (for workers)
-    if user.profile.user_type == 'worker':
+    if user.role == 'worker':
         contracts = Contract.objects.filter(
             worker=user,
             status__in=['Finalized', 'In Progress', 'Awaiting Review', 'Completed']
