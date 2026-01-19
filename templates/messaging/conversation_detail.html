@@ -971,7 +971,11 @@ main {
   /* Adjust messages area */
   .messages-area {
     padding: 0.75rem;
-    padding-bottom: 1rem; /* Minimal bottom padding, input is in fixed position */
+    padding-bottom: 0.75rem; /* Natural spacing, no extra gap */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end; /* Push messages to bottom naturally */
+    min-height: 100%; /* Allow flex to work properly */
   }
   
   .message-bubble {
