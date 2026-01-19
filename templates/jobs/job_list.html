@@ -1947,7 +1947,8 @@ function showCachedLocationInfo() {
             document.getElementById('cachedLocationText').textContent = locationText;
             document.getElementById('cachedLocationInfo').style.display = 'block';
         } catch (e) {
-            console.error('Error displaying cached location:', e);
+            console.error('Error displaying cached location, clearing bad data:', e);
+            localStorage.removeItem('userLocation');
         }
     }
 }
@@ -2302,7 +2303,8 @@ const LocationManager = {
                 }
             }
         } catch (e) {
-            console.error('Error reading cached location:', e);
+            console.error('Error reading cached location, clearing bad data:', e);
+            localStorage.removeItem('userLocation');
         }
         return null;
     },
