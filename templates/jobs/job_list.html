@@ -2455,21 +2455,24 @@ document.addEventListener('DOMContentLoaded', function() {
         locationModal.addEventListener('shown.bs.modal', function () {
             const backdrop = document.querySelector('.modal-backdrop');
             
-            // Ensure proper z-index order
+            // Ensure proper z-index order with setProperty for !important
             if (backdrop) {
-                backdrop.style.zIndex = '1050';
-                backdrop.style.pointerEvents = 'auto'; // Block page clicks
+                backdrop.style.setProperty('z-index', '1050', 'important');
+                backdrop.style.setProperty('pointer-events', 'auto', 'important');
             }
             
             // Modal wrapper above backdrop, but allows clicks through
-            this.style.zIndex = '1055';
-            this.style.pointerEvents = 'none';
+            this.style.setProperty('z-index', '1055', 'important');
+            this.style.setProperty('pointer-events', 'none', 'important');
             
             // Only the modal-dialog (content box) should capture clicks
             const modalDialog = this.querySelector('.modal-dialog');
             if (modalDialog) {
-                modalDialog.style.pointerEvents = 'auto';
+                modalDialog.style.setProperty('pointer-events', 'auto', 'important');
             }
+            
+            console.log('Modal z-index:', this.style.zIndex);
+            console.log('Backdrop z-index:', backdrop ? backdrop.style.zIndex : 'not found');
         });
     }
     
