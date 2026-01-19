@@ -545,6 +545,21 @@ body::after {
   background: white;
   color: var(--primary-color);
   border: 2px solid rgba(26, 148, 212, 0.25);
+  position: relative;
+  z-index: 1;
+}
+
+.content-card-header-modern .btn-outline-modern {
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--primary-color);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.content-card-header-modern .btn-outline-modern:hover {
+  background: white;
+  color: var(--primary-color);
+  border-color: white;
+  transform: translateY(-2px);
 }
 
 .btn-outline-modern:hover {
@@ -1320,7 +1335,7 @@ body::after {
   background: rgba(255, 255, 255, 0.95);
   backdrop-filter: blur(10px);
   border-radius: 16px;
-  padding: 2.5rem;
+  padding: 0;
   max-width: 100%;
   overflow: hidden;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
@@ -1337,16 +1352,36 @@ body::after {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid var(--border-color);
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  padding: 1.25rem 2rem;
+  margin: 0;
+  border-radius: 16px 16px 0 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.content-card-header-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.2), transparent);
+  animation: shine 3s ease-in-out infinite;
 }
 
 .content-card-title-modern {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--text-dark);
+  color: white;
   margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.content-card-body-modern {
+  padding: 2.5rem;
 }
 
 /* Section Styles */
@@ -2957,6 +2992,7 @@ body::after {
             {% endif %}
           </div>
           
+          <div class="content-card-body-modern">
           <div class="info-grid-modern">
             <div class="info-item-modern">
               <div class="info-label-modern">Full Name</div>
@@ -2975,6 +3011,7 @@ body::after {
               <div class="info-value-modern">{{ user.get_role_display }}</div>
             </div>
           </div>
+          </div>
         </div>
         
         <!-- Personal Summary -->
@@ -2982,6 +3019,7 @@ body::after {
           <div class="content-card-header-modern">
             <h3 class="content-card-title-modern">About Me</h3>
           </div>
+          <div class="content-card-body-modern">
           {% if user.bio %}
             <p style="color: var(--text-medium); line-height: 1.8;">{{ user.bio }}</p>
           {% else %}
@@ -2990,6 +3028,7 @@ body::after {
               <p class="empty-text-modern">No bio added yet.</p>
             </div>
           {% endif %}
+          </div>
         </div>
         
         <!-- Education -->
@@ -2997,6 +3036,7 @@ body::after {
           <div class="content-card-header-modern">
             <h3 class="content-card-title-modern">Education</h3>
           </div>
+          <div class="content-card-body-modern">
           {% if user.education.all %}
             <ul class="list-modern">
               {% for edu in user.education.all %}
@@ -3019,6 +3059,7 @@ body::after {
               <p class="empty-text-modern">No education details provided.</p>
             </div>
           {% endif %}
+          </div>
         </div>
         
         <!-- Work Experience -->
@@ -3026,6 +3067,7 @@ body::after {
           <div class="content-card-header-modern">
             <h3 class="content-card-title-modern">Work Experience</h3>
           </div>
+          <div class="content-card-body-modern">
           {% if user.experiences.all %}
             <ul class="list-modern">
               {% for exp in user.experiences.all %}
@@ -3048,6 +3090,7 @@ body::after {
               <p class="empty-text-modern">No work experience provided.</p>
             </div>
           {% endif %}
+          </div>
         </div>
       </div>
       
