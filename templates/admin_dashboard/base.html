@@ -565,7 +565,7 @@
             <div class="sidebar-divider"></div>
 
             <div class="sidebar-item">
-                <form method="post" action="{% url 'logout' %}">
+                <form method="post" action="{% url 'users:logout' %}">
                     {% csrf_token %}
                     <button type="submit" class="sidebar-link btn-logout">
                         <span class="sidebar-icon"><i class="bi bi-box-arrow-right"></i></span>
@@ -608,7 +608,7 @@
                             <i class="bi bi-gear user-menu-icon"></i>
                             <span>Settings</span>
                         </a>
-                        <a href="{% url 'logout' %}" class="user-menu-item logout-item">
+                        <a href="{% url 'users:logout' %}" class="user-menu-item logout-item">
                             <i class="bi bi-box-arrow-right user-menu-icon"></i>
                             <span>Logout</span>
                         </a>
