@@ -370,6 +370,7 @@ class PrivacySettingsView(UpdateView):
     model = PrivacySettings
     template_name = "users/privacy_settings.html"
     fields = ['profile_visibility', 'show_email', 'show_phone', 'show_activity', 'allow_search_engines']
+    success_url = reverse_lazy('users:privacy_settings')  # Fallback success URL
 
     def get_object(self):
         """Get or create privacy settings for the current user"""
