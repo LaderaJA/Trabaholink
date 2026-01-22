@@ -130,7 +130,8 @@ if not DEBUG:
     CSP_FONT_SRC = ("'self'", "https://fonts.gstatic.com", "https://cdnjs.cloudflare.com", "https://cdn.jsdelivr.net", "data:")
     CSP_IMG_SRC = ("'self'", "data:", "blob:", "https:", "http:")
     CSP_MEDIA_SRC = ("'self'", "blob:", "data:")  # Allow video/audio from blob URLs (for preview) and media folder
-    CSP_CONNECT_SRC = ("'self'", "wss:", "https:", "https://api.languagetool.org")
+    CSP_CONNECT_SRC = ("'self'", "wss:", "https:", "https://api.languagetool.org", "https://trabaholink.daily.co", "https://*.daily.co", "wss://trabaholink.daily.co", "wss://*.daily.co")
+    CSP_FRAME_SRC = ("'self'", "https://trabaholink.daily.co", "https://*.daily.co")  # Allow Daily.co video call iframes
     CSP_FRAME_ANCESTORS = ("'self'",)
     CSP_BASE_URI = ("'self'",)
     CSP_FORM_ACTION = ("'self'",)
