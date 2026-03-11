@@ -97,3 +97,28 @@ FINAL_SUMMARY.txt
 NOTIFICATION_*.md
 QUICK_START_GUIDE.txt
 starting up.txt
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# User uploads
+media/
+profile_pics/
+staticfiles/
+
+# Test artifacts
+test_screenshots/
+test_*.html
+*_report_*.html
+
+# Environment
+.env
+.env.local
+
+# Python
+__pycache__/
+*.pyc
+.pytest_cache/
