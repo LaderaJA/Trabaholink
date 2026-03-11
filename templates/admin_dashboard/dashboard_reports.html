@@ -1,4 +1,5 @@
 {% extends 'admin_dashboard/dashboard_base.html' %}
+{% load i18n %}
 
 {% block title %}Report Management{% endblock %}
 {% block page_title %}Report Center{% endblock %}
@@ -135,7 +136,15 @@
                 <div class="flex-1 min-w-0">
                     <div class="flex items-start justify-between mb-2">
                         <div>
-                            <h4 class="text-base font-semibold text-gray-800">{{ report.report_type }} Report</h4>
+                            <h4 class="text-base font-semibold text-gray-800">
+                                {% if report.reported_user %}
+                                    Report Against User: <span class="text-trabaholink-blue">{{ report.reported_user.username }}</span>
+                                {% elif report.reported_post %}
+                                    Report Against Job: <span class="text-trabaholink-blue">{{ report.reported_post.title|truncatewords:8 }}</span>
+                                {% else %}
+                                    {{ report.report_type }} Report
+                                {% endif %}
+                            </h4>
                             <p class="text-sm text-gray-500">
                                 {% if report.reporter %}
                                     Reported by <span class="font-medium text-gray-700">{{ report.reporter.username }}</span>
@@ -153,26 +162,17 @@
                         </span>
                     </div>
                     
-                    <p class="text-sm text-gray-700 mb-3 line-clamp-2">{{ report.reason }}</p>
+                    <!-- Category Badge -->
+                    {% if report.report_category %}
+                    <div class="mb-3">
+                        <span class="inline-flex items-center gap-1.5 px-2.5 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
+                            <i data-lucide="tag" class="w-3 h-3"></i>
+                            {{ report.get_report_category_display }}
+                        </span>
+                    </div>
+                    {% endif %}
                     
-                    {% if report.reported_user %}
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="text-xs text-gray-500">Reported User:</span>
-                        <a href="{% url 'admin_dashboard:user_detail' report.reported_user.pk %}" 
-                           class="text-xs font-medium text-trabaholink-blue hover:text-trabaholink-dark-blue">
-                            {{ report.reported_user.username }}
-                        </a>
-                    </div>
-                    {% endif %}
-                    {% if report.reported_post %}
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="text-xs text-gray-500">Reported Job:</span>
-                        <a href="{% url 'admin:jobs_job_change' report.reported_post.pk %}" 
-                           class="text-xs font-medium text-trabaholink-blue hover:text-trabaholink-dark-blue">
-                            {{ report.reported_post.title }}
-                        </a>
-                    </div>
-                    {% endif %}
+                    <p class="text-sm text-gray-700 mb-3 line-clamp-2">{{ report.reason }}</p>
                     
                     {% if report.screenshot %}
                     <div class="mb-3">
@@ -270,7 +270,7 @@
             </div>
         </div>
         <div class="p-6 border-t border-gray-200 flex justify-end">
-            <button onclick="closeActionModal()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+            <button onclick="closeActionModal()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">{% trans "Cancel" %}</button>
         </div>
     </div>
 </div>

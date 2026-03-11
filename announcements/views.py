@@ -8,11 +8,17 @@ class AnnouncementListView(ListView):
     template_name = "announcements/announcement_list.html"
     context_object_name = "announcements"
     ordering = ["-created_at"]
+    
+    def get_queryset(self):
+        return Announcement.objects.filter(is_active=True).order_by('-created_at')
 
 class AnnouncementDetailView(DetailView):
     model = Announcement
     template_name = "announcements/announcement_detail.html"
     context_object_name = "announcement"
+    
+    def get_queryset(self):
+        return Announcement.objects.filter(is_active=True)
 
 class AnnouncementCreateView(LoginRequiredMixin, UserPassesTestMixin, CreateView):
     model = Announcement

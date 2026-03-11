@@ -1,5 +1,5 @@
 from django import forms
-from .models import Job, JobApplication, Contract, ProgressLog, JobOffer
+from .models import Job, JobApplication, Contract, ProgressLog, JobOffer, WorkerAvailability
 from django.forms.widgets import ClearableFileInput
 
 class MultipleFileInput(ClearableFileInput):
@@ -21,7 +21,14 @@ class MultipleFileField(forms.FileField):
 class JobForm(forms.ModelForm):
     municipality = forms.CharField(
         required=True,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'id': 'municipality-input'})
+        initial='Bacoor',
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'id': 'municipality-input',
+            'value': 'Bacoor',
+            'readonly': 'readonly',
+            'style': 'background-color: #e9ecef; cursor: not-allowed;'
+        })
     )
     barangay = forms.CharField(
         required=True,
@@ -47,6 +54,29 @@ class JobForm(forms.ModelForm):
         required=False,
         widget=forms.FileInput(attrs={'class': 'form-control'})
     )
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Filter out unnamed/empty categories from dropdown
+        from jobs.models import JobCategory
+        from django.db.models import Q
+        
+        valid_categories = JobCategory.objects.exclude(
+            Q(name__isnull=True) | Q(name='') | Q(name__iexact='unnamed category')
+        ).exclude(
+            Q(name_en__isnull=True, name_tl__isnull=True) | 
+            Q(name_en='', name_tl='')
+        ).order_by('name')
+        
+        self.fields['category'].queryset = valid_categories
+        
+        # Always set municipality to Bacoor and make it readonly
+        self.fields['municipality'].initial = 'Bacoor'
+        if 'municipality' in self.data:
+            # Override any attempt to change municipality
+            self.data = self.data.copy()
+            self.data['municipality'] = 'Bacoor'
 
     class Meta:
         model = Job
@@ -108,6 +138,20 @@ class JobApplicationForm(forms.ModelForm):
             'certifications': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'additional_notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
         }
+    
+    def clean_cover_letter(self):
+        """
+        Sanitize HTML content from Quill.js editor to prevent XSS attacks.
+        """
+        cover_letter = self.cleaned_data.get('cover_letter', '')
+        
+        if cover_letter:
+            # Lazy import to avoid issues during startup before bleach is installed
+            from .utils_sanitize import sanitize_html
+            # Sanitize HTML to allow only safe tags and attributes
+            cover_letter = sanitize_html(cover_letter)
+        
+        return cover_letter
 
 class ContractForm(forms.ModelForm):
     class Meta:
@@ -121,14 +165,83 @@ class ContractForm(forms.ModelForm):
             'feedback_by_worker',
             'start_date',
             'end_date',
+            'start_time',
+            'end_time',
         ]
         widgets = {
             'start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'end_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'start_time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control', 'placeholder': '09:00'}),
+            'end_time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control', 'placeholder': '17:00'}),
             'feedback_by_client': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'feedback_by_worker': forms.Textarea(attrs={'class': 'form-control', 'rows': 3}),
             'rating_by_client': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        start_date = cleaned_data.get('start_date')
+        end_date = cleaned_data.get('end_date')
+        start_time = cleaned_data.get('start_time')
+        end_time = cleaned_data.get('end_time')
+        
+        # Validate dates
+        if start_date and end_date and end_date < start_date:
+            raise forms.ValidationError({
+                'end_date': 'End date must be after or equal to start date.'
+            })
+        
+        # Validate times
+        if start_time and end_time and start_time >= end_time:
+            raise forms.ValidationError({
+                'end_time': 'End time must be after start time.'
+            })
+        
+        # Check worker availability if all date/time fields are provided
+        if start_date and end_date and start_time and end_time:
+            # Get worker from instance (contract being edited)
+            if self.instance and self.instance.worker:
+                worker = self.instance.worker
+                
+                # Check for schedule conflicts with existing contracts
+                conflicts = self.instance.check_time_conflict()
+                if conflicts:
+                    conflict_details = []
+                    for conflict in conflicts[:3]:  # Show first 3 conflicts
+                        conflict_details.append(
+                            f"• {conflict['job_title']} ({conflict['dates']}, {conflict['times']})"
+                        )
+                    
+                    error_msg = "Schedule conflict detected with existing contracts:\n" + "\n".join(conflict_details)
+                    if len(conflicts) > 3:
+                        error_msg += f"\n...and {len(conflicts) - 3} more conflict(s)"
+                    
+                    raise forms.ValidationError(error_msg)
+                
+                # Check worker's availability settings
+                availability_check = WorkerAvailability.check_availability_for_contract(
+                    worker=worker,
+                    start_date=start_date,
+                    end_date=end_date,
+                    start_time=start_time,
+                    end_time=end_time
+                )
+                
+                if not availability_check['available']:
+                    conflicts = availability_check['conflicts']
+                    conflict_details = []
+                    for conflict in conflicts[:5]:  # Show first 5 days
+                        conflict_details.append(
+                            f"• {conflict['date'].strftime('%a, %b %d')}: {conflict['reason']}"
+                        )
+                    
+                    error_msg = "Worker is not available for the proposed schedule:\n" + "\n".join(conflict_details)
+                    if len(conflicts) > 5:
+                        error_msg += f"\n...and {len(conflicts) - 5} more day(s) with conflicts"
+                    
+                    raise forms.ValidationError(error_msg)
+        
+        return cleaned_data
 
 class ProgressLogForm(forms.ModelForm):
     class Meta:
@@ -148,6 +261,8 @@ class ContractDraftForm(forms.ModelForm):
             'deliverables',
             'start_date',
             'end_date',
+            'start_time',
+            'end_time',
         ]
         widgets = {
             'scope_of_work': forms.Textarea(attrs={
@@ -170,6 +285,8 @@ class ContractDraftForm(forms.ModelForm):
             }),
             'start_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'end_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'start_time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control', 'placeholder': '09:00'}),
+            'end_time': forms.TimeInput(attrs={'type': 'time', 'class': 'form-control', 'placeholder': '17:00'}),
         }
         labels = {
             'scope_of_work': 'Scope of Work',
@@ -177,6 +294,8 @@ class ContractDraftForm(forms.ModelForm):
             'deliverables': 'Deliverables',
             'start_date': 'Project Start Date',
             'end_date': 'Project End Date (Deadline)',
+            'start_time': 'Daily Start Time',
+            'end_time': 'Daily End Time',
         }
         help_texts = {
             'scope_of_work': 'Maximum 2000 characters. Be specific about what work will be performed.',
@@ -184,12 +303,16 @@ class ContractDraftForm(forms.ModelForm):
             'deliverables': 'Maximum 1500 characters. List everything the client will receive.',
             'start_date': 'When will the work begin?',
             'end_date': 'When should the project be completed?',
+            'start_time': 'Daily work start time (e.g., 9:00 AM)',
+            'end_time': 'Daily work end time (e.g., 5:00 PM)',
         }
     
     def clean(self):
         cleaned_data = super().clean()
         start_date = cleaned_data.get('start_date')
         end_date = cleaned_data.get('end_date')
+        start_time = cleaned_data.get('start_time')
+        end_time = cleaned_data.get('end_time')
         scope_of_work = cleaned_data.get('scope_of_work')
         payment_terms = cleaned_data.get('payment_terms')
         
@@ -199,6 +322,12 @@ class ContractDraftForm(forms.ModelForm):
                 raise forms.ValidationError({
                     'end_date': 'End date must be after the start date.'
                 })
+        
+        # Validate times
+        if start_time and end_time and start_time >= end_time:
+            raise forms.ValidationError({
+                'end_time': 'End time must be after start time.'
+            })
         
         # Validate required fields have meaningful content
         if scope_of_work and len(scope_of_work.strip()) < 50:
@@ -210,6 +339,51 @@ class ContractDraftForm(forms.ModelForm):
             raise forms.ValidationError({
                 'payment_terms': 'Payment terms must be at least 20 characters. Please provide more details.'
             })
+        
+        # Check worker availability if all date/time fields are provided
+        if start_date and end_date and start_time and end_time:
+            # Get worker from instance (contract being drafted)
+            if self.instance and self.instance.worker:
+                worker = self.instance.worker
+                
+                # Check for schedule conflicts with existing contracts
+                conflicts = self.instance.check_time_conflict()
+                if conflicts:
+                    conflict_details = []
+                    for conflict in conflicts[:3]:  # Show first 3 conflicts
+                        conflict_details.append(
+                            f"• {conflict['job_title']} ({conflict['dates']}, {conflict['times']})"
+                        )
+                    
+                    error_msg = "⚠️ Schedule conflict with existing contracts:\n" + "\n".join(conflict_details)
+                    if len(conflicts) > 3:
+                        error_msg += f"\n...and {len(conflicts) - 3} more conflict(s)"
+                    
+                    raise forms.ValidationError(error_msg)
+                
+                # Check worker's availability settings
+                availability_check = WorkerAvailability.check_availability_for_contract(
+                    worker=worker,
+                    start_date=start_date,
+                    end_date=end_date,
+                    start_time=start_time,
+                    end_time=end_time
+                )
+                
+                if not availability_check['available']:
+                    conflicts = availability_check['conflicts']
+                    conflict_details = []
+                    for conflict in conflicts[:5]:  # Show first 5 days
+                        conflict_details.append(
+                            f"• {conflict['date'].strftime('%a, %b %d')}: {conflict['reason']}"
+                        )
+                    
+                    error_msg = "⚠️ Worker is not available for the proposed schedule:\n" + "\n".join(conflict_details)
+                    if len(conflicts) > 5:
+                        error_msg += f"\n...and {len(conflicts) - 5} more day(s) with conflicts"
+                    error_msg += "\n\n💡 Tip: Adjust the schedule or contact the worker to update their availability."
+                    
+                    raise forms.ValidationError(error_msg)
         
         return cleaned_data
 

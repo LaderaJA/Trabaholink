@@ -1,4 +1,5 @@
 {% extends 'admin_dashboard/dashboard_base.html' %}
+{% load i18n %}
 
 {% block title %}Announcement Details - {{ announcement.title }}{% endblock %}
 {% block page_title %}Announcement Details{% endblock %}
@@ -58,10 +59,9 @@
             
             <a href="{% url 'admin_dashboard:admin_announcement_delete' announcement.pk %}" 
                onclick="return confirm('Are you sure you want to delete this announcement?')"
-               class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2">
-                <i data-lucide="trash-2" class="w-4 h-4"></i>
-                Delete
-            </a>
+               class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2"
+               style="display: none;">
+                <i data-lucide="trash-2" class="w-4 h-4"></i>{% trans "Delete" %}</a>
         </div>
     </div>
 </div>
@@ -272,7 +272,7 @@
     function toggleAnnouncementStatus(announcementId, isActive) {
         const action = isActive ? 'deactivate' : 'activate';
         if (confirm(`Are you sure you want to ${action} this announcement?`)) {
-            fetch(`/admin/announcements/${announcementId}/toggle/`, {
+            fetch(`/admin_dashboard/announcements/${announcementId}/toggle/`, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': '{{ csrf_token }}',
@@ -297,7 +297,7 @@
     // Republish announcement
     function republishAnnouncement() {
         if (confirm('Republish this announcement? This will update the timestamp.')) {
-            fetch(`/admin/announcements/{{ announcement.pk }}/republish/`, {
+            fetch(`/admin_dashboard/announcements/{{ announcement.pk }}/republish/`, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': '{{ csrf_token }}'
@@ -318,7 +318,7 @@
     // Duplicate announcement
     function duplicateAnnouncement() {
         if (confirm('Create a duplicate of this announcement?')) {
-            fetch(`/admin/announcements/{{ announcement.pk }}/duplicate/`, {
+            fetch(`/admin_dashboard/announcements/{{ announcement.pk }}/duplicate/`, {
                 method: 'POST',
                 headers: {
                     'X-CSRFToken': '{{ csrf_token }}'
@@ -327,7 +327,7 @@
             .then(response => response.json())
             .then(data => {
                 if (data.success) {
-                    window.location.href = `/admin/announcements/${data.new_id}/`;
+                    window.location.href = `/admin_dashboard/admin-announcements/${data.new_id}/`;
                 } else {
                     alert('Failed to duplicate announcement');
                 }
@@ -337,7 +337,7 @@
     
     // Export metrics
     function exportMetrics() {
-        window.location.href = `/admin/announcements/{{ announcement.pk }}/export-metrics/`;
+        window.location.href = `/admin_dashboard/announcements/{{ announcement.pk }}/export-metrics/`;
     }
     
     // Metrics modal

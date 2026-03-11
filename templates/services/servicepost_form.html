@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block css %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
@@ -748,12 +749,26 @@ select.form-control {
                     • Professional headshot (recommended for first image)
                   </div>
                 </div>
-                <label for="id_images" class="image-upload-zone">
-                  <input type="file" name="images" id="id_images" multiple class="form-control" style="display: none;">
-                  <i class="bi bi-cloud-arrow-up upload-icon"></i>
-                  <div class="upload-text">Click to upload or drag and drop</div>
-                  <div class="upload-hint">PNG, JPG, JPEG up to 5MB each • Multiple files supported</div>
-                </label>
+
+                <!-- Image Upload Inputs Container -->
+                <div id="image-inputs-container">
+                  <!-- Initial file input -->
+                  <div class="image-input-wrapper" data-index="0" style="margin-bottom: 1rem;">
+                    <div style="display: flex; gap: 0.5rem; align-items: center;">
+                      <input type="file" name="images" accept="image/*" class="form-control image-file-input" style="flex: 1;">
+                      <button type="button" class="btn btn-danger btn-sm remove-image-btn" style="display: none;" onclick="removeImageInput(this)">
+                        <i class="bi bi-x-lg"></i> Remove
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Add More Images Button -->
+                <button type="button" class="btn btn-success btn-sm" onclick="addImageInput()" style="margin-bottom: 1.5rem;">
+                  <i class="bi bi-plus-circle"></i> Add More Images
+                </button>
+
+                <!-- Image Previews -->
                 <div id="image-previews" class="existing-images" style="margin-top: 1.5rem;"></div>
               </div>
             </div>
@@ -762,9 +777,7 @@ select.form-control {
           <!-- Form Actions -->
           <div class="form-actions">
             <a href="{% url 'jobs:job_list' %}" class="btn btn-secondary">
-              <i class="bi bi-x-circle"></i>
-              Cancel
-            </a>
+              <i class="bi bi-x-circle"></i>{% trans "Cancel" %}</a>
             <button type="submit" class="btn btn-success">
               <i class="bi bi-check-circle"></i>
               {% if form.instance.pk %}Update Service{% else %}Create Service{% endif %}
@@ -795,7 +808,99 @@ function deleteImage(imageId) {
   }
 }
 
+// Function to add more image inputs
+let imageInputIndex = 1;
+function addImageInput() {
+  const container = document.getElementById('image-inputs-container');
+  const newWrapper = document.createElement('div');
+  newWrapper.className = 'image-input-wrapper';
+  newWrapper.setAttribute('data-index', imageInputIndex);
+  newWrapper.style.marginBottom = '1rem';
+  
+  newWrapper.innerHTML = `
+    <div style="display: flex; gap: 0.5rem; align-items: center;">
+      <input type="file" name="images" accept="image/*" class="form-control image-file-input" style="flex: 1;">
+      <button type="button" class="btn btn-danger btn-sm remove-image-btn" onclick="removeImageInput(this)">
+        <i class="bi bi-x-lg"></i> Remove
+      </button>
+    </div>
+    <div class="image-preview-item" style="margin-top: 0.5rem; display: none;"></div>
+  `;
+  
+  container.appendChild(newWrapper);
+  
+  // Add change event listener for preview
+  const fileInput = newWrapper.querySelector('input[type="file"]');
+  fileInput.addEventListener('change', function(e) {
+    handleFilePreview(e, newWrapper);
+  });
+  
+  // Show remove button on all except first
+  updateRemoveButtons();
+  imageInputIndex++;
+}
+
+// Function to remove an image input
+function removeImageInput(button) {
+  const wrapper = button.closest('.image-input-wrapper');
+  wrapper.remove();
+  updateRemoveButtons();
+}
+
+// Function to update remove buttons visibility
+function updateRemoveButtons() {
+  const wrappers = document.querySelectorAll('.image-input-wrapper');
+  wrappers.forEach((wrapper, index) => {
+    const removeBtn = wrapper.querySelector('.remove-image-btn');
+    if (removeBtn) {
+      removeBtn.style.display = wrappers.length > 1 ? 'inline-block' : 'none';
+    }
+  });
+}
+
+// Function to handle file preview
+function handleFilePreview(e, wrapper) {
+  const file = e.target.files[0];
+  const previewDiv = wrapper.querySelector('.image-preview-item');
+  
+  if (file && file.type.startsWith('image/')) {
+    const reader = new FileReader();
+    reader.onload = function(event) {
+      previewDiv.innerHTML = `
+        <div style="position: relative; display: inline-block;">
+          <img src="${event.target.result}" style="max-width: 150px; max-height: 150px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
+          <button type="button" class="btn btn-sm btn-danger" onclick="clearFileInput(this)" style="position: absolute; top: 5px; right: 5px;">
+            <i class="bi bi-x"></i>
+          </button>
+        </div>
+      `;
+      previewDiv.style.display = 'block';
+    };
+    reader.readAsDataURL(file);
+  }
+}
+
+// Function to clear file input
+function clearFileInput(button) {
+  const wrapper = button.closest('.image-input-wrapper');
+  const fileInput = wrapper.querySelector('input[type="file"]');
+  const previewDiv = wrapper.querySelector('.image-preview-item');
+  
+  fileInput.value = '';
+  previewDiv.innerHTML = '';
+  previewDiv.style.display = 'none';
+}
+
 document.addEventListener("DOMContentLoaded", function(){
+  // Initialize file preview for the first input
+  const firstFileInput = document.querySelector('.image-input-wrapper[data-index="0"] input[type="file"]');
+  if (firstFileInput) {
+    firstFileInput.addEventListener('change', function(e) {
+      const wrapper = this.closest('.image-input-wrapper');
+      handleFilePreview(e, wrapper);
+    });
+  }
+  
   // Apply form control classes
   const formControls = document.querySelectorAll('input[type="text"], input[type="email"], input[type="tel"], select, textarea');
   formControls.forEach(control => {
@@ -804,18 +909,95 @@ document.addEventListener("DOMContentLoaded", function(){
     }
   });
 
-  // Get hidden input values or set default coordinates
+  // Get hidden input values or set default coordinates (Bacoor center)
   const latInput = document.getElementById('latitude');
   const lngInput = document.getElementById('longitude');
-  let lat = parseFloat(latInput.value) || 14.4310956;
-  let lng = parseFloat(lngInput.value) || 120.968096097231;
+  const bacoorCenter = [14.4167, 120.9833];
+  let lat = parseFloat(latInput.value) || bacoorCenter[0];
+  let lng = parseFloat(lngInput.value) || bacoorCenter[1];
   
-  // Initialize the map and marker
-  var map = L.map('map').setView([lat, lng], 13);
+  // Bacoor GeoJSON polygon boundary
+  const bacoorGeoJSON = {
+    "type": "FeatureCollection",
+    "features": [{
+      "type": "Feature",
+      "properties": {"name": "Bacoor"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [120.9450, 14.4800], [121.0200, 14.4800], [121.0200, 14.4500],
+          [121.0150, 14.4300], [121.0100, 14.4100], [121.0000, 14.3900],
+          [120.9900, 14.3850], [120.9700, 14.3850], [120.9550, 14.3900],
+          [120.9450, 14.4000], [120.9450, 14.4200], [120.9450, 14.4500],
+          [120.9450, 14.4800]
+        ]]
+      }
+    }]
+  };
+  
+  // Luzon bounds for max bounds
+  const luzonBounds = [[12.0, 119.5], [19.0, 123.0]];
+  
+  // Initialize the map with Bacoor focus
+  var map = L.map('map', {
+    center: [lat, lng],
+    zoom: 14,
+    minZoom: 7,
+    maxZoom: 18,
+    maxBounds: luzonBounds,
+    maxBoundsViscosity: 0.8
+  });
+  
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    attribution: '&copy; OpenStreetMap contributors'
+    attribution: '&copy; OpenStreetMap contributors',
+    maxZoom: 18
   }).addTo(map);
-  var marker = L.marker([lat, lng], { draggable: true }).addTo(map);
+  
+  // Create darken mask for outside Bacoor
+  const maskWorldBounds = [[12.0, 119.5], [19.0, 123.0]];
+  const bacoorCoords = bacoorGeoJSON.features[0].geometry.coordinates[0];
+  const bacoorLatLngs = bacoorCoords.map(coord => [coord[1], coord[0]]);
+  
+  // Store Bacoor polygon for point-in-polygon check
+  window.bacoorPolygon = [...bacoorLatLngs];
+  
+  const maskCoordinates = [
+    // Outer ring (Luzon rectangle)
+    [[maskWorldBounds[0][0], maskWorldBounds[0][1]], 
+     [maskWorldBounds[1][0], maskWorldBounds[0][1]],
+     [maskWorldBounds[1][0], maskWorldBounds[1][1]], 
+     [maskWorldBounds[0][0], maskWorldBounds[1][1]],
+     [maskWorldBounds[0][0], maskWorldBounds[0][1]]],
+    // Inner ring (Bacoor hole)
+    [...bacoorLatLngs].reverse()
+  ];
+  
+  L.polygon(maskCoordinates, {
+    color: 'transparent',
+    fillColor: '#000000',
+    fillOpacity: 0.5,
+    interactive: false
+  }).addTo(map);
+  
+  // Add Bacoor boundary with green highlight
+  window.bacoorLayer = L.geoJSON(bacoorGeoJSON, {
+    style: {
+      color: '#10b981',
+      weight: 3,
+      opacity: 1,
+      fillColor: '#10b981',
+      fillOpacity: 0.1
+    }
+  }).addTo(map);
+  
+  var marker = L.marker([lat, lng], { 
+    draggable: true,
+    title: 'Drag to set service location (Bacoor only)'
+  }).addTo(map);
+  
+  // Get address input field
+  const addressInput = document.getElementById('{{ form.address.id_for_label }}');
+  let geocodeTimeout;
   
   function updateCoordinates(lat, lng) {
     latInput.value = lat;
@@ -824,17 +1006,176 @@ document.addEventListener("DOMContentLoaded", function(){
     document.getElementById('lon-display').textContent = lng.toFixed(6);
   }
   
-  // Update hidden fields when marker is dragged
+  // Check if a point is inside Bacoor polygon
+  function isPointInBacoor(lat, lng) {
+    if (!window.bacoorPolygon) {
+      return true; // Default to true if polygon not loaded
+    }
+    
+    const polygon = window.bacoorPolygon;
+    let inside = false;
+    
+    // Ray casting algorithm for point-in-polygon
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      const lati = polygon[i][0], lngi = polygon[i][1];
+      const latj = polygon[j][0], lngj = polygon[j][1];
+      
+      const intersect = ((lngi > lng) !== (lngj > lng))
+        && (lat < (latj - lati) * (lng - lngi) / (lngj - lngi) + lati);
+      if (intersect) inside = !inside;
+    }
+    
+    return inside;
+  }
+  
+  // Show warning if location is outside Bacoor
+  function showLocationWarning(lat, lng) {
+    const inBacoor = isPointInBacoor(lat, lng);
+    
+    // Remove existing messages
+    const existingWarning = document.getElementById('bacoor-warning');
+    if (existingWarning) existingWarning.remove();
+    
+    const existingSuccess = document.querySelector('[data-location-success]');
+    if (existingSuccess) existingSuccess.remove();
+    
+    if (!inBacoor) {
+      const warning = document.createElement('div');
+      warning.id = 'bacoor-warning';
+      warning.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #fef3c7;
+        border: 2px solid #f59e0b;
+        color: #92400e;
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      `;
+      warning.innerHTML = `
+        <i class="bi bi-exclamation-triangle-fill" style="font-size: 1.5rem; color: #f59e0b;"></i>
+        <span>⚠️ Service location must be within Bacoor, Cavite only!</span>
+      `;
+      document.body.appendChild(warning);
+      
+      // Auto-remove after 5 seconds
+      setTimeout(() => warning.remove(), 5000);
+    } else {
+      const success = document.createElement('div');
+      success.setAttribute('data-location-success', 'true');
+      success.style.cssText = `
+        position: fixed;
+        top: 20px;
+        left: 50%;
+        transform: translateX(-50%);
+        background: #d1fae5;
+        border: 2px solid #10b981;
+        color: #065f46;
+        padding: 15px 25px;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 10000;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      `;
+      success.innerHTML = `
+        <i class="bi bi-check-circle-fill" style="font-size: 1.5rem; color: #10b981;"></i>
+        <span>✓ Location is within Bacoor!</span>
+      `;
+      document.body.appendChild(success);
+      
+      // Auto-remove after 3 seconds
+      setTimeout(() => success.remove(), 3000);
+    }
+  }
+  
+  // Reverse geocoding: Get address from coordinates
+  function reverseGeocode(lat, lng) {
+    // Check if location is in Bacoor first
+    showLocationWarning(lat, lng);
+    
+    fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lng}&zoom=18&addressdetails=1`)
+      .then(response => response.json())
+      .then(data => {
+        if (data.display_name && addressInput) {
+          // Update address field with the geocoded address
+          addressInput.value = data.display_name;
+          console.log('Address updated:', data.display_name);
+        }
+      })
+      .catch(error => {
+        console.error('Reverse geocoding error:', error);
+      });
+  }
+  
+  // Forward geocoding: Get coordinates from address
+  function geocodeAddress(address) {
+    if (!address || address.trim() === '') return;
+    
+    fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}&limit=1`)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          const lat = parseFloat(data[0].lat);
+          const lng = parseFloat(data[0].lon);
+          
+          // Update marker position
+          marker.setLatLng([lat, lng]);
+          map.setView([lat, lng], 15);
+          
+          // Update coordinates
+          updateCoordinates(lat, lng);
+          console.log('Map updated to:', lat, lng);
+        } else {
+          console.log('No results found for address:', address);
+        }
+      })
+      .catch(error => {
+        console.error('Geocoding error:', error);
+      });
+  }
+  
+  // Update hidden fields and address when marker is dragged
   marker.on('dragend', function(e){
     var pos = e.target.getLatLng();
     updateCoordinates(pos.lat, pos.lng);
+    reverseGeocode(pos.lat, pos.lng);
   });
   
-  // Also update marker and hidden fields on map click
+  // Also update marker, hidden fields and address on map click
   map.on('click', function(e){
     marker.setLatLng(e.latlng);
     updateCoordinates(e.latlng.lat, e.latlng.lng);
+    reverseGeocode(e.latlng.lat, e.latlng.lng);
   });
+  
+  // Listen to address input changes and geocode
+  if (addressInput) {
+    addressInput.addEventListener('input', function(e) {
+      // Clear previous timeout
+      clearTimeout(geocodeTimeout);
+      
+      // Debounce: wait 1 second after user stops typing
+      geocodeTimeout = setTimeout(() => {
+        geocodeAddress(e.target.value);
+      }, 1000);
+    });
+    
+    // Also trigger on blur (when user leaves the field)
+    addressInput.addEventListener('blur', function(e) {
+      clearTimeout(geocodeTimeout);
+      geocodeAddress(e.target.value);
+    });
+  }
   
   // Initialize display
   updateCoordinates(lat, lng);
@@ -907,6 +1248,79 @@ document.addEventListener("DOMContentLoaded", function(){
   
   // Fix map display
   setTimeout(() => { map.invalidateSize(); }, 100);
+  
+  // Form validation - prevent submission if location is outside Bacoor
+  const form = document.querySelector('form');
+  if (form) {
+    form.addEventListener('submit', function(e) {
+      const lat = parseFloat(latInput.value);
+      const lng = parseFloat(lngInput.value);
+      
+      if (!isPointInBacoor(lat, lng)) {
+        e.preventDefault();
+        
+        // Show error message
+        const errorDiv = document.createElement('div');
+        errorDiv.style.cssText = `
+          position: fixed;
+          top: 20px;
+          left: 50%;
+          transform: translateX(-50%);
+          background: #fef2f2;
+          border: 2px solid #dc2626;
+          color: #7f1d1d;
+          padding: 20px 30px;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+          z-index: 10001;
+          font-weight: 600;
+          font-size: 1.1rem;
+          max-width: 500px;
+        `;
+        errorDiv.innerHTML = `
+          <div style="display: flex; align-items: center; gap: 15px;">
+            <i class="bi bi-x-circle-fill" style="font-size: 2rem; color: #dc2626;"></i>
+            <div>
+              <div style="font-size: 1.2rem; margin-bottom: 5px;">❌ Cannot Save Service</div>
+              <div style="font-weight: 400;">Service location must be within Bacoor, Cavite. Please adjust the marker on the map.</div>
+            </div>
+          </div>
+        `;
+        document.body.appendChild(errorDiv);
+        
+        // Scroll to map
+        document.getElementById('map').scrollIntoView({ behavior: 'smooth', block: 'center' });
+        
+        // Remove error after 7 seconds
+        setTimeout(() => errorDiv.remove(), 7000);
+        
+        return false;
+      }
+    });
+  }
 });
 </script>
+{% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "service_form",
+    "title": "Post a Service Guide",
+    "steps": [
+        {
+            "title": "Offer Your Services \ud83d\udee0\ufe0f",
+            "content": "<h3>Showcase Your Skills</h3><p>Create a service listing to let clients find and book your professional services.</p>"
+        },
+        {
+            "title": "Service Details \ud83d\udccb",
+            "content": "<h3>Be Specific</h3><p>Include:</p><ul><li>Service name and description</li><li>What's included</li><li>Pricing structure</li><li>Service area/location</li><li>Availability</li></ul>"
+        },
+        {
+            "title": "Stand Out \ud83c\udf1f",
+            "content": "<h3>Attract Clients</h3><ul><li>Upload quality photos</li><li>Highlight your experience</li><li>Competitive pricing</li><li>Clear descriptions</li><li>Professional presentation</li></ul>"
+        }
+    ]
+}
 {% endblock %}

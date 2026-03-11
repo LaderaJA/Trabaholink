@@ -33,6 +33,37 @@ class Report(models.Model):
         blank=True,
         help_text="Job posting being reported (if applicable)"
     )
+    
+    # Report category choices
+    USER_CATEGORIES = [
+        ('harassment', 'Harassment or Bullying'),
+        ('scam', 'Scam or Fraud'),
+        ('fake_profile', 'Fake Profile'),
+        ('inappropriate_content', 'Inappropriate Content'),
+        ('spam', 'Spam or Advertising'),
+        ('impersonation', 'Impersonation'),
+        ('other', 'Other Issues'),
+    ]
+    
+    JOB_CATEGORIES = [
+        ('misleading', 'Misleading Information'),
+        ('scam', 'Scam or Fraud'),
+        ('inappropriate', 'Inappropriate Content'),
+        ('duplicate', 'Duplicate Posting'),
+        ('illegal', 'Illegal Activity'),
+        ('spam', 'Spam or Low Quality'),
+        ('other', 'Other Issues'),
+    ]
+    
+    ALL_CATEGORIES = USER_CATEGORIES + JOB_CATEGORIES
+    
+    report_category = models.CharField(
+        max_length=50,
+        choices=ALL_CATEGORIES,
+        null=True,
+        blank=True,
+        help_text="Category of the report"
+    )
     reason = models.TextField(help_text="Reason for the report")
     screenshot = models.ImageField(
         upload_to='reports/screenshots/',

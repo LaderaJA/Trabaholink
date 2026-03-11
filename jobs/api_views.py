@@ -439,7 +439,7 @@ class ContractViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_403_FORBIDDEN
             )
         
-        if contract.status != "Accepted":
+        if contract.status != "Finalized":
             return Response(
                 {'error': 'Contract must be accepted before starting work'},
                 status=status.HTTP_400_BAD_REQUEST
@@ -747,11 +747,18 @@ class ContractViewSet(viewsets.ModelViewSet):
         
         reason = request.data.get('reason', '')
         
+        # Store the old status before changing it
+        old_status = contract.status
+        
         contract.status = "Cancelled"
         contract.termination_requested_by = request.user
         contract.termination_reason = reason
         contract.termination_requested_at = timezone.now()
         contract.save()
+        
+        # If contract was finalized, increment vacancy to reopen position
+        if old_status in ['Finalized', 'In Progress', 'Awaiting Review']:
+            contract.job.increment_vacancy()
         
         # Notify the other party
         other_user = contract.client if request.user == contract.worker else contract.worker
@@ -797,7 +804,7 @@ class DashboardViewSet(viewsets.ViewSet):
         stats = {
             'total_jobs': Job.objects.filter(owner=user).count(),
             'active_jobs': Job.objects.filter(owner=user, is_active=True).count(),
-            'total_applications': JobApplication.objects.filter(job__owner=user).count(),
+            'total_applications': JobApplication.objects.filter(job__owner=user, status='Pending').count(),
             'pending_applications': JobApplication.objects.filter(
                 job__owner=user, 
                 status='Pending'
@@ -940,3 +947,113 @@ class FeedbackViewSet(viewsets.ModelViewSet):
             notif_type="feedback",
             object_id=feedback.pk
         )
+
+
+from rest_framework.decorators import api_view, permission_classes
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from django.utils.dateparse import parse_datetime
+
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def schedule_events_api(request):
+    """
+    API endpoint to get schedule events for calendar.
+    Returns contracts and interviews in FullCalendar format.
+    """
+    user = request.user
+    
+    # Get date range from query parameters
+    start_date = request.GET.get('start')
+    end_date = request.GET.get('end')
+    
+    # Parse dates
+    start = parse_datetime(start_date) if start_date else None
+    end = parse_datetime(end_date) if end_date else None
+    
+    events = []
+    
+    # Get user's contracts (for workers)
+    if user.role == 'worker':
+        contracts = Contract.objects.filter(
+            worker=user,
+            status__in=['Finalized', 'In Progress', 'Awaiting Review', 'Completed']
+        ).select_related('job', 'client')
+        
+        # Filter by date range if provided
+        if start:
+            contracts = contracts.filter(end_date__gte=start.date())
+        if end:
+            contracts = contracts.filter(start_date__lte=end.date())
+        
+        # Convert to calendar events
+        for contract in contracts:
+            event_data = contract.get_calendar_event_data()
+            if event_data:
+                events.append(event_data)
+    
+    # Get interviews (for both workers and employers)
+    from .models import InterviewSchedule
+    
+    if user.profile.user_type == 'worker':
+        # Worker sees interviews where they are the applicant
+        interviews = InterviewSchedule.objects.filter(
+            application__worker=user,
+            status__in=['scheduled', 'rescheduled']
+        ).select_related('application__job', 'application__job__owner')
+    else:
+        # Employer sees interviews for their job postings
+        interviews = InterviewSchedule.objects.filter(
+            application__job__owner=user,
+            status__in=['scheduled', 'rescheduled']
+        ).select_related('application__worker', 'application__job')
+    
+    # Filter interviews by date range
+    if start:
+        interviews = interviews.filter(scheduled_datetime__gte=start)
+    if end:
+        interviews = interviews.filter(scheduled_datetime__lte=end)
+    
+    # Convert interviews to calendar events
+    for interview in interviews:
+        # Determine the other party's name
+        if user.profile.user_type == 'worker':
+            other_party = interview.application.job.owner.get_full_name() or interview.application.job.owner.username
+            title_prefix = "Interview with"
+        else:
+            other_party = interview.application.worker.get_full_name() or interview.application.worker.username
+            title_prefix = "Interview:"
+        
+        # Determine URL based on interview type and timing
+        from django.utils import timezone
+        now = timezone.now()
+        time_until_interview = (interview.scheduled_datetime - now).total_seconds() / 60  # minutes
+        
+        # For video interviews, link directly to join if within 5 minutes
+        if interview.interview_type == 'video' and -5 <= time_until_interview <= interview.duration_minutes:
+            event_url = f'/interview/{interview.id}/join/'
+        else:
+            event_url = f'/job_application/{interview.application.id}/'
+        
+        # Create event data
+        event = {
+            'id': f'interview_{interview.id}',
+            'title': f'{title_prefix} {other_party}',
+            'start': interview.scheduled_datetime.isoformat(),
+            'end': (interview.scheduled_datetime + timedelta(minutes=interview.duration_minutes)).isoformat(),
+            'backgroundColor': '#3b82f6' if interview.interview_type == 'video' else '#8b5cf6' if interview.interview_type == 'phone' else '#f59e0b',
+            'borderColor': '#2563eb' if interview.interview_type == 'video' else '#7c3aed' if interview.interview_type == 'phone' else '#d97706',
+            'url': event_url,
+            'extendedProps': {
+                'type': 'interview',
+                'interview_type': interview.get_interview_type_display(),
+                'interview_id': interview.id,
+                'video_room_url': interview.video_room_url if interview.interview_type == 'video' else None,
+                'job_title': interview.application.job.title,
+                'status': interview.get_status_display(),
+                'can_join': -5 <= time_until_interview <= interview.duration_minutes
+            }
+        }
+        events.append(event)
+    
+    return Response(events)

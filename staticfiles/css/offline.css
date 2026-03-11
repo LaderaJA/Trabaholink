@@ -1,0 +1,584 @@
+/**
+ * TrabahoLink Offline UI Styles
+ * Mobile-first, responsive design
+ * Version: 1.0.0
+ */
+
+/* ============================================
+   OFFLINE BANNER - Mobile First
+   ============================================ */
+
+.tl-offline-banner {
+    position: fixed;
+    top: -100px;
+    left: 0;
+    right: 0;
+    z-index: 9999;
+    background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%);
+    color: white;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    transition: top 0.3s cubic-bezier(0.4, 0, 0.2, 1), transform 0.3s ease;
+    font-size: 14px;
+}
+
+.tl-offline-banner-visible {
+    top: 0;
+}
+
+.tl-offline-banner-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 12px 16px;
+    max-width: 100%;
+}
+
+.tl-offline-icon {
+    flex-shrink: 0;
+    font-size: 24px;
+    animation: pulse 2s infinite;
+}
+
+.tl-offline-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+}
+
+.tl-offline-title {
+    font-weight: 600;
+    font-size: 14px;
+    line-height: 1.2;
+}
+
+.tl-offline-subtitle {
+    font-size: 12px;
+    opacity: 0.9;
+    line-height: 1.2;
+}
+
+.tl-offline-close {
+    flex-shrink: 0;
+    background: rgba(255, 255, 255, 0.2);
+    border: none;
+    color: white;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    font-size: 20px;
+}
+
+.tl-offline-close:hover,
+.tl-offline-close:active {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+/* Minimized banner state */
+.tl-offline-banner-minimized {
+    transform: translateY(-calc(100% - 6px));
+}
+
+.tl-offline-banner-minimized .tl-offline-banner-content {
+    padding: 3px 16px;
+}
+
+.tl-offline-banner-minimized .tl-offline-text,
+.tl-offline-banner-minimized .tl-offline-close {
+    display: none;
+}
+
+.tl-offline-banner-minimized .tl-offline-icon {
+    font-size: 18px;
+}
+
+/* ============================================
+   CONNECTION STATUS INDICATOR
+   ============================================ */
+
+.tl-connection-status {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    margin-left: auto;
+}
+
+.tl-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    animation: pulse-dot 2s infinite;
+}
+
+.tl-status-online {
+    background: rgba(40, 167, 69, 0.1);
+    color: #28a745;
+}
+
+.tl-status-online .tl-status-dot {
+    background: #28a745;
+    box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+}
+
+.tl-status-offline {
+    background: rgba(255, 107, 107, 0.1);
+    color: #ff6b6b;
+}
+
+.tl-status-offline .tl-status-dot {
+    background: #ff6b6b;
+    animation: none;
+}
+
+/* Hide text on very small screens */
+@media (max-width: 360px) {
+    .tl-status-text {
+        display: none;
+    }
+}
+
+/* ============================================
+   SAVE TOGGLE BUTTON - Mobile First
+   ============================================ */
+
+.tl-save-toggle {
+    position: relative;
+    width: 28px;
+    height: 28px;
+    min-width: 28px;
+    min-height: 28px;
+    border-radius: 50%;
+    border: none;
+    background: rgba(255, 255, 255, 0.95);
+    color: #64748b;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+    font-size: 14px;
+    backdrop-filter: blur(4px);
+    margin-left: 0.5rem;
+    flex-shrink: 0;
+    padding: 0;
+}
+
+.tl-save-toggle:hover {
+    transform: scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+    background: rgba(255, 255, 255, 1);
+}
+
+.tl-save-toggle:active {
+    transform: scale(0.95);
+}
+
+/* Active (saved) state */
+.tl-save-toggle-active {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    color: white;
+}
+
+.tl-save-toggle-active:hover {
+    background: linear-gradient(135deg, #5568d3 0%, #653a8b 100%);
+}
+
+/* Icon animation */
+.tl-save-toggle i {
+    transition: transform 0.3s ease;
+}
+
+.tl-save-toggle:hover i {
+    transform: translateY(-2px);
+}
+
+.tl-save-toggle-active i {
+    animation: saveAnimation 0.5s ease;
+}
+
+@keyframes saveAnimation {
+    0% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.3);
+    }
+    100% {
+        transform: scale(1);
+    }
+}
+
+/* Responsive sizing */
+@media (min-width: 768px) {
+    .tl-save-toggle {
+        width: 30px;
+        height: 30px;
+        font-size: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .tl-save-toggle {
+        width: 26px;
+        height: 26px;
+        min-width: 26px;
+        min-height: 26px;
+        font-size: 13px;
+        margin-left: 0.35rem;
+    }
+}
+
+/* Make status badges container flex to accommodate toggle */
+.job-status-badges {
+    display: flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+}
+
+/* Old badge - deprecated but kept for compatibility */
+.tl-cached-badge {
+    display: none;
+}
+
+/* ============================================
+   OFFLINE FORM STYLING - Mobile First
+   ============================================ */
+
+form[data-offline-disabled] {
+    position: relative;
+    transition: opacity 0.3s ease;
+}
+
+form[data-offline-disabled]::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(135deg, rgba(255, 107, 107, 0.05) 0%, rgba(238, 90, 111, 0.05) 100%);
+    border-radius: inherit;
+    pointer-events: none;
+    z-index: 1;
+}
+
+/* Subtle disabled state for forms */
+form[data-offline-disabled] input,
+form[data-offline-disabled] textarea,
+form[data-offline-disabled] select,
+form[data-offline-disabled] button {
+    cursor: not-allowed !important;
+}
+
+/* ============================================
+   DISABLED OFFLINE STATE
+   ============================================ */
+
+.tl-disabled-offline {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+    pointer-events: none;
+    filter: grayscale(0.5);
+}
+
+button.tl-disabled-offline {
+    position: relative;
+}
+
+button.tl-disabled-offline::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: repeating-linear-gradient(
+        45deg,
+        transparent,
+        transparent 10px,
+        rgba(255, 107, 107, 0.1) 10px,
+        rgba(255, 107, 107, 0.1) 20px
+    );
+}
+
+/* ============================================
+   TOAST NOTIFICATIONS - Mobile First
+   ============================================ */
+
+.tl-toast {
+    position: fixed;
+    bottom: -100px;
+    left: 16px;
+    right: 16px;
+    z-index: 10000;
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    max-width: 500px;
+}
+
+.tl-toast-visible {
+    bottom: 16px;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.tl-toast-content {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 16px;
+}
+
+.tl-toast-content > i {
+    font-size: 24px;
+    flex-shrink: 0;
+}
+
+.tl-toast-text {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    min-width: 0;
+}
+
+.tl-toast-text strong {
+    font-size: 14px;
+    font-weight: 600;
+    line-height: 1.2;
+}
+
+.tl-toast-text span {
+    font-size: 13px;
+    color: #6c757d;
+    line-height: 1.3;
+}
+
+.tl-toast-close {
+    flex-shrink: 0;
+    background: transparent;
+    border: none;
+    color: #6c757d;
+    width: 28px;
+    height: 28px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.2s ease;
+    font-size: 18px;
+}
+
+.tl-toast-close:hover,
+.tl-toast-close:active {
+    background: rgba(0, 0, 0, 0.05);
+}
+
+/* Toast types */
+.tl-toast-success {
+    border-left: 4px solid #28a745;
+}
+
+.tl-toast-success > .tl-toast-content > i {
+    color: #28a745;
+}
+
+.tl-toast-warning {
+    border-left: 4px solid #ffc107;
+}
+
+.tl-toast-warning > .tl-toast-content > i {
+    color: #ffc107;
+}
+
+.tl-toast-error {
+    border-left: 4px solid #dc3545;
+}
+
+.tl-toast-error > .tl-toast-content > i {
+    color: #dc3545;
+}
+
+.tl-toast-info {
+    border-left: 4px solid #17a2b8;
+}
+
+.tl-toast-info > .tl-toast-content > i {
+    color: #17a2b8;
+}
+
+/* ============================================
+   ANIMATIONS
+   ============================================ */
+
+@keyframes pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+@keyframes pulse-dot {
+    0% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0.7);
+    }
+    50% {
+        box-shadow: 0 0 0 6px rgba(40, 167, 69, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(40, 167, 69, 0);
+    }
+}
+
+/* ============================================
+   TABLET RESPONSIVE (768px and up)
+   ============================================ */
+
+@media (min-width: 768px) {
+    .tl-offline-banner-content {
+        padding: 14px 24px;
+    }
+
+    .tl-offline-title {
+        font-size: 15px;
+    }
+
+    .tl-offline-subtitle {
+        font-size: 13px;
+    }
+
+    .tl-toast {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%) translateY(20px);
+    }
+
+    .tl-toast-visible {
+        transform: translateX(-50%) translateY(0);
+    }
+
+    .tl-connection-status {
+        font-size: 13px;
+        padding: 8px 14px;
+    }
+}
+
+/* ============================================
+   DESKTOP RESPONSIVE (992px and up)
+   ============================================ */
+
+@media (min-width: 992px) {
+    .tl-offline-banner-content {
+        max-width: 1200px;
+        margin: 0 auto;
+    }
+
+    .tl-toast {
+        bottom: 24px;
+    }
+
+    .tl-toast-visible {
+        bottom: 24px;
+    }
+
+    .tl-offline-close:hover {
+        transform: scale(1.05);
+    }
+
+    .tl-toast-close:hover {
+        transform: scale(1.1);
+    }
+}
+
+/* ============================================
+   DARK MODE SUPPORT (Optional)
+   ============================================ */
+
+@media (prefers-color-scheme: dark) {
+    .tl-toast {
+        background: #2d3748;
+        color: white;
+    }
+
+    .tl-toast-text span {
+        color: #cbd5e0;
+    }
+
+    .tl-toast-close {
+        color: #cbd5e0;
+    }
+
+    .tl-toast-close:hover,
+    .tl-toast-close:active {
+        background: rgba(255, 255, 255, 0.1);
+    }
+
+    .tl-offline-overlay {
+        background: rgba(45, 55, 72, 0.95);
+    }
+
+    .tl-overlay-message {
+        color: #cbd5e0;
+    }
+}
+
+/* ============================================
+   ACCESSIBILITY ENHANCEMENTS
+   ============================================ */
+
+/* Focus visible for keyboard navigation */
+.tl-offline-close:focus-visible,
+.tl-toast-close:focus-visible {
+    outline: 2px solid #007bff;
+    outline-offset: 2px;
+}
+
+/* Reduced motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+    .tl-offline-banner,
+    .tl-toast,
+    .tl-connection-status,
+    .tl-cached-badge {
+        transition: none;
+        animation: none;
+    }
+
+    .tl-offline-icon,
+    .tl-status-dot {
+        animation: none !important;
+    }
+}
+
+/* High contrast mode support */
+@media (prefers-contrast: high) {
+    .tl-offline-banner {
+        border: 2px solid white;
+    }
+
+    .tl-toast {
+        border: 2px solid #000;
+    }
+
+    .tl-cached-badge {
+        border: 1px solid white;
+    }
+}

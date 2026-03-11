@@ -65,6 +65,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     wget \
     curl \
+    # Gettext for i18n translation compilation
+    gettext \
     && rm -rf /var/lib/apt/lists/*
 
 # Set GDAL environment variables
@@ -75,7 +77,7 @@ RUN GDAL_LIB=$(find /usr/lib -name "libgdal.so*" | head -n 1) && \
     fi
 
 ENV GDAL_LIBRARY_PATH=/usr/lib/libgdal.so \
-    GEOS_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/libgeos_c.so
+    GEOS_LIBRARY_PATH=/usr/lib/x86_64-linux-gnu/libgeos_c.so 
 
 WORKDIR /app
 
@@ -105,7 +107,7 @@ RUN groupadd -r appuser && useradd -r -g appuser appuser
 # Copy Python packages from python-deps stage
 COPY --from=python-deps /usr/local/lib/python3.11/site-packages /usr/local/lib/python3.11/site-packages
 COPY --from=python-deps /usr/local/bin /usr/local/bin
-COPY --from=python-deps /root/.cache/ms-playwright /root/.cache/ms-playwright
+COPY --from=python-deps /root/.cache/ms-playwright /home/appuser/.cache/ms-playwright
 
 WORKDIR /app
 
@@ -113,8 +115,9 @@ WORKDIR /app
 COPY --chown=appuser:appuser . .
 
 # Create necessary directories with proper permissions
-RUN mkdir -p /app/staticfiles /app/mediafiles /app/logs && \
-    chown -R appuser:appuser /app
+RUN mkdir -p /app/staticfiles /app/media /app/mediafiles /app/logs && \
+    chown -R appuser:appuser /app && \
+    chown -R appuser:appuser /home/appuser/.cache
 
 # Copy entrypoint script
 COPY entrypoint.sh /entrypoint.sh

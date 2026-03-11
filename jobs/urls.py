@@ -1,4 +1,5 @@
 from django.urls import path
+from django.views.generic import TemplateView
 from . import views
 from .views import (
     JobListView, JobDetailView, JobCreateView, JobUpdateView, JobDeleteView, 
@@ -13,8 +14,11 @@ from .views import (
     accept_application_new, ContractNegotiationView, accept_contract_terms,
     JobTrackingView, post_progress_update, mark_job_completed, end_job, oppose_job_completion, feedback_form,
     ContractFeedbackDetailView,
-    start_contract_work, employer_applications_view, employer_contracts_view, worker_applications_view, worker_contracts_view
+    start_contract_work, employer_applications_view, employer_contracts_view, worker_applications_view, worker_contracts_view,
+    reactivate_job
 )
+from .views_availability import manage_availability, get_availability_api, check_availability_conflicts
+from . import views_interview
 
 
 app_name = "jobs"
@@ -83,11 +87,29 @@ urlpatterns = [
     path('worker/contracts/', worker_contracts_view, name="worker_contracts"),
     
     # Calendar and Schedule APIs
-    path('api/schedule/events/', views.get_schedule_events, name="api_schedule_events"),
+    path('api/worker/calendar/', views.worker_calendar_api, name="worker_calendar_api"),
     path('api/schedule/check-conflict/', views.check_contract_conflict, name="api_check_conflict"),
-    path('api/schedule/deadlines/', views.get_upcoming_deadlines_api, name="api_deadlines"),
+    
+    # Worker Availability Management
+    path('availability/manage/', manage_availability, name="manage_availability"),
+    path('api/availability/get/', get_availability_api, name="get_availability_api"),
+    path('api/availability/check-conflicts/', check_availability_conflicts, name="check_availability_conflicts"),
     
     # Job Status Toggle
     path('<int:job_id>/toggle-status/', views.toggle_job_status, name="toggle_job_status"),
+    path('<int:pk>/reactivate/', reactivate_job, name="reactivate_job"),
+    
+    # Map demo
+    path('map-demo/', TemplateView.as_view(template_name='jobs/map_bacoor_only.html'), name='map_demo'),
+    
+    # Interview Scheduling & Management
+    path('application/<int:application_pk>/schedule-interview/', views_interview.schedule_interview, name='schedule_interview'),
+    path('interview/<int:interview_pk>/join/', views_interview.join_interview, name='join_interview'),
+    path('interview/<int:interview_pk>/complete/', views_interview.complete_interview, name='complete_interview'),
+    path('interview/<int:interview_pk>/reschedule/', views_interview.reschedule_interview, name='reschedule_interview'),
+    path('interview/<int:interview_pk>/cancel/', views_interview.cancel_interview, name='cancel_interview'),
+    path('interview/<int:interview_pk>/calendar.ics', views_interview.download_interview_calendar, name='interview_calendar'),
+    
+    # Hiring Workflow
+    path('application/<int:application_pk>/workflow/', views_interview.hiring_workflow_view, name='hiring_workflow'),
 ]
-

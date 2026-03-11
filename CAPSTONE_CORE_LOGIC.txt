@@ -1,0 +1,669 @@
+================================================================================
+TRABAHOLINK: CORE LOGIC CODE FOR CAPSTONE PAPER APPENDIX
+================================================================================
+
+This document contains the essential code snippets from the Trabaholink platform,
+organized by functionality with explanations suitable for academic documentation.
+
+=======
+=========================================================================
+1. USER AUTHENTICATION & ROLE MANAGEMENT
+================================================================================
+
+The system implements a custom user model extending Django's AbstractUser to 
+support dual roles (Worker and Client) with location-based features.
+
+--- Code: Custom User Model (users/models.py) ---
+
+class CustomUser(AbstractUser):
+    """Extended user model with role-based access and geolocation support"""
+    
+    ROLE_CHOICES = [
+        ('worker', 'Worker'),
+        ('client', 'Client'),
+        ('admin', 'Admin'),
+    ]
+    
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='client')
+    role_selected = models.BooleanField(default=False)
+    profile_completed = models.BooleanField(default=False)
+    
+    # Geolocation fields using PostGIS
+    location = gis_models.PointField(null=True, blank=True, geography=True)
+    
+    # eKYC Verification
+    VERIFICATION_STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('verified', 'Verified'),
+        ('failed', 'Failed'),
+        ('manual_review', 'Manual Review'),
+    ]
+    verification_status = models.CharField(
+        max_length=20,
+        choices=VERIFICATION_STATUS_CHOICES,
+        default='pending'
+    )
+    
+    # Identity verification fields
+    is_verified = models.BooleanField(default=False)
+    id_type = models.CharField(max_length=32, choices=VALID_ID_CHOICES, blank=True)
+    id_image = models.ImageField(upload_to=id_image_upload_path, null=True, blank=True)
+    selfie_image = models.ImageField(upload_to=selfie_image_upload_path, null=True, blank=True)
+    verification_score = models.FloatField(null=True, blank=True)
+
+**Explanation:**
+The CustomUser model extends Django's built-in user authentication with:
+- Role-based access control (Worker/Client/Admin)
+- Geographic location storage using PostGIS PointField for spatial queries
+- Electronic Know Your Customer (eKYC) verification status tracking
+- Document storage for identity verification (ID images and selfies)
+
+================================================================================
+2. JOB POSTING & LOCATION-BASED MATCHING
+================================================================================
+
+Jobs are posted with precise geolocation data and automatically matched with
+nearby workers based on their notification preferences.
+
+--- Code: Job Model (jobs/models.py) ---
+
+class Job(models.Model):
+    """Job posting with geolocation and automatic expiration"""
+    
+    owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    category = models.ForeignKey(JobCategory, on_delete=models.SET_NULL, null=True)
+    budget = models.DecimalField(max_digits=10, decimal_places=2)
+    
+    # Location fields
+    municipality = models.CharField(max_length=100)
+    barangay = models.CharField(max_length=100)
+    location = gis_models.PointField(null=True, blank=True, geography=True)
+    latitude = models.FloatField(null=True, blank=True)
+    longitude = models.FloatField(null=True, blank=True)
+    
+    # Vacancy management
+    vacancies = models.PositiveIntegerField(default=1)
+    number_of_workers = models.PositiveIntegerField(default=1)
+    
+    # Auto-expiration
+    posting_duration_days = models.PositiveIntegerField(default=7)
+    expires_at = models.DateTimeField(null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    
+    def decrement_vacancy(self):
+        """Decrease vacancy and auto-deactivate when full"""
+        if self.vacancies > 0:
+            self.vacancies -= 1
+            if self.vacancies == 0:
+                self.is_active = False
+                self.save()
+                # Notify employer
+                Notification.objects.create(
+                    user=self.owner,
+                    message=f"All positions for '{self.title}' have been filled!"
+                )
+            return True
+        return False
+        
+**Explanation:**
+- Jobs store precise geographic coordinates using PostGIS for efficient spatial queries
+- Vacancy management automatically deactivates jobs when all positions are filled
+- Auto-expiration system removes stale job postings after a configurable period
+- Location data includes both address text and geographic point for flexible searching
+
+--- Code: Location-Based Job Notification (jobs/models.py) ---
+
+@receiver(post_save, sender=Job)
+def notify_workers_about_new_job(sender, instance, created, **kwargs):
+    """Send notifications to workers based on location and category preferences"""
+    
+    if not created or not instance.location:
+        return
+    
+    from users.models import NotificationPreference
+    
+    # Get job's general category
+    job_general_category = instance.category.general_category if instance.category else None
+    
+    # Query workers with matching preferences
+    preferences = NotificationPreference.objects.filter(
+        is_active=True,
+        notification_location__isnull=False,
+        user__role='worker'
+    ).exclude(user=instance.owner)
+    
+    for pref in preferences:
+        # STEP 1: Check category match (fast database query)
+        if pref.preferred_categories.exists():
+            if not job_general_category or \
+               not pref.preferred_categories.filter(id=job_general_category.id).exists():
+                continue
+        
+        # STEP 2: Calculate distance (expensive GIS operation)
+        distance_km = float(pref.notification_radius_km) if pref.notification_radius_km else 5.0
+        actual_distance = instance.location.distance(pref.notification_location)
+        
+        # Convert to meters for comparison
+        distance_meters = float(actual_distance) if isinstance(actual_distance, float) \
+                         else actual_distance.m
+        
+        if distance_meters <= (distance_km * 1000):
+            # Send notification
+            Notification.objects.create(
+                user=pref.user,
+                message=f"New job: '{instance.title}' posted {distance_meters/1000:.1f}km from you!",
+                notif_type="job_post",
+                object_id=instance.pk
+            )
+
+**Explanation:**
+- Optimized two-step filtering: category first (cheap), then distance (expensive)
+- Uses PostGIS distance calculation for accurate geolocation matching
+- Workers receive notifications only for jobs within their preferred radius and categories
+- Prevents notification spam by filtering at the database level
+
+================================================================================
+3. JOB APPLICATION & MATCHING WORKFLOW
+================================================================================
+
+The application process implements duplicate prevention, automatic notifications,
+and status tracking.
+
+--- Code: Job Application Model (jobs/models.py) ---
+
+class JobApplication(models.Model):
+    """Worker application to a job with status tracking"""
+    
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="applications")
+    worker = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    
+    STATUS_CHOICES = [
+        ("Pending", "Pending"),
+        ("Accepted", "Accepted"),
+        ("Rejected", "Rejected"),
+        ("Withdrawn", "Withdrawn"),
+    ]
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Pending")
+    
+    # Application details
+    cover_letter = models.TextField(blank=True, null=True)
+    proposed_rate = models.CharField(max_length=100, null=True, blank=True)
+    available_start_date = models.DateField(null=True, blank=True)
+    attach_profile_cv = models.BooleanField(default=False)
+    
+    # Tracking
+    is_viewed = models.BooleanField(default=False)
+    viewed_at = models.DateTimeField(null=True, blank=True)
+    applied_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        unique_together = ['job', 'worker']  # Prevent duplicate applications
+
+**Explanation:**
+- Unique constraint prevents duplicate applications from the same worker to a job
+- Status tracking enables workflow management (Pending → Accepted/Rejected)
+- View tracking helps employers identify unreviewed applications
+- CV attachment option reduces data redundancy
+
+--- Code: Application Submission with Duplicate Prevention (jobs/views.py) ---
+
+class JobApplicationCreateView(LoginRequiredMixin, CreateView):
+    """Handle job application submission with duplicate prevention"""
+    
+    def dispatch(self, request, *args, **kwargs):
+        # Check for existing application (pre-submission)
+        job = get_object_or_404(Job, pk=self.kwargs.get("pk"))
+        existing_application = JobApplication.objects.filter(
+            job=job,
+            worker=request.user
+        ).first()
+        
+        if existing_application:
+            messages.warning(request, "You have already applied to this job.")
+            return redirect(reverse("jobs:job_detail", kwargs={"pk": job.pk}))
+        
+        return super().dispatch(request, *args, **kwargs)
+    
+    def form_valid(self, form):
+        application = form.save(commit=False)
+        application.job = get_object_or_404(Job, pk=self.kwargs.get("pk"))
+        application.worker = self.request.user
+        
+        # Double-check for race condition
+        existing = JobApplication.objects.filter(
+            job=application.job,
+            worker=application.worker
+        ).first()
+        
+        if existing:
+            messages.warning(self.request, "You have already applied to this job.")
+            return redirect(reverse("jobs:job_detail", kwargs={"pk": application.job.id}))
+        
+        application.save()
+        
+        # Notify job owner
+        Notification.objects.create(
+            user=application.job.owner,
+            message=f"{application.worker.get_full_name()} applied for '{application.job.title}'",
+            notif_type="job_application",
+            object_id=application.pk
+        )
+        
+        return redirect(reverse("jobs:job_detail", kwargs={"pk": application.job.id}))
+
+**Explanation:**
+- Two-stage duplicate prevention: pre-check in dispatch() and post-check in form_valid()
+- Protects against race conditions in concurrent application submissions
+- Automatic notification to job owner upon successful application
+- Uses database-level unique constraint as final safety net
+
+================================================================================
+4. CONTRACT MANAGEMENT & NEGOTIATION
+================================================================================
+
+The contract system enables negotiation between parties with draft support and
+automatic vacancy management.
+
+--- Code: Contract Model (jobs/models.py) ---
+
+class Contract(models.Model):
+    """Work contract with negotiation and progress tracking"""
+    
+    job = models.ForeignKey(Job, on_delete=models.CASCADE, related_name="contracts")
+    worker = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    client = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="client_contracts")
+    application = models.OneToOneField(JobApplication, on_delete=models.SET_NULL, null=True)
+    
+    STATUS_CHOICES = [
+        ("Negotiation", "Negotiation"),
+        ("Finalized", "Finalized"),
+        ("In Progress", "In Progress"),
+        ("Awaiting Review", "Awaiting Review"),
+        ("Completed", "Completed"),
+        ("Cancelled", "Cancelled")
+    ]
+    status = models.CharField(max_length=30, choices=STATUS_CHOICES, default="Negotiation")
+    
+    # Contract terms (editable during negotiation)
+    job_title = models.CharField(max_length=255)
+    agreed_rate = models.DecimalField(max_digits=10, decimal_places=2)
+    payment_schedule = models.CharField(max_length=30)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    start_time = models.TimeField(null=True, blank=True)
+    end_time = models.TimeField(null=True, blank=True)
+    
+    # Draft mode for negotiation
+    is_draft = models.BooleanField(default=False)
+    finalized_by_worker = models.BooleanField(default=False)
+    finalized_by_employer = models.BooleanField(default=False)
+    
+    history = HistoricalRecords()  # Track all changes
+
+**Explanation:**
+- Draft mode allows collaborative editing before finalization
+- Historical records track all changes during negotiation
+- Time-based scheduling prevents worker double-booking
+- Status progression from Negotiation → Finalized → In Progress → Completed
+
+--- Code: Contract Creation on Application Acceptance (jobs/views.py) ---
+
+class JobApplicationHireView(LoginRequiredMixin, UserPassesTestMixin, View):
+    """Accept application and create contract for negotiation"""
+    
+    def post(self, request, pk):
+        application = get_object_or_404(JobApplication, pk=pk)
+        
+        # Update application status
+        application.status = "Accepted"
+        application.save()
+        
+        # Create draft contract
+        contract = Contract.objects.create(
+            job=application.job,
+            worker=application.worker,
+            client=application.job.owner,
+            application=application,
+            status="Negotiation",
+            is_draft=True,
+            job_title=application.job.title,
+            job_description=application.job.description,
+            payment_schedule=application.job.payment_schedule or "End of Project",
+            duration=application.job.duration or "To be determined",
+            start_date=timezone.now().date()
+        )
+        
+        # Notify worker
+        Notification.objects.create(
+            user=application.worker,
+            message=f"Your application for '{application.job.title}' has been accepted!",
+            notif_type="contract_draft_update",
+            object_id=contract.pk
+        )
+        
+        return redirect(reverse("jobs:contract_draft_edit", kwargs={"pk": contract.pk}))
+
+**Explanation:**
+- Accepting an application immediately creates a draft contract
+- Initial contract terms populated from job posting
+- Both parties can edit terms during negotiation phase
+- Worker notified to begin negotiation process
+
+================================================================================
+5. REAL-TIME MESSAGING SYSTEM
+================================================================================
+
+The messaging system implements content moderation and conversation management.
+
+--- Code: Messaging Models (messaging/models.py) ---
+
+class Conversation(models.Model):
+    """Private conversation between two users"""
+    
+    user1 = models.ForeignKey(User, on_delete=models.CASCADE, related_name="conversations_initiated")
+    user2 = models.ForeignKey(User, on_delete=models.CASCADE, related_name="conversations_received")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        unique_together = ("user1", "user2")  # One conversation per pair
+    
+    @property
+    def last_message(self):
+        return self.messages.order_by("-created_at").first()
+
+class Message(models.Model):
+    """Individual message with automatic content moderation"""
+    
+    conversation = models.ForeignKey(Conversation, on_delete=models.CASCADE, related_name="messages")
+    sender = models.ForeignKey(User, on_delete=models.CASCADE)
+    content = models.TextField()
+    file = models.FileField(upload_to='chat_files/', null=True, blank=True)
+    is_flagged = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    def save(self, *args, **kwargs):
+        """Automatically censor inappropriate content before saving"""
+        banned_words = load_banned_words()
+        
+        # Apply profanity filter
+        self.content = profanity.censor(self.content)
+        
+        # Censor multi-word phrases
+        for phrase in banned_words:
+            if ' ' in phrase:
+                self.content = self.content.replace(phrase, '*' * len(phrase))
+        
+        super().save(*args, **kwargs)
+
+**Explanation:**
+- Unique constraint ensures only one conversation between any two users
+- Automatic content moderation filters inappropriate language before saving
+- File attachment support for sharing documents/images
+- Flagging system for manual review of problematic content
+
+================================================================================
+6. GEOLOCATION & DISTANCE CALCULATION
+================================================================================
+
+The system uses PostGIS for efficient spatial queries and distance calculations.
+
+--- Code: Distance-Based Job Search (jobs/views.py) ---
+
+class JobListView(ListView):
+    """List jobs with distance-based filtering and sorting"""
+    
+    def get_queryset(self):
+        queryset = Job.objects.filter(is_active=True).select_related("category")
+        
+        # Get user's location from parameters
+        user_lat = self.request.GET.get("lat")
+        user_lng = self.request.GET.get("lng")
+        
+        if user_lat and user_lng:
+            try:
+                # Create Point from coordinates
+                user_location = Point(float(user_lng), float(user_lat), srid=4326)
+                
+                # Annotate queryset with distance calculation
+                queryset = queryset.annotate(
+                    distance=Distance("location", user_location)
+                )
+            except (ValueError, TypeError):
+                user_location = None
+        
+        # Sort by distance if available
+        sort = self.request.GET.get("sort", "date_desc")
+        if sort == "distance" and user_location:
+            queryset = queryset.order_by("distance")
+        else:
+            queryset = queryset.order_by("-created_at")
+        
+        # Calculate distance in kilometers for display
+        queryset_list = list(queryset)
+        for job in queryset_list:
+            if hasattr(job, "distance") and job.distance:
+                job.distance_km = round(job.distance.km, 2)
+        
+        return queryset_list
+
+**Explanation:**
+- PostGIS Distance function calculates accurate geographic distances
+- SRID 4326 specifies WGS 84 coordinate system (standard GPS format)
+- Annotation adds distance field to each query result without modifying database
+- Distance sorting enables "jobs near me" functionality
+
+================================================================================
+7. AUTOMATED NOTIFICATION SYSTEM
+================================================================================
+
+Signals trigger notifications for important events throughout the application lifecycle.
+
+--- Code: Application Notification Signal (jobs/signals.py) ---
+
+@receiver(post_save, sender=JobApplication)
+def notify_job_owner_on_application(sender, instance, created, **kwargs):
+    """Auto-notify when worker applies to a job"""
+    
+    if created:
+        # Get current applicant count for context
+        applicant_count = instance.job.applications.count()
+        
+        # Notify job owner
+        Notification.objects.create(
+            user=instance.job.owner,
+            notif_type="new_application_received",
+            object_id=instance.job.id,
+            message=f"New application from {instance.worker.get_full_name()} "
+                   f"for '{instance.job.title}'! "
+                   f"You now have {applicant_count} applicant(s)."
+        )
+        
+        # Notify applicant (confirmation)
+        Notification.objects.create(
+            user=instance.worker,
+            notif_type="application_submitted",
+            object_id=instance.id,
+            message=f"Your application for '{instance.job.title}' has been submitted!"
+        )
+
+**Explanation:**
+- Django signals decouple notification logic from business logic
+- Dual notifications: confirmation to applicant, alert to employer
+- Real-time applicant count provides context to employer
+- Automatic execution ensures no notifications are missed
+
+================================================================================
+8. SERVICE POSTING & REVIEW SYSTEM
+================================================================================
+
+Workers can advertise their services with location-based discovery and user reviews.
+
+--- Code: Service Models (services/models.py) ---
+
+class ServicePost(models.Model):
+    """Worker-posted service with location and reviews"""
+    
+    headline = models.CharField(max_length=255)
+    description = models.TextField()
+    category = models.ForeignKey(ServiceCategory, on_delete=models.CASCADE)
+    
+    # Location
+    address = models.CharField(max_length=255)
+    location = gis_models.PointField(null=True, blank=True, srid=4326)
+    
+    # Pricing and availability
+    pricing = models.DecimalField(max_digits=10, decimal_places=2)
+    availability = models.CharField(max_length=100)
+    
+    worker = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+class ServiceReview(models.Model):
+    """User review with rating and moderation"""
+    
+    service_post = models.ForeignKey(ServicePost, on_delete=models.CASCADE, related_name='reviews')
+    reviewer = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
+    
+    RATING_CHOICES = [(1, '1 - Poor'), (2, '2 - Fair'), (3, '3 - Good'), 
+                      (4, '4 - Very Good'), (5, '5 - Excellent')]
+    rating = models.IntegerField(choices=RATING_CHOICES)
+    comment = models.TextField()
+    
+    # Moderation
+    is_flagged = models.BooleanField(default=False)
+    is_hidden = models.BooleanField(default=False)
+    report_count = models.IntegerField(default=0)
+    
+    class Meta:
+        unique_together = ['service_post', 'reviewer']  # One review per user
+    
+    def check_auto_removal(self):
+        """Auto-hide if reported 3+ times"""
+        if self.report_count >= 3:
+            self.is_hidden = True
+            self.save()
+            return True
+        return False
+
+**Explanation:**
+- Service posts enable workers to advertise skills proactively
+- Location-based discovery matches services to nearby clients
+- Review system with automatic moderation prevents abuse
+- Unique constraint ensures one review per user per service
+
+================================================================================
+9. CONTENT MODERATION SYSTEM
+================================================================================
+
+Automated profanity filtering and banned word management protect platform integrity.
+
+--- Code: Moderation Utilities (admin_dashboard/moderation_utils.py) ---
+
+def check_for_banned_words(text):
+    """Check text for inappropriate content"""
+    
+    if not text:
+        return False, []
+    
+    # Load banned words from database
+    banned_words = load_banned_words()
+    
+    # Normalize text for comparison
+    text_lower = text.lower()
+    
+    # Check each banned word/phrase
+    flagged_words = []
+    for word in banned_words:
+        # Use word boundaries for accurate matching
+        if re.search(r'\b' + re.escape(word.lower()) + r'\b', text_lower):
+            flagged_words.append(word)
+    
+    is_flagged = len(flagged_words) > 0
+    return is_flagged, flagged_words
+
+**Explanation:**
+- Word boundary detection prevents false positives (e.g., "class" in "classic")
+- Case-insensitive matching catches all variations
+- Returns list of flagged words for user feedback
+- Database-driven word list allows dynamic updates without code changes
+
+================================================================================
+10. DASHBOARD ANALYTICS
+================================================================================
+
+Real-time statistics provide users with actionable insights about their activity.
+
+--- Code: Employer Dashboard (jobs/views.py) ---
+
+class EmployerDashboardView(LoginRequiredMixin, TemplateView):
+    """Comprehensive analytics for job posters"""
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        user = self.request.user
+        
+        # Job statistics
+        context['total_jobs'] = Job.objects.filter(owner=user).count()
+        context['active_jobs'] = Job.objects.filter(owner=user, is_active=True).count()
+        
+        # Application statistics (only pending applications)
+        context['total_applications'] = JobApplication.objects.filter(
+            job__owner=user, 
+            status='Pending'
+        ).count()
+        
+        # Contract statistics
+        context['active_contracts'] = Contract.objects.filter(
+            client=user
+        ).exclude(status__in=['Completed', 'Cancelled']).count()
+        
+        context['completed_contracts'] = Contract.objects.filter(
+            client=user,
+            status='Completed'
+        ).count()
+        
+        # Recent activity
+        context['recent_jobs'] = Job.objects.filter(owner=user).order_by('-created_at')[:5]
+        context['recent_applications'] = JobApplication.objects.filter(
+            job__owner=user,
+            status='Pending'
+        ).select_related('job', 'worker').order_by('-applied_at')[:10]
+        
+        return context
+
+**Explanation:**
+- Real-time statistics calculated on each page load
+- Filtering by status ensures accurate counts (e.g., only pending applications)
+- select_related() optimizes database queries by joining related tables
+- Recent activity lists help users track latest developments
+
+================================================================================
+CONCLUSION
+================================================================================
+
+The Trabaholink platform implements a comprehensive job matching system with:
+
+1. **Location-Based Matching**: PostGIS enables efficient geographic queries
+2. **Real-Time Notifications**: Django signals provide event-driven updates
+3. **Content Moderation**: Automated filtering maintains platform quality
+4. **Contract Management**: Multi-stage workflow from application to completion
+5. **Dual-Sided Marketplace**: Separate flows for workers and clients
+6. **Scalable Architecture**: Django ORM and PostgreSQL handle growth
+
+Key Technologies:
+- Django 4.2 (Web Framework)
+- PostgreSQL with PostGIS (Geospatial Database)
+- Redis (Caching & Real-time Features)
+- Celery (Background Tasks)
+- Docker (Containerization)
+
+The codebase demonstrates enterprise-level practices including:
+- Model-View-Template (MVT) architecture
+- Database-level constraints for data integrity
+- Optimized queries with select_related() and prefetch_related()
+- Signal-based decoupling of concerns
+- Comprehensive validation and error handling

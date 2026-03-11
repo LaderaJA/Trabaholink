@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Account Management - TrabahoLink{% endblock %}
 
@@ -282,7 +283,7 @@ body {
       <form method="post">
         {% csrf_token %}
         <div class="action-buttons">
-          <a href="{% url 'profile' user.pk %}" class="btn-cancel">
+          <a href="{% url 'users:profile' user.pk %}" class="btn-cancel">
             <i class="bi bi-arrow-left"></i>
             <span>Go Back</span>
           </a>

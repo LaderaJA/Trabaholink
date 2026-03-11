@@ -1,4 +1,5 @@
 {% extends "mainpages/base.html" %}
+{% load i18n %}
 {% block content %}
 <div class="container mt-5">
     <h2>Delete Job Application</h2>
@@ -8,7 +9,25 @@
     <form method="POST">
         {% csrf_token %}
         <button type="submit" class="btn btn-danger">Yes, Delete</button>
-        <a href="{% url 'jobs:job_detail' object.job.pk %}" class="btn btn-secondary ms-2">Cancel</a>
+        <a href="{% url 'jobs:job_detail' object.job.pk %}" class="btn btn-secondary ms-2">{% trans "Cancel" %}</a>
     </form>
 </div>
+{% endblock %}
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "job_application_delete",
+    "title": "Withdraw Application",
+    "steps": [
+        {
+            "title": "Withdraw Your Application \u26a0\ufe0f",
+            "content": "<h3>Are You Sure?</h3><p>You're about to withdraw your application for this job.</p>"
+        },
+        {
+            "title": "What Happens \ud83d\udd04",
+            "content": "<h3>After Withdrawal</h3><ul><li>Application will be cancelled</li><li>Employer will be notified</li><li>You can't undo this action</li><li>You can reapply later if job is still open</li></ul><div class='guide-warning'><strong>\u26a0\ufe0f Warning:</strong> This action cannot be undone!</div>"
+        }
+    ]
+}
 {% endblock %}

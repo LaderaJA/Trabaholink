@@ -1,4 +1,5 @@
 {% extends 'admin_dashboard/dashboard_base.html' %}
+{% load i18n %}
 
 {% block title %}User Details - {{ selected_user.username }}{% endblock %}
 {% block page_title %}User Profile{% endblock %}
@@ -64,7 +65,8 @@
                         
                         <a href="{% url 'admin_dashboard:user_delete' selected_user.pk %}" 
                            onclick="return confirm('Are you sure you want to delete this user?')"
-                           class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2">
+                           class="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition flex items-center gap-2"
+                           style="display: none;">
                             <i data-lucide="trash-2" class="w-4 h-4"></i>
                             Delete
                         </a>
@@ -329,7 +331,7 @@
                       class="w-full border border-gray-300 rounded-lg px-4 py-2 focus:outline-none focus:ring-2 focus:ring-trabaholink-blue"></textarea>
         </div>
         <div class="p-6 border-t border-gray-200 flex justify-end gap-3">
-            <button onclick="closeWarningModal()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+            <button onclick="closeWarningModal()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">{% trans "Cancel" %}</button>
             <button onclick="sendWarning()" class="px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600">Send Warning</button>
         </div>
     </div>

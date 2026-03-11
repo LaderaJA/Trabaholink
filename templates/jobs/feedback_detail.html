@@ -1,5 +1,6 @@
 {% extends "mainpages/base.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Contract Feedback - {{ contract.job.title }}{% endblock %}
 
@@ -254,4 +255,23 @@
         </div>
     </div>
 </div>
+{% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "feedback_detail",
+    "title": "View Feedback",
+    "steps": [
+        {
+            "title": "Feedback Details \ud83d\udcca",
+            "content": "<h3>Performance Review</h3><p>View detailed feedback from a completed job.</p>"
+        },
+        {
+            "title": "Learn and Improve \ud83d\udcc8",
+            "content": "<h3>Use Feedback Wisely</h3><ul><li>Understand ratings</li><li>Read comments carefully</li><li>Identify improvement areas</li><li>Maintain strengths</li></ul>"
+        }
+    ]
+}
 {% endblock %}

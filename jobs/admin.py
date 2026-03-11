@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.utils.html import format_html
 from django.urls import reverse, path
 from django.shortcuts import render
-from .models import Job, ProgressLog, JobApplication, JobCategory, JobImage, Contract, JobOffer, JobProgress, Feedback
+from .models import Job, ProgressLog, JobApplication, JobCategory, JobImage, Contract, JobOffer, JobProgress, Feedback, WorkerAvailability, GeneralCategory
 
 
 @admin.register(Job)
@@ -122,7 +122,41 @@ class JobAdmin(admin.ModelAdmin):
         return super().change_view(request, object_id, form_url, extra_context)
 
 
-admin.site.register(JobCategory)
+@admin.register(GeneralCategory)
+class GeneralCategoryAdmin(admin.ModelAdmin):
+    """Admin interface for GeneralCategory"""
+    list_display = ['name', 'slug', 'icon', 'job_count', 'created_at']
+    search_fields = ['name', 'slug', 'description']
+    prepopulated_fields = {'slug': ('name',)}
+    readonly_fields = ['created_at', 'job_count']
+    
+    def job_count(self, obj):
+        """Count of job categories linked to this general category"""
+        count = obj.job_categories.count()
+        return format_html(
+            '<a href="/admin/jobs/jobcategory/?general_category__id__exact={}">{} categories</a>',
+            obj.id, count
+        )
+    job_count.short_description = 'Job Categories'
+
+
+@admin.register(JobCategory)
+class JobCategoryAdmin(admin.ModelAdmin):
+    """Admin interface for JobCategory"""
+    list_display = ['name', 'general_category', 'job_count']
+    list_filter = ['general_category']
+    search_fields = ['name']
+    
+    def job_count(self, obj):
+        """Count of jobs in this category"""
+        count = obj.jobs.count()
+        return format_html(
+            '<a href="/admin/jobs/job/?category__id__exact={}">{} jobs</a>',
+            obj.id, count
+        )
+    job_count.short_description = 'Active Jobs'
+
+
 admin.site.register(JobApplication)
 admin.site.register(JobImage)
 admin.site.register(Contract)
@@ -130,4 +164,15 @@ admin.site.register(ProgressLog)
 admin.site.register(JobOffer)
 admin.site.register(JobProgress)
 admin.site.register(Feedback)
+
+@admin.register(WorkerAvailability)
+class WorkerAvailabilityAdmin(admin.ModelAdmin):
+    list_display = ['worker', 'get_day_name', 'start_time', 'end_time', 'is_available']
+    list_filter = ['day_of_week', 'is_available', 'worker']
+    search_fields = ['worker__username', 'worker__first_name', 'worker__last_name']
+    ordering = ['worker', 'day_of_week', 'start_time']
+    
+    def get_day_name(self, obj):
+        return dict(obj.DAYS_OF_WEEK)[obj.day_of_week]
+    get_day_name.short_description = 'Day'
 

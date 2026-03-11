@@ -9,6 +9,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.gis.db.models.functions import Distance
 from django.contrib.gis.geos import Point
 from django.core.paginator import Paginator
+from django.core.exceptions import ValidationError
 from django.db.models import Q, Count
 from django.http import HttpResponseRedirect, JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
@@ -133,14 +134,23 @@ class JobListView(ListView):
         keyword = request.GET.get("q")
         user_lat = request.GET.get("lat")
         user_lng = request.GET.get("lng")
-        min_budget = request.GET.get("min_budget")
-        max_budget = request.GET.get("max_budget")
-        municipality = request.GET.get("municipality")
+        urgency = request.GET.get("urgency")
         barangay = request.GET.get("barangay")
         sort = request.GET.get("sort", "date_desc")  # Default: newest first
 
         if category_id:
             queryset = queryset.filter(category_id=category_id)
+        
+        # Urgency filter - map from template values to model values
+        if urgency:
+            urgency_mapping = {
+                'low': 'Flexible',
+                'medium': 'Specific Date',
+                'high': 'Urgent'
+            }
+            model_urgency = urgency_mapping.get(urgency)
+            if model_urgency:
+                queryset = queryset.filter(urgency=model_urgency)
         
         # Comprehensive keyword search across multiple fields
         if keyword:
@@ -157,10 +167,7 @@ class JobListView(ListView):
                 Q(owner__last_name__icontains=keyword)
             ).distinct()
         
-        if min_budget:
-            queryset = queryset.filter(budget__gte=min_budget)
-        if max_budget:
-            queryset = queryset.filter(budget__lte=max_budget)
+        # Removed min_budget and max_budget filters (simplified UI)
         # Don't filter by location fields from the location modal
         # The modal sets municipality parameter only for distance calculation
         # Search form uses 'q' parameter which is already handled above
@@ -175,95 +182,9 @@ class JobListView(ListView):
             except (ValueError, TypeError):
                 self.user_location = None
         
-        # Handle manual location entry - geocode municipality/barangay to GPS coordinates
-        elif municipality:
-            try:
-                # Comprehensive Philippines location coordinates database (6 decimal places)
-                philippines_coords = {
-                    # Metro Manila
-                    'manila': (14.599512, 120.984222),
-                    'quezon city': (14.676041, 121.043700),
-                    'makati': (14.554729, 121.024445),
-                    'pasig': (14.576417, 121.085098),
-                    'taguig': (14.517637, 121.050935),
-                    'pasay': (14.537840, 120.989639),
-                    'paranaque': (14.479322, 121.019817),
-                    'las pinas': (14.449910, 120.976158),
-                    'muntinlupa': (14.383240, 121.040863),
-                    'marikina': (14.650703, 121.102905),
-                    'valenzuela': (14.700024, 120.983299),
-                    'caloocan': (14.648813, 120.966835),
-                    'malabon': (14.658348, 120.956726),
-                    'navotas': (14.669125, 120.947189),
-                    'san juan': (14.601909, 121.035538),
-                    'mandaluyong': (14.579399, 121.035905),
-                    
-                    # Cavite
-                    'bacoor': (14.431095, 120.968096),
-                    'imus': (14.429741, 120.937028),
-                    'dasmarinas': (14.400415, 120.985887),
-                    'dasmariñas': (14.400415, 120.985887),
-                    'cavite city': (14.479142, 120.897897),
-                    'general trias': (14.386906, 120.881014),
-                    'trece martires': (14.281448, 120.867188),
-                    'tagaytay': (14.115912, 120.960219),
-                    'silang': (14.231042, 120.976951),
-                    
-                    # Rizal
-                    'antipolo': (14.593069, 121.180027),
-                    'cainta': (14.578293, 121.122215),
-                    'taytay': (14.557601, 121.132437),
-                    'binangonan': (14.464722, 121.192502),
-                    'rodriguez': (14.713628, 121.107524),
-                    'montalban': (14.713628, 121.107524),
-                    'san mateo': (14.696908, 121.121895),
-                    
-                    # Laguna
-                    'calamba': (14.211651, 121.165314),
-                    'biñan': (14.337783, 121.080849),
-                    'santa rosa': (14.312336, 121.111376),
-                    'cabuyao': (14.278415, 121.124573),
-                    'san pedro': (14.355304, 121.017847),
-                    'los baños': (14.169908, 121.220631),
-                    
-                    # Bulacan
-                    'malolos': (14.843252, 120.811399),
-                    'meycauayan': (14.735024, 120.953308),
-                    'san jose del monte': (14.813612, 121.045301),
-                    'santa maria': (14.816917, 120.956701),
-                }
-                
-                # Enhanced barangay-level coordinates for Bacoor (6 decimal places)
-                bacoor_barangays = {
-                    'molino': (14.423512, 120.982478),
-                    'queens row': (14.440013, 120.974982),
-                    'salawag': (14.417528, 120.954983),
-                    'springville': (14.429045, 120.991987),
-                    'panapaan': (14.452013, 120.968041),
-                    'tabing dagat': (14.462015, 120.959028),
-                    'mabolo': (14.414987, 120.969964),
-                    'niog': (14.420019, 120.960047),
-                }
-                
-                location_key = municipality.lower().strip()
-                
-                # Check if barangay is provided for more precise location
-                if barangay:
-                    barangay_key = barangay.lower().strip()
-                    # Try municipality-specific barangay lookup (currently only Bacoor)
-                    if location_key == 'bacoor' and barangay_key in bacoor_barangays:
-                        lat, lng = bacoor_barangays[barangay_key]
-                        self.user_location = Point(lng, lat, srid=4326)
-                        queryset = queryset.annotate(distance=Distance("location", self.user_location))
-                        return queryset
-                
-                # Fallback to municipality-level coordinates
-                if location_key in philippines_coords:
-                    lat, lng = philippines_coords[location_key]
-                    self.user_location = Point(lng, lat, srid=4326)
-                    queryset = queryset.annotate(distance=Distance("location", self.user_location))
-            except Exception:
-                self.user_location = None
+        # Barangay filter (simple text search)
+        if barangay:
+            queryset = queryset.filter(barangay__icontains=barangay)
 
         # Sorting
         if sort == "budget_asc":
@@ -722,6 +643,11 @@ class JobApplicationCreateView(LoginRequiredMixin, CreateView):
     template_name = "jobs/job_application_form.html"
     
     def dispatch(self, request, *args, **kwargs):
+        # Ensure user is authenticated first
+        if not request.user.is_authenticated:
+            from django.contrib.auth.views import redirect_to_login
+            return redirect_to_login(request.get_full_path())
+        
         # Check if user has already applied to this job
         job = get_object_or_404(Job, pk=self.kwargs.get("pk"))
         existing_application = JobApplication.objects.filter(
@@ -802,6 +728,13 @@ class ContractDetailView(LoginRequiredMixin, DetailView):
         context['contract_terms_html'] = mark_safe(
             escape(final_terms).replace('\n', '<br>')
         )
+        
+        # Check if user has already left feedback
+        user_feedback = Feedback.objects.filter(
+            contract=contract,
+            giver=self.request.user
+        ).first()
+        context['user_feedback'] = user_feedback
 
         history_entries = []
         field_labels = {
@@ -901,10 +834,13 @@ def job_applicants_view(request, job_id):
 
 
 def deny_application(request, pk):
+    """Reject an application instead of deleting it"""
     application = get_object_or_404(JobApplication, pk=pk)
     if request.user == application.job.owner:
-        application.delete()
-    return HttpResponseRedirect(reverse('jobs:job_detail', kwargs={'pk': application.job.pk}))
+        application.status = "Rejected"
+        application.save()
+        messages.success(request, f"Application from {application.worker.get_full_name()} has been rejected.")
+    return HttpResponseRedirect(reverse('jobs:employer_dashboard'))
 
 
 
@@ -923,6 +859,47 @@ class JobApplicationDetailView(LoginRequiredMixin, DetailView):
     
     def get_queryset(self):
         return JobApplication.objects.all()
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        from messaging.models import Conversation, Message
+        from django.db.models import Q
+        from jobs.utils_interview import calculate_progress_percentage
+        
+        application = self.get_object()
+        
+        # Find conversation between employer and worker
+        # Conversation can be either user1-user2 or user2-user1
+        conversation = Conversation.objects.filter(
+            Q(user1=application.job.owner, user2=application.worker) |
+            Q(user1=application.worker, user2=application.job.owner)
+        ).first()
+        
+        print(f"DEBUG: Application ID: {application.id}")
+        print(f"DEBUG: Job Owner: {application.job.owner.username}")
+        print(f"DEBUG: Worker: {application.worker.username}")
+        print(f"DEBUG: Conversation found: {conversation}")
+        
+        if conversation:
+            messages_list = list(conversation.messages.order_by('created_at'))
+            print(f"DEBUG: Messages count: {len(messages_list)}")
+            context['conversation'] = conversation
+            context['conversation_messages'] = messages_list
+        else:
+            print("DEBUG: No conversation found")
+            context['conversation'] = None
+            context['conversation_messages'] = []
+        
+        # Add workflow progress data
+        context['progress_percentage'] = calculate_progress_percentage(application.current_step, total_steps=4)
+        
+        # Add interview if exists
+        if hasattr(application, 'interview'):
+            context['interview'] = application.interview
+        else:
+            context['interview'] = None
+        
+        return context
 
 # Job Application Update View (only the applicant can edit)
 class JobApplicationUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
@@ -946,6 +923,32 @@ class JobApplicationDeleteView(LoginRequiredMixin, UserPassesTestMixin, DeleteVi
         application = self.get_object()
         # Allowed if the logged-in user is either the applicant or the job owner
         return self.request.user == application.worker or self.request.user == application.job.owner
+    
+    def dispatch(self, request, *args, **kwargs):
+        application = self.get_object()
+        
+        # Prevent deletion if contract is finalized
+        try:
+            if hasattr(application, 'contract') and application.contract:
+                if not application.contract.is_draft:
+                    messages.error(request, "Cannot cancel application - contract has been finalized.")
+                    return redirect(reverse("jobs:job_application_detail", kwargs={"pk": application.pk}))
+        except Contract.DoesNotExist:
+            pass
+        
+        return super().dispatch(request, *args, **kwargs)
+    
+    def delete(self, request, *args, **kwargs):
+        application = self.get_object()
+        job_pk = application.job.pk
+        
+        # Check if user is the worker (canceling their own application)
+        if request.user == application.worker:
+            messages.success(request, "Your application has been canceled successfully.")
+        else:
+            messages.success(request, "Application has been deleted.")
+        
+        return super().delete(request, *args, **kwargs)
     
     def get_success_url(self):
         return reverse_lazy("jobs:job_detail", kwargs={"pk": self.get_object().job.pk})
@@ -1017,6 +1020,10 @@ class ContractUpdateView(LoginRequiredMixin, UserPassesTestMixin, UpdateView):
     def test_func(self):
         contract = self.get_object()
         return self.request.user == contract.client or self.request.user == contract.worker
+    
+    def form_valid(self, form):
+        messages.success(self.request, "Contract updated successfully!")
+        return super().form_valid(form)
     
     def get_success_url(self):
         return reverse_lazy("jobs:contract_detail", kwargs={"pk": self.object.pk})
@@ -1167,11 +1174,18 @@ def cancel_contract(request, pk):
         messages.error(request, "You are not authorized to cancel this contract.")
         return redirect("jobs:contract_detail", pk=pk)
     
+    # Store the old status before changing it
+    old_status = contract.status
+    
     # Update the contract status to 'Cancelled'
     contract.status = "Cancelled"
     contract.is_draft = False  # Finalize cancellation if it was in draft
     contract.updated_at = timezone.now()
     contract.save()
+    
+    # If contract was finalized, increment vacancy to reopen position
+    if old_status in ['Finalized', 'In Progress', 'Awaiting Review']:
+        contract.job.increment_vacancy()
     
     # Notify the worker about the cancellation
     Notification.objects.create(
@@ -1183,6 +1197,34 @@ def cancel_contract(request, pk):
     
     messages.success(request, "Contract cancelled successfully.")
     return redirect("jobs:contract_detail", pk=contract.pk)
+
+@login_required
+@require_POST
+def reactivate_job(request, pk):
+    """Reactivate a deactivated job posting"""
+    job = get_object_or_404(Job, pk=pk)
+    
+    # Only the job owner can reactivate
+    if request.user != job.owner:
+        messages.error(request, "You are not authorized to reactivate this job.")
+        return redirect("jobs:employer_dashboard")
+    
+    # Check if job is expired
+    if job.is_expired():
+        messages.error(request, "Cannot reactivate an expired job. Please edit the job to extend its expiration date.")
+        return redirect("jobs:job_edit", pk=pk)
+    
+    # Check if job has vacancies
+    if job.vacancies == 0:
+        messages.error(request, "Cannot reactivate a job with 0 vacancies. Please edit the job to add more positions.")
+        return redirect("jobs:job_edit", pk=pk)
+    
+    # Reactivate the job
+    job.is_active = True
+    job.save(update_fields=['is_active', 'updated_at'])
+    
+    messages.success(request, f"Job '{job.title}' has been successfully reactivated!")
+    return redirect("jobs:employer_dashboard")
 
 class ContractSignView(LoginRequiredMixin, DetailView):
     """
@@ -1379,7 +1421,11 @@ class EmployerDashboardView(LoginRequiredMixin, TemplateView):
         # Statistics
         context['total_jobs'] = Job.objects.filter(owner=user).count()
         context['active_jobs'] = Job.objects.filter(owner=user, is_active=True).count()
-        context['total_applications'] = JobApplication.objects.filter(job__owner=user).exclude(status__iexact='Archived').count()
+        context['deactivated_jobs_count'] = Job.objects.filter(owner=user, is_active=False).count()
+        # Total applications should count only Pending applications (those needing review)
+        total_apps = JobApplication.objects.filter(job__owner=user, status='Pending').count()
+        print(f"DEBUG EMPLOYER DASHBOARD: User={user.username}, Total Pending Apps={total_apps}")
+        context['total_applications'] = total_apps
         context['pending_applications'] = JobApplication.objects.filter(
             job__owner=user, 
             status='Pending'
@@ -1403,6 +1449,12 @@ class EmployerDashboardView(LoginRequiredMixin, TemplateView):
         # Recent jobs
         context['recent_jobs'] = Job.objects.filter(owner=user).order_by('-created_at')[:5]
         
+        # Deactivated jobs (auto-deactivated when all positions filled or expired)
+        context['deactivated_jobs'] = Job.objects.filter(
+            owner=user,
+            is_active=False
+        ).select_related('category').order_by('-updated_at')[:50]
+        
         # Recent applications shown in Applications tab (exclude ones already under contracts)
         # Note: Only exclude applications that THEMSELVES have active/completed contracts,
         # not applications to jobs that have contracts with OTHER workers
@@ -1425,11 +1477,11 @@ class EmployerDashboardView(LoginRequiredMixin, TemplateView):
             status__iexact='rejected'
         ).select_related('job', 'worker').order_by('-updated_at')[:50]
         
-        # Pending offers
-        context['pending_offers'] = JobOffer.objects.filter(
-            employer=user,
-            status='Pending'
-        ).select_related('job', 'worker')[:5]
+        # JobOffer feature is deprecated - system now uses Contracts directly
+        # context['pending_offers'] = JobOffer.objects.filter(
+        #     employer=user,
+        #     status='Pending'
+        # ).select_related('job', 'worker')[:5]
         
         # Active contracts
         context['active_contracts_list'] = Contract.objects.filter(
@@ -1472,6 +1524,10 @@ class WorkerDashboardView(LoginRequiredMixin, TemplateView):
             worker=user, 
             status='Pending'
         ).count()
+        context['rejected_applications'] = JobApplication.objects.filter(
+            worker=user,
+            status__iexact='rejected'
+        ).count()
         context['active_contracts'] = Contract.objects.filter(worker=user).exclude(status__in=['Completed', 'Cancelled']).count()
         context['completed_contracts'] = Contract.objects.filter(
             worker=user, 
@@ -1493,11 +1549,11 @@ class WorkerDashboardView(LoginRequiredMixin, TemplateView):
         context['recent_applications'] = recent_applications_qs
         context['applications_tab_count'] = recent_applications_qs.count()
         
-        # Pending offers
-        context['pending_offers'] = JobOffer.objects.filter(
-            worker=user,
-            status='Pending'
-        ).select_related('job', 'employer')[:5]
+        # JobOffer feature is deprecated - system now uses Contracts directly
+        # context['pending_offers'] = JobOffer.objects.filter(
+        #     worker=user,
+        #     status='Pending'
+        # ).select_related('job', 'employer')[:5]
         
         # Active contracts
         context['active_contracts_list'] = Contract.objects.filter(
@@ -1692,7 +1748,7 @@ def accept_application_new(request, pk):
 class ContractNegotiationView(LoginRequiredMixin, UpdateView):
     """View for contract negotiation - both parties can edit"""
     model = Contract
-    template_name = "jobs/contract_negotiation.html"
+    template_name = "jobs/contract_negotiation_workflow.html"
     fields = [
         'job_title',
         'job_description',
@@ -1703,6 +1759,8 @@ class ContractNegotiationView(LoginRequiredMixin, UpdateView):
         'schedule',
         'start_date',
         'end_date',
+        'start_time',
+        'end_time',
         'notes',
         'terms',
     ]
@@ -1735,6 +1793,25 @@ class ContractNegotiationView(LoginRequiredMixin, UpdateView):
         context['default_contract_terms'] = DEFAULT_CONTRACT_TERMS
         terms_source = contract.terms or DEFAULT_CONTRACT_TERMS
         context['prefilled_terms'] = normalize_contract_terms_text(terms_source) or DEFAULT_CONTRACT_TERMS
+        
+        # Check worker availability conflicts
+        if contract.start_date and contract.end_date and contract.start_time and contract.end_time:
+            from .models import WorkerAvailability
+            availability_result = WorkerAvailability.check_availability_for_contract(
+                worker=contract.worker,
+                start_date=contract.start_date,
+                end_date=contract.end_date,
+                start_time=contract.start_time,
+                end_time=contract.end_time
+            )
+            context['has_availability_conflicts'] = not availability_result['available']
+            context['availability_conflicts'] = availability_result['conflicts']  # Show all conflicts
+            context['total_conflicts'] = len(availability_result['conflicts'])
+        else:
+            context['has_availability_conflicts'] = False
+            context['availability_conflicts'] = []
+            context['total_conflicts'] = 0
+        
         return context
     
     def get_form(self, form_class=None):
@@ -1747,7 +1824,21 @@ class ContractNegotiationView(LoginRequiredMixin, UpdateView):
         return form
 
     def form_valid(self, form):
+        action = self.request.POST.get('action', 'save')
         contract = form.save(commit=False)
+        
+        # If action is "save", just save changes without acceptance
+        if action == 'save':
+            contract.status = "Negotiation"
+            contract.updated_at = timezone.now()
+            contract.terms = normalize_contract_terms_text(contract.terms) or DEFAULT_CONTRACT_TERMS
+            contract.save()
+            form.save_m2m()
+            
+            messages.success(self.request, "Contract changes saved successfully!")
+            return redirect("jobs:contract_negotiation", pk=contract.pk)
+        
+        # Default behavior for other actions
         contract.status = "Negotiation"
         contract.is_finalized = False
         contract.finalized_by_worker = False
@@ -1807,6 +1898,8 @@ def accept_contract_terms(request, pk):
             worker_id=request.user.id,
             start_date=contract.start_date,
             end_date=contract.end_date,
+            start_time=contract.start_time,
+            end_time=contract.end_time,
             exclude_contract_id=contract.id
         )
         
@@ -1902,7 +1995,7 @@ class JobTrackingView(LoginRequiredMixin, DetailView):
         context['has_activity'] = progress_updates.exists() or progress_logs.exists()
         context['is_worker'] = self.request.user == contract.worker
         context['is_employer'] = self.request.user == contract.client
-        context['can_start'] = context['is_worker'] and contract.status in {"Finalized", "Accepted"}
+        context['can_start'] = context['is_worker'] and contract.status in {"Finalized"}
         context['can_post_progress'] = context['is_worker'] and contract.status == "In Progress"
         context['can_mark_completed'] = context['is_worker'] and contract.status == "In Progress"
         context['show_revision_request'] = context['is_worker'] and contract.is_revision_requested
@@ -1925,28 +2018,56 @@ def post_progress_update(request, contract_pk):
     
     update_text = request.POST.get('update_text')
     image = request.FILES.get('image')
+    video = request.FILES.get('video')
     
     if not update_text:
         messages.error(request, "Please provide an update description.")
         return redirect("jobs:job_tracking", pk=contract_pk)
     
-    # Create progress update
-    JobProgress.objects.create(
-        contract=contract,
-        update_text=update_text,
-        image=image,
-        updated_by=request.user
-    )
+    try:
+        # Create progress update
+        progress = JobProgress(
+            contract=contract,
+            update_text=update_text,
+            image=image,
+            video=video,
+            updated_by=request.user
+        )
+        # Call full_clean() to trigger validators before saving
+        progress.full_clean()
+        progress.save()
+        
+        # Notify employer
+        Notification.objects.create(
+            user=contract.client,
+            message=f"{contract.worker.username} posted a progress update for '{contract.job.title}'.",
+            notif_type="progress_update",
+            object_id=contract.pk
+        )
+        
+        messages.success(request, "Progress update posted successfully!")
+        
+    except ValidationError as e:
+        # Handle validation errors (including video validation)
+        if hasattr(e, 'message_dict'):
+            # Multiple field errors
+            error_messages = []
+            for field, errors in e.message_dict.items():
+                error_messages.extend([str(err) for err in errors])
+            messages.error(request, " ".join(error_messages))
+        elif hasattr(e, 'messages'):
+            # List of error messages
+            messages.error(request, " ".join(e.messages))
+        else:
+            # Single error message
+            messages.error(request, str(e))
+    except Exception as e:
+        # Catch any other unexpected errors
+        import logging
+        logger = logging.getLogger(__name__)
+        logger.error(f"Error posting progress update: {str(e)}", exc_info=True)
+        messages.error(request, f"Error posting update: {str(e)}")
     
-    # Notify employer
-    Notification.objects.create(
-        user=contract.client,
-        message=f"{contract.worker.username} posted a progress update for '{contract.job.title}'.",
-        notif_type="progress_update",
-        object_id=contract.pk
-    )
-    
-    messages.success(request, "Progress update posted successfully!")
     return redirect("jobs:job_tracking", pk=contract_pk)
 
 
@@ -1998,11 +2119,12 @@ def end_job(request, pk):
     contract.status = "Completed"
     contract.save()
     
-    # Automatically archive the job posting when completed
+    # Only deactivate job if all vacancies are filled (no more positions available)
     job = contract.job
-    if job.is_active:
+    if job.is_active and job.vacancies == 0:
         job.is_active = False
         job.save()
+        messages.info(request, "All positions for this job have been filled. The job posting has been automatically deactivated.")
     
     # Notify worker
     Notification.objects.create(
@@ -2073,44 +2195,81 @@ def feedback_form(request, contract_pk):
         messages.error(request, "Feedback can only be given for completed contracts.")
         return redirect("jobs:contract_detail", pk=contract_pk)
 
-    if Feedback.objects.filter(contract=contract, giver=request.user).exists():
-        messages.info(request, "You have already provided feedback for this contract.")
-        return redirect("jobs:contract_detail", pk=contract_pk)
+    # Check if user already gave feedback (for editing) - DO NOT redirect, allow editing
+    existing_feedback = Feedback.objects.filter(contract=contract, giver=request.user).first()
+    is_editing = existing_feedback is not None
 
     receiver = contract.client if request.user == contract.worker else contract.worker
 
     if request.method == "POST":
+        from better_profanity import profanity
+        from admin_dashboard.utils import load_banned_words
+        
         rating = request.POST.get('rating')
-        message = request.POST.get('message')
+        message = request.POST.get('message', '').strip()
         
         if not rating or not message:
             messages.error(request, "Please provide both rating and feedback message.")
             return redirect("jobs:feedback_form", contract_pk=contract_pk)
         
-        # Create feedback
-        Feedback.objects.create(
-            contract=contract,
-            giver=request.user,
-            receiver=receiver,
-            rating=int(rating),
-            message=message
-        )
+        # Profanity filtering
+        banned_words = load_banned_words()
+        profanity.load_censor_words([word for word in banned_words if ' ' not in word])
         
-        # Notify receiver
-        Notification.objects.create(
-            user=receiver,
-            message=f"{request.user.username} left you feedback for '{contract.job.title}'.",
-            notif_type="feedback",
-            object_id=contract.pk
-        )
+        # Censor single words
+        censored_message = profanity.censor(message)
         
-        messages.success(request, "Feedback submitted successfully!")
+        # Censor multi-word phrases
+        for phrase in banned_words:
+            if ' ' in phrase:
+                censored_message = censored_message.replace(phrase, '*' * len(phrase))
+        
+        # Warn if censored
+        if censored_message != message:
+            messages.warning(request, "Your feedback contained inappropriate language and has been censored.")
+        
+        # Create or update feedback
+        if is_editing:
+            existing_feedback.rating = int(rating)
+            existing_feedback.message = censored_message
+            existing_feedback.save()
+            messages.success(request, "Feedback updated successfully!")
+        else:
+            Feedback.objects.create(
+                contract=contract,
+                giver=request.user,
+                receiver=receiver,
+                rating=int(rating),
+                message=censored_message
+            )
+            messages.success(request, "Feedback submitted successfully!")
+        
+        # Notify receiver (only for new feedback, not edits)
+        if not is_editing:
+            Notification.objects.create(
+                user=receiver,
+                message=f"{request.user.username} left you feedback for '{contract.job.title}'.",
+                notif_type="feedback",
+                object_id=contract.pk
+            )
+        
         return redirect("jobs:contract_detail", pk=contract_pk)
+    
+    # Pre-populate form if editing
+    initial_data = {}
+    if is_editing:
+        initial_data = {
+            'rating': existing_feedback.rating,
+            'message': existing_feedback.message
+        }
     
     context = {
         'contract': contract,
         'receiver': receiver,
-        'is_worker': request.user == contract.worker
+        'is_worker': request.user == contract.worker,
+        'is_editing': is_editing,
+        'existing_feedback': existing_feedback,
+        'initial_data': initial_data
     }
 
     return render(request, "jobs/feedback_form.html", context)
@@ -2241,7 +2400,7 @@ def start_contract_work(request, pk):
         messages.info(request, "Work on this contract has already started.")
         return redirect("jobs:job_tracking", pk=pk)
 
-    if contract.status not in ["Finalized", "Accepted"]:
+    if contract.status not in ["Finalized"]:
         messages.warning(request, "This contract must be finalized before work can start.")
         return redirect("jobs:contract_detail", pk=pk)
 
@@ -2326,10 +2485,18 @@ def check_contract_conflict(request):
         start_date = datetime.fromisoformat(start_date_str).date()
         end_date = datetime.fromisoformat(end_date_str).date() if end_date_str else None
         
+        # Get start_time and end_time if provided
+        start_time_str = data.get('start_time')
+        end_time_str = data.get('end_time')
+        start_time = datetime.strptime(start_time_str, '%H:%M').time() if start_time_str else None
+        end_time = datetime.strptime(end_time_str, '%H:%M').time() if end_time_str else None
+        
         has_conflict, conflicting_contracts, warning_message = check_schedule_conflicts(
             worker_id=request.user.id,
             start_date=start_date,
             end_date=end_date,
+            start_time=start_time,
+            end_time=end_time,
             exclude_contract_id=contract_id
         )
         
@@ -2431,17 +2598,30 @@ def toggle_job_status(request, job_id):
         
         messages.success(request, message)
         
-        return JsonResponse({
-            'success': True,
-            'is_active': job.is_active,
-            'message': message
-        })
+        # Check if it's an AJAX request
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        
+        if is_ajax:
+            return JsonResponse({
+                'success': True,
+                'is_active': job.is_active,
+                'message': message
+            })
+        else:
+            # Redirect to job list or referrer
+            return redirect(request.META.get('HTTP_REFERER', 'jobs:job_list'))
     
     except Exception as e:
-        return JsonResponse({
-            'success': False,
-            'message': f'An error occurred: {str(e)}'
-        }, status=500)
+        is_ajax = request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+        
+        if is_ajax:
+            return JsonResponse({
+                'success': False,
+                'message': f'An error occurred: {str(e)}'
+            }, status=500)
+        else:
+            messages.error(request, f'An error occurred: {str(e)}')
+            return redirect(request.META.get('HTTP_REFERER', 'jobs:job_list'))
 
 
 class FAQView(TemplateView):
@@ -2457,3 +2637,96 @@ class TermsOfServiceView(TemplateView):
 class PrivacyPolicyView(TemplateView):
     """View for the Privacy Policy page"""
     template_name = "mainpages/privacy_policy.html"
+
+
+@login_required
+def worker_calendar_api(request):
+    """
+    API endpoint to return worker's contracts in FullCalendar format.
+    Each contract generates multiple daily events showing actual work hours.
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    worker = request.user
+    
+    # Get date range from query params (optional)
+    start_date = request.GET.get('start')
+    end_date = request.GET.get('end')
+    
+    # Convert to date objects if provided
+    if start_date:
+        start_date = datetime.fromisoformat(start_date.replace('Z', '')).date()
+    if end_date:
+        end_date = datetime.fromisoformat(end_date.replace('Z', '')).date()
+    
+    # Get worker's contracts
+    contracts = Contract.get_worker_schedule(worker, start_date, end_date)
+    
+    logger.info(f"Calendar API: Found {contracts.count()} contracts for {worker.username}")
+    
+    # Convert to calendar events (each contract returns a list of daily events)
+    events = []
+    for contract in contracts:
+        logger.info(f"Processing contract {contract.id}: {contract.job_title}, Status: {contract.status}, Dates: {contract.start_date} to {contract.end_date}, Times: {contract.start_time} - {contract.end_time}")
+        
+        event_data = contract.get_calendar_event_data()
+        if event_data:
+            # event_data is now a list of events (one per day)
+            if isinstance(event_data, list):
+                logger.info(f"Contract {contract.id} generated {len(event_data)} daily events")
+                events.extend(event_data)
+            else:
+                # Backward compatibility if old format
+                logger.info(f"Contract {contract.id} generated 1 event (old format)")
+                events.append(event_data)
+        else:
+            logger.warning(f"Contract {contract.id} returned no events (missing dates?)")
+    
+    logger.info(f"Calendar API: Returning {len(events)} total events")
+    
+    return JsonResponse(events, safe=False)
+
+
+@login_required
+def check_contract_conflict(request):
+    """
+    API endpoint to check if a contract has time conflicts
+    Expects POST with: start_date, end_date, start_time, end_time
+    """
+    if request.method != 'POST':
+        return JsonResponse({'error': 'POST required'}, status=400)
+    
+    try:
+        data = json.loads(request.body)
+        start_date = datetime.strptime(data['start_date'], '%Y-%m-%d').date()
+        end_date = datetime.strptime(data['end_date'], '%Y-%m-%d').date()
+        start_time = datetime.strptime(data['start_time'], '%H:%M').time()
+        end_time = datetime.strptime(data['end_time'], '%H:%M').time()
+        contract_id = data.get('contract_id')  # Optional, for editing existing contract
+        
+        # Create a temporary contract to check conflicts
+        temp_contract = Contract(
+            worker=request.user,
+            start_date=start_date,
+            end_date=end_date,
+            start_time=start_time,
+            end_time=end_time,
+            pk=contract_id  # If editing, use existing ID
+        )
+        
+        conflicts = temp_contract.check_time_conflict()
+        
+        if conflicts:
+            return JsonResponse({
+                'has_conflict': True,
+                'conflicts': conflicts
+            })
+        else:
+            return JsonResponse({
+                'has_conflict': False,
+                'message': 'No time conflicts found'
+            })
+    
+    except Exception as e:
+        return JsonResponse({'error': str(e)}, status=400)

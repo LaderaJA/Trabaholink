@@ -13,15 +13,67 @@ from simple_history.models import HistoricalRecords
 from django.contrib.gis.measure import D
 from django.contrib.gis.db.models.functions import Distance
 from notifications.models import Notification
+from .validators import validate_video_file
 
 
 CustomUser = get_user_model()
 
-class JobCategory(models.Model):
-    name = models.CharField(max_length=255, unique=True)
-
+class GeneralCategory(models.Model):
+    """
+    Broad job categories for notification filtering
+    Examples: Construction, Delivery, Education, etc.
+    """
+    slug = models.SlugField(max_length=100, unique=True)
+    name = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    icon = models.CharField(max_length=50, blank=True, help_text="Font Awesome icon class")
+    created_at = models.DateTimeField(auto_now_add=True)
+    
+    class Meta:
+        verbose_name = "General Category"
+        verbose_name_plural = "General Categories"
+        ordering = ['name']
+    
     def __str__(self):
         return self.name
+
+
+class JobCategory(models.Model):
+    name = models.CharField(max_length=255, unique=True)
+    general_category = models.ForeignKey(
+        GeneralCategory,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name='job_categories',
+        help_text="Broad category this job belongs to"
+    )
+
+    def __str__(self):
+        # Handle modeltranslation - return the first non-empty name field
+        # Try: current language translation -> English -> Tagalog -> base name
+        from django.utils.translation import get_language
+        
+        current_lang = get_language()
+        
+        # Try current language first
+        if current_lang:
+            lang_field = f"name_{current_lang[:2]}"  # Get first 2 chars (e.g., 'en' from 'en-us')
+            if hasattr(self, lang_field):
+                value = getattr(self, lang_field)
+                if value and value.strip():
+                    return value
+        
+        # Fallback to English
+        if hasattr(self, 'name_en') and self.name_en and self.name_en.strip():
+            return self.name_en
+        
+        # Fallback to Tagalog
+        if hasattr(self, 'name_tl') and self.name_tl and self.name_tl.strip():
+            return self.name_tl
+        
+        # Final fallback to base name field
+        return self.name if self.name else "Unnamed Category"
 
 class Job(models.Model):
     owner = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name="posted_jobs")
@@ -49,7 +101,7 @@ class Job(models.Model):
     required_skills = models.TextField(blank=True)
     payment_method = models.CharField(
         max_length=50,
-        choices=[("Cash", "Cash"), ("GCash", "GCash"), ("Bank Transfer", "Bank Transfer")],
+        choices=[("Cash", "Cash")],
         default="Cash"
     )
     payment_schedule = models.CharField(max_length=100, blank=True)
@@ -112,11 +164,50 @@ class Job(models.Model):
         """Decrease vacancy count by 1 when a contract is finalized"""
         if self.vacancies > 0:
             self.vacancies -= 1
-            self.save(update_fields=['vacancies', 'updated_at'])  # Include updated_at to trigger refresh
+            
+            # Automatically deactivate job if no vacancies remain
+            if self.vacancies == 0:
+                self.is_active = False
+                self.save(update_fields=['vacancies', 'is_active', 'updated_at'])
+                
+                # Notify employer that all positions are filled
+                Notification.objects.create(
+                    user=self.owner,
+                    message=f"🎉 All positions for '{self.title}' have been filled! Your job posting has been automatically deactivated.",
+                    notif_type="job_post",
+                    object_id=self.pk,
+                )
+            else:
+                self.save(update_fields=['vacancies', 'updated_at'])
+            
             # Refresh from database to ensure we have the latest value
             self.refresh_from_db()
             return True
         return False
+    
+    def increment_vacancy(self):
+        """Increase vacancy count by 1 when a contract is cancelled and reactivate if needed"""
+        self.vacancies += 1
+        
+        # Reactivate job if it was deactivated due to no vacancies
+        # Only reactivate if the job hasn't expired
+        if not self.is_active and not self.is_expired():
+            self.is_active = True
+            self.save(update_fields=['vacancies', 'is_active', 'updated_at'])
+            
+            # Notify employer that job is reactivated
+            Notification.objects.create(
+                user=self.owner,
+                message=f"✅ Your job posting '{self.title}' has been reactivated due to a contract cancellation. You now have {self.vacancies} open position(s).",
+                notif_type="job_post",
+                object_id=self.pk,
+            )
+        else:
+            self.save(update_fields=['vacancies', 'updated_at'])
+        
+        # Refresh from database
+        self.refresh_from_db()
+        return True
     
     def get_applicant_count(self):
         """Get real-time count of applicants for this job"""
@@ -142,8 +233,24 @@ class Job(models.Model):
 
     def save(self, *args, **kwargs):
         # Initialize vacancies to match number_of_workers if creating new job
-        if not self.pk and not self.vacancies:
+        if not self.pk:
             self.vacancies = self.number_of_workers
+        else:
+            # When updating: if number_of_workers increased, increase vacancies accordingly
+            # This allows employers to add more positions to existing jobs
+            try:
+                old_job = Job.objects.get(pk=self.pk)
+                if self.number_of_workers > old_job.number_of_workers:
+                    # Increase vacancies by the difference
+                    increase = self.number_of_workers - old_job.number_of_workers
+                    self.vacancies = old_job.vacancies + increase
+                    
+                    # Reactivate job if it was deactivated and now has vacancies
+                    if old_job.vacancies == 0 and self.vacancies > 0 and not self.is_expired():
+                        self.is_active = True
+            except Job.DoesNotExist:
+                pass
+        
         # Load banned words
         banned_words = load_banned_words()
 
@@ -198,6 +305,32 @@ class JobApplication(models.Model):
         choices=STATUS_CHOICES,
         default="Pending"
     )
+    
+    # New: Hiring Workflow Status
+    WORKFLOW_STATUS_CHOICES = [
+        ('submitted', 'Application Submitted'),
+        ('under_review', 'Under Review'),
+        ('shortlisted', 'Shortlisted for Interview'),
+        ('interview_scheduled', 'Interview Scheduled'),
+        ('interviewed', 'Interview Completed'),
+        ('offer_pending', 'Offer Pending'),
+        ('contract_sent', 'Contract Sent'),
+        ('contract_negotiation', 'Contract Negotiation'),
+        ('hired', 'Hired'),
+        ('rejected', 'Rejected'),
+        ('withdrawn', 'Withdrawn')
+    ]
+    workflow_status = models.CharField(
+        max_length=30, 
+        choices=WORKFLOW_STATUS_CHOICES, 
+        default='submitted',
+        help_text="Current stage in the hiring workflow"
+    )
+    current_step = models.IntegerField(
+        default=1, 
+        help_text="Current step in hiring process (1-8)"
+    )
+    
     applied_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
     is_shortlisted = models.BooleanField(default=False)
@@ -284,8 +417,127 @@ class JobOffer(models.Model):
     def __str__(self):
         return f"Offer for {self.worker.username} - {self.job.title}"
     
+    def check_worker_availability(self):
+        """
+        Check if worker is available for this offer's schedule.
+        Returns a dict with 'available' (bool), 'conflicts' (list), and 'message' (str).
+        """
+        from datetime import time as dt_time
+        import re
+        
+        # Parse work_schedule for time information
+        start_time = None
+        end_time = None
+        
+        if self.work_schedule:
+            time_pattern = r'(\d{1,2})(?::(\d{2}))?\s*(AM|PM|am|pm)?\s*[-–]\s*(\d{1,2})(?::(\d{2}))?\s*(AM|PM|am|pm)?'
+            match = re.search(time_pattern, self.work_schedule)
+            
+            if match:
+                start_hour = int(match.group(1))
+                start_min = int(match.group(2)) if match.group(2) else 0
+                start_period = match.group(3).upper() if match.group(3) else None
+                
+                end_hour = int(match.group(4))
+                end_min = int(match.group(5)) if match.group(5) else 0
+                end_period = match.group(6).upper() if match.group(6) else None
+                
+                # Convert to 24-hour format
+                if start_period == 'PM' and start_hour != 12:
+                    start_hour += 12
+                elif start_period == 'AM' and start_hour == 12:
+                    start_hour = 0
+                    
+                if end_period == 'PM' and end_hour != 12:
+                    end_hour += 12
+                elif end_period == 'AM' and end_hour == 12:
+                    end_hour = 0
+                
+                try:
+                    start_time = dt_time(start_hour, start_min)
+                    end_time = dt_time(end_hour, end_min)
+                except ValueError:
+                    pass
+        
+        # If we don't have time info, assume available (will be set during negotiation)
+        if not start_time or not end_time or not self.proposed_start_date:
+            return {
+                'available': True,
+                'conflicts': [],
+                'message': 'Schedule details will be finalized during negotiation.'
+            }
+        
+        # Use proposed_end_date or start_date as fallback
+        end_date = self.proposed_end_date or self.proposed_start_date
+        
+        # Check availability
+        result = WorkerAvailability.check_availability_for_contract(
+            worker=self.worker,
+            start_date=self.proposed_start_date,
+            end_date=end_date,
+            start_time=start_time,
+            end_time=end_time
+        )
+        
+        if result['available']:
+            return {
+                'available': True,
+                'conflicts': [],
+                'message': 'Worker is available for this schedule.'
+            }
+        else:
+            conflict_msgs = []
+            for conflict in result['conflicts'][:5]:
+                conflict_msgs.append(f"{conflict['date'].strftime('%a, %b %d')}: {conflict['reason']}")
+            
+            return {
+                'available': False,
+                'conflicts': result['conflicts'],
+                'message': 'Worker has schedule conflicts:\n' + '\n'.join(conflict_msgs)
+            }
+    
     def accept_offer(self):
         """Accept the offer and create a dedicated contract for this application"""
+        from datetime import time as dt_time
+        import re
+        
+        # Parse work_schedule for time information (e.g., "9AM-5PM" or "09:00-17:00")
+        start_time = None
+        end_time = None
+        
+        if self.work_schedule:
+            # Try to extract time from schedule string
+            # Pattern for formats like "9AM-5PM", "9:00AM-5:00PM", "09:00-17:00"
+            time_pattern = r'(\d{1,2})(?::(\d{2}))?\s*(AM|PM|am|pm)?\s*[-–]\s*(\d{1,2})(?::(\d{2}))?\s*(AM|PM|am|pm)?'
+            match = re.search(time_pattern, self.work_schedule)
+            
+            if match:
+                start_hour = int(match.group(1))
+                start_min = int(match.group(2)) if match.group(2) else 0
+                start_period = match.group(3).upper() if match.group(3) else None
+                
+                end_hour = int(match.group(4))
+                end_min = int(match.group(5)) if match.group(5) else 0
+                end_period = match.group(6).upper() if match.group(6) else None
+                
+                # Convert to 24-hour format if AM/PM specified
+                if start_period == 'PM' and start_hour != 12:
+                    start_hour += 12
+                elif start_period == 'AM' and start_hour == 12:
+                    start_hour = 0
+                    
+                if end_period == 'PM' and end_hour != 12:
+                    end_hour += 12
+                elif end_period == 'AM' and end_hour == 12:
+                    end_hour = 0
+                
+                try:
+                    start_time = dt_time(start_hour, start_min)
+                    end_time = dt_time(end_hour, end_min)
+                except ValueError:
+                    # Invalid time values, keep as None
+                    pass
+        
         self.status = "Accepted"
         self.responded_at = timezone.now()
         self.save(update_fields=["status", "responded_at", "updated_at"])
@@ -306,9 +558,11 @@ class JobOffer(models.Model):
             rate_type="fixed",
             payment_schedule=self.job.payment_schedule or "End of Project",
             duration=self.job.duration or "To be determined",
-            schedule=self.job.schedule or "To be determined",
+            schedule=self.work_schedule or self.job.schedule or "To be determined",
             start_date=self.proposed_start_date,
             end_date=self.proposed_end_date,
+            start_time=start_time,
+            end_time=end_time,
             terms=self.terms_and_conditions or "",
         )
 
@@ -376,6 +630,8 @@ class Contract(models.Model):
     duration = models.CharField(max_length=100, blank=True)
     schedule = models.CharField(max_length=255, blank=True)
     start_date = models.DateField(null=True, blank=True)
+    start_time = models.TimeField(null=True, blank=True, help_text="Daily start time (e.g., 9:00 AM)")
+    end_time = models.TimeField(null=True, blank=True, help_text="Daily end time (e.g., 5:00 PM)")
     notes = models.TextField(blank=True, help_text="Special terms or notes")
     terms = models.TextField(blank=True, help_text="Contract terms and conditions")
     
@@ -446,6 +702,142 @@ class Contract(models.Model):
         self.termination_requested_at = timezone.now()
         self.save()
     
+    def check_time_conflict(self):
+        """Check if this contract conflicts with worker's existing contracts"""
+        if not self.start_date or not self.end_date or not self.start_time or not self.end_time:
+            return None
+        
+        # Get all active contracts for this worker (excluding this contract)
+        worker_contracts = Contract.objects.filter(
+            worker=self.worker,
+            status__in=['Finalized', 'In Progress', 'Awaiting Review']
+        ).exclude(pk=self.pk)
+        
+        conflicts = []
+        for contract in worker_contracts:
+            if not contract.start_date or not contract.end_date or not contract.start_time or not contract.end_time:
+                continue
+            
+            # Check if date ranges overlap
+            date_overlap = (
+                self.start_date <= contract.end_date and 
+                self.end_date >= contract.start_date
+            )
+            
+            if date_overlap:
+                # Check if time ranges overlap
+                time_overlap = (
+                    self.start_time < contract.end_time and 
+                    self.end_time > contract.start_time
+                )
+                
+                if time_overlap:
+                    conflicts.append({
+                        'contract': contract,
+                        'job_title': contract.job_title or contract.job.title,
+                        'dates': f"{contract.start_date} to {contract.end_date}",
+                        'times': f"{contract.start_time.strftime('%I:%M %p')} - {contract.end_time.strftime('%I:%M %p')}"
+                    })
+        
+        return conflicts if conflicts else None
+    
+    @staticmethod
+    def get_worker_schedule(worker, start_date=None, end_date=None):
+        """Get all contracts for a worker in a date range"""
+        contracts = Contract.objects.filter(
+            worker=worker,
+            status__in=['Finalized', 'In Progress', 'Awaiting Review', 'Completed']
+        ).select_related('job', 'client')
+        
+        if start_date:
+            contracts = contracts.filter(end_date__gte=start_date)
+        if end_date:
+            contracts = contracts.filter(start_date__lte=end_date)
+        
+        return contracts.order_by('start_date', 'start_time')
+    
+    def get_calendar_event_data(self):
+        """
+        Return contract data in FullCalendar format with DAILY recurring events.
+        This creates one event per day showing actual work hours, perfect for week view.
+        """
+        if not self.start_date or not self.end_date:
+            return None
+        
+        from datetime import datetime, time as dt_time, timedelta
+        
+        start_time = self.start_time or dt_time(9, 0)  # Default 9:00 AM
+        end_time = self.end_time or dt_time(17, 0)  # Default 5:00 PM
+        
+        events = []
+        current_date = self.start_date
+        
+        # Generate unique color for this contract based on job ID
+        color = self._get_contract_color()
+        
+        # Create one event per day showing daily work hours
+        while current_date <= self.end_date:
+            events.append({
+                'id': f"{self.pk}_{current_date.strftime('%Y%m%d')}",
+                'title': self.job_title or self.job.title,
+                'start': f"{current_date}T{start_time.strftime('%H:%M:%S')}",
+                'end': f"{current_date}T{end_time.strftime('%H:%M:%S')}",
+                'backgroundColor': color,
+                'borderColor': color,
+                'textColor': '#ffffff',
+                'extendedProps': {
+                    'contractId': self.pk,
+                    'status': self.status,
+                    'client': self.client.get_full_name() or self.client.username,
+                    'rate': str(self.agreed_rate) if self.agreed_rate else 'N/A',
+                    'description': self.job_description[:100] if self.job_description else '',
+                    'workHours': f"{start_time.strftime('%I:%M %p')} - {end_time.strftime('%I:%M %p')}"
+                }
+            })
+            current_date += timedelta(days=1)
+        
+        return events
+    
+    def _get_status_color(self):
+        """Get color based on contract status (kept for backward compatibility)"""
+        colors = {
+            'Negotiation': '#f59e0b',  # Orange
+            'Finalized': '#3b82f6',    # Blue
+            'In Progress': '#10b981',  # Green
+            'Awaiting Review': '#8b5cf6',  # Purple
+            'Completed': '#6b7280',    # Gray
+            'Cancelled': '#ef4444'     # Red
+        }
+        return colors.get(self.status, '#6b7280')
+    
+    def _get_contract_color(self):
+        """
+        Generate a unique, distinct color for each contract.
+        Uses job ID to ensure same job always gets same color.
+        """
+        # Palette of distinct, professional colors
+        color_palette = [
+            '#3b82f6',  # Blue
+            '#10b981',  # Green
+            '#f59e0b',  # Orange
+            '#8b5cf6',  # Purple
+            '#ef4444',  # Red
+            '#06b6d4',  # Cyan
+            '#ec4899',  # Pink
+            '#f97316',  # Orange-red
+            '#14b8a6',  # Teal
+            '#a855f7',  # Purple-pink
+            '#84cc16',  # Lime
+            '#f43f5e',  # Rose
+            '#6366f1',  # Indigo
+            '#eab308',  # Yellow
+            '#22c55e',  # Green-lime
+        ]
+        
+        # Use job ID to pick color (same job always same color)
+        index = self.job.id % len(color_palette)
+        return color_palette[index]
+    
     def __str__(self):
         return f"Contract for {self.job.title} - {self.worker.username}"
 
@@ -455,6 +847,13 @@ class JobProgress(models.Model):
     contract = models.ForeignKey(Contract, on_delete=models.CASCADE, related_name="progress_updates")
     update_text = models.TextField(help_text="Progress update description")
     image = models.ImageField(upload_to='progress_images/', blank=True, null=True, help_text="Optional progress photo")
+    video = models.FileField(
+        upload_to='progress_videos/', 
+        blank=True, 
+        null=True,
+        validators=[validate_video_file],
+        help_text="Optional progress video (max 30 seconds, 25MB)"
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_by = models.ForeignKey(CustomUser, on_delete=models.SET_NULL, null=True)
     
@@ -492,6 +891,97 @@ class Feedback(models.Model):
         return f"Feedback from {self.giver.username} for {self.receiver.username} - {self.rating} stars"
 
 
+class InterviewSchedule(models.Model):
+    """Manage interview scheduling for job applications"""
+    application = models.OneToOneField(JobApplication, on_delete=models.CASCADE, related_name='interview')
+    scheduled_by = models.ForeignKey(CustomUser, on_delete=models.CASCADE, related_name='scheduled_interviews')
+    
+    # Interview Details
+    scheduled_datetime = models.DateTimeField(help_text="When the interview is scheduled")
+    duration_minutes = models.IntegerField(default=30, help_text="Interview duration in minutes")
+    
+    INTERVIEW_TYPE_CHOICES = [
+        ('video', 'Video Call'),
+        ('phone', 'Phone Call'),
+        ('in_person', 'In Person')
+    ]
+    interview_type = models.CharField(max_length=20, choices=INTERVIEW_TYPE_CHOICES, default='video')
+    
+    # Video Conference (Jitsi Meet)
+    video_room_id = models.CharField(max_length=100, blank=True, help_text="Jitsi room ID")
+    video_room_url = models.URLField(blank=True, help_text="Jitsi room URL")
+    
+    # Status
+    STATUS_CHOICES = [
+        ('scheduled', 'Scheduled'),
+        ('rescheduled', 'Rescheduled'),
+        ('completed', 'Completed'),
+        ('cancelled', 'Cancelled'),
+        ('no_show', 'No Show')
+    ]
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='scheduled')
+    
+    # Interview Notes & Feedback
+    employer_notes = models.TextField(blank=True, help_text="Notes before interview")
+    interview_feedback = models.TextField(blank=True, help_text="Feedback after interview")
+    interview_rating = models.IntegerField(null=True, blank=True, help_text="1-5 rating of candidate")
+    
+    # Meeting details
+    meeting_notes = models.TextField(blank=True, help_text="Additional meeting instructions")
+    phone_number = models.CharField(max_length=20, blank=True, help_text="Phone number for phone interviews")
+    location_address = models.TextField(blank=True, help_text="Address for in-person interviews")
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    completed_at = models.DateTimeField(null=True, blank=True)
+    
+    # Reminder tracking
+    reminder_sent_employer = models.BooleanField(default=False)
+    reminder_sent_worker = models.BooleanField(default=False)
+    
+    class Meta:
+        ordering = ['-scheduled_datetime']
+        verbose_name = "Interview Schedule"
+        verbose_name_plural = "Interview Schedules"
+    
+    def __str__(self):
+        return f"Interview for {self.application.worker.username} - {self.application.job.title} on {self.scheduled_datetime.strftime('%b %d, %Y at %I:%M %p')}"
+    
+    def is_upcoming(self):
+        """Check if interview is in the future"""
+        from datetime import timedelta
+        return self.scheduled_datetime > timezone.now() and self.status == 'scheduled'
+    
+    def can_join(self):
+        """Check if interview can be joined (5 minutes before to 30 minutes after)"""
+        from datetime import timedelta
+        now = timezone.now()
+        start_time = self.scheduled_datetime - timedelta(minutes=5)
+        end_time = self.scheduled_datetime + timedelta(minutes=self.duration_minutes + 30)
+        return start_time <= now <= end_time and self.status == 'scheduled'
+    
+    def mark_completed(self, feedback="", rating=None):
+        """Mark interview as completed"""
+        self.status = 'completed'
+        self.completed_at = timezone.now()
+        if feedback:
+            self.interview_feedback = feedback
+        if rating:
+            self.interview_rating = rating
+        self.save()
+        
+        # Update application workflow status
+        self.application.workflow_status = 'interviewed'
+        self.application.current_step = 4
+        self.application.save()
+    
+    def cancel(self):
+        """Cancel the interview"""
+        self.status = 'cancelled'
+        self.save()
+
+
 @receiver(post_save, sender=Job)
 def notify_users_about_new_job(sender, instance, created, **kwargs):
     if created:
@@ -507,19 +997,291 @@ def notify_users_about_new_job(sender, instance, created, **kwargs):
 
 @receiver(post_save, sender=Job)
 def notify_workers_about_new_job(sender, instance, created, **kwargs):
+    """
+    Send notifications to WORKERS based on their notification preferences.
+    OPTIMIZATION: Checks category FIRST (cheap), then distance (expensive).
+    Only workers (role='worker') receive job notifications.
+    """
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    # Debug: Log all job saves
+    logger.info(f"[NOTIFICATION] Job saved: {instance.title} (ID: {instance.pk})")
+    logger.info(f"[NOTIFICATION]   - Created: {created}")
+    logger.info(f"[NOTIFICATION]   - Has location: {bool(instance.location)}")
+    
+    if not created:
+        logger.info(f"[NOTIFICATION]   - SKIP: Job was updated, not created")
+        return
+    
+    if not instance.location:
+        logger.info(f"[NOTIFICATION]   - SKIP: Job has no location")
+        return
+    
     if created and instance.location:
-        # Filter workers whose notification_location is set and within 5 km
-        # Exclude the job owner from notifications
-        nearby_workers = CustomUser.objects.filter(
-            is_worker=True,
-            notification_location__isnull=False,
-            notification_location__distance_lte=(instance.location, D(km=5))
-        ).exclude(id=instance.owner.id).annotate(distance=Distance("notification_location", instance.location)).order_by("distance")
+        from users.models import NotificationPreference
+        import logging
+        logger = logging.getLogger(__name__)
         
-        for worker in nearby_workers:
+        logger.info(f"[NOTIFICATION] New job created: {instance.title} (ID: {instance.pk})")
+        logger.info(f"[NOTIFICATION] Job location: {instance.location}")
+        logger.info(f"[NOTIFICATION] Job category: {instance.category}")
+        
+        # Get job's general category once
+        job_general_category = instance.category.general_category if instance.category else None
+        logger.info(f"[NOTIFICATION] Job general category: {job_general_category}")
+        
+        # Get all active notification preferences with location set (WORKERS ONLY)
+        preferences = NotificationPreference.objects.filter(
+            is_active=True,
+            notification_location__isnull=False,
+            user__role='worker'  # Only notify workers
+        ).exclude(user=instance.owner).select_related('user').prefetch_related('preferred_categories')
+        
+        logger.info(f"[NOTIFICATION] Found {preferences.count()} active worker preferences")
+        
+        notifications_sent = 0
+        for pref in preferences:
+            logger.info(f"[NOTIFICATION] Checking worker: {pref.user.username}")
+            logger.info(f"[NOTIFICATION]   - Radius: {pref.notification_radius_km} km")
+            logger.info(f"[NOTIFICATION]   - Location: {pref.notification_location}")
+            logger.info(f"[NOTIFICATION]   - Categories count: {pref.preferred_categories.count()}")
+            
+            # STEP 1: Check category FIRST (fast database lookup, no calculations)
+            if pref.preferred_categories.exists():
+                # Worker has category preferences - check if job matches
+                if not job_general_category:
+                    logger.info(f"[NOTIFICATION]   - SKIP: Job has no general category")
+                    continue  # Job has no category, skip this worker
+                
+                if not pref.preferred_categories.filter(id=job_general_category.id).exists():
+                    logger.info(f"[NOTIFICATION]   - SKIP: Category mismatch")
+                    continue  # Job category doesn't match worker's preferences, skip
+                
+                logger.info(f"[NOTIFICATION]   - PASS: Category matches!")
+            else:
+                logger.info(f"[NOTIFICATION]   - PASS: Worker accepts all categories")
+            
+            # STEP 2: Only calculate distance if category matches (or worker accepts all categories)
+            # This is expensive (GIS calculation), so we do it last
+            distance_km = float(pref.notification_radius_km) if pref.notification_radius_km else 5.0
+            
+            # Calculate distance between job and worker's notification location
+            try:
+                actual_distance = instance.location.distance(pref.notification_location)
+                
+                # Handle both Distance object and float (geography field returns float in meters)
+                if hasattr(actual_distance, 'm'):
+                    distance_meters = actual_distance.m
+                else:
+                    # Already in meters (geography field)
+                    distance_meters = float(actual_distance)
+                
+                logger.info(f"[NOTIFICATION]   - Distance: {distance_meters:.2f}m ({distance_meters/1000:.2f}km)")
+                logger.info(f"[NOTIFICATION]   - Max radius: {distance_km}km ({distance_km * 1000}m)")
+                
+                # Convert to meters for comparison
+                if distance_meters <= (distance_km * 1000):
+                    logger.info(f"[NOTIFICATION]   - ✅ SENDING notification!")
+                    # Job matches category AND is within radius - send notification
+                    send_job_notification(pref.user, instance, distance_km)
+                    notifications_sent += 1
+                else:
+                    logger.info(f"[NOTIFICATION]   - SKIP: Outside radius")
+            except (AttributeError, TypeError) as e:
+                logger.error(f"[NOTIFICATION]   - ERROR: Distance calculation failed: {e}")
+                # Skip if distance calculation fails
+                continue
+        
+        logger.info(f"[NOTIFICATION] Total notifications sent: {notifications_sent}")
+
+
+def send_job_notification(worker, job, radius_km):
+    """Helper function to create job notification"""
+    # Calculate actual distance for display
+    from django.contrib.gis.measure import D
+    from users.models import NotificationPreference
+    import logging
+    logger = logging.getLogger(__name__)
+    
+    try:
+        pref = NotificationPreference.objects.get(user=worker)
+        if pref.notification_location and job.location:
+            distance_obj = job.location.distance(pref.notification_location)
+            
+            # Handle both Distance object and float (geography field returns float in meters)
+            if hasattr(distance_obj, 'm'):
+                distance_meters = distance_obj.m
+            else:
+                distance_meters = float(distance_obj)
+            
+            distance_km = distance_meters / 1000  # Convert meters to km
+            
+            logger.info(f"[NOTIFICATION] Creating notification for {worker.username}: {distance_km:.1f}km away")
+            
             Notification.objects.create(
                 user=worker,
-                message=f"A new job '{instance.title}' has been posted near you. Click to view details.",
+                message=f"🎯 New job: '{job.title}' posted {distance_km:.1f}km from your location! {job.category.name if job.category else ''}",
                 notif_type="job_post",
-                object_id=instance.pk,
+                object_id=job.pk,
             )
+            logger.info(f"[NOTIFICATION] ✅ Notification created successfully!")
+    except Exception as e:
+        logger.error(f"[NOTIFICATION] ERROR creating notification: {e}")
+        # Fallback notification without distance
+        try:
+            Notification.objects.create(
+                user=worker,
+                message=f"🎯 New job: '{job.title}' has been posted near you. Click to view details.",
+                notif_type="job_post",
+                object_id=job.pk,
+            )
+            logger.info(f"[NOTIFICATION] ✅ Fallback notification created")
+        except Exception as e2:
+            logger.error(f"[NOTIFICATION] ❌ Failed to create fallback notification: {e2}")
+
+
+class WorkerAvailability(models.Model):
+    """
+    Manage worker's available working hours per day to prevent schedule conflicts.
+    Workers can set their preferred working hours for each day of the week.
+    """
+    DAYS_OF_WEEK = [
+        (0, 'Monday'),
+        (1, 'Tuesday'),
+        (2, 'Wednesday'),
+        (3, 'Thursday'),
+        (4, 'Friday'),
+        (5, 'Saturday'),
+        (6, 'Sunday'),
+    ]
+    
+    worker = models.ForeignKey(
+        CustomUser, 
+        on_delete=models.CASCADE, 
+        related_name="work_availability"
+    )
+    day_of_week = models.IntegerField(choices=DAYS_OF_WEEK)
+    start_time = models.TimeField(help_text="Available start time")
+    end_time = models.TimeField(help_text="Available end time")
+    is_available = models.BooleanField(default=True, help_text="Toggle availability for this day")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        ordering = ['day_of_week', 'start_time']
+        verbose_name_plural = "Worker Availabilities"
+        unique_together = ['worker', 'day_of_week', 'start_time']
+    
+    def __str__(self):
+        day_name = dict(self.DAYS_OF_WEEK)[self.day_of_week]
+        return f"{self.worker.username} - {day_name} {self.start_time.strftime('%I:%M %p')} to {self.end_time.strftime('%I:%M %p')}"
+    
+    def check_conflict_with_contract(self, contract):
+        """
+        Check if this availability slot conflicts with a contract's schedule.
+        Returns True if there's a conflict, False otherwise.
+        """
+        if not contract.start_time or not contract.end_time:
+            return False
+        
+        # Check if time ranges overlap
+        time_overlap = (
+            self.start_time < contract.end_time and 
+            self.end_time > contract.start_time
+        )
+        
+        return time_overlap
+    
+    @staticmethod
+    def get_worker_availability(worker, day_of_week=None):
+        """Get worker's availability schedule"""
+        availability = WorkerAvailability.objects.filter(
+            worker=worker,
+            is_available=True
+        )
+        
+        if day_of_week is not None:
+            availability = availability.filter(day_of_week=day_of_week)
+        
+        return availability.order_by('day_of_week', 'start_time')
+    
+    @staticmethod
+    def check_availability_for_contract(worker, start_date, end_date, start_time, end_time):
+        """
+        Check if worker is available for the proposed contract schedule.
+        Priority: Check TIME conflicts first (most important), then availability slots.
+        Returns a dict with 'available' (bool) and 'conflicts' (list of conflicting days).
+        """
+        from datetime import timedelta
+        
+        conflicts = []
+        current_date = start_date
+        
+        # Get all active contracts for this worker
+        existing_contracts = Contract.objects.filter(
+            worker=worker,
+            status__in=['Finalized', 'In Progress', 'Awaiting Review']
+        ).exclude(start_date__isnull=True).exclude(end_date__isnull=True)
+        
+        while current_date <= end_date:
+            day_of_week = current_date.weekday()  # 0=Monday, 6=Sunday
+            
+            # PRIORITY 1: Check for time conflicts with existing contracts on this date
+            has_time_conflict = False
+            for contract in existing_contracts:
+                # Check if this contract overlaps with current_date
+                if contract.start_date <= current_date <= contract.end_date:
+                    # Check if times conflict (same date, overlapping times)
+                    if contract.start_time and contract.end_time:
+                        # Time ranges overlap if: start_time < other.end_time AND end_time > other.start_time
+                        if start_time < contract.end_time and end_time > contract.start_time:
+                            has_time_conflict = True
+                            conflicts.append({
+                                'date': current_date,
+                                'reason': f'Time conflict with "{contract.job_title or contract.job.title}" ({contract.start_time.strftime("%I:%M %p")} - {contract.end_time.strftime("%I:%M %p")})'
+                            })
+                            break  # One conflict per day is enough
+            
+            # Skip further checks if time conflict found (most important)
+            if has_time_conflict:
+                current_date += timedelta(days=1)
+                continue
+            
+            # PRIORITY 2: Check worker's availability settings for this day
+            day_availability = WorkerAvailability.objects.filter(
+                worker=worker,
+                day_of_week=day_of_week,
+                is_available=True
+            )
+            
+            if not day_availability.exists():
+                conflicts.append({
+                    'date': current_date,
+                    'reason': 'Worker not available on this day of week'
+                })
+            else:
+                # Check if requested time falls within any availability slot
+                has_matching_slot = False
+                for slot in day_availability:
+                    # Time must be fully within the slot
+                    if start_time >= slot.start_time and end_time <= slot.end_time:
+                        has_matching_slot = True
+                        break
+                
+                if not has_matching_slot:
+                    # Show available times for this day
+                    available_times = [f"{slot.start_time.strftime('%I:%M %p')}-{slot.end_time.strftime('%I:%M %p')}" 
+                                      for slot in day_availability]
+                    conflicts.append({
+                        'date': current_date,
+                        'reason': f'Time {start_time.strftime("%I:%M %p")}-{end_time.strftime("%I:%M %p")} not in available slots: {", ".join(available_times)}'
+                    })
+            
+            current_date += timedelta(days=1)
+        
+        return {
+            'available': len(conflicts) == 0,
+            'conflicts': conflicts
+        }

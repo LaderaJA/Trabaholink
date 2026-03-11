@@ -1,0 +1,344 @@
+{% load i18n %}
+
+<!-- Language Switcher - Desktop Dropdown / Mobile Toggle -->
+<div class="tl-language-menu position-relative">
+    {% get_current_language as LANGUAGE_CODE %}
+    
+    <!-- Desktop: Dropdown button -->
+    <button class="tl-language-button desktop-only" id="languageMenuBtn" type="button" aria-expanded="false" aria-haspopup="true" title="{% trans 'Language' %}">
+        <span class="language-code">{% if LANGUAGE_CODE == 'en' %}EN{% elif LANGUAGE_CODE == 'tl' %}TL{% else %}{{ LANGUAGE_CODE|upper }}{% endif %}</span>
+        <i class="bi bi-chevron-down" style="font-size: 0.7rem; opacity: 0.6;"></i>
+    </button>
+
+    <!-- Desktop: Dropdown menu -->
+    <div class="tl-language-dropdown" id="languageDropdown" role="menu" aria-label="Language options">
+        <form action="{% url 'set_language' %}" method="post" style="margin: 0;">
+            {% csrf_token %}
+            <input name="next" type="hidden" value="{{ request.get_full_path }}">
+            
+            <button type="submit" name="language" value="en" class="language-option {% if LANGUAGE_CODE == 'en' %}active{% endif %}" role="menuitem">
+                <span class="language-name">English</span>
+            </button>
+            
+            <button type="submit" name="language" value="tl" class="language-option {% if LANGUAGE_CODE == 'tl' %}active{% endif %}" role="menuitem">
+                <span class="language-name">Tagalog</span>
+            </button>
+        </form>
+    </div>
+    
+    <!-- Mobile: Toggle button (switches language directly) -->
+    <form action="{% url 'set_language' %}" method="post" style="margin: 0; width: 100%;" class="mobile-only">
+        {% csrf_token %}
+        <input name="next" type="hidden" value="{{ request.get_full_path }}">
+        <input name="language" type="hidden" value="{% if LANGUAGE_CODE == 'en' %}tl{% else %}en{% endif %}">
+        
+        <button type="submit" class="tl-language-toggle" title="{% trans 'Switch Language' %}">
+            <i class="bi bi-translate"></i>
+            <span class="toggle-text">
+                {% if LANGUAGE_CODE == 'en' %}
+                    <span class="current">English</span>
+                    <i class="bi bi-arrow-left-right mx-2"></i>
+                    <span class="switch-to">Tagalog</span>
+                {% else %}
+                    <span class="current">Tagalog</span>
+                    <i class="bi bi-arrow-left-right mx-2"></i>
+                    <span class="switch-to">English</span>
+                {% endif %}
+            </span>
+        </button>
+    </form>
+</div>
+
+<style>
+    /* ===== LANGUAGE SWITCHER - TRABAHOLINK DESIGN ===== */
+    
+    /* Language Menu Container */
+    .tl-language-menu {
+        position: relative;
+        display: inline-block;
+    }
+    
+    /* Language Button - Minimalist & Subtle */
+    .tl-language-button {
+        display: flex;
+        align-items: center;
+        gap: 0.25rem;
+        padding: 0.375rem 0.625rem;
+        background: transparent;
+        border: 1px solid #e2e8f0;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: all 0.15s ease;
+        font-size: 0.75rem;
+        font-weight: 500;
+        color: #64748b;
+        white-space: nowrap;
+    }
+    
+    .tl-language-button:hover {
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        color: #475569;
+    }
+    
+    .language-code {
+        font-weight: 600;
+        letter-spacing: 0.05em;
+        font-size: 0.75rem;
+    }
+    
+    /* Language Dropdown - Minimalist */
+    .tl-language-dropdown {
+        position: absolute;
+        top: calc(100% + 0.5rem);
+        right: 0;
+        min-width: 120px;
+        max-width: 150px;
+        background: #FFFFFF;
+        border: 1px solid #e2e8f0;
+        border-radius: 8px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        opacity: 0;
+        visibility: hidden;
+        transform: translateY(-8px);
+        transition: all 0.15s ease;
+        z-index: 1050;
+        overflow: hidden;
+        display: none;
+    }
+    
+    /* Prevent body scroll when dropdown is showing */
+    .tl-language-menu {
+        position: relative;
+        overflow: visible;
+    }
+    
+    /* Calculate dropdown position dynamically */
+    .tl-language-dropdown.show {
+        display: block;
+        opacity: 1;
+        visibility: visible;
+        transform: translateY(0);
+    }
+    
+    /* Language Options - Minimal */
+    .language-option {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 0.5rem 0.75rem;
+        background: transparent;
+        border: none;
+        color: #64748b;
+        font-size: 0.8125rem;
+        font-weight: 500;
+        cursor: pointer;
+        transition: all 0.1s ease;
+        text-align: center;
+    }
+    
+    .language-option:hover {
+        background: #f8fafc;
+        color: #334155;
+    }
+    
+    .language-option.active {
+        background: #eff6ff;
+        color: #3b82f6;
+        font-weight: 600;
+    }
+    
+    .language-name {
+        white-space: nowrap;
+    }
+    
+    /* Desktop/Mobile Toggle */
+    .desktop-only {
+        display: inline-flex;
+    }
+    
+    .mobile-only {
+        display: none;
+    }
+    
+    /* Mobile Toggle Button */
+    .tl-language-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        width: 100%;
+        padding: 0.75rem 1rem;
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        border: 1px solid #3b82f6;
+        border-radius: 8px;
+        cursor: pointer;
+        transition: all 0.2s ease;
+        font-size: 0.875rem;
+        font-weight: 500;
+        color: #1e40af;
+    }
+    
+    .tl-language-toggle:hover {
+        background: linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 8px rgba(59, 130, 246, 0.2);
+    }
+    
+    .tl-language-toggle i.bi-translate {
+        font-size: 1.25rem;
+    }
+    
+    .toggle-text {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+    }
+    
+    .toggle-text .current {
+        font-weight: 600;
+    }
+    
+    .toggle-text .switch-to {
+        font-weight: 400;
+        opacity: 0.8;
+    }
+    
+    /* Mobile & Tablet Responsive - Toggle Button */
+    @media (max-width: 1024px) {
+        .desktop-only {
+            display: none !important;
+        }
+        
+        .mobile-only {
+            display: block;
+        }
+        
+        .tl-language-dropdown {
+            display: none !important;
+        }
+        
+        .tl-language-menu {
+            width: 100%;
+        }
+        
+        /* Tablet specific adjustments */
+        @media (min-width: 769px) {
+            .tl-language-toggle {
+                font-size: 0.9375rem;
+                padding: 0.875rem 1.25rem;
+            }
+            
+            .tl-language-toggle i.bi-translate {
+                font-size: 1.5rem;
+            }
+        }
+    }
+    
+    /* Desktop Only - Dropdown */
+    @media (min-width: 1025px) {
+        .desktop-only {
+            display: inline-flex !important;
+        }
+        
+        .mobile-only {
+            display: none !important;
+        }
+    }
+    
+    /* Prevent horizontal scroll */
+    body:has(.tl-language-dropdown.show) {
+        overflow-x: hidden;
+    }
+    
+    /* Focus styles for accessibility */
+    .tl-language-button:focus {
+        outline: 2px solid #3b82f6;
+        outline-offset: 2px;
+    }
+    
+    .language-option:focus {
+        outline: none;
+        background: linear-gradient(135deg, #eff6ff 0%, #dbeafe 100%);
+        color: #1e40af;
+    }
+</style>
+
+<script>
+    // Language Switcher Dropdown JavaScript
+    document.addEventListener('DOMContentLoaded', function() {
+        const languageBtn = document.getElementById('languageMenuBtn');
+        const languageDropdown = document.getElementById('languageDropdown');
+        
+        if (languageBtn && languageDropdown) {
+            // Position dropdown relative to button
+            function positionDropdown() {
+                // Check if we're in mobile menu (hamburger)
+                const isMobileMenu = window.innerWidth <= 768;
+                
+                if (isMobileMenu) {
+                    // In mobile menu, use static positioning
+                    languageDropdown.style.position = 'static';
+                    languageDropdown.style.top = 'auto';
+                    languageDropdown.style.right = 'auto';
+                    languageDropdown.style.left = 'auto';
+                    return;
+                }
+                
+                // Desktop positioning - reset to default
+                languageDropdown.style.position = '';
+                languageDropdown.style.top = '';
+                languageDropdown.style.right = '';
+                languageDropdown.style.left = '';
+            }
+            
+            // Toggle dropdown
+            languageBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                e.preventDefault();
+                
+                const isOpen = languageDropdown.classList.contains('show');
+                
+                if (!isOpen) {
+                    positionDropdown();
+                }
+                
+                languageDropdown.classList.toggle('show');
+                languageBtn.setAttribute('aria-expanded', 
+                    languageDropdown.classList.contains('show'));
+            });
+            
+            // Close dropdown when clicking outside
+            document.addEventListener('click', function(e) {
+                if (!languageBtn.contains(e.target) && !languageDropdown.contains(e.target)) {
+                    languageDropdown.classList.remove('show');
+                    languageBtn.setAttribute('aria-expanded', 'false');
+                }
+            });
+            
+            // Close dropdown on escape key
+            document.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape' && languageDropdown.classList.contains('show')) {
+                    languageDropdown.classList.remove('show');
+                    languageBtn.setAttribute('aria-expanded', 'false');
+                    languageBtn.focus();
+                }
+            });
+            
+            // Reposition on window resize
+            window.addEventListener('resize', function() {
+                if (languageDropdown.classList.contains('show')) {
+                    positionDropdown();
+                }
+            });
+            
+            // Reposition on scroll
+            window.addEventListener('scroll', function() {
+                if (languageDropdown.classList.contains('show')) {
+                    positionDropdown();
+                }
+            });
+        }
+    });
+</script>

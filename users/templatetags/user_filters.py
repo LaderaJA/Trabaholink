@@ -116,3 +116,15 @@ def file_color(file_field):
         return color_map.get(ext, '#64748b')
     except Exception:
         return '#64748b'
+
+
+@register.filter(name='get_item')
+def get_item(dictionary, key):
+    """
+    Get an item from a dictionary by key.
+    
+    Usage: {{ my_dict|get_item:my_key }}
+    """
+    if not dictionary:
+        return None
+    return dictionary.get(key)

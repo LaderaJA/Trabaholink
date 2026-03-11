@@ -1,66 +1,159 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load i18n %}
 {% load user_filters %}
+
+{% block extra_head %}
+  {% if privacy_settings and not privacy_settings.allow_search_engines %}
+    <meta name="robots" content="noindex, nofollow">
+  {% endif %}
+{% endblock %}
 
 {% block css %}
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
+/* ============================================================================
+   SITE-WIDE THEME - Matching Home, Postings & All Pages
+   ============================================================================ */
 :root {
-  /* Bacoor City Colors - Inspired by the flag and identity */
-  --bacoor-blue: #1e40af;
-  --bacoor-gold: #f59e0b;
-  --bacoor-red: #dc2626;
-  --bacoor-green: #059669;
-  --primary-color: #1e40af;
+  /* Primary Blue - Matches Site Logo & Navbar */
+  --primary-blue: #1e40af;
+  --primary-blue-light: #3b82f6;
+  --primary-blue-dark: #1e3a8a;
+  --yellow: #fbbf24;
+  --yellow-light: #fcd34d;
+  --yellow-dark: #f59e0b;
+  
+  /* Site-Wide Gradients */
+  --gradient-primary: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  --gradient-blue-yellow: linear-gradient(135deg, #1e40af 0%, #fbbf24 100%);
+  --gradient-yellow-blue: linear-gradient(135deg, #fbbf24 0%, #3b82f6 100%);
+  
+  /* Main Theme Colors */
+  --primary: #1e40af;
   --primary-dark: #1e3a8a;
-  --primary-light: #dbeafe;
-  --accent-gold: #f59e0b;
-  --accent-red: #dc2626;
-  --success-color: #059669;
-  --warning-color: #f59e0b;
-  --danger-color: #ef4444;
-  --text-dark: #0f172a;
-  --text-medium: #475569;
-  --text-light: #64748b;
-  --bg-light: #f8fafc;
+  --primary-light: #3b82f6;
+  --accent: #fbbf24;
+  --accent-dark: #f59e0b;
+  --success: #10b981;
+  --danger: #ef4444;
+  --info: #3b82f6;
+  
+  /* Rich Neutrals */
+  --gray-50: #fafbfc;
+  --gray-100: #f7f8fa;
+  --gray-200: #e5e7eb;
+  --gray-300: #d1d5db;
+  --gray-400: #9ca3af;
+  --gray-500: #6b7280;
+  --gray-600: #4b5563;
+  --gray-700: #374151;
+  --gray-800: #1f2937;
+  --gray-900: #111827;
+  
+  /* Premium Shadows with Depth */
+  --shadow-xs: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-sm: 0 2px 4px -1px rgba(0, 0, 0, 0.06), 0 2px 4px -1px rgba(0, 0, 0, 0.1);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  --shadow-colored: 0 8px 24px rgba(102, 126, 234, 0.25);
+  
+  /* Border Radius - Modern & Smooth */
+  --radius-sm: 10px;
+  --radius-md: 14px;
+  --radius-lg: 18px;
+  --radius-xl: 24px;
+  
+  /* Legacy Support */
+  --primary-color: var(--primary);
+  --primary-light: #e8ebfe;
+  --success-color: var(--success);
+  --warning-color: var(--accent);
+  --danger-color: var(--danger);
+  --text-dark: var(--gray-900);
+  --text-medium: var(--gray-600);
+  --text-light: var(--gray-500);
+  --bg-light: var(--gray-50);
   --bg-white: #ffffff;
-  --border-color: #e2e8f0;
-  --gradient-primary: linear-gradient(135deg, #1e40af 0%, #1e3a8a 100%);
-  --gradient-bacoor: linear-gradient(135deg, #1e40af 0%, #3b82f6 50%, #f59e0b 100%);
-  --shadow-sm: 0 1px 3px 0 rgba(0, 0, 0, 0.08);
-  --shadow-md: 0 4px 12px -1px rgba(0, 0, 0, 0.1);
-  --shadow-lg: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+  --border-color: var(--gray-200);
+  --accent-color: var(--accent);
+  --accent-gold: var(--accent);
+  --bacoor-blue: var(--primary);
+  --bacoor-gold: var(--accent-dark);
+  --gradient-bacoor: var(--gradient-blue-yellow);
 }
 
 body {
-  background: var(--bg-light);
+  background: #ffffff;
+  min-height: 100vh;
+  position: relative;
   font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   overflow-x: hidden;
 }
 
-/* Cover Photo Section - Bacoor Inspired */
+/* Animated Background Elements */
+body::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  right: -20%;
+  width: 800px;
+  height: 800px;
+  background: radial-gradient(circle, rgba(30, 64, 175, 0.05) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: float 20s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  bottom: -30%;
+  left: -20%;
+  width: 600px;
+  height: 600px;
+  background: radial-gradient(circle, rgba(251, 191, 36, 0.05) 0%, transparent 70%);
+  border-radius: 50%;
+  animation: float 15s ease-in-out infinite reverse;
+  pointer-events: none;
+  z-index: 0;
+}
+
+@keyframes float {
+  0%, 100% { transform: translate(0, 0) rotate(0deg); }
+  50% { transform: translate(30px, 30px) rotate(5deg); }
+}
+
+/* Cover Photo Section - Modern Gradient */
 .profile-cover-section {
   position: relative;
   height: 400px;
   overflow: hidden;
-  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-  background: var(--gradient-bacoor);
+  box-shadow: 0 4px 20px rgba(30, 64, 175, 0.15);
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  z-index: 1;
 }
 
-/* Bacoor Pattern Overlay */
+/* Animated Pattern Overlay */
 .profile-cover-section::before {
   content: '';
   position: absolute;
   top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background-image: 
-    repeating-linear-gradient(45deg, transparent, transparent 35px, rgba(255,255,255,0.03) 35px, rgba(255,255,255,0.03) 70px),
-    repeating-linear-gradient(-45deg, transparent, transparent 35px, rgba(255,255,255,0.02) 35px, rgba(255,255,255,0.02) 70px);
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.3), transparent);
+  animation: shine 3s ease-in-out infinite;
   z-index: 1;
+}
+
+@keyframes shine {
+  0% { left: -100%; }
+  50%, 100% { left: 100%; }
 }
 
 .profile-cover-photo {
@@ -73,6 +166,45 @@ body {
 
 .profile-cover-section:hover .profile-cover-photo {
   transform: scale(1.02);
+}
+
+/* View Cover Photo Text */
+.cover-view-text {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--primary-color);
+  padding: 1rem 2rem;
+  border-radius: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.1rem;
+  font-weight: 600;
+  opacity: 0;
+  transition: all 0.3s ease;
+  pointer-events: none;
+  z-index: 5;
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(10px);
+}
+
+.profile-cover-section:hover .cover-view-text {
+  opacity: 1;
+  transform: translate(-50%, -50%) scale(1.05);
+}
+
+.profile-cover-section.clickable {
+  cursor: pointer;
+}
+
+@media (max-width: 768px) {
+  .cover-view-text {
+    padding: 0.75rem 1.5rem;
+    font-size: 0.95rem;
+  }
 }
 
 .cover-overlay {
@@ -129,20 +261,25 @@ body {
 
 /* Stats Section */
 .stats-section {
-  background: var(--bg-light);
-  padding: 0;
+  background: transparent;
+  padding: 2rem 0;
+  position: relative;
+  z-index: 1;
 }
 
 /* Content Section */
 .content-section {
-  background: var(--bg-light);
-  padding: 0;
+  background: transparent;
+  padding: 2rem 0 4rem 0;
+  position: relative;
+  z-index: 1;
 }
 
 .profile-header-card-modern {
-  background: var(--bg-white);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
   border-radius: 24px;
-  border: 1px solid var(--border-color);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.08);
   padding: 2.5rem 3rem;
   margin-bottom: 2.5rem;
@@ -199,10 +336,77 @@ body {
   transition: all 0.3s;
   box-shadow: var(--shadow-sm);
   border: 2px solid var(--bg-white);
+  text-decoration: none;
+  font-size: 1rem;
 }
 
 .profile-picture-edit-modern:hover {
   transform: scale(1.1);
+  color: white;
+}
+
+@media (max-width: 768px) {
+  /* Overall font size reduction for mobile */
+  .profile-container-modern {
+    font-size: 0.9rem;
+  }
+  
+  .profile-picture-modern {
+    width: 100px;
+    height: 100px;
+  }
+  
+  .profile-picture-edit-modern {
+    display: none;
+  }
+  
+  .profile-name-modern {
+    font-size: 1.5rem;
+  }
+  
+  .profile-job-title-modern {
+    font-size: 0.9rem;
+  }
+  
+  .section-title-modern {
+    font-size: 1.1rem;
+  }
+  
+  .info-label-modern {
+    font-size: 0.85rem;
+  }
+  
+  .info-value-modern {
+    font-size: 0.9rem;
+  }
+  
+  .skill-item-modern {
+    font-size: 0.85rem;
+    padding: 0.4rem 0.75rem;
+  }
+  
+  .tab-button-modern {
+    font-size: 0.85rem;
+  }
+  
+  .stat-number-modern {
+    font-size: 1.75rem;
+  }
+  
+  .stat-label-modern {
+    font-size: 0.85rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-picture-modern {
+    width: 80px;
+    height: 80px;
+  }
+  
+  .profile-picture-edit-modern {
+    display: none;
+  }
 }
 
 .profile-info-section-modern {
@@ -222,12 +426,13 @@ body {
 
 .profile-name-row {
   display: flex;
-  align-items: baseline;
+  align-items: center;
   flex-wrap: wrap;
-  gap: 1rem;
+  gap: 0.75rem;
   padding-bottom: 0.75rem;
   border-bottom: 1px solid var(--border-color);
   margin-bottom: 0.75rem;
+  row-gap: 0.5rem;
 }
 
 .profile-name-modern {
@@ -236,10 +441,13 @@ body {
   color: #1a202c;
   margin: 0;
   letter-spacing: -0.02em;
-  line-height: 1.2;
+  line-height: 1.3;
   word-wrap: break-word;
   overflow-wrap: break-word;
+  word-break: break-word;
   max-width: 100%;
+  flex: 1 1 auto;
+  min-width: 0;
 }
 
 .profile-job-title-modern {
@@ -289,9 +497,22 @@ body {
   display: flex;
   gap: 0.75rem;
   padding-top: 0;
-  width: auto;
+  width: 100%;
   max-width: none;
   flex-wrap: wrap;
+}
+
+@media (max-width: 768px) {
+  .profile-actions-modern {
+    gap: 0.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .profile-actions-modern {
+    gap: 0.375rem;
+    flex-direction: column;
+  }
 }
 
 .btn-modern {
@@ -324,6 +545,21 @@ body {
   background: white;
   color: var(--primary-color);
   border: 2px solid rgba(26, 148, 212, 0.25);
+  position: relative;
+  z-index: 1;
+}
+
+.content-card-header-modern .btn-outline-modern {
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--primary-color);
+  border: 2px solid rgba(255, 255, 255, 0.3);
+}
+
+.content-card-header-modern .btn-outline-modern:hover {
+  background: white;
+  color: var(--primary-color);
+  border-color: white;
+  transform: translateY(-2px);
 }
 
 .btn-outline-modern:hover {
@@ -354,6 +590,7 @@ body {
   flex-wrap: wrap;
   gap: 0.75rem;
   margin-top: 0.5rem;
+  width: 100%;
 }
 
 .verification-badge-wrapper .badge {
@@ -366,6 +603,9 @@ body {
   align-items: center;
   gap: 0.5rem;
   transition: all 0.3s ease;
+  flex-shrink: 0;
+  max-width: 100%;
+  word-break: break-word;
 }
 
 .verification-badge-wrapper .badge:hover {
@@ -375,8 +615,9 @@ body {
 
 .action-dropdown {
   position: relative;
-  background: var(--bg-white);
-  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 14px;
   box-shadow: var(--shadow-sm);
   min-width: 200px;
@@ -420,7 +661,8 @@ body {
   list-style: none;
   margin: 0;
   padding: 0.6rem 0.6rem 0.8rem;
-  background: var(--bg-white);
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
   border-top: 1px solid rgba(148, 163, 184, 0.14);
   display: none;
   position: static;
@@ -531,12 +773,13 @@ body {
 }
 
 .stat-card-modern {
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
   border-radius: 20px;
   padding: 2.5rem 2rem;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.06);
   transition: all 0.3s ease;
-  border: 2px solid var(--border-color);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   text-align: center;
   position: relative;
   overflow: hidden;
@@ -629,7 +872,8 @@ body {
 
 /* Sidebar Cards */
 .sidebar-card-modern {
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
   border-radius: 16px;
   padding: 2rem;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
@@ -979,8 +1223,9 @@ body {
   align-items: center;
   gap: 0.5rem;
   padding: 0.75rem 1.25rem;
-  background: white;
-  border: 2px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   border-radius: 10px;
   text-decoration: none;
   color: var(--text-dark);
@@ -1011,14 +1256,32 @@ body {
 .tabs-modern {
   display: flex;
   gap: 0.5rem;
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
   border-radius: 16px;
   padding: 0.5rem;
   margin-bottom: 2rem;
   overflow-x: auto;
+  overflow-y: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   border: 1.5px solid var(--border-color);
   max-width: 100%;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+.tabs-modern::-webkit-scrollbar {
+  height: 4px;
+}
+
+.tabs-modern::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.tabs-modern::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 2px;
 }
 
 .tab-button-modern {
@@ -1036,6 +1299,8 @@ body {
   white-space: nowrap;
   align-items: center;
   gap: 0.6rem;
+  flex-shrink: 0;
+  min-width: fit-content;
 }
 
 .tab-button-modern:hover {
@@ -1067,9 +1332,10 @@ body {
 
 /* Content Cards */
 .content-card-modern {
-  background: white;
+  background: rgba(255, 255, 255, 0.95);
+  backdrop-filter: blur(10px);
   border-radius: 16px;
-  padding: 2.5rem;
+  padding: 0;
   max-width: 100%;
   overflow: hidden;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
@@ -1086,16 +1352,36 @@ body {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 1.5rem;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid var(--border-color);
+  background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
+  padding: 1.25rem 2rem;
+  margin: 0;
+  border-radius: 16px 16px 0 0;
+  position: relative;
+  overflow: hidden;
+}
+
+.content-card-header-modern::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(251, 191, 36, 0.2), transparent);
+  animation: shine 3s ease-in-out infinite;
 }
 
 .content-card-title-modern {
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--text-dark);
+  color: white;
   margin: 0;
+  position: relative;
+  z-index: 1;
+}
+
+.content-card-body-modern {
+  padding: 2.5rem;
 }
 
 /* Section Styles */
@@ -1492,13 +1778,26 @@ body {
     height: 100px;
   }
   
+  .profile-name-row {
+    gap: 0.5rem;
+    row-gap: 0.375rem;
+    align-items: flex-start;
+  }
+  
   .profile-name-modern {
     font-size: 1.5rem;
+    line-height: 1.25;
+    flex: 1 1 100%;
+  }
+  
+  .profile-name-row i,
+  .profile-name-row span[style*="gradient"] {
+    flex-shrink: 0;
   }
   
   .profile-job-title-modern {
     font-size: 0.9rem;
-    justify-content: center;
+    flex-wrap: wrap;
   }
   
   .profile-meta-modern {
@@ -1518,6 +1817,13 @@ body {
   
   .verification-badge-wrapper {
     justify-content: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .verification-badge-wrapper .badge {
+    padding: 0.5rem 0.875rem !important;
+    font-size: 0.8125rem !important;
+    gap: 0.375rem;
   }
   
   .stats-grid-modern {
@@ -1548,11 +1854,22 @@ body {
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     padding: 0.4rem;
+    gap: 0.375rem;
   }
   
   .tab-button-modern {
-    padding: 0.75rem 1rem;
-    font-size: 0.85rem;
+    padding: 0.65rem 0.875rem;
+    font-size: 0.8125rem;
+    gap: 0.4rem;
+    min-width: auto;
+  }
+  
+  .tab-button-modern i {
+    font-size: 0.875rem;
+  }
+  
+  .tab-button-modern span {
+    display: inline;
   }
   
   .content-card-modern {
@@ -1606,12 +1923,59 @@ body {
     height: 80px;
   }
   
+  .profile-header-top {
+    gap: 0.75rem;
+  }
+  
+  .profile-info-section-modern {
+    min-width: 0;
+    width: 100%;
+  }
+  
+  .profile-name-row {
+    gap: 0.375rem;
+    row-gap: 0.25rem;
+    padding-bottom: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
   .profile-name-modern {
-    font-size: 1.25rem;
+    font-size: 1.125rem;
+    line-height: 1.3;
+    flex: 1 1 100%;
+    max-width: 100%;
+  }
+  
+  .profile-name-row i[class*="bi-patch-check"] {
+    font-size: 1rem;
+    flex-shrink: 0;
+  }
+  
+  .profile-name-row span[style*="gradient"] {
+    font-size: 0.6875rem;
+    padding: 0.2rem 0.5rem;
+    flex-shrink: 0;
+    max-width: 100%;
   }
   
   .profile-job-title-modern {
-    font-size: 0.85rem;
+    font-size: 0.8125rem;
+    gap: 0.3rem;
+  }
+  
+  .verification-badge-wrapper {
+    gap: 0.375rem;
+    margin-top: 0.375rem;
+  }
+  
+  .verification-badge-wrapper .badge {
+    padding: 0.375rem 0.625rem !important;
+    font-size: 0.75rem !important;
+    gap: 0.25rem;
+  }
+  
+  .verification-badge-wrapper .badge i {
+    font-size: 0.875rem;
   }
   
   .profile-meta-modern {
@@ -1657,13 +2021,24 @@ body {
     font-size: 0.8rem;
   }
   
+  .tabs-modern {
+    padding: 0.3rem;
+    gap: 0.25rem;
+  }
+  
   .tab-button-modern {
-    padding: 0.65rem 0.875rem;
-    font-size: 0.8rem;
+    padding: 0.5rem 0.625rem;
+    font-size: 0.75rem;
+    gap: 0.3rem;
+    border-radius: 8px;
   }
   
   .tab-button-modern i {
-    font-size: 0.9rem;
+    font-size: 0.8rem;
+  }
+  
+  .tab-button-modern span {
+    font-size: 0.7rem;
   }
   
   .content-card-modern {
@@ -1671,8 +2046,14 @@ body {
   }
   
   .btn-modern {
-    padding: 0.75rem 1.25rem;
-    font-size: 0.85rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.8125rem;
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .btn-modern i {
+    font-size: 0.9rem;
   }
 }
 
@@ -1757,20 +2138,56 @@ body {
 }
 
 .close-modal {
-  position: absolute;
-  top: 20px;
-  right: 40px;
-  color: white;
-  font-size: 48px;
-  font-weight: bold;
-  cursor: pointer;
-  transition: all 0.3s ease;
-  z-index: 10000;
+  position: absolute !important;
+  top: 20px !important;
+  right: 40px !important;
+  color: white !important;
+  font-size: 48px !important;
+  font-weight: bold !important;
+  cursor: pointer !important;
+  transition: all 0.3s ease !important;
+  z-index: 10001 !important;
+  background: rgba(0, 0, 0, 0.8) !important;
+  width: 60px !important;
+  height: 60px !important;
+  border-radius: 50% !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  line-height: 1 !important;
+  user-select: none !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
+  border: 2px solid white !important;
+}
+
+.close-modal i {
+  color: white !important;
+  font-size: 32px !important;
+  pointer-events: none !important;
 }
 
 .close-modal:hover {
-  color: #ff4444;
-  transform: rotate(90deg);
+  color: #ff4444 !important;
+  background: rgba(255, 68, 68, 0.9) !important;
+  transform: rotate(90deg) scale(1.1) !important;
+  border-color: #ff4444 !important;
+}
+
+/* Mobile responsive close button */
+@media (max-width: 768px) {
+  .close-modal {
+    top: 10px !important;
+    right: 10px !important;
+    width: 50px !important;
+    height: 50px !important;
+    font-size: 36px !important;
+  }
+  
+  .close-modal i {
+    font-size: 24px !important;
+  }
 }
 
 /* Profile Actions Sidebar Redesign */
@@ -1788,11 +2205,12 @@ body {
     top: 100px;
     width: 280px;
     grid-template-columns: 1fr;
-    background: white;
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
     padding: 1.5rem;
     border-radius: 16px;
     box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-    border: 2px solid var(--border-color);
+    border: 1px solid rgba(255, 255, 255, 0.5);
     z-index: 100;
   }
   
@@ -1838,10 +2256,11 @@ body {
   top: calc(100% + 0.5rem);
   left: 0;
   right: 0;
-  background: white;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(10px);
   border-radius: 12px;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
-  border: 2px solid var(--border-color);
+  border: 1px solid rgba(255, 255, 255, 0.5);
   padding: 0.5rem;
   list-style: none;
   margin: 0;
@@ -2046,17 +2465,23 @@ body {
 
 {% block content %}
 <!-- Cover Photo Section -->
-<div class="profile-cover-section" {% if user.cover_photo_custom %}onclick="openImageModal('{{ user.cover_photo_custom.url }}')" style="cursor: pointer;"{% endif %}>
+<div class="profile-cover-section {% if user.cover_photo_custom %}clickable{% endif %}" {% if user.cover_photo_custom %}onclick="openCoverPhotoModal()"{% endif %}>
   {% if user.cover_photo_custom %}
-    <img src="{{ user.cover_photo_custom.url }}" alt="Cover Photo" class="profile-cover-photo clickable-image">
+    <img src="{{ user.cover_photo_custom.url }}" alt="Cover Photo" class="profile-cover-photo clickable-image img-fluid">
   {% elif user.cover_photo %}
     <div class="profile-cover-photo" style="background: {% if user.cover_photo == 'default1' %}linear-gradient(135deg, #667eea 0%, #764ba2 100%){% elif user.cover_photo == 'default2' %}linear-gradient(135deg, #f093fb 0%, #f5576c 100%){% elif user.cover_photo == 'default3' %}linear-gradient(135deg, #4facfe 0%, #00f2fe 100%){% elif user.cover_photo == 'default4' %}linear-gradient(135deg, #43e97b 0%, #38f9d7 100%){% elif user.cover_photo == 'default5' %}linear-gradient(135deg, #fa709a 0%, #fee140 100%){% elif user.cover_photo == 'default6' %}linear-gradient(135deg, #30cfd0 0%, #330867 100%){% else %}linear-gradient(135deg, #1a94d4 0%, #0d6efd 100%){% endif %};"></div>
   {% else %}
     <div class="profile-cover-photo" style="background: linear-gradient(135deg, #1a94d4 0%, #0d6efd 100%);"></div>
   {% endif %}
   <div class="cover-overlay"></div>
+  
+  <!-- View Text Overlay -->
+  <div class="cover-view-text">
+    Click to view
+  </div>
+  
   {% if user.pk == request.user.pk %}
-  <a href="{% url 'profile_edit' request.user.pk %}" class="cover-edit-btn" onclick="event.stopPropagation();">
+  <a href="{% url 'users:profile_edit' request.user.pk %}" class="cover-edit-btn" onclick="event.stopPropagation();">
     <i class="bi bi-camera"></i>
     <span>Edit Cover</span>
   </a>
@@ -2073,10 +2498,10 @@ body {
         {% if user.profile_picture %}
           <img src="{{ user.profile_picture.url }}" class="profile-picture-modern clickable-image" alt="Profile Picture">
         {% else %}
-          <img src="{% static 'images/default_profile.png' %}" class="profile-picture-modern" alt="Default Profile">
+          <img src="{% static 'images/default_avatar.svg' %}" class="profile-picture-modern" alt="Default Profile">
         {% endif %}
         {% if user.pk == request.user.pk %}
-        <a href="{% url 'profile_edit' request.user.pk %}" class="profile-picture-edit-modern" onclick="event.stopPropagation();">
+        <a href="{% url 'users:profile_edit' request.user.pk %}" class="profile-picture-edit-modern" onclick="event.stopPropagation();">
           <i class="bi bi-camera-fill"></i>
         </a>
         {% endif %}
@@ -2116,15 +2541,19 @@ body {
             <i class="bi bi-geo-alt-fill"></i>
             <span class="meta-value">{{ user.get_location_display }}</span>
           </div>
+          {% if can_view_email or is_own_profile %}
           <div class="meta-item-modern">
             <i class="bi bi-envelope-fill"></i>
             <span class="meta-value">{{ user.email }}</span>
           </div>
+          {% endif %}
           {% if user.contact_number %}
-          <div class="meta-item-modern">
-            <i class="bi bi-telephone-fill"></i>
-            <span class="meta-value">{{ user.contact_number }}</span>
-          </div>
+            {% if can_view_phone or is_own_profile %}
+            <div class="meta-item-modern">
+              <i class="bi bi-telephone-fill"></i>
+              <span class="meta-value">{{ user.contact_number }}</span>
+            </div>
+            {% endif %}
           {% endif %}
         </div>
 
@@ -2200,7 +2629,7 @@ body {
         <div class="stat-icon-modern green">
           <i class="bi bi-people-fill"></i>
         </div>
-        <div class="stat-number-modern">{{ user.posted_jobs.all.0.applications.count|default:"0" }}</div>
+        <div class="stat-number-modern">{{ total_pending_applicants|default:"0" }}</div>
         <div class="stat-label-modern">Total Applicants</div>
       </div>
       
@@ -2231,7 +2660,11 @@ body {
             </div>
             <div class="contact-details-modern">
               <div class="contact-label-modern">Email</div>
+              {% if can_view_email or is_own_profile %}
               <div class="contact-value-modern">{{ user.email }}</div>
+              {% else %}
+              <div class="contact-value-modern text-muted"><i class="bi bi-lock-fill"></i> Hidden by user</div>
+              {% endif %}
             </div>
           </li>
           
@@ -2241,7 +2674,11 @@ body {
             </div>
             <div class="contact-details-modern">
               <div class="contact-label-modern">Phone</div>
+              {% if can_view_phone or is_own_profile %}
               <div class="contact-value-modern">{{ user.contact_number|default:"Not provided" }}</div>
+              {% else %}
+              <div class="contact-value-modern text-muted"><i class="bi bi-lock-fill"></i> Hidden by user</div>
+              {% endif %}
             </div>
           </li>
           
@@ -2290,7 +2727,7 @@ body {
                 Download CV
               </a>
               {% if user.pk == request.user.pk %}
-              <a href="{% url 'profile_edit' request.user.pk %}" class="btn-cv-update">
+              <a href="{% url 'users:profile_edit' request.user.pk %}" class="btn-cv-update">
                 <i class="bi bi-arrow-repeat"></i>
                 Update CV
               </a>
@@ -2304,7 +2741,7 @@ body {
             </div>
             <p class="cv-empty-text">No CV uploaded yet</p>
             {% if user.pk == request.user.pk %}
-            <a href="{% url 'profile_edit' request.user.pk %}" class="btn-cv-upload">
+            <a href="{% url 'users:profile_edit' request.user.pk %}" class="btn-cv-upload">
               <i class="bi bi-upload"></i>
               Upload Your CV
             </a>
@@ -2323,7 +2760,7 @@ body {
         </h3>
         <ul class="action-links-modern">
           <li>
-            <a href="{% url 'profile_edit' request.user.pk %}" class="action-link-modern highlight">
+            <a href="{% url 'users:profile_edit' request.user.pk %}" class="action-link-modern highlight">
               <div class="action-link-icon">
                 <i class="bi bi-pencil-square"></i>
               </div>
@@ -2336,7 +2773,7 @@ body {
           
           {% if user.verification_status == 'pending' or user.verification_status == 'failed' %}
           <li>
-            <a href="{% url 'ekyc_start' %}" class="action-link-modern highlight">
+            <a href="{% url 'users:ekyc_start' %}" class="action-link-modern highlight">
               <div class="action-link-icon">
                 <i class="bi bi-shield-check"></i>
               </div>
@@ -2348,7 +2785,7 @@ body {
           </li>
           {% elif user.verification_status == 'manual_review' %}
           <li>
-            <a href="{% url 'ekyc_pending' %}" class="action-link-modern">
+            <a href="{% url 'users:ekyc_pending' %}" class="action-link-modern">
               <div class="action-link-icon">
                 <i class="bi bi-clock-history"></i>
               </div>
@@ -2361,7 +2798,7 @@ body {
           {% endif %}
           
           <li>
-            <a href="{% url 'change_password' %}" class="action-link-modern">
+            <a href="{% url 'users:change_password' %}" class="action-link-modern">
               <div class="action-link-icon">
                 <i class="bi bi-shield-lock"></i>
               </div>
@@ -2372,7 +2809,7 @@ body {
             </a>
           </li>
           <li>
-            <a href="{% url 'privacy_settings' %}" class="action-link-modern">
+            <a href="{% url 'users:privacy_settings' %}" class="action-link-modern">
               <div class="action-link-icon">
                 <i class="bi bi-eye"></i>
               </div>
@@ -2382,17 +2819,33 @@ body {
               </div>
             </a>
           </li>
+          {% if user.role == 'worker' %}
           <li>
-            <a href="{% url 'set_location' %}" class="action-link-modern">
+            <a href="{% url 'users:set_location' %}" class="action-link-modern">
               <div class="action-link-icon">
-                <i class="bi bi-geo-alt"></i>
+                <i class="bi bi-bell"></i>
               </div>
               <div class="action-link-content">
-                <strong>Notification Location</strong>
-                <small>Set your preferred area</small>
+                <strong>Notification Settings</strong>
+                <small>Job alerts & preferences</small>
               </div>
             </a>
           </li>
+          {% endif %}
+          
+          {% if is_worker %}
+          <li>
+            <a href="{% url 'jobs:manage_availability' %}" class="action-link-modern highlight">
+              <div class="action-link-icon">
+                <i class="bi bi-calendar-check"></i>
+              </div>
+              <div class="action-link-content">
+                <strong>Manage Availability</strong>
+                <small>Set your working hours</small>
+              </div>
+            </a>
+          </li>
+          {% endif %}
         </ul>
       </div>
       
@@ -2467,7 +2920,7 @@ body {
         </h3>
         <div class="settings-info">
           <p class="settings-text">Need to deactivate your account?</p>
-          <a href="{% url 'profile_delete' user.pk %}" class="settings-link">
+          <a href="{% url 'users:profile_delete' user.pk %}" class="settings-link">
             <i class="bi bi-box-arrow-right"></i>
             <span>Manage Account</span>
           </a>
@@ -2532,13 +2985,14 @@ body {
           <div class="content-card-header-modern">
             <h3 class="content-card-title-modern">Personal Details</h3>
             {% if user.pk == request.user.pk %}
-            <a href="{% url 'profile_edit' request.user.pk %}" class="btn-modern btn-outline-modern btn-sm-modern">
+            <a href="{% url 'users:profile_edit' request.user.pk %}" class="btn-modern btn-outline-modern btn-sm-modern">
               <i class="bi bi-pencil"></i>
               <span>Edit</span>
             </a>
             {% endif %}
           </div>
           
+          <div class="content-card-body-modern">
           <div class="info-grid-modern">
             <div class="info-item-modern">
               <div class="info-label-modern">Full Name</div>
@@ -2557,6 +3011,7 @@ body {
               <div class="info-value-modern">{{ user.get_role_display }}</div>
             </div>
           </div>
+          </div>
         </div>
         
         <!-- Personal Summary -->
@@ -2564,6 +3019,7 @@ body {
           <div class="content-card-header-modern">
             <h3 class="content-card-title-modern">About Me</h3>
           </div>
+          <div class="content-card-body-modern">
           {% if user.bio %}
             <p style="color: var(--text-medium); line-height: 1.8;">{{ user.bio }}</p>
           {% else %}
@@ -2572,6 +3028,7 @@ body {
               <p class="empty-text-modern">No bio added yet.</p>
             </div>
           {% endif %}
+          </div>
         </div>
         
         <!-- Education -->
@@ -2579,6 +3036,7 @@ body {
           <div class="content-card-header-modern">
             <h3 class="content-card-title-modern">Education</h3>
           </div>
+          <div class="content-card-body-modern">
           {% if user.education.all %}
             <ul class="list-modern">
               {% for edu in user.education.all %}
@@ -2601,6 +3059,7 @@ body {
               <p class="empty-text-modern">No education details provided.</p>
             </div>
           {% endif %}
+          </div>
         </div>
         
         <!-- Work Experience -->
@@ -2608,6 +3067,7 @@ body {
           <div class="content-card-header-modern">
             <h3 class="content-card-title-modern">Work Experience</h3>
           </div>
+          <div class="content-card-body-modern">
           {% if user.experiences.all %}
             <ul class="list-modern">
               {% for exp in user.experiences.all %}
@@ -2630,6 +3090,7 @@ body {
               <p class="empty-text-modern">No work experience provided.</p>
             </div>
           {% endif %}
+          </div>
         </div>
       </div>
       
@@ -2718,14 +3179,11 @@ body {
                     <button onclick="toggleJobStatus({{ job.id }}, '{{ job.title|escapejs }}', '{% url 'jobs:toggle_job_status' job.id %}')" 
                             class="btn-modern btn-outline-modern btn-sm-modern toggle-job-btn-{{ job.id }}"
                             style="{% if job.is_active %}color: #dc3545; border-color: #dc3545;{% else %}color: #198754; border-color: #198754;{% endif %}">
-                      <i class="bi {% if job.is_active %}bi-eye-slash{% else %}bi-eye{% endif %}"></i>
+                      <i class="bi {% if job.is_active %}bi-pause-circle{% else %}bi-play-circle{% endif %}"></i>
                       <span class="toggle-text-{{ job.id }}">{% if job.is_active %}Deactivate{% else %}Activate{% endif %}</span>
                     </button>
                     <a href="{% url 'jobs:job_edit' job.id %}" class="btn-modern btn-outline-modern btn-sm-modern">
                       <i class="bi bi-pencil"></i> Edit
-                    </a>
-                    <a href="{% url 'jobs:job_delete' job.id %}" class="btn-modern btn-outline-modern btn-sm-modern" style="color: var(--danger-color); border-color: var(--danger-color);">
-                      <i class="bi bi-trash"></i> Delete
                     </a>
                   </div>
                   {% endif %}
@@ -2791,7 +3249,7 @@ body {
           <div class="content-card-header-modern">
             <h3 class="content-card-title-modern">Skills & Certifications</h3>
             {% if user.pk == request.user.pk %}
-            <a href="{% url 'submit_skill_verification' %}" class="btn-modern btn-primary-modern btn-sm-modern">
+            <a href="{% url 'users:submit_skill_verification' %}" class="btn-modern btn-primary-modern btn-sm-modern">
               <i class="bi bi-plus-circle"></i>
               <span>Add Skill</span>
             </a>
@@ -2825,15 +3283,14 @@ body {
                   </div>
                   {% if user.pk == request.user.pk %}
                   <div class="job-actions-modern">
-                    <a href="{% url 'skill_detail' skill.id %}" class="btn-modern btn-outline-modern btn-sm-modern">
+                    <a href="{% url 'users:skill_detail' skill.id %}" class="btn-modern btn-outline-modern btn-sm-modern">
                       <i class="bi bi-eye"></i> View
                     </a>
-                    <a href="{% url 'skill_edit' skill.id %}" class="btn-modern btn-outline-modern btn-sm-modern">
+                    <a href="{% url 'users:skill_edit' skill.id %}" class="btn-modern btn-outline-modern btn-sm-modern">
                       <i class="bi bi-pencil"></i> Edit
                     </a>
-                    <a href="{% url 'skill_delete' skill.id %}" class="btn-modern btn-outline-modern btn-sm-modern" style="color: var(--danger-color); border-color: var(--danger-color);">
-                      <i class="bi bi-trash"></i> Delete
-                    </a>
+                    <a href="{% url 'users:skill_delete' skill.id %}" class="btn-modern btn-outline-modern btn-sm-modern" style="color: var(--danger-color); border-color: var(--danger-color);">
+                      <i class="bi bi-trash"></i>{% trans "Delete" %}</a>
                   </div>
                   {% endif %}
                 </li>
@@ -2844,7 +3301,7 @@ body {
               <i class="bi bi-star empty-icon-modern"></i>
               <p class="empty-text-modern">No skills added yet.</p>
               {% if user.pk == request.user.pk %}
-              <a href="{% url 'submit_skill_verification' %}" class="btn-modern btn-primary-modern">
+              <a href="{% url 'users:submit_skill_verification' %}" class="btn-modern btn-primary-modern">
                 <i class="bi bi-plus-circle"></i>
                 <span>Add Your First Skill</span>
               </a>
@@ -2865,10 +3322,12 @@ body {
                 <i class="bi bi-list-ul"></i>
                 <span>Manage All</span>
               </a>
+              {% if user.role == 'worker' %}
               <a href="{% url 'services:servicepost_create' %}" class="btn-modern btn-primary-modern btn-sm-modern">
                 <i class="bi bi-plus-circle"></i>
                 <span>New Service</span>
               </a>
+              {% endif %}
             </div>
             {% endif %}
           </div>
@@ -2913,9 +3372,8 @@ body {
                     <a href="{% url 'services:servicepost_update' service.slug %}" class="btn-modern btn-outline-modern btn-sm-modern">
                       <i class="bi bi-pencil"></i> Edit
                     </a>
-                    <a href="{% url 'services:servicepost_delete' service.slug %}" class="btn-modern btn-outline-modern btn-sm-modern" style="color: var(--danger-color); border-color: var(--danger-color);">
-                      <i class="bi bi-trash"></i> Delete
-                    </a>
+                    <button onclick="archiveService('{{ service.slug }}', '{{ service.title }}')" class="btn-modern btn-outline-modern btn-sm-modern" style="color: var(--warning-color); border-color: var(--warning-color);">
+                      <i class="bi bi-archive"></i>{% trans "Archive" %}</button>
                   </div>
                   {% endif %}
                 </li>
@@ -2925,7 +3383,7 @@ body {
             <div class="empty-state-modern" style="padding: 2rem;">
               <i class="bi bi-wrench empty-icon-modern" style="font-size: 3rem;"></i>
               <p class="empty-text-modern">No services offered yet.</p>
-              {% if user.pk == request.user.pk %}
+              {% if user.pk == request.user.pk and user.role == 'worker' %}
               <a href="{% url 'services:servicepost_create' %}" class="btn-modern btn-primary-modern btn-sm-modern" style="margin-top: 1rem;">
                 <i class="bi bi-plus-circle"></i>
                 <span>Create Service</span>
@@ -2942,7 +3400,7 @@ body {
           <div class="content-card-header-modern">
             <h3 class="content-card-title-modern">Completed Jobs Gallery</h3>
             {% if user.pk == request.user.pk %}
-            <a href="{% url 'gallery_add' %}" class="btn-modern btn-primary-modern btn-sm-modern">
+            <a href="{% url 'users:gallery_add' %}" class="btn-modern btn-primary-modern btn-sm-modern">
               <i class="bi bi-plus-circle"></i>
               <span>Add Photo</span>
             </a>
@@ -2952,15 +3410,15 @@ body {
             <div class="gallery-grid-modern">
               {% for item in user.completed_jobs.all %}
                 <div class="gallery-item-modern">
-                  <img src="{{ item.image.url }}" alt="{{ item.description }}">
+                  <img src="{{ item.image.url }}" alt="{{ item.description }}" class="img-fluid">
                   <div class="gallery-overlay-modern">
                     <p style="margin: 0;">{{ item.description|truncatechars:50 }}</p>
                     {% if user.pk == request.user.pk %}
                     <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
-                      <a href="{% url 'gallery_edit' item.pk %}" style="color: white; font-size: 0.9rem;">
+                      <a href="{% url 'users:gallery_edit' item.pk %}" style="color: white; font-size: 0.9rem;">
                         <i class="bi bi-pencil"></i>
                       </a>
-                      <a href="{% url 'gallery_delete' item.pk %}" style="color: white; font-size: 0.9rem;">
+                      <a href="{% url 'users:gallery_delete' item.pk %}" style="color: white; font-size: 0.9rem;">
                         <i class="bi bi-trash"></i>
                       </a>
                     </div>
@@ -2974,7 +3432,7 @@ body {
               <i class="bi bi-images empty-icon-modern"></i>
               <p class="empty-text-modern">No gallery items yet.</p>
               {% if user.pk == request.user.pk %}
-              <a href="{% url 'gallery_add' %}" class="btn-modern btn-primary-modern">
+              <a href="{% url 'users:gallery_add' %}" class="btn-modern btn-primary-modern">
                 <i class="bi bi-plus-circle"></i>
                 <span>Add Your First Photo</span>
               </a>
@@ -3175,6 +3633,52 @@ function openImageModal(imageSrc) {
   }
 }
 
+function openCoverPhotoModal() {
+  const coverPhoto = document.querySelector('.profile-cover-photo');
+  const modal = document.getElementById('imageModal');
+  const modalImg = document.getElementById('modalImage');
+  const closeBtn = document.querySelector('.close-modal');
+  
+  console.log('Opening modal...', {modal, modalImg, coverPhoto, closeBtn});
+  
+  if (modal && modalImg && coverPhoto) {
+    // Check if it's a custom image
+    if (coverPhoto.tagName === 'IMG') {
+      modal.style.display = 'flex';
+      modalImg.src = coverPhoto.src;
+      document.body.style.overflow = 'hidden';
+    } else {
+      // For gradient backgrounds, create a temporary canvas
+      const canvas = document.createElement('canvas');
+      canvas.width = coverPhoto.offsetWidth;
+      canvas.height = coverPhoto.offsetHeight;
+      const ctx = canvas.getContext('2d');
+      
+      // Get the computed background style
+      const bgStyle = window.getComputedStyle(coverPhoto).background;
+      ctx.fillStyle = bgStyle;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      
+      modal.style.display = 'flex';
+      modalImg.src = canvas.toDataURL();
+      document.body.style.overflow = 'hidden';
+    }
+    
+    // Ensure close button is visible
+    if (closeBtn) {
+      closeBtn.style.display = 'flex';
+      closeBtn.style.visibility = 'visible';
+      closeBtn.style.opacity = '1';
+      closeBtn.style.zIndex = '10001';
+      console.log('Close button styled:', closeBtn);
+    } else {
+      console.error('Close button not found!');
+    }
+  } else {
+    console.error('Modal elements not found!', {modal, modalImg, coverPhoto});
+  }
+}
+
 function closeImageModal() {
   const modal = document.getElementById('imageModal');
   if (modal) {
@@ -3273,8 +3777,63 @@ function toggleJobStatus(jobId, jobTitle, toggleUrl) {
 
 <!-- Image Modal -->
 <div id="imageModal" class="image-modal" onclick="closeImageModal()">
-  <span class="close-modal" onclick="closeImageModal()">&times;</span>
+  <span class="close-modal" onclick="closeImageModal()">
+    <i class="bi bi-x-lg"></i>
+  </span>
   <img class="modal-content" id="modalImage" onclick="event.stopPropagation();">
 </div>
 
+{% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "profile_detail",
+    "title": "Profile Guide",
+    "steps": [
+        {
+            "title": "Your Profile Overview \ud83d\udc64",
+            "content": "<h3>Your Professional Identity</h3><p>Your profile is how others see you on Trabaholink. A complete, professional profile attracts better job opportunities.</p><div class='guide-tip'><strong>\ud83d\udca1 Important:</strong> Keep your profile updated for best results!</div>"
+        },
+        {
+            "title": "Profile Sections \ud83d\udccb",
+            "content": "<h3>What's in Your Profile</h3><ul><li><strong>Basic Info:</strong> Name, contact, location</li><li><strong>Skills:</strong> Your verified skills and certifications</li><li><strong>Experience:</strong> Past work history</li><li><strong>Portfolio:</strong> Photos of completed work</li><li><strong>Reviews:</strong> Ratings from past clients</li></ul>"
+        },
+        {
+            "title": "Edit Your Profile \u270f\ufe0f",
+            "content": "<h3>Keeping Information Current</h3><p>Click the 'Edit Profile' button to:</p><ul><li>Update your bio and job title</li><li>Add new skills</li><li>Upload work samples</li><li>Update availability</li><li>Change privacy settings</li></ul>"
+        },
+        {
+            "title": "Build Credibility \ud83c\udf1f",
+            "content": "<h3>Stand Out to Employers</h3><p>Increase your visibility by:</p><ul><li>Completing identity verification</li><li>Getting skills verified</li><li>Requesting reviews from past clients</li><li>Uploading portfolio photos</li><li>Keeping your profile active</li></ul><p>A complete profile gets 3x more job offers!</p>"
+        }
+
+// Archive service function
+function archiveService(slug, title) {
+    if (!confirm(`Archive "${title}"? This will hide it from public view but you can reactivate it later.`)) return;
+    
+    fetch(`/services/${slug}/archive/`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": document.querySelector("[name=csrfmiddlewaretoken]").value,
+            "Content-Type": "application/json"
+        }
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert("Service archived successfully!");
+            location.reload();
+        } else {
+            alert("Error: " + (data.error || "Failed to archive service"));
+        }
+    })
+    .catch(error => {
+        console.error("Error:", error);
+        alert("Failed to archive service. Please try again.");
+    });
+}
+    ]
+}
 {% endblock %}

@@ -494,6 +494,27 @@
             transition: opacity var(--transition-speed) ease;
         }
     </style>
+    <!-- Hide all delete buttons/links in admin dashboard -->
+    <style>
+        [href*="delete"],
+        [href*="Delete"],
+        [onclick*="delete"],
+        [onclick*="Delete"],
+        button:has([data-lucide="trash-2"]),
+        a:has([data-lucide="trash-2"]),
+        .btn-danger,
+        a.text-red-600[title*="Delete"],
+        [id*="delete-"],
+        [id*="remove-"],
+        [class*="remove-"],
+        button[title*="Remove"],
+        button[title*="Delete"],
+        a[title*="Remove"],
+        a[title*="Delete"],
+        [id*="Delete"] {
+            display: none !important;
+        }
+    </style>
 </head>
 <body>
     <!-- Sidebar -->
@@ -544,7 +565,7 @@
             <div class="sidebar-divider"></div>
 
             <div class="sidebar-item">
-                <form method="post" action="{% url 'logout' %}">
+                <form method="post" action="{% url 'users:logout' %}">
                     {% csrf_token %}
                     <button type="submit" class="sidebar-link btn-logout">
                         <span class="sidebar-icon"><i class="bi bi-box-arrow-right"></i></span>
@@ -579,7 +600,7 @@
                     </div>
                     
                     <div class="user-menu">
-                        <a href="{% url 'profile' request.user.pk %}" class="user-menu-item">
+                        <a href="{% url 'users:profile' request.user.pk %}" class="user-menu-item">
                             <i class="bi bi-person user-menu-icon"></i>
                             <span>Profile</span>
                         </a>
@@ -587,7 +608,7 @@
                             <i class="bi bi-gear user-menu-icon"></i>
                             <span>Settings</span>
                         </a>
-                        <a href="{% url 'logout' %}" class="user-menu-item logout-item">
+                        <a href="{% url 'users:logout' %}" class="user-menu-item logout-item">
                             <i class="bi bi-box-arrow-right user-menu-icon"></i>
                             <span>Logout</span>
                         </a>

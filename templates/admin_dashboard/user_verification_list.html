@@ -1,5 +1,6 @@
 {% extends 'admin_dashboard/dashboard_base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}User Identity Verifications{% endblock %}
 {% block page_title %}Identity Verification Management{% endblock %}
@@ -162,7 +163,7 @@
             <textarea id="identityRejectReason" rows="4" class="w-full rounded-lg border border-slate-200 px-4 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-trabaholink-blue" placeholder="Enter rejection reason"></textarea>
         </div>
         <div class="flex items-center justify-end gap-3 px-6 py-4 border-t border-slate-100">
-            <button type="button" class="px-4 py-2 text-sm font-medium rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50" onclick="closeRejectModal()">Cancel</button>
+            <button type="button" class="px-4 py-2 text-sm font-medium rounded-lg border border-slate-200 text-slate-600 hover:bg-slate-50" onclick="closeRejectModal()">{% trans "Cancel" %}</button>
             <button type="button" class="px-4 py-2 text-sm font-semibold rounded-lg bg-red-500 text-white hover:bg-red-600" onclick="submitRejectReason()">Reject request</button>
         </div>
     </div>

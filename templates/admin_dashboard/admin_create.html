@@ -1,5 +1,6 @@
 {% extends 'admin_dashboard/dashboard_base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Create Admin - Trabaholink Admin{% endblock %}
 
@@ -296,8 +297,7 @@
                     <div class="form-section">
                         <div class="d-flex justify-content-end gap-3">
                             <a href="{% url 'admin_dashboard:admin_list' %}" class="btn-cancel">
-                                <i class="bi bi-x-circle"></i> Cancel
-                            </a>
+                                <i class="bi bi-x-circle"></i>{% trans "Cancel" %}</a>
                             <button type="submit" class="btn-submit">
                                 <i class="bi bi-check-circle-fill"></i> Create Admin
                             </button>

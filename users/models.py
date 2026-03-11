@@ -66,6 +66,7 @@ class CustomUser(AbstractUser):
 
     role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='client')
     role_selected = models.BooleanField(default=False, help_text="Has user explicitly selected their role?")
+    profile_completed = models.BooleanField(default=False, help_text="Has user completed initial profile setup?")
     contact_number = models.CharField(max_length=15, blank=True)
     bio = models.TextField(blank=True)
     address = models.CharField(max_length=255, blank=True)  # new field
@@ -225,27 +226,85 @@ class Skill(models.Model):
 # New model: Education
 class Education(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='education')
+    title = models.CharField(max_length=100, blank=True, help_text="Custom title for this education entry (e.g., 'Bachelor's Degree', 'High School')")
     degree = models.CharField(max_length=255)
     institution = models.CharField(max_length=255)
-    start_date = models.DateField()
-    end_date = models.DateField(null=True, blank=True)
+    start_year = models.CharField(max_length=10, blank=True, null=True, help_text="Year started")
+    end_year = models.CharField(max_length=10, blank=True, null=True, help_text="Year ended or 'Present' if currently studying")
     description = models.TextField(blank=True)
+    order = models.IntegerField(default=0, help_text="Display order (lower numbers appear first)")
+    
+    # Legacy fields - kept for backward compatibility during migration
+    year_graduated = models.CharField(max_length=10, blank=True, null=True)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['order', '-end_year', '-start_year']  # Manual order first, then by end year
     
     def __str__(self):
         return f"{self.degree} from {self.institution}"
+    
+    def get_display_title(self):
+        """Return custom title or default"""
+        if self.title:
+            return self.title
+        elif self.degree:
+            return f"{self.degree}"
+        return "Education Entry"
+    
+    def get_year_range_display(self):
+        """Return formatted year range for display"""
+        if self.start_year and self.end_year:
+            return f"{self.start_year} - {self.end_year}"
+        elif self.start_year:
+            return f"{self.start_year} - Present"
+        elif self.year_graduated:
+            # Fallback to old format
+            return self.year_graduated
+        return "N/A"
 
 
 # New model: Experience (Work Experience)
 class Experience(models.Model):
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='experiences')
+    title = models.CharField(max_length=100, blank=True, help_text="Custom title for this experience entry")
     job_title = models.CharField(max_length=255)
     company = models.CharField(max_length=255)
-    start_date = models.DateField()
-    end_date = models.DateField(null=True, blank=True)
+    start_year = models.CharField(max_length=10, blank=True, null=True, help_text="Year started")
+    end_year = models.CharField(max_length=10, blank=True, null=True, help_text="Year ended or 'Present' if currently working")
     description = models.TextField(blank=True)
+    order = models.IntegerField(default=0, help_text="Display order (lower numbers appear first)")
+    
+    # Legacy fields - kept for backward compatibility
+    year_ended = models.CharField(max_length=10, blank=True, null=True)
+    start_date = models.DateField(null=True, blank=True)
+    end_date = models.DateField(null=True, blank=True)
+    
+    class Meta:
+        ordering = ['order', '-end_year', '-start_year']  # Manual order first, then by end year
     
     def __str__(self):
         return f"{self.job_title} at {self.company}"
+    
+    def get_display_title(self):
+        """Return custom title or default"""
+        if self.title:
+            return self.title
+        elif self.job_title:
+            return f"{self.job_title} at {self.company}"
+        return "Experience Entry"
+    
+    def get_year_range_display(self):
+        """Return formatted year range for display"""
+        if self.start_year and self.end_year:
+            return f"{self.start_year} - {self.end_year}"
+        elif self.start_year:
+            return f"{self.start_year} - Present"
+        elif self.year_ended:
+            # Fallback to old format
+            return self.year_ended
+        return "N/A"
 
 
 class CompletedJobGallery(models.Model):
@@ -500,3 +559,274 @@ class EmailOTP(models.Model):
 
 # Import ActivityLog model
 from .activity_logger import ActivityLog, log_activity
+
+
+class PrivacySettings(models.Model):
+    """
+    Privacy settings for user profiles.
+    Controls what information is visible and to whom.
+    """
+    VISIBILITY_CHOICES = [
+        ('public', 'Public - Anyone can view my profile'),
+        ('connections', 'Connections Only - Only my connections can view'),
+        ('private', 'Private - Only I can view my profile'),
+    ]
+    
+    user = models.OneToOneField(
+        CustomUser, 
+        on_delete=models.CASCADE, 
+        related_name='privacy_settings'
+    )
+    
+    # Profile visibility
+    profile_visibility = models.CharField(
+        max_length=20,
+        choices=VISIBILITY_CHOICES,
+        default='public',
+        help_text='Who can view your profile'
+    )
+    
+    # Contact information visibility
+    show_email = models.BooleanField(
+        default=True,
+        help_text='Show email address on profile'
+    )
+    show_phone = models.BooleanField(
+        default=True,
+        help_text='Show phone number on profile'
+    )
+    
+    # Activity privacy
+    show_activity = models.BooleanField(
+        default=True,
+        help_text='Show your activity in public feeds'
+    )
+    allow_search_engines = models.BooleanField(
+        default=False,
+        help_text='Allow search engines to index your profile'
+    )
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = 'Privacy Settings'
+        verbose_name_plural = 'Privacy Settings'
+    
+    def __str__(self):
+        return f"Privacy settings for {self.user.username}"
+    
+    @staticmethod
+    def get_or_create_for_user(user):
+        """Get or create privacy settings for a user with default values"""
+        settings, created = PrivacySettings.objects.get_or_create(
+            user=user,
+            defaults={
+                'profile_visibility': 'public',
+                'show_email': True,
+                'show_phone': True,
+                'show_activity': True,
+                'allow_search_engines': False,
+            }
+        )
+        return settings
+
+
+class UserGuideStatus(models.Model):
+    """
+    Tracks user guide status and preferences across the platform.
+    
+    This model stores:
+    - Whether auto-popup is enabled for the user
+    - Last page where guide was viewed
+    - Last step completed on that page
+    - Timestamp of last interaction
+    """
+    
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name='guide_status',
+        verbose_name='User',
+        help_text='The user this guide status belongs to'
+    )
+    
+    auto_popup_enabled = models.BooleanField(
+        default=True,
+        verbose_name='Auto-popup Enabled',
+        help_text='If True, guide will automatically appear on page load'
+    )
+    
+    last_page_viewed = models.CharField(
+        max_length=255,
+        blank=True,
+        null=True,
+        verbose_name='Last Page Viewed',
+        help_text='URL name of the last page where guide was opened'
+    )
+    
+    last_step_completed = models.IntegerField(
+        default=0,
+        verbose_name='Last Step Completed',
+        help_text='Last step number completed on the last viewed page'
+    )
+    
+    pages_completed = models.JSONField(
+        default=dict,
+        blank=True,
+        verbose_name='Pages Completed',
+        help_text='Dict of {page_name: {completed: bool, last_step: int, timestamp: str}}'
+    )
+    
+    total_guides_viewed = models.IntegerField(
+        default=0,
+        verbose_name='Total Guides Viewed',
+        help_text='Count of how many times user has opened any guide'
+    )
+    
+    last_interaction = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Last Interaction',
+        help_text='Timestamp of last guide interaction'
+    )
+    
+    created_at = models.DateTimeField(
+        auto_now_add=True,
+        verbose_name='Created At'
+    )
+    
+    updated_at = models.DateTimeField(
+        auto_now=True,
+        verbose_name='Updated At'
+    )
+    
+    class Meta:
+        verbose_name = 'User Guide Status'
+        verbose_name_plural = 'User Guide Statuses'
+        db_table = 'users_user_guide_status'
+        indexes = [
+            models.Index(fields=['user'], name='idx_guide_user'),
+            models.Index(fields=['auto_popup_enabled'], name='idx_guide_auto_popup'),
+            models.Index(fields=['last_interaction'], name='idx_guide_last_interaction'),
+        ]
+    
+    def __str__(self):
+        return f"Guide Status: {self.user.username} (Auto-popup: {self.auto_popup_enabled})"
+    
+    def mark_page_completed(self, page_name, last_step=None):
+        """Mark a specific page's guide as completed."""
+        from django.utils import timezone
+        if not self.pages_completed:
+            self.pages_completed = {}
+        
+        self.pages_completed[page_name] = {
+            'completed': True,
+            'last_step': last_step or 0,
+            'timestamp': timezone.now().isoformat()
+        }
+        self.last_page_viewed = page_name
+        if last_step is not None:
+            self.last_step_completed = last_step
+        self.save()
+    
+    def update_progress(self, page_name, step):
+        """Update progress for a specific page without marking complete."""
+        from django.utils import timezone
+        if not self.pages_completed:
+            self.pages_completed = {}
+        
+        if page_name not in self.pages_completed:
+            self.pages_completed[page_name] = {
+                'completed': False,
+                'last_step': step,
+                'timestamp': timezone.now().isoformat()
+            }
+        else:
+            self.pages_completed[page_name]['last_step'] = step
+            self.pages_completed[page_name]['timestamp'] = timezone.now().isoformat()
+        
+        self.last_page_viewed = page_name
+        self.last_step_completed = step
+        self.save()
+    
+    def is_page_completed(self, page_name):
+        """Check if a specific page's guide has been completed."""
+        if not self.pages_completed:
+            return False
+        return self.pages_completed.get(page_name, {}).get('completed', False)
+    
+    def get_page_last_step(self, page_name):
+        """Get the last step viewed for a specific page."""
+        if not self.pages_completed:
+            return 0
+        return self.pages_completed.get(page_name, {}).get('last_step', 0)
+    
+    def increment_view_count(self):
+        """Increment the total guides viewed counter."""
+        self.total_guides_viewed += 1
+        self.save(update_fields=['total_guides_viewed', 'updated_at'])
+    
+    def disable_auto_popup(self):
+        """Disable auto-popup for this user."""
+        self.auto_popup_enabled = False
+        self.save(update_fields=['auto_popup_enabled', 'updated_at'])
+    
+    def enable_auto_popup(self):
+        """Re-enable auto-popup for this user."""
+        self.auto_popup_enabled = True
+        self.save(update_fields=['auto_popup_enabled', 'updated_at'])
+
+
+class NotificationPreference(models.Model):
+    """
+    User preferences for job notification alerts
+    Users can set location, distance radius, and job categories they want to be notified about
+    """
+    user = models.OneToOneField(
+        CustomUser,
+        on_delete=models.CASCADE,
+        related_name='notification_preference'
+    )
+    
+    # Location settings
+    notification_location = gis_models.PointField(
+        null=True,
+        blank=True,
+        help_text="Location for job notifications (can be different from profile location)"
+    )
+    notification_radius_km = models.DecimalField(
+        max_digits=5,
+        decimal_places=2,
+        default=1.0,
+        help_text="Radius in kilometers to search for jobs (e.g., 1.0, 5.0, 10.0)"
+    )
+    
+    # Category preferences (many-to-many with GeneralCategory)
+    preferred_categories = models.ManyToManyField(
+        'jobs.GeneralCategory',
+        blank=True,
+        related_name='subscribed_users',
+        help_text="General job categories user wants to receive notifications for"
+    )
+    
+    # Notification toggle
+    is_active = models.BooleanField(
+        default=True,
+        help_text="Enable/disable job notifications"
+    )
+    
+    # Timestamps
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    
+    class Meta:
+        verbose_name = "Notification Preference"
+        verbose_name_plural = "Notification Preferences"
+    
+    def __str__(self):
+        return f"Notification Preferences for {self.user.username}"
+    
+    def get_radius_display(self):
+        """Get human-readable radius display"""
+        return f"{self.notification_radius_km} km"

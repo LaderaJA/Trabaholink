@@ -1,5 +1,6 @@
 {% extends "mainpages/base.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Account Verification - TrabahoLink{% endblock %}
 
@@ -252,10 +253,10 @@
                     </div>
                 </div>
                 <div class="action-buttons">
-                    <a href="{% url 'ekyc_pending' %}" class="btn-primary-custom">
+                    <a href="{% url 'users:ekyc_pending' %}" class="btn-primary-custom">
                         <i class="bi bi-eye"></i> View Status
                     </a>
-                    <a href="{% url 'profile' user.pk %}" class="btn-secondary-custom">
+                    <a href="{% url 'users:profile' user.pk %}" class="btn-secondary-custom">
                         <i class="bi bi-arrow-left"></i> Back to Profile
                     </a>
                 </div>
@@ -268,7 +269,7 @@
                     </div>
                 </div>
                 <div class="action-buttons">
-                    <a href="{% url 'profile' user.pk %}" class="btn-primary-custom">
+                    <a href="{% url 'users:profile' user.pk %}" class="btn-primary-custom">
                         <i class="bi bi-person"></i> Go to Profile
                     </a>
                 </div>
@@ -281,10 +282,10 @@
                     </div>
                 </div>
                 <div class="action-buttons">
-                    <a href="{% url 'ekyc_step1' %}" class="btn-primary-custom">
+                    <a href="{% url 'users:ekyc_step1' %}" class="btn-primary-custom">
                         <i class="bi bi-arrow-repeat"></i> Retry Verification
                     </a>
-                    <a href="{% url 'profile' user.pk %}" class="btn-secondary-custom">
+                    <a href="{% url 'users:profile' user.pk %}" class="btn-secondary-custom">
                         <i class="bi bi-arrow-left"></i> Back to Profile
                     </a>
                 </div>
@@ -351,10 +352,10 @@
                 </div>
 
                 <div class="action-buttons">
-                    <a href="{% url 'ekyc_step1' %}" class="btn-primary-custom">
+                    <a href="{% url 'users:ekyc_step1' %}" class="btn-primary-custom">
                         <i class="bi bi-arrow-right-circle"></i> Start Verification
                     </a>
-                    <a href="{% url 'profile' user.pk %}" class="btn-secondary-custom">
+                    <a href="{% url 'users:profile' user.pk %}" class="btn-secondary-custom">
                         <i class="bi bi-arrow-left"></i> Maybe Later
                     </a>
                 </div>

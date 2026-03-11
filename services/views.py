@@ -519,3 +519,32 @@ def moderate_service_review(request, review_id):
         'review': review,
     }
     return render(request, 'services/review_moderate.html', context)
+
+
+from django.http import JsonResponse
+from django.views.decorators.http import require_POST
+from django.contrib.auth.decorators import login_required
+
+@login_required
+@require_POST
+def archive_service(request, slug):
+    """Archive a service (set is_active=False) instead of deleting it."""
+    try:
+        service = ServicePost.objects.get(slug=slug, user=request.user)
+        service.is_active = False
+        service.save()
+        
+        return JsonResponse({
+            'success': True,
+            'message': f'Service "{service.title}" archived successfully'
+        })
+    except ServicePost.DoesNotExist:
+        return JsonResponse({
+            'success': False,
+            'error': 'Service not found or you do not have permission to archive it'
+        }, status=404)
+    except Exception as e:
+        return JsonResponse({
+            'success': False,
+            'error': str(e)
+        }, status=500)

@@ -1,10 +1,79 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load i18n %}
+{% load moderation_filters %}
+{% load messaging_filters %}
 
 {% block css %}
 <style>
-/* ===== TRABAHOLINK MESSENGER THEME ===== */
+/* Hide guide toggle button and footer on messaging page */
+#guideToggleBtn {
+    display: none !important;
+}
+
+/* Hide footer on messaging page since chat is full screen */
+footer {
+    display: none !important;
+}
+
+/* Remove padding from body and main for full screen chat */
+body {
+    padding-top: 0 !important;
+}
+
+main {
+    padding: 0 !important;
+    margin: 0 !important;
+}
+
+/* Fix navbar collapse for tablet/mobile view - ensure vertical dropdown */
+/* Use higher specificity and override base template styles */
+@media (max-width: 991px) {
+  /* Override navbar collapse to be vertical dropdown */
+  .tl-navbar .tl-navbar-collapse.show,
+  .tl-navbar .tl-navbar-collapse {
+    display: flex !important;
+    position: absolute !important;
+    top: 100% !important;
+    left: 0 !important;
+    right: 0 !important;
+    width: 100% !important;
+    background: white !important;
+    flex-direction: column !important;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1) !important;
+    z-index: 1050 !important;
+    justify-content: flex-start !important;
+    align-items: flex-start !important;
+    padding: 1rem !important;
+  }
+  
+  /* Force navbar nav to stack vertically */
+  .tl-navbar .tl-navbar-nav {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 100% !important;
+    align-items: flex-start !important;
+    row-gap: 0.5rem !important;
+  }
+  
+  /* Full width nav items */
+  .tl-navbar .tl-nav-item {
+    width: 100% !important;
+    display: block !important;
+    margin: 0 !important;
+  }
+  
+  /* Full width nav links */
+  .tl-navbar .tl-nav-link {
+    width: 100% !important;
+    display: block !important;
+    text-align: left !important;
+    padding: 0.5rem 1rem !important;
+  }
+}
+/* Ensure CSS variables from base.html are available */
 :root {
+  --navbar-height: 80px;
   --trabaholink-cyan: #AFE4E6;
   --trabaholink-blue: #5271FF;
   --trabaholink-dark-blue: #004AAD;
@@ -26,16 +95,108 @@
   --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
 }
 
+/* ===== ISOLATED NAVBAR STYLES - DOES NOT AFFECT CHAT INTERFACE ===== */
+/* Scoped to navbar only, chat interface remains independent */
+@media (min-width: 769px) {
+  /* Navbar content with margins and layout - SINGLE RULE */
+  body nav.tl-navbar .tl-navbar-content {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    width: 100% !important;
+    gap: 2rem !important;
+    box-sizing: border-box !important;
+    margin-left: 3rem !important;
+    margin-right: 3rem !important;
+    padding-left: 0 !important;
+    padding-right: 0 !important;
+  }
+
+  body .tl-navbar .tl-navbar-brand {
+    flex-shrink: 0 !important;
+    font-size: 1.625rem !important;
+    font-weight: 800 !important;
+  }
+
+  body .tl-navbar .tl-navbar-nav {
+    display: flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    list-style: none !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    gap: 0.5rem !important;
+    flex: 1 !important;
+    justify-content: flex-end !important;
+  }
+
+  body .tl-navbar .tl-nav-item {
+    display: inline-flex !important;
+    align-items: center !important;
+    margin: 0 !important;
+  }
+
+  hr{
+    opacity: 0;
+  }
+
+  body .tl-navbar .tl-nav-link {
+    color: #1f2937 !important;
+    text-decoration: none !important;
+    font-weight: 600 !important;
+    font-size: 0.9375rem !important;
+    padding: 0.625rem 1rem !important;
+    border-radius: 8px !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+    white-space: nowrap !important;
+    cursor: pointer !important;
+    background: transparent !important;
+  }
+
+  body .tl-navbar .tl-nav-link:hover {
+    color: #1e40af !important;
+    background: #eff6ff !important;
+  }
+
+  body .tl-navbar .tl-nav-link.active {
+    color: #FFFFFF !important;
+    background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%) !important;
+    box-shadow: 0 2px 8px rgba(30, 64, 175, 0.3) !important;
+  }
+
+  body .tl-navbar .nav-icon {
+    display: none !important;
+  }
+
+  body .tl-navbar .nav-text {
+    color: inherit !important;
+    display: inline !important;
+  }
+
+  body .tl-navbar .notification-bell-btn,
+  body .tl-navbar .tl-profile-button {
+    background: transparent !important;
+  }
+}
+
+/* ===== CHAT INTERFACE - COMPLETELY SEPARATE FROM NAVBAR ===== */
+
 /* Main Chat Interface */
 .chat-interface {
   display: flex;
-  height: calc(100vh - 80px); /* Account for navbar */
+  min-height: calc(100vh - var(--navbar-height)); /* Account for navbar height */
+  height: calc(100vh - var(--navbar-height));
   background: white;
   position: fixed;
-  top: 80px; /* Below navbar */
+  top: var(--navbar-height); /* Position below navbar */
   left: 0;
   right: 0;
   bottom: 0;
+  overflow: hidden;
+  z-index: 1000; /* Above footer and other elements */
 }
 
 /* ===== SIDEBAR (Conversations List) ===== */
@@ -149,12 +310,23 @@
   justify-content: center;
   font-size: 1.25rem;
   font-weight: 700;
-  color: var(--trabaholink-dark-blue);
+  color: var(--trabaholink-dark-blue) !important;
   margin-right: 1rem;
   flex-shrink: 0;
   position: relative;
   border: 2px solid white;
   box-shadow: var(--shadow-sm);
+  text-transform: uppercase;
+  line-height: 1;
+  overflow: hidden;
+}
+
+.conv-avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+  display: block !important;
 }
 
 .conv-status {
@@ -267,9 +439,21 @@
   justify-content: center;
   font-size: 1.125rem;
   font-weight: 700;
-  color: var(--trabaholink-dark-blue);
+  color: var(--trabaholink-dark-blue) !important;
   border: 2px solid white;
   box-shadow: var(--shadow-sm);
+  flex-shrink: 0;
+  text-transform: uppercase;
+  line-height: 1;
+  overflow: hidden;
+}
+
+.chat-user-avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+  display: block !important;
 }
 
 .chat-user-details h2 {
@@ -404,7 +588,7 @@
 
 .message-wrapper {
   display: flex;
-  margin-bottom: 0.5rem;
+  margin-bottom: 0.75rem;
   animation: messageSlideIn 0.3s ease;
 }
 
@@ -413,7 +597,7 @@
 }
 
 .message-wrapper.grouped {
-  margin-bottom: 0.25rem;
+  margin-bottom: 0.75rem;
 }
 
 .message-avatar {
@@ -432,10 +616,20 @@
   align-self: flex-end;
   border: 2px solid white;
   box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  text-transform: uppercase;
+}
+
+.message-avatar img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  border-radius: 50% !important;
+  display: block !important;
 }
 
 .message-content {
-  max-width: 65%;
+  max-width: 70%;
   display: flex;
   flex-direction: column;
 }
@@ -453,18 +647,18 @@
 }
 
 .message-bubble {
-  padding: 0.375rem 0.625rem;
-  border-radius: 16px;
-  font-size: 0.9375rem;
-  line-height: 1.3;
+  padding: 0.5rem 0.75rem;
+  border-radius: 14px;
+  font-size: 0.95rem;
+  line-height: 1.4;
   word-wrap: break-word;
-  white-space: pre-wrap;
+  white-space: normal;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
-  transition: all 0.2s ease;
   position: relative;
   overflow-wrap: break-word;
+  word-break: break-word;
   font-weight: 400;
-  max-width: fit-content;
+  max-width: 100%;
   display: inline-block;
 }
 
@@ -590,20 +784,27 @@
 
 /* Input Area - HIGHLY VISIBLE */
 .input-area {
-  padding: 1.5rem 1.75rem;
+  padding: 0.75rem 1rem;
   background: linear-gradient(180deg, #f8fafc 0%, white 100%);
   border-top: 2px solid #1A94D5;
   display: flex;
-  align-items: flex-end;
-  gap: 1rem;
+  flex-direction: column;
+  gap: 0.5rem;
   flex-shrink: 0;
   box-shadow: 0 -4px 20px rgba(26, 148, 213, 0.15), 0 -2px 8px rgba(0, 0, 0, 0.1);
   position: relative;
 }
 
+.input-controls-row {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  width: 100%;
+}
+
 .input-btn {
-  width: 44px;
-  height: 44px;
+  width: 40px;
+  height: 40px;
   border-radius: 50%;
   background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
   border: 2px solid #1A94D5;
@@ -613,7 +814,7 @@
   justify-content: center;
   cursor: pointer;
   transition: all 0.3s ease;
-  font-size: 1.25rem;
+  font-size: 1.1rem;
   flex-shrink: 0;
   box-shadow: 0 2px 8px rgba(26, 148, 213, 0.2);
   font-weight: 600;
@@ -631,13 +832,15 @@
   flex: 1;
   background: white;
   border: 2px solid #1A94D5;
-  border-radius: 24px;
-  padding: 0.75rem 1rem;
+  border-radius: 20px;
+  padding: 0.5rem 0.75rem;
   display: flex;
-  align-items: flex-end;
+  align-items: center;
   gap: 0.5rem;
   transition: all 0.3s ease;
-  min-height: 54px;
+  min-height: 48px;
+  height: 48px;
+  box-sizing: border-box;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
@@ -653,15 +856,21 @@
   flex: 1;
   border: none;
   background: transparent;
-  padding: 0.5rem;
-  font-size: 1rem;
-  font-weight: 500;
+  padding: 0 !important;
+  margin: 0;
+  font-size: 0.95rem;
+  font-weight: 400;
   resize: none;
   outline: none;
   font-family: inherit;
-  line-height: 1.5;
-  max-height: 120px;
+  line-height: 1.4;
+  height: 100%;
+  max-height: 100%;
+  min-height: auto;
   color: #1e293b;
+  overflow-y: auto;
+  vertical-align: middle;
+  box-sizing: border-box;
 }
 
 .message-input::placeholder {
@@ -734,37 +943,366 @@
 
 /* Mobile Responsive */
 @media (max-width: 768px) {
+  /* Adjust chat interface for mobile navbar */
+  .chat-interface {
+    top: var(--navbar-height);
+    height: calc(100vh - var(--navbar-height));
+  }
+  
+  /* Hide sidebar by default on mobile */
   .chat-sidebar {
     position: absolute;
     left: 0;
     top: 0;
-    height: 100vh;
+    width: 100%;
+    height: 100%;
     z-index: 100;
     transform: translateX(-100%);
+    transition: transform 0.3s ease;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
   }
   
   .chat-sidebar.mobile-open {
     transform: translateX(0);
   }
   
+  /* Chat window takes full width on mobile */
+  .chat-window {
+    width: 100%;
+    flex: 1;
+  }
+  
+  /* Show back button on mobile */
   .mobile-back-btn {
     display: flex !important;
   }
   
+  /* Adjust chat header for mobile */
   .chat-header {
-    padding: 1rem;
+    padding: 0.75rem 1rem;
+    flex-direction: row;
+    gap: 0.75rem;
   }
   
+  .mobile-back-btn {
+    order: -1;
+    flex-shrink: 0;
+  }
+  
+  .chat-user-info {
+    order: 0;
+    flex: 1;
+    gap: 0.75rem;
+  }
+  
+  .chat-actions {
+    order: 1;
+    flex-shrink: 0;
+  }
+  
+  .chat-user-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+  
+  .chat-user-details h2 {
+    font-size: 1rem;
+  }
+  
+  .chat-user-status {
+    font-size: 0.75rem;
+  }
+  
+  /* Adjust messages area - add padding for mobile input field */
   .messages-area {
-    padding: 1rem;
+    padding: 0.75rem;
+    padding-bottom: 80px; /* Space for fixed input field on mobile */
   }
   
-  .input-area {
-    padding: 1rem;
+  .message-bubble {
+    max-width: 80%;
+    font-size: 0.9rem;
+    padding: 0.5rem 0.75rem;
   }
   
   .message-content {
-    max-width: 80%;
+    max-width: none;
+  }
+  
+  .message-time {
+    font-size: 0.7rem;
+  }
+  
+  .message-sender {
+    font-size: 0.75rem;
+  }
+  
+  /* Adjust input area for mobile */
+  .input-area {
+    padding: 0.75rem;
+    gap: 0.5rem;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid var(--border-color);
+    z-index: 100;
+  }
+  
+  .chat-messages {
+    padding-bottom: 80px;
+  }
+  
+  .input-wrapper {
+    height: 44px;
+    min-height: 44px;
+    padding: 0.4rem 0.65rem;
+    border-radius: 22px;
+  }
+  
+  .message-input {
+    font-size: 0.9rem;
+  }
+  
+  .send-btn, .attach-btn {
+    width: 38px;
+    height: 38px;
+    flex-shrink: 0;
+  }
+  
+  .send-btn,
+  .attach-btn,
+  .emoji-btn {
+    width: 38px;
+    height: 38px;
+    font-size: 1rem;
+  }
+  
+  /* Adjust sidebar for mobile */
+  .sidebar-header {
+    padding: 1rem;
+  }
+  
+  .sidebar-title {
+    font-size: 1.25rem;
+  }
+  
+  .sidebar-subtitle {
+    font-size: 0.8rem;
+  }
+  
+  .conversation-item {
+    padding: 0.75rem;
+  }
+  
+  .conv-name {
+    font-size: 0.9rem;
+  }
+  
+  .conv-preview {
+    font-size: 0.8rem;
+  }
+  
+  .conv-time {
+    font-size: 0.7rem;
+  }
+  
+  /* Emoji picker adjustments */
+  .emoji-picker {
+    width: calc(100vw - 40px);
+    max-width: 320px;
+    left: 20px;
+    right: 20px;
+  }
+  
+  /* File preview adjustments */
+  .file-preview img {
+    max-width: 200px;
+    max-height: 200px;
+  }
+}
+
+/* Extra small devices (phones in portrait) */
+@media (max-width: 480px) {
+  .chat-interface {
+    top: var(--navbar-height);
+    height: calc(100vh - var(--navbar-height));
+  }
+  
+  .chat-header {
+    padding: 0.5rem 0.75rem;
+    gap: 0.5rem;
+  }
+  
+  .mobile-back-btn {
+    order: -1;
+    width: 32px;
+    height: 32px;
+    font-size: 1rem;
+  }
+  
+  .chat-user-info {
+    order: 0;
+    flex: 1;
+    gap: 0.5rem;
+  }
+  
+  .chat-actions {
+    order: 1;
+  }
+  
+  .chat-user-avatar {
+    width: 35px;
+    height: 35px;
+    font-size: 0.9rem;
+  }
+  
+  .chat-user-details h2 {
+    font-size: 0.9rem;
+  }
+  
+  .message-bubble {
+    max-width: 85%;
+    font-size: 0.85rem;
+    padding: 0.5rem 0.7rem;
+  }
+  
+  .message-content {
+    max-width: none;
+  }
+  
+  .input-area {
+    padding: 0.5rem 0.75rem;
+    gap: 0.5rem;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: white;
+    border-top: 1px solid var(--border-color);
+    z-index: 100;
+    box-shadow: 0 -2px 8px rgba(0, 0, 0, 0.1);
+  }
+  
+  .chat-messages {
+    padding-bottom: 70px;
+  }
+  
+  .input-wrapper {
+    height: 38px;
+    min-height: 38px;
+    padding: 0.3rem 0.55rem;
+    border-radius: 19px;
+  }
+  
+  .message-input {
+    font-size: 0.85rem;
+  }
+  
+  .send-btn,
+  .attach-btn,
+  .emoji-btn {
+    width: 32px;
+    height: 32px;
+    flex-shrink: 0;
+    font-size: 0.9rem;
+  }
+  
+  .sidebar-conversations {
+    max-height: calc(100vh - 250px);
+  }
+  
+  /* Message images responsive */
+  .message-image {
+    max-width: 180px;
+  }
+  
+  .message-image img {
+    max-height: 200px;
+  }
+  
+  /* Message files responsive */
+  .message-file {
+    padding: 0.5rem;
+    font-size: 0.8rem;
+  }
+  
+  .file-icon {
+    font-size: 1.5rem;
+  }
+  
+  .file-name {
+    font-size: 0.75rem;
+  }
+  
+  /* Avatar sizes */
+  .message-avatar {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+    margin: 0 0.5rem;
+  }
+  
+  .conv-avatar {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+    margin-right: 0.75rem;
+  }
+  
+  /* Lightbox responsive */
+  .lightbox-content {
+    width: 95%;
+    max-width: 95%;
+    padding: 0.5rem;
+  }
+  
+  .lightbox-content img {
+    max-height: 70vh;
+  }
+  
+  .lightbox-close {
+    top: 0.5rem;
+    right: 0.5rem;
+    width: 35px;
+    height: 35px;
+    font-size: 1.25rem;
+  }
+  
+  /* Image preview container */
+  #imagePreviewContainer {
+    padding: 0.5rem;
+  }
+  
+  #imagePreviewThumb {
+    max-width: 200px;
+    max-height: 200px;
+  }
+  
+  .image-preview-close {
+    width: 28px;
+    height: 28px;
+    font-size: 1rem;
+  }
+  
+  /* Chat actions */
+  .chat-actions {
+    gap: 0.25rem;
+  }
+  
+  .action-btn {
+    padding: 0.4rem;
+    font-size: 0.85rem;
+  }
+  
+  /* Notification badge */
+  .notification-badge-number {
+    font-size: 0.6rem;
+    min-width: 16px;
+    height: 16px;
+    padding: 0;
   }
 }
 
@@ -955,6 +1493,72 @@
   transform: scale(1.1);
 }
 
+/* Messenger-style Image Preview Before Sending */
+#imagePreviewContainer {
+  display: none;
+  padding: 0.75rem;
+  margin-bottom: 0.5rem;
+}
+
+.image-preview-wrapper {
+  position: relative;
+  display: inline-block;
+  max-width: 100%;
+}
+
+#imagePreviewThumb {
+  max-width: 250px;
+  max-height: 250px;
+  border-radius: 12px;
+  object-fit: cover;
+  border: 3px solid var(--trabaholink-blue);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  display: block;
+}
+
+.image-preview-close {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: #ef4444;
+  color: white;
+  border: 3px solid white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  font-size: 1.125rem;
+  transition: all 0.2s;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.image-preview-close:hover {
+  background: #dc2626;
+  transform: scale(1.15);
+}
+
+/* Image load error display */
+.image-load-error {
+  background: #fee;
+  border: 2px dashed #f00;
+  padding: 1rem;
+  border-radius: 8px;
+  text-align: center;
+  color: #c00;
+  font-size: 0.875rem;
+}
+
+.image-load-error small {
+  display: block;
+  margin-top: 0.5rem;
+  color: #666;
+  word-break: break-word;
+  overflow-wrap: break-word;
+}
+
 /* Message File Attachment Display */
 .message-attachments {
   margin-top: 0.5rem;
@@ -1032,6 +1636,7 @@
   max-width: 300px;
   cursor: pointer;
   transition: all 0.2s ease;
+  background: white;
 }
 
 .message-image:hover {
@@ -1040,11 +1645,12 @@
 }
 
 .message-image img {
-  width: 100%;
-  height: auto;
+  width: 200px;
+  height: 200px;
   display: block;
-  max-height: 400px;
   object-fit: cover;
+  background: white;
+  border-radius: 8px;
 }
 
 .outgoing .message-image {
@@ -1053,6 +1659,30 @@
 
 .incoming .message-image {
   border: 2px solid var(--border-color);
+}
+
+hr{
+    opacity: 0;
+  }
+
+@media (max-width: 768px) {
+  .message-image {
+    max-width: 250px;
+  }
+  
+  .message-image img {
+    max-height: 300px;
+  }
+}
+
+@media (max-width: 480px) {
+  .message-image {
+    max-width: 200px;
+  }
+  
+  .message-image img {
+    max-height: 250px;
+  }
 }
 
 /* Image Lightbox */
@@ -1139,7 +1769,11 @@
                  data-conv-id="{{ conv.id }}"
                  data-conv-name="{{ other_user.get_full_name|default:other_user.username }}">
               <div class="conv-avatar">
-                {{ other_user.username.0|upper }}
+                {% if other_user.profile_picture %}
+                  <img src="{{ other_user.get_profile_picture_url }}" alt="{{ other_user.username }}">
+                {% else %}
+                  {{ other_user.username.0|upper }}
+                {% endif %}
                 <span class="conv-status {% if other_user.is_online %}online{% else %}offline{% endif %}"></span>
               </div>
               <div class="conv-info">
@@ -1170,7 +1804,11 @@
                  data-conv-id="{{ conv.id }}"
                  data-conv-name="{{ other_user.get_full_name|default:other_user.username }}">
               <div class="conv-avatar">
-                {{ other_user.username.0|upper }}
+                {% if other_user.profile_picture %}
+                  <img src="{{ other_user.get_profile_picture_url }}" alt="{{ other_user.username }}">
+                {% else %}
+                  {{ other_user.username.0|upper }}
+                {% endif %}
                 <span class="conv-status {% if other_user.is_online %}online{% else %}offline{% endif %}"></span>
               </div>
               <div class="conv-info">
@@ -1210,23 +1848,27 @@
       
       <div class="chat-user-info">
         <div class="chat-user-avatar">
-          {% with other_user=conversation.user2 %}
-            {% if other_user == request.user %}
-              {{ conversation.user1.username.0|upper }}
+          {% if conversation.user1 == request.user %}
+            {% if conversation.user2.profile_picture %}
+              <img src="{{ conversation.user2.get_profile_picture_url }}" alt="{{ conversation.user2.username }}">
             {% else %}
-              {{ other_user.username.0|upper }}
+              {{ conversation.user2.username.0|upper }}
             {% endif %}
-          {% endwith %}
+          {% else %}
+            {% if conversation.user1.profile_picture %}
+              <img src="{{ conversation.user1.get_profile_picture_url }}" alt="{{ conversation.user1.username }}">
+            {% else %}
+              {{ conversation.user1.username.0|upper }}
+            {% endif %}
+          {% endif %}
         </div>
         <div class="chat-user-details">
           <h2 id="chatUserName">
-            {% with other_user=conversation.user2 %}
-              {% if other_user == request.user %}
-                {{ conversation.user1.get_full_name|default:conversation.user1.username }}
-              {% else %}
-                {{ other_user.get_full_name|default:other_user.username }}
-              {% endif %}
-            {% endwith %}
+            {% if conversation.user1 == request.user %}
+              {{ conversation.user2.get_full_name|default:conversation.user2.username }}
+            {% else %}
+              {{ conversation.user1.get_full_name|default:conversation.user1.username }}
+            {% endif %}
           </h2>
           <p class="chat-user-status">
             <span class="status-dot" id="userStatusDot"></span>
@@ -1243,49 +1885,59 @@
           <div class="message-wrapper {% if message.sender == request.user %}outgoing{% else %}incoming{% endif %}">
             {% if message.sender != request.user %}
               <div class="message-avatar">
-                {{ message.sender.username.0|upper }}
+                {% if message.sender.profile_picture %}
+                  <img src="{{ message.sender.get_profile_picture_url }}" alt="{{ message.sender.username }}">
+                {% else %}
+                  {{ message.sender.username.0|upper }}
+                {% endif %}
               </div>
             {% endif %}
             <div class="message-content">
               {% if message.content %}
                 <div class="message-bubble">
-                  {{ message.content }}
+                  {{ message.content|censor_text }}
                 </div>
               {% endif %}
               
               {% if message.file %}
+                <!-- DEBUG: File: {{ message.file.name }} -->
                 <div class="message-attachments">
-                  {% if message.file.name|slice:"-4:" == ".jpg" or message.file.name|slice:"-4:" == ".png" or message.file.name|slice:"-4:" == ".gif" or message.file.name|slice:"-5:" == ".jpeg" or message.file.name|slice:"-5:" == ".webp" %}
+                  {% with file_lower=message.file.name|lower %}
+                  {% if '.jpg' in file_lower or '.jpeg' in file_lower or '.png' in file_lower or '.gif' in file_lower or '.webp' in file_lower or '.bmp' in file_lower %}
                     <!-- Image Preview -->
                     <div class="message-image" onclick="openLightbox('{{ message.file.url }}')">
-                      <img src="{{ message.file.url }}" alt="Image attachment" loading="lazy">
+                      <img src="{{ message.file.url }}" 
+                           alt="Image attachment" 
+                           loading="lazy"
+                           onerror="console.error('Failed to load image:', this.src); this.style.display='none'; this.parentElement.innerHTML='<div class=\'image-load-error\'>❌ Image failed to load<br><small>{{ message.file.url }}</small></div>';">
                     </div>
                   {% else %}
                     <!-- File Attachment -->
                     <div class="message-file">
-                      <a href="{{ message.file.url }}" target="_blank" download>
+                      <a href="{{ message.file.url }}" download="{{ message.file.name }}" rel="noopener noreferrer">
                         <span class="file-icon">
-                          {% if message.file.name|slice:"-4:" == ".pdf" %}
+                          {% if message.file.name|slice:"-4:" == ".pdf" or message.file.name|slice:"-4:" == ".PDF" %}
                             📄
-                          {% elif message.file.name|slice:"-4:" == ".doc" or message.file.name|slice:"-5:" == ".docx" %}
-                            📝
-                          {% elif message.file.name|slice:"-4:" == ".zip" or message.file.name|slice:"-4:" == ".rar" %}
+                          {% elif message.file.name|slice:"-4:" == ".doc" or message.file.name|slice:"-5:" == ".docx" or message.file.name|slice:"-4:" == ".DOC" or message.file.name|slice:"-5:" == ".DOCX" %}
+                            <i class="fa fa-file-text-o"></i>
+                          {% elif message.file.name|slice:"-4:" == ".zip" or message.file.name|slice:"-4:" == ".rar" or message.file.name|slice:"-4:" == ".ZIP" or message.file.name|slice:"-4:" == ".RAR" %}
                             📦
-                          {% elif message.file.name|slice:"-4:" == ".mp4" or message.file.name|slice:"-4:" == ".mov" %}
+                          {% elif message.file.name|slice:"-4:" == ".mp4" or message.file.name|slice:"-4:" == ".mov" or message.file.name|slice:"-4:" == ".MP4" or message.file.name|slice:"-4:" == ".MOV" %}
                             🎥
-                          {% elif message.file.name|slice:"-4:" == ".mp3" or message.file.name|slice:"-4:" == ".wav" %}
+                          {% elif message.file.name|slice:"-4:" == ".mp3" or message.file.name|slice:"-4:" == ".wav" or message.file.name|slice:"-4:" == ".MP3" or message.file.name|slice:"-4:" == ".WAV" %}
                             🎵
                           {% else %}
                             📎
                           {% endif %}
                         </span>
                         <div class="file-info">
-                          <span class="file-name">{{ message.file.name|slice:"11:" }}</span>
+                          <span class="file-name">{{ message.file.name }}</span>
                           <span class="file-size">Click to download</span>
                         </div>
                       </a>
                     </div>
                   {% endif %}
+                  {% endwith %}
                 </div>
               {% endif %}
               
@@ -1313,32 +1965,55 @@
 
     <!-- Input Area -->
     <div class="input-area">
-      <!-- Emoji Picker Button -->
-      <button class="input-btn" id="emojiBtn" title="Add emoji" type="button">
-        <i class="bi bi-emoji-smile"></i>
-      </button>
-      
-      <!-- File Attachment Button -->
-      <button class="input-btn" id="attachBtn" title="Attach file" type="button">
-        <i class="bi bi-paperclip"></i>
-      </button>
-      <input type="file" id="fileInput" style="display: none;" accept="image/*,application/pdf,.doc,.docx">
-      
-      <form method="post" action="{% url 'messaging:send_message' conversation.id %}" id="messageForm" style="display: flex; flex: 1; gap: 0.75rem; align-items: flex-end;">
-        {% csrf_token %}
-        <div class="input-wrapper" style="flex: 1;">
-          <textarea 
-            name="content"
-            id="messageInput"
-            placeholder="Type a message..."
-            rows="1"
-            class="message-input"></textarea>
+      <!-- File Preview Area (above input) -->
+      <!-- Image Preview (Messenger-style) -->
+      <div id="imagePreviewContainer" style="display: none; padding: 0.5rem 1rem;">
+        <div class="image-preview-wrapper">
+          <img id="imagePreviewThumb" src="" alt="Preview">
+          <button type="button" onclick="removeFile()" class="image-preview-close">
+            <i class="bi bi-x"></i>
+          </button>
         </div>
-        
-        <button type="submit" class="input-btn send-btn" id="sendBtn">
-          <i class="bi bi-send-fill"></i>
+      </div>
+      
+      <!-- File Preview (for non-images) -->
+      <div id="filePreview" class="file-preview" style="display: none;">
+        <div class="file-preview-content">
+          <span id="fileName"></span>
+          <button type="button" onclick="removeFile()" class="file-remove">
+            <i class="bi bi-x-circle-fill"></i>
+          </button>
+        </div>
+      </div>
+      
+      <!-- Input controls row -->
+      <div class="input-controls-row">
+        <!-- Emoji Picker Button -->
+        <button class="input-btn" id="emojiBtn" title="Add emoji" type="button">
+          <i class="bi bi-emoji-smile"></i>
         </button>
-      </form>
+        
+        <!-- File Attachment Button -->
+        <button class="input-btn" id="attachBtn" title="Attach file" type="button">
+          <i class="bi bi-paperclip"></i>
+        </button>
+        <input type="file" id="fileInput" style="display: none;" accept="image/*,application/pdf,.doc,.docx">
+        
+        <form method="post" action="{% url 'messaging:send_message' conversation.id %}" id="messageForm" style="display: flex; flex: 1; gap: 0.75rem; align-items: flex-end;">
+          {% csrf_token %}
+          <div class="input-wrapper" style="flex: 1;">
+            <textarea 
+              name="content"
+              id="messageInput"
+              placeholder="Type a message..."
+              class="message-input"></textarea>
+          </div>
+          
+          <button type="submit" class="input-btn send-btn" id="sendBtn">
+            <i class="bi bi-send-fill"></i>
+          </button>
+        </form>
+      </div>
     </div>
     
     <!-- Emoji Picker Popup -->
@@ -1357,16 +2032,6 @@
       </div>
       <div class="emoji-grid" id="emojiGrid">
         <!-- Emojis will be populated here -->
-      </div>
-    </div>
-    
-    <!-- File Preview Area -->
-    <div id="filePreview" class="file-preview" style="display: none;">
-      <div class="file-preview-content">
-        <span id="fileName"></span>
-        <button type="button" onclick="removeFile()" class="file-remove">
-          <i class="bi bi-x-circle-fill"></i>
-        </button>
       </div>
     </div>
   </div>
@@ -1430,7 +2095,7 @@ document.getElementById('messageForm').addEventListener('submit', async function
         // Image preview
         messageHtml += `
           <div class="message-image" onclick="openLightbox('${fileUrl}')">
-            <img src="${fileUrl}" alt="Image attachment" loading="lazy">
+            <img src="${fileUrl}" alt="Image attachment" loading="lazy" onerror="this.onerror=null; this.src='/static/images/image-error.png';">
           </div>
         `;
       } else {
@@ -1438,7 +2103,7 @@ document.getElementById('messageForm').addEventListener('submit', async function
         const fileIcon = getFileIcon(fileName);
         messageHtml += `
           <div class="message-file">
-            <a href="${fileUrl}" target="_blank" download>
+            <a href="${fileUrl}" download="${fileName}" rel="noopener noreferrer">
               <span class="file-icon">${fileIcon}</span>
               <div class="file-info">
                 <span class="file-name">${fileName}</span>
@@ -1469,14 +2134,12 @@ document.getElementById('messageForm').addEventListener('submit', async function
     messageInput.style.height = 'auto';
     removeFile(); // Clear file attachment
     
-    // Scroll with offset for mobile to prevent input area from covering message
-    if (window.innerWidth <= 768) {
-      // Mobile: Add 250px offset to ensure message is fully visible above input
-      // Calculation: Fixed input (~48px) + padding (~16px) + safety margin (~186px) = 250px
-      messagesContainer.scrollTop = messagesContainer.scrollHeight - 250;
-    } else {
+    // Scroll to bottom with delay to ensure message is rendered
+    setTimeout(() => {
+      // Scroll to absolute bottom (padding-bottom in CSS handles spacing on mobile)
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
+      console.log('Scrolled to:', messagesContainer.scrollHeight);
+    }, 200);
     
   } catch (error) {
     console.error('Error sending message:', error);
@@ -1492,7 +2155,7 @@ function getFileIcon(fileName) {
   const ext = fileName.split('.').pop().toLowerCase();
   if (['jpg', 'jpeg', 'png', 'gif', 'webp'].includes(ext)) return '🖼️';
   if (['pdf'].includes(ext)) return '📄';
-  if (['doc', 'docx'].includes(ext)) return '📝';
+  if (['doc', 'docx'].includes(ext)) return '<i class="fa fa-file-text-o"></i>';
   return '📎';
 }
 
@@ -1515,18 +2178,25 @@ messageInput.addEventListener('keydown', function(e) {
 document.addEventListener('DOMContentLoaded', function() {
   const messagesContainer = document.getElementById('messagesContainer');
   if (messagesContainer) {
-    // Scroll with offset for mobile to prevent input area from covering message
-    if (window.innerWidth <= 768) {
-      // Mobile: Add 250px offset to ensure message is fully visible above input
-      // Calculation: Fixed input (~48px) + padding (~16px) + safety margin (~186px) = 250px
-      messagesContainer.scrollTop = messagesContainer.scrollHeight - 250;
-    } else {
+    // Delay scroll to ensure all content is loaded
+    setTimeout(() => {
+      // Scroll to absolute bottom (padding-bottom in CSS handles spacing on mobile)
       messagesContainer.scrollTop = messagesContainer.scrollHeight;
-    }
+    }, 300);
   }
   
   // Initialize emoji picker
   initializeEmojiPicker();
+  
+  // Re-scroll after images load
+  window.addEventListener('load', function() {
+    if (messagesContainer) {
+      setTimeout(() => {
+        // Scroll to absolute bottom (padding-bottom in CSS handles spacing on mobile)
+        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+      }, 400);
+    }
+  });
 });
 
 // ===== EMOJI PICKER FUNCTIONALITY =====
@@ -1567,7 +2237,23 @@ function initializeEmojiPicker() {
   document.getElementById('fileInput').addEventListener('change', function(e) {
     if (e.target.files.length > 0) {
       selectedFile = e.target.files[0];
-      showFilePreview(selectedFile.name);
+      
+      // Check if it's an image
+      const isImage = /\.(jpg|jpeg|png|gif|webp)$/i.test(selectedFile.name);
+      
+      if (isImage) {
+        // Show image preview with thumbnail (Messenger-style)
+        const reader = new FileReader();
+        reader.onload = function(event) {
+          document.getElementById('imagePreviewThumb').src = event.target.result;
+          document.getElementById('imagePreviewContainer').style.display = 'block';
+          document.getElementById('filePreview').style.display = 'none';
+        };
+        reader.readAsDataURL(selectedFile);
+      } else {
+        // Show file name preview for non-images
+        showFilePreview(selectedFile.name);
+      }
     }
   });
   
@@ -1625,6 +2311,8 @@ function removeFile() {
   selectedFile = null;
   document.getElementById('fileInput').value = '';
   document.getElementById('filePreview').style.display = 'none';
+  document.getElementById('imagePreviewContainer').style.display = 'none';
+  document.getElementById('imagePreviewThumb').src = '';
 }
 
 // Sidebar Functions
@@ -1705,4 +2393,15 @@ document.getElementById('imageLightbox')?.addEventListener('click', function(e) 
   </div>
 </div>
 
+{% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": false,
+    "page_name": "conversation_detail",
+    "title": "Messaging Guide",
+
+    "steps": []
+}
 {% endblock %}

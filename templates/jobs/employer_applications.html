@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Applications - TrabahoLink{% endblock %}
 
@@ -308,7 +309,7 @@
                 <select name="status" class="filter-select" onchange="this.form.submit()">
                     <option value="">All Statuses</option>
                     <option value="Pending" {% if request.GET.status == 'Pending' %}selected{% endif %}>Pending</option>
-                    <option value="Accepted" {% if request.GET.status == 'Accepted' %}selected{% endif %}>Accepted</option>
+                    
                     <option value="Negotiation" {% if request.GET.status == 'Negotiation' %}selected{% endif %}>Negotiation</option>
                     <option value="Rejected" {% if request.GET.status == 'Rejected' %}selected{% endif %}>Rejected</option>
                 </select>
@@ -383,12 +384,12 @@
             </div>
 
             <div class="application-actions">
-                <a href="{% url 'users:profile_detail' application.worker.username %}" 
+                <a href="{% url 'users:profile' application.worker.pk %}" 
                    class="btn btn-primary" target="_blank">
                     <i class="bi bi-person"></i> View Profile
                 </a>
                 
-                <a href="{% url 'messaging:conversation_detail' application.worker.username %}" 
+                <a href="{% url 'messaging:start_conversation_with_user' application.worker.username %}" 
                    class="btn btn-secondary">
                     <i class="bi bi-chat"></i> Message
                 </a>
@@ -411,7 +412,7 @@
                         <i class="bi bi-x-circle"></i> Reject
                     </button>
                 </form>
-                {% elif application.status == 'Negotiation' or application.status == 'Accepted' %}
+                {% elif application.status == 'Negotiation' %}
                 {% with negotiation_contract=application.current_contract %}
                 {% if negotiation_contract %}
                 <a href="{% url 'jobs:contract_negotiation' negotiation_contract.pk %}" 
@@ -433,4 +434,27 @@
     </div>
     {% endif %}
 </div>
+{% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "employer_applications",
+    "title": "Review Applications Guide",
+    "steps": [
+        {
+            "title": "Review Worker Applications \ud83d\udc65",
+            "content": "<h3>Find the Right Worker</h3><p>Review all applications received for your job postings.</p>"
+        },
+        {
+            "title": "Evaluate Applications \ud83d\udd0d",
+            "content": "<h3>What to Look For</h3><ul><li>Relevant skills and experience</li><li>Worker ratings and reviews</li><li>Availability match</li><li>Proposed rate (if negotiable)</li><li>Application message quality</li></ul>"
+        },
+        {
+            "title": "Take Action \u2705",
+            "content": "<h3>Response Options</h3><p>For each application you can:</p><ol><li>Accept and send job offer</li><li>Reject with optional feedback</li><li>Message to ask questions</li><li>Review worker profile</li></ol><div class='guide-tip'><strong>\ud83d\udca1 Tip:</strong> Respond promptly to secure top candidates!</div>"
+        }
+    ]
+}
 {% endblock %}

@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block css %}
 <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css">
@@ -33,11 +34,79 @@ body {
   background: var(--bg-light);
 }
 
-/* Page Wrapper */
+/* Page Wrapper with Floating Shapes Background */
+.job-form-page-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #dbeafe 0%, #fef3c7 100%);
+  padding: 2rem 0;
+  position: relative;
+  overflow: hidden;
+  animation: backgroundShift 20s ease infinite;
+  background-size: 200% 200%;
+}
+
+@keyframes backgroundShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Floating Shapes Animation */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}
+
+.floating-shape {
+  position: absolute;
+  opacity: 0.08;
+  animation: float 15s infinite ease-in-out;
+  z-index: 1;
+}
+
+.shape-1 {
+  top: 10%;
+  left: 5%;
+  width: 120px;
+  height: 120px;
+  background: #1e40af;
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  animation-delay: 0s;
+  filter: blur(2px);
+}
+
+.shape-2 {
+  top: 60%;
+  right: 10%;
+  width: 100px;
+  height: 100px;
+  background: #fbbf24;
+  border-radius: 50%;
+  animation-delay: 2s;
+  animation-duration: 18s;
+  filter: blur(2px);
+}
+
+.shape-3 {
+  bottom: 15%;
+  left: 15%;
+  width: 90px;
+  height: 90px;
+  background: #1e3a8a;
+  border-radius: 15% 85% 35% 65% / 65% 35% 65% 35%;
+  animation-delay: 4s;
+  animation-duration: 20s;
+  filter: blur(2px);
+}
+
 .job-form-wrapper {
   min-height: 100vh;
   padding: 2rem 0 4rem;
-  background: linear-gradient(180deg, #f0f9ff 0%, var(--bg-light) 100%);
+  position: relative;
+  z-index: 2;
 }
 
 /* Header Section with Trabaholink Branding */
@@ -659,6 +728,12 @@ input[type="checkbox"] {
 {% endblock %}
 
 {% block content %}
+<!-- Floating Shapes Background -->
+<div class="job-form-page-wrapper">
+  <div class="floating-shape shape-1"></div>
+  <div class="floating-shape shape-2"></div>
+  <div class="floating-shape shape-3"></div>
+
 <div class="job-form-wrapper">
   <!-- Header Section -->
   <div class="form-header-section">
@@ -1272,9 +1347,7 @@ input[type="checkbox"] {
             Previous
           </button>
           <div style="flex: 1;"></div>
-          <button type="button" class="btn btn-primary" id="nextBtn" onclick="changeStep(1)">
-            Next
-            <i class="bi bi-arrow-right"></i>
+          <button type="button" class="btn btn-primary" id="nextBtn" onclick="changeStep(1)">{% trans "Next" %}<i class="bi bi-arrow-right"></i>
           </button>
           <button type="submit" class="btn btn-success" id="submitBtn" style="display: none;">
             <i class="bi bi-check-circle"></i>
@@ -1285,6 +1358,7 @@ input[type="checkbox"] {
     </form>
   </div>
 </div>
+</div> <!-- End job-form-page-wrapper -->
 
 <!-- Unsaved Changes Warning -->
 <div class="unsaved-warning" id="unsavedWarning">
@@ -1361,6 +1435,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Initialize map
   initializeMap();
+  
+  // Setup location sync between inputs and map
+  setupLocationSync();
 
   // Image preview
   setupImagePreview();
@@ -1524,13 +1601,88 @@ function populateReview() {
 }
 
 function initializeMap() {
-  const defaultLat = parseFloat("{{ object.latitude|default:14.4310956|floatformat:7 }}");
-  const defaultLon = parseFloat("{{ object.longitude|default:120.968096097231|floatformat:7 }}");
+  // Bacoor, Cavite coordinates
+  const bacoorCenter = [14.4167, 120.9833];
   
-  map = L.map('map').setView([defaultLat, defaultLon], 13);
+  // Get saved location or default to Bacoor center
+  const defaultLat = parseFloat("{{ object.latitude|default:14.4167|floatformat:7 }}");
+  const defaultLon = parseFloat("{{ object.longitude|default:120.9833|floatformat:7 }}");
+  
+  // Luzon bounds (allow viewing all of Luzon)
+  const luzonBounds = [
+    [12.0, 119.5],   // Southwest - southern Luzon
+    [19.0, 123.0]    // Northeast - northern Luzon
+  ];
+  
+  // Bacoor GeoJSON polygon
+  const bacoorGeoJSON = {
+    "type": "FeatureCollection",
+    "features": [{
+      "type": "Feature",
+      "properties": {"name": "Bacoor"},
+      "geometry": {
+        "type": "Polygon",
+        "coordinates": [[
+          [120.9450, 14.4800], [121.0200, 14.4800], [121.0200, 14.4500],
+          [121.0150, 14.4300], [121.0100, 14.4100], [121.0000, 14.3900],
+          [120.9900, 14.3850], [120.9700, 14.3850], [120.9550, 14.3900],
+          [120.9450, 14.4000], [120.9450, 14.4200], [120.9450, 14.4500],
+          [120.9450, 14.4800]
+        ]]
+      }
+    }]
+  };
+  
+  // Create map - can view all of Luzon
+  map = L.map('map', {
+    center: [defaultLat, defaultLon],
+    zoom: 14,
+    minZoom: 7,       // Allow zooming out to see all Luzon
+    maxZoom: 18,
+    maxBounds: luzonBounds,
+    maxBoundsViscosity: 0.8
+  });
+  
   L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
     attribution: '© OpenStreetMap contributors',
-    maxZoom: 19
+    maxZoom: 18
+  }).addTo(map);
+  
+  // Create darken mask for outside Bacoor (larger area for Luzon view)
+  const maskWorldBounds = [[12.0, 119.5], [19.0, 123.0]];
+  const bacoorCoords = bacoorGeoJSON.features[0].geometry.coordinates[0];
+  const bacoorLatLngs = bacoorCoords.map(coord => [coord[1], coord[0]]);
+  
+  // Store Bacoor polygon for point-in-polygon check BEFORE reversing
+  window.bacoorPolygon = [...bacoorLatLngs]; // Create a copy
+  
+  const maskCoordinates = [
+    // Outer ring (Luzon rectangle)
+    [[maskWorldBounds[0][0], maskWorldBounds[0][1]], 
+     [maskWorldBounds[1][0], maskWorldBounds[0][1]],
+     [maskWorldBounds[1][0], maskWorldBounds[1][1]], 
+     [maskWorldBounds[0][0], maskWorldBounds[1][1]],
+     [maskWorldBounds[0][0], maskWorldBounds[0][1]]],
+    // Inner ring (Bacoor hole) - reverse for mask
+    [...bacoorLatLngs].reverse()
+  ];
+  
+  L.polygon(maskCoordinates, {
+    color: 'transparent',
+    fillColor: '#000000',
+    fillOpacity: 0.5,
+    interactive: false
+  }).addTo(map);
+  
+  // Add Bacoor boundary with highlight
+  window.bacoorLayer = L.geoJSON(bacoorGeoJSON, {
+    style: {
+      color: '#10b981',
+      weight: 3,
+      opacity: 1,
+      fillColor: '#10b981',
+      fillOpacity: 0.1
+    }
   }).addTo(map);
   
   marker = L.marker([defaultLat, defaultLon], {
@@ -1549,11 +1701,13 @@ function initializeMap() {
   marker.on('dragend', function() {
     const pos = marker.getLatLng();
     updateCoordinates(pos.lat, pos.lng);
+    showLocationWarning(pos.lat, pos.lng);
   });
   
   map.on('click', function(e) {
     marker.setLatLng(e.latlng);
     updateCoordinates(e.latlng.lat, e.latlng.lng);
+    showLocationWarning(e.latlng.lat, e.latlng.lng);
   });
   
   updateCoordinates(defaultLat, defaultLon);
@@ -1562,7 +1716,9 @@ function initializeMap() {
   const observer = new MutationObserver(function(mutations) {
     mutations.forEach(function(mutation) {
       if (mutation.target.classList.contains('active')) {
-        setTimeout(() => { map.invalidateSize(); }, 100);
+        setTimeout(() => { 
+          map.invalidateSize();
+        }, 100);
       }
     });
   });
@@ -1634,6 +1790,354 @@ function setupImagePreview() {
   };
 }
 
+// Check if a point is inside Bacoor polygon
+function isPointInBacoor(lat, lng) {
+  if (!window.bacoorPolygon) {
+    return true; // Default to true if polygon not loaded
+  }
+  
+  const polygon = window.bacoorPolygon;
+  let inside = false;
+  
+  // Ray casting algorithm for point-in-polygon
+  // polygon is stored as [lat, lng] pairs
+  for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+    const lati = polygon[i][0], lngi = polygon[i][1]; // polygon[i] = [lat, lng]
+    const latj = polygon[j][0], lngj = polygon[j][1];
+    
+    // Check if ray from point crosses this edge
+    const intersect = ((lngi > lng) !== (lngj > lng))
+      && (lat < (latj - lati) * (lng - lngi) / (lngj - lngi) + lati);
+    if (intersect) inside = !inside;
+  }
+  
+  return inside;
+}
+
+// Show warning if location is outside Bacoor
+function showLocationWarning(lat, lng) {
+  // Check if point is in Bacoor
+  const inBacoor = isPointInBacoor(lat, lng);
+  
+  // Always remove existing warning first
+  const existingWarning = document.getElementById('bacoor-warning');
+  if (existingWarning) {
+    existingWarning.remove();
+  }
+  
+  // Always remove existing success message
+  const existingSuccess = document.querySelector('[data-location-success]');
+  if (existingSuccess) {
+    existingSuccess.remove();
+  }
+  
+  if (!inBacoor) {
+    // Create warning message
+    const warning = document.createElement('div');
+    warning.id = 'bacoor-warning';
+    warning.style.cssText = `
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #fef3c7;
+      border: 2px solid #f59e0b;
+      color: #92400e;
+      padding: 15px 25px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 10000;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideDown 0.3s ease;
+    `;
+    warning.innerHTML = `
+      <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+        <line x1="12" y1="9" x2="12" y2="13"></line>
+        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+      </svg>
+      <span><i class="fa fa-exclamation-triangle"></i> Warning: Selected location is outside Bacoor area. Jobs are only available in Bacoor, Cavite.</span>
+      <button onclick="this.parentElement.remove()" style="background: none; border: none; cursor: pointer; font-size: 20px; color: #92400e; margin-left: 10px;">×</button>
+    `;
+    
+    // Add slide animation if not already added
+    if (!document.getElementById('slideDownAnimation')) {
+      const style = document.createElement('style');
+      style.id = 'slideDownAnimation';
+      style.textContent = '@keyframes slideDown { from { transform: translateX(-50%) translateY(-100%); opacity: 0; } to { transform: translateX(-50%) translateY(0); opacity: 1; } }';
+      document.head.appendChild(style);
+    }
+    
+    document.body.appendChild(warning);
+    
+    // Highlight Bacoor boundary
+    if (window.bacoorLayer) {
+      window.bacoorLayer.setStyle({
+        color: '#ef4444',
+        weight: 4,
+        opacity: 1,
+        fillColor: '#ef4444',
+        fillOpacity: 0.15
+      });
+      
+      // Pulse effect
+      setTimeout(() => {
+        window.bacoorLayer.setStyle({
+          color: '#10b981',
+          weight: 3,
+          fillOpacity: 0.1
+        });
+      }, 2000);
+    }
+    
+    return false;
+  } else {
+    // Location is in Bacoor - show success briefly
+    const success = document.createElement('div');
+    success.setAttribute('data-location-success', 'true');
+    success.style.cssText = `
+      position: fixed;
+      top: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #d1fae5;
+      border: 2px solid #10b981;
+      color: #065f46;
+      padding: 12px 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      z-index: 10000;
+      font-weight: 600;
+      animation: slideDown 0.3s ease;
+    `;
+    success.textContent = '<i class="fa fa-check-circle"></i> Location is within Bacoor service area';
+    document.body.appendChild(success);
+    
+    setTimeout(() => success.remove(), 2000);
+    return true;
+  }
+}
+
+function setupLocationSync() {
+  // Get all location input elements - using correct Django form IDs
+  const streetInput = document.querySelector('[name="street"]');
+  const houseNumberInput = document.querySelector('[name="house_number"]');
+  const subdivisionInput = document.querySelector('[name="subdivision"]');
+  const barangayInput = document.getElementById('{{ form.barangay.id_for_label }}');
+  const municipalityInput = document.getElementById('{{ form.municipality.id_for_label }}');
+  
+  // Function to geocode and update map
+  function geocodeAndUpdateMap() {
+    const street = streetInput?.value || '';
+    const houseNumber = houseNumberInput?.value || '';
+    const barangay = barangayInput?.value || '';
+    const municipality = 'Bacoor'; // Always Bacoor
+    
+    // Build full address
+    const addressParts = [houseNumber, street, barangay, municipality, 'Cavite', 'Philippines'].filter(p => p);
+    const fullAddress = addressParts.join(', ');
+    
+    if (!fullAddress || fullAddress === 'Bacoor, Cavite, Philippines') {
+      return; // Not enough info to geocode
+    }
+    
+    // Use Nominatim geocoding API
+    const geocodeUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}&limit=1`;
+    
+    fetch(geocodeUrl)
+      .then(response => response.json())
+      .then(data => {
+        if (data && data.length > 0) {
+          const lat = parseFloat(data[0].lat);
+          const lon = parseFloat(data[0].lon);
+          
+          // Update map marker and center
+          if (marker && map) {
+            marker.setLatLng([lat, lon]);
+            map.setView([lat, lon], 16);
+            
+            // Update hidden lat/lon fields
+            document.getElementById("latitude").value = lat;
+            document.getElementById("longitude").value = lon;
+            document.getElementById("lat-display").textContent = lat.toFixed(6);
+            document.getElementById("lon-display").textContent = lon.toFixed(6);
+          }
+        }
+      })
+      .catch(error => console.error('Geocoding error:', error));
+  }
+  
+  // Debouncing for reverse geocoding to prevent rate limiting
+  let reverseGeocodeTimeout;
+  let lastReverseGeocodeTime = 0;
+  
+  // Function to reverse geocode when marker is dragged
+  function reverseGeocode(lat, lon) {
+    console.log('Reverse geocoding:', lat, lon);
+    
+    // Clear previous timeout
+    clearTimeout(reverseGeocodeTimeout);
+    
+    // Debounce: wait 1 second after last call (Nominatim rate limit is 1 req/sec)
+    reverseGeocodeTimeout = setTimeout(() => {
+      // Enforce minimum 1 second between requests
+      const now = Date.now();
+      const timeSinceLastRequest = now - lastReverseGeocodeTime;
+      
+      if (timeSinceLastRequest < 1000) {
+        console.log('Rate limit: waiting', 1000 - timeSinceLastRequest, 'ms');
+        setTimeout(() => reverseGeocode(lat, lon), 1000 - timeSinceLastRequest);
+        return;
+      }
+      
+      lastReverseGeocodeTime = now;
+      
+      // Show loading indicators
+      if (barangayInput) barangayInput.value = 'Loading...';
+      if (subdivisionInput) subdivisionInput.value = 'Loading...';
+      
+      const reverseUrl = `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}&zoom=18&addressdetails=1`;
+      
+      fetch(reverseUrl, {
+        headers: {
+          'User-Agent': 'Trabaholink/1.0'
+        }
+      })
+        .then(response => {
+          if (!response.ok) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+          }
+          return response.json();
+        })
+        .then(data => {
+        console.log('Reverse geocode result:', data);
+        if (data && data.address) {
+          const addr = data.address;
+          console.log('Address object:', addr);
+          
+          // Update street - try road, street, or highway
+          const street = addr.road || addr.street || addr.highway;
+          if (street && streetInput) {
+            streetInput.value = street;
+            console.log('Updated street:', street);
+          } else {
+            console.log('No street found in response');
+          }
+          
+          // Update house number if available
+          if (addr.house_number && houseNumberInput) {
+            houseNumberInput.value = addr.house_number;
+            console.log('Updated house number:', addr.house_number);
+          } else {
+            console.log('No house_number in response');
+          }
+          
+          // OpenStreetMap API structure for Bacoor:
+          // - suburb = subdivision/neighborhood (e.g., "Molino", "Queens Row")
+          // - village/city_district = barangay (e.g., "Molino IV", "Queens Row East")
+          // - municipality = city (e.g., "Bacoor")
+          
+          console.log('Available address fields:', Object.keys(addr));
+          
+          // Update subdivision (smaller area like neighborhood/compound)
+          const subdivision = addr.suburb || addr.neighbourhood || addr.quarter || '';
+          console.log('Subdivision from API:', subdivision);
+          if (subdivisionInput) {
+            subdivisionInput.value = subdivision;
+            console.log('<i class="fa fa-check-circle"></i> Updated subdivision field to:', subdivision);
+            subdivisionInput.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+          
+          // Update barangay (administrative area)
+          // Try multiple fields to get the most specific barangay name
+          const barangay = addr.city_district || addr.village || addr.hamlet || addr.suburb || '';
+          console.log('Barangay from API:', barangay);
+          console.log('city_district:', addr.city_district);
+          console.log('village:', addr.village);
+          
+          if (barangayInput) {
+            barangayInput.value = barangay;
+            console.log('<i class="fa fa-check-circle"></i> Updated barangay field to:', barangay);
+            barangayInput.dispatchEvent(new Event('change', { bubbles: true }));
+          } else {
+            console.error('<i class="fa fa-times-circle"></i> Barangay input element not found!');
+          }
+          
+          formChanged = true;
+        }
+        })
+        .catch(error => {
+          console.error('Reverse geocoding error:', error);
+          // Don't clear fields on error - keep last known values
+          // Only clear "Loading..." text
+          if (barangayInput && barangayInput.value === 'Loading...') {
+            barangayInput.value = '';
+          }
+          if (subdivisionInput && subdivisionInput.value === 'Loading...') {
+            subdivisionInput.value = '';
+          }
+          
+          // Show user-friendly error message
+          console.warn('Unable to fetch address. Try moving the marker again in a moment.');
+        });
+    }, 1000); // 1 second debounce delay to respect Nominatim rate limit
+  }
+  
+  // Add event listeners to location inputs
+  let geocodeTimeout;
+  const inputs = [streetInput, houseNumberInput, subdivisionInput, barangayInput];
+  
+  inputs.forEach(input => {
+    if (input) {
+      input.addEventListener('input', () => {
+        clearTimeout(geocodeTimeout);
+        geocodeTimeout = setTimeout(geocodeAndUpdateMap, 1000); // Debounce 1 second
+      });
+    }
+  });
+  
+  // Override marker dragend to also reverse geocode
+  if (marker) {
+    marker.off('dragend'); // Remove old handler
+    marker.on('dragend', function() {
+      const pos = marker.getLatLng();
+      document.getElementById("latitude").value = pos.lat;
+      document.getElementById("longitude").value = pos.lng;
+      document.getElementById("lat-display").textContent = pos.lat.toFixed(6);
+      document.getElementById("lon-display").textContent = pos.lng.toFixed(6);
+      
+      // Show location warning
+      showLocationWarning(pos.lat, pos.lng);
+      
+      // Reverse geocode to update address inputs
+      reverseGeocode(pos.lat, pos.lng);
+      formChanged = true;
+    });
+  }
+  
+  // Override map click to also reverse geocode
+  if (map) {
+    map.off('click'); // Remove old handler
+    map.on('click', function(e) {
+      marker.setLatLng(e.latlng);
+      document.getElementById("latitude").value = e.latlng.lat;
+      document.getElementById("longitude").value = e.latlng.lng;
+      document.getElementById("lat-display").textContent = e.latlng.lat.toFixed(6);
+      document.getElementById("lon-display").textContent = e.latlng.lng.toFixed(6);
+      
+      // Show location warning
+      showLocationWarning(e.latlng.lat, e.latlng.lng);
+      
+      // Reverse geocode to update address inputs
+      reverseGeocode(e.latlng.lat, e.latlng.lng);
+      formChanged = true;
+    });
+  }
+}
+
 function deleteExistingImage(imageId) {
   if (confirm('Are you sure you want to delete this image?')) {
     const imageEl = document.getElementById('image-' + imageId);
@@ -1677,4 +2181,35 @@ document.querySelectorAll('.step-item').forEach(item => {
   });
 });
 </script>
+{% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "job_form",
+    "title": "Post a Job Guide",
+    "steps": [
+        {
+            "title": "Create Your Job Posting \ud83d\udcdd",
+            "content": "<h3>Find the Perfect Worker</h3><p>Fill out this form to post your job listing and connect with qualified workers in your area.</p><div class='guide-tip'><strong>\ud83d\udca1 Tip:</strong> Clear, detailed job postings get better applicants!</div>"
+        },
+        {
+            "title": "Job Details \ud83d\udccb",
+            "content": "<h3>Essential Information</h3><p>Be specific about:</p><ul><li><strong>Title:</strong> Clear job name (e.g., 'Plumber Needed')</li><li><strong>Description:</strong> What work needs to be done</li><li><strong>Category:</strong> Type of work</li><li><strong>Budget:</strong> How much you'll pay</li></ul>"
+        },
+        {
+            "title": "Requirements & Schedule \u23f0",
+            "content": "<h3>Set Expectations</h3><p>Specify:</p><ul><li><strong>Required Skills:</strong> What workers must know</li><li><strong>Schedule:</strong> When work should be done</li><li><strong>Duration:</strong> How long the job will take</li><li><strong>Number of Workers:</strong> How many you need</li></ul>"
+        },
+        {
+            "title": "Location & Tools \ud83d\udccd",
+            "content": "<h3>Logistics Details</h3><p>Add information about:</p><ul><li><strong>Location:</strong> Where the work is</li><li><strong>Tools Provided:</strong> What you'll supply</li><li><strong>Materials:</strong> What's included</li></ul><div class='guide-warning'><strong>\u26a0\ufe0f Important:</strong> Accurate location helps workers plan their commute.</div>"
+        },
+        {
+            "title": "Publish Your Job! \ud83d\ude80",
+            "content": "<h3>Final Steps</h3><p>Before submitting:</p><ol><li>Review all information for accuracy</li><li>Make sure contact details are correct</li><li>Set a realistic budget</li><li>Click 'Post Job' to publish</li></ol><p>Your job will be visible to workers immediately! \ud83c\udf89</p>"
+        }
+    ]
+}
 {% endblock %}

@@ -5,13 +5,27 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>{% block title %}TrabahoLink{% endblock %}</title>
   {% load static %}
-  <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}" />
+  {% load i18n %}
+  <!-- Favicon -->
+  <link rel="icon" type="image/x-icon" href="{% static 'images/favicon.ico' %}?v=4" />
+  <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon-32x32.png' %}?v=4" />
+  <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon-16x16.png' %}?v=4" />
+  <link rel="apple-touch-icon" href="{% static 'images/favicon.png' %}?v=4" />
   <link rel="stylesheet" href="{% static 'css/bootstrap.min.css' %}" />
   <link rel="stylesheet" href="{% static 'css/base.css' %}" />
+  <link rel="stylesheet" href="{% static 'css/mobile-fixes.css' %}" />
+  <!-- Offline Mode Styles -->
+  <link rel="stylesheet" href="{% static 'css/offline.css' %}" />
   <link
     rel="stylesheet"
     href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css"
   />
+  <!-- Google Fonts for Logo Capital Letters -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Gagalin&family=Righteous&family=Bebas+Neue&family=Oswald:wght@700&display=swap" rel="stylesheet">
+  <!-- Alpine.js for interactive components -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
   <style>
     /* ===== BACOOR CAVITE INSPIRED NAVBAR ===== */
     
@@ -25,6 +39,11 @@
       padding-top: 85px !important;
     }
     
+    /* CSS Variables */
+    :root {
+      --navbar-height: 80px;
+    }
+    
     /* Navbar container - Modern & Beautiful */
     .tl-navbar,
     nav.tl-navbar {
@@ -33,23 +52,32 @@
       left: 0 !important;
       right: 0 !important;
       z-index: 1030 !important;
-      background: #FFFFFF !important;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08) !important;
+      background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e8f0fe 100%) !important;
+      box-shadow: 0 2px 8px rgba(30, 64, 175, 0.08), 0 1px 3px rgba(0, 0, 0, 0.06) !important;
       padding: 0 !important;
-      border-bottom: 1px solid #e5e7eb !important;
+      border-bottom: 1px solid rgba(59, 130, 246, 0.1) !important;
+      min-height: var(--navbar-height);
+      backdrop-filter: blur(10px);
     }
     
-    /* Top accent stripe - Bacoor colors */
+    /* Top accent stripe - Bacoor colors with glow effect */
     .tl-navbar::before {
       content: '';
       position: absolute;
       top: 0;
       left: 0;
       right: 0;
-      height: 4px;
-      background: linear-gradient(90deg, #1e40af 0%, #3b82f6 30%, #f59e0b 70%, #1e40af 100%);
-      animation: gradientShift 8s ease infinite;
+      height: 3px;
+      background: linear-gradient(90deg, 
+        #1e40af 0%, 
+        #3b82f6 25%, 
+        #60a5fa 40%,
+        #f59e0b 60%, 
+        #fbbf24 75%,
+        #1e40af 100%);
+      animation: gradientShift 10s ease infinite;
       background-size: 200% 100%;
+      box-shadow: 0 1px 6px rgba(59, 130, 246, 0.3);
     }
     
     @keyframes gradientShift {
@@ -59,18 +87,21 @@
     
     .tl-navbar .container {
       position: relative;
-      padding: 1rem 0;
+      padding: 0.875rem 0;
     }
     
     .tl-navbar-content {
       display: flex;
       align-items: center;
       justify-content: space-between;
+      width: 100%;
+      gap: 2rem;
     }
     
     /* Brand logo - Modern & Clean */
     .tl-navbar-brand {
-      font-size: 1.625rem;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica Neue', Arial, sans-serif !important;
+      font-size: clamp(32px, 3.5vw, 36px); line-height: 1.05;
       font-weight: 800;
       text-decoration: none;
       z-index: 1031;
@@ -80,31 +111,196 @@
       padding: 0;
       transition: all 0.2s ease;
       letter-spacing: -0.02em;
+      flex-shrink: 0;
+    }
+    
+    @media (max-width: 768px) {
+      .tl-navbar .container {
+        padding: 0.75rem 1rem;
+      }
+      
+      .tl-navbar-brand {
+        margin-left: 0;
+        padding: 0;
+        gap: 0.3rem;
+      }
+      
+      .tl-navbar-content {
+        gap: 1rem;
+      }
+      
+      .tl-brand-icon {
+        width: 24px;
+        height: 24px;
+      }
+      
+      .tl-brand-link-icon {
+        width: 18px;
+        height: 18px;
+      }
+      
+      .tl-letter-icon {
+        width: 18px;
+        height: 18px;
+      }
+      
+      .tl-brand-text, .tl-brand-highlight {
+        font-size: 1.65rem;
+      }
+      
+      .tl-capital-letter {
+        font-size: 1em !important;
+      }
+    }
+    
+    @media (max-width: 480px) {
+      .tl-navbar .container {
+        padding: 0.625rem 0.875rem;
+      }
+      
+      .tl-navbar-brand {
+        margin-left: 0;
+        gap: 0.2rem;
+      }
+      
+      .tl-brand-icon {
+        width: 20px;
+        height: 20px;
+      }
+      
+      .tl-brand-link-icon {
+        width: 16px;
+        height: 16px;
+        margin-left: 2px;
+      }
+      
+      .tl-letter-icon {
+        width: 15px;
+        height: 15px;
+        margin: 0 -1px;
+      }
+      
+      .tl-location-icon {
+        transform: translateY(-1px);
+      }
+      
+      .tl-brand-text, .tl-brand-highlight {
+        font-size: 1.4rem;
+        letter-spacing: -0.3px;
+      }
+      
+      .tl-brand-highlight {
+        letter-spacing: 0.3px;
+      }
+      
+      .tl-capital-letter {
+        font-size: 1em !important;
+        font-weight: 400 !important;
+      }
     }
     
     .tl-navbar-brand:hover {
       opacity: 0.85;
     }
+
+    /* Skilled Worker Brand Design - Bacoor City */
+    .tl-brand-icon {
+      flex-shrink: 0;
+      transition: all 0.3s ease;
+    }
+    
+    .tl-brand-link-icon {
+      flex-shrink: 0;
+      margin-left: 4px;
+      transition: all 0.3s ease;
+    }
     
     .tl-brand-text {
-      color: #1e40af !important;
-      font-weight: 800;
+      color: #1e40af !important; /* Deep Blue - High Contrast */
+      font-weight: 700;
+      font-size: 1.85rem;
+      letter-spacing: -0.5px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+      display: inline-flex;
+      align-items: center;
+      gap: 0px;
+    }
+    
+    /* Icon-Letter Integration */
+    .tl-letter-icon {
+      display: inline-block;
+      vertical-align: middle;
+      margin: 0 -2px;
       transition: all 0.3s ease;
+    }
+    
+    .tl-location-icon {
+      transform: translateY(-2px);
     }
     
     .tl-brand-highlight {
-      color: #f59e0b !important;
-      font-weight: 800;
-      transition: all 0.3s ease;
+      color: #fbbf24 !important; /* Bright Yellow - Consistent with icons */
+      font-weight: 700;
+      font-size: 1.85rem !important; /* Same size as tl-brand-text */
+      letter-spacing: 0.5px;
+      transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      position: relative;
+      margin-left: 0;
+      text-shadow: 
+        0 1px 2px rgba(30, 64, 175, 0.6),
+        0 2px 4px rgba(30, 64, 175, 0.5),
+        1px 1px 3px rgba(30, 64, 175, 0.4);
     }
     
-    .tl-navbar-brand:hover .tl-brand-text {
-      color: #3b82f6 !important;
+    /* Capital letters T and L - Normal size with distinctive font */
+    .tl-capital-letter {
+      font-family: 'Gagalin', 'Righteous', 'Bebas Neue', 'Oswald', 'Impact', sans-serif;
+      font-size: 1em;
+      font-weight: 400;
+      line-height: 1;
+      display: inline-block;
+      transform: translateY(0);
+      letter-spacing: normal;
+      margin-right: 0;
     }
     
-    .tl-navbar-brand:hover .tl-brand-highlight {
-      color: #fbbf24 !important;
+    /* T gets blue shadow (inside .tl-brand-text) */
+    .tl-brand-text .tl-capital-letter {
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
     }
+    
+    /* L gets yellow/blue shadow (inside .tl-brand-highlight) */
+    .tl-brand-highlight .tl-capital-letter {
+      text-shadow: 
+        0 1px 2px rgba(30, 64, 175, 0.6),
+        0 2px 4px rgba(30, 64, 175, 0.5),
+        1px 1px 3px rgba(30, 64, 175, 0.4);
+    }
+    
+    /* Hover effects for entire logo */
+    .tl-navbar-brand:hover .tl-brand-icon {
+      transform: rotate(90deg);
+    }
+    
+    .tl-navbar-brand:hover .tl-brand-link-icon {
+      transform: scale(1.1);
+    }
+    
+    .tl-navbar-brand:hover .tl-location-icon {
+      transform: translateY(-4px) scale(1.1);
+    }
+    
+    .tl-navbar-brand:hover .tl-brand-text { 
+      color: #1e3a8a !important;
+    }
+    
+    .tl-navbar-brand:hover .tl-brand-highlight { 
+      color: #f59e0b !important; /* Slightly darker yellow on hover */
+    }
+
+  
     
     /* Hamburger button - Modern */
     .tl-navbar-toggler {
@@ -142,23 +338,29 @@
       list-style: none;
       margin: 0;
       padding: 0;
-      gap: 0.25rem;
+      gap: 0.5rem;
+      flex: 1;
+      justify-content: flex-end;
     }
     
     .tl-nav-item {
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
     }
     
     .tl-nav-link {
-      color: #4b5563 !important;
+      color: #1f2937 !important;
       text-decoration: none;
       font-weight: 600;
       font-size: 0.9375rem;
       padding: 0.625rem 1rem;
       border-radius: 8px;
       transition: all 0.2s ease;
-      display: inline-block;
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
       position: relative;
+      white-space: nowrap;
     }
     
     .tl-nav-link:hover {
@@ -170,7 +372,6 @@
       color: #FFFFFF !important;
       background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%);
       box-shadow: 0 2px 8px rgba(30, 64, 175, 0.3);
-      position: relative;
     }
     
     .tl-nav-link.active::after {
@@ -189,9 +390,13 @@
       to { width: 80%; }
     }
     
-    /* Hide icons on desktop, show only text */
+    /* Desktop: Hide icons, show text with proper color */
     .nav-icon {
       display: none;
+    }
+    
+    .nav-text {
+      color: inherit;
     }
     
     /* Mobile styles - Bacoor themed */
@@ -266,12 +471,12 @@
       .tl-navbar-nav.show a {
         display: block !important;
         width: 100% !important;
-        padding: 0.875rem 1rem !important;
+        padding: 0.625rem 1rem !important;
         color: #4b5563 !important;
         -webkit-text-fill-color: #4b5563 !important;
         text-align: left !important;
-        font-size: 0.9375rem !important;
-        font-weight: 600 !important;
+        font-size: 0.8125rem !important;
+        font-weight: 500 !important;
         background: transparent !important;
         opacity: 1 !important;
         visibility: visible !important;
@@ -305,8 +510,8 @@
         border: none !important;
         background: transparent !important;
         color: #4b5563 !important;
-        font-size: 0.9375rem !important;
-        padding: 0.875rem 1rem !important;
+        font-size: 0.875rem !important;
+        padding: 0.75rem 1rem !important;
         border-radius: 8px !important;
         margin-bottom: 0.25rem !important;
         font-weight: 600 !important;
@@ -345,17 +550,25 @@
     /* Notification badge */
     .notification-badge-number {
       position: absolute;
-      top: -5px;
-      right: -5px;
+      top: -8px;
+      left: -8px;
       background: #ef4444;
       color: white;
-      border-radius: 10px;
-      padding: 2px 6px;
-      font-size: 0.7rem;
+      border-radius: 50%;
+      padding: 0;
+      font-size: 0.625rem;
       font-weight: 700;
-      min-width: 18px;
+      min-width: 20px;
+      width: 20px;
+      height: 20px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       text-align: center;
       animation: pulse 2s infinite;
+      z-index: 10;
+      box-sizing: border-box;
+      line-height: 1;
     }
     
     @keyframes pulse {
@@ -731,6 +944,26 @@
       overflow: visible !important;
     }
     
+    /* Navbar collapse wrapper */
+    .tl-navbar-collapse {
+      overflow: visible !important;
+    }
+    
+    /* Navbar nav list */
+    .tl-navbar-nav {
+      overflow: visible !important;
+    }
+    
+    /* Nav items - prevent clipping */
+    .tl-nav-item {
+      overflow: visible !important;
+    }
+    
+    /* Profile menu - ensure dropdown is not clipped */
+    .tl-profile-menu {
+      overflow: visible !important;
+    }
+    
     /* Desktop: hide toggler, show collapse normally */
     @media (min-width: 992px) {
       .tl-navbar-toggler {
@@ -763,6 +996,48 @@
       }
     }
 
+    /* Profile Menu Styles */
+    .tl-profile-menu {
+      position: relative;
+    }
+
+    .tl-profile-button {
+      background: none;
+      border: none;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #4b5563;
+      cursor: pointer;
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      font-weight: 600;
+    }
+
+    .tl-profile-button:hover {
+      background: #eff6ff;
+      color: #1e40af;
+    }
+
+    .tl-profile-button .profile-avatar {
+      height: 36px;
+      width: 36px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #e0e7ff 0%, #c7d2fe 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.25rem;
+      color: #3730a3;
+      flex-shrink: 0;
+    }
+
+    .tl-profile-button .profile-name {
+      font-size: 0.95rem;
+      font-weight: 600;
+    }
+
     .tl-profile-dropdown {
       position: absolute;
       right: 0;
@@ -792,7 +1067,9 @@
       border: none;
       text-align: left;
       color: #1f2937;
+      text-decoration: none;
       transition: background 0.2s ease, color 0.2s ease;
+      cursor: pointer;
     }
 
     .tl-profile-dropdown a:hover,
@@ -801,37 +1078,19 @@
       color: #4c1d95;
     }
 
-    .tl-profile-button {
-      background: none;
-      border: none;
-      display: flex;
-      align-items: center;
-      gap: 0.5rem;
-      color: inherit;
-      cursor: pointer;
-      padding: 0.5rem 0.75rem;
-    }
-
-    .tl-profile-button .profile-avatar {
-      height: 36px;
-      width: 36px;
-      border-radius: 999px;
-      background: #e0e7ff;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.25rem;
-      color: #3730a3;
-    }
-
-    .tl-profile-button .profile-name {
-      font-size: 0.95rem;
-      font-weight: 600;
-    }
-
     @media (max-width: 992px) {
       .tl-profile-menu {
         width: 100%;
+      }
+      
+      .tl-profile-button {
+        width: 100%;
+        justify-content: space-between;
+        padding: 0.75rem 1rem;
+      }
+      
+      .tl-profile-button .profile-name {
+        font-size: 0.875rem;
       }
 
       .tl-profile-dropdown {
@@ -840,6 +1099,12 @@
         min-width: unset;
         width: 100%;
         box-shadow: 0 5px 20px rgba(15, 23, 42, 0.1);
+      }
+      
+      .tl-profile-dropdown a,
+      .tl-profile-dropdown button {
+        font-size: 0.875rem;
+        padding: 0.75rem 1rem;
       }
     }
     
@@ -1132,14 +1397,104 @@
     }
   </style>
   {% block css %}{% endblock %}
+  
+  <style>
+  /* Global Floating Shapes Background */
+  body {
+    background: linear-gradient(135deg, #dbeafe 0%, #fef3c7 100%);
+    background-attachment: fixed;
+    animation: backgroundShift 20s ease infinite;
+    background-size: 200% 200%;
+    position: relative;
+  }
+  
+  @keyframes backgroundShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+  }
+  
+  /* Floating Shapes */
+  body::before,
+  body::after {
+    content: '';
+    position: fixed;
+    opacity: 0.08;
+    animation: float 15s infinite ease-in-out;
+    z-index: 0;
+    pointer-events: none;
+  }
+  
+  body::before {
+    top: 10%;
+    left: 5%;
+    width: 120px;
+    height: 120px;
+    background: #1e40af;
+    border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+    filter: blur(2px);
+  }
+  
+  body::after {
+    top: 60%;
+    right: 10%;
+    width: 100px;
+    height: 100px;
+    background: #fbbf24;
+    border-radius: 50%;
+    animation-delay: 2s;
+    animation-duration: 18s;
+    filter: blur(2px);
+  }
+  
+  .floating-shape-3 {
+    position: fixed;
+    bottom: 15%;
+    left: 15%;
+    width: 90px;
+    height: 90px;
+    background: #1e3a8a;
+    border-radius: 15% 85% 35% 65% / 65% 35% 65% 35%;
+    opacity: 0.08;
+    animation: float 20s infinite ease-in-out;
+    animation-delay: 4s;
+    filter: blur(2px);
+    z-index: 0;
+    pointer-events: none;
+  }
+  
+  @keyframes float {
+    0%, 100% {
+      transform: translateY(0) rotate(0deg);
+    }
+    50% {
+      transform: translateY(-20px) rotate(5deg);
+    }
+  }
+  
+  /* Ensure content appears above shapes */
+  nav, main, footer, .container, .tl-navbar {
+    position: relative;
+    z-index: 1;
+  }
+  </style>
 </head>
-<body class="d-flex flex-column min-vh-100" style="padding-top: 80px !important;">
+<body class="d-flex flex-column min-vh-100" style="padding-top: var(--navbar-height) !important;">
+  <div class="floating-shape-3"></div>
   <nav class="tl-navbar">
     <div class="container">
       <div class="tl-navbar-content">
         <a class="tl-navbar-brand" href="{% url 'jobs:home' %}">
-          <span class="tl-brand-text">Trabaho</span>
-          <span class="tl-brand-text tl-brand-highlight">Link</span>
+          <span class="tl-brand-text">
+            <span class="tl-capital-letter">T</span>rabah
+            <!-- Location pin icon replacing 'O' -->
+            <svg class="tl-letter-icon tl-location-icon" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M12 2C8.13401 2 5 5.13401 5 9C5 14.25 12 22 12 22C12 22 19 14.25 19 9C19 5.13401 15.866 2 12 2Z" stroke="#1e40af" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <circle cx="12" cy="9" r="2.5" fill="#f59e0b"/>
+            </svg>
+          </span>
+          <span class="tl-brand-text tl-brand-highlight">
+            <span class="tl-capital-letter">L</span>ink
+          </span>
         </a>
         
         <button class="tl-navbar-toggler" id="navbarToggler" type="button">
@@ -1162,7 +1517,7 @@
                 href="{% url 'jobs:job_list' %}"
               >
                 <i class="bi bi-briefcase nav-icon"></i>
-                <span class="nav-text">Postings</span>
+                <span class="nav-text">{% trans "Postings" %}</span>
               </a>
             </li>
             <li class="tl-nav-item me-3">
@@ -1171,7 +1526,7 @@
                 href="{% url 'announcements:announcement_list' %}"
               >
                 <i class="bi bi-megaphone nav-icon"></i>
-                <span class="nav-text">Announcements</span>
+                <span class="nav-text">{% trans "Announcements" %}</span>
               </a>
             </li>
             {% if user.is_authenticated %}
@@ -1181,18 +1536,18 @@
                 href="{% url 'messaging:conversation_list' %}"
               >
                 <i class="bi bi-chat-dots nav-icon"></i>
-                <span class="nav-text">Messages</span>
+                <span class="nav-text">{% trans "Messages" %}</span>
               </a>
             </li>
-            <li class="tl-nav-item position-relative me-3">
+            <li class="tl-nav-item me-3">
               <button
                 class="tl-nav-link notification-bell-btn"
                 id="notificationBellBtn"
                 type="button"
-                style="position:relative; background: none; border: none; cursor: pointer;"
+                style="position:relative; background: none; border: none; cursor: pointer; overflow: visible;"
               >
                 <i class="bi bi-bell nav-icon" style="position: relative;"></i>
-                <span class="nav-text">Notifications</span>
+                <span class="nav-text">{% trans "Notifications" %}</span>
                 {% if unread_notification_count > 0 %}
                 <span class="notification-badge-number">{{ unread_notification_count }}</span>
                 {% endif %}
@@ -1201,40 +1556,44 @@
             <li class="tl-nav-item tl-profile-menu position-relative">
               <button class="tl-profile-button" id="profileMenuBtn" type="button" aria-expanded="false" aria-haspopup="true">
                 <span class="profile-avatar">
-                  <i class="bi bi-person-circle"></i>
+                  {% if request.user.profile_picture %}
+                    <img src="{{ request.user.profile_picture.url }}" alt="{{ request.user.username }}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                  {% else %}
+                    <img src="{% static 'images/default_avatar.svg' %}" alt="{{ request.user.username }}" style="width: 32px; height: 32px; border-radius: 50%; object-fit: cover;">
+                  {% endif %}
                 </span>
-                <span class="profile-name">{{ request.user.get_short_name|default:request.user.username }}</span>
+                <span class="profile-name">{{ request.user.get_short_name|default:request.user.username|title }}</span>
                 <i class="bi bi-caret-down-fill" style="font-size: 0.75rem;"></i>
               </button>
 
               <div class="tl-profile-dropdown" id="profileDropdown" role="menu" aria-label="Profile options">
-                <a href="{% url 'profile' user.pk %}" class="dropdown-item" role="menuitem">
+                <a href="{% url 'users:profile' request.user.pk %}" class="dropdown-item" role="menuitem">
                   <i class="bi bi-person"></i>
-                  <span>View Profile</span>
+                  <span>{% trans "View Profile" %}</span>
                 </a>
-                {% if has_job_applications %}
+                {% if user.role == 'worker' %}
                 <a href="{% url 'jobs:worker_dashboard' %}" class="dropdown-item" role="menuitem">
                   <i class="bi bi-speedometer2"></i>
-                  <span>Worker Dashboard</span>
+                  <span>{% trans "Worker Dashboard" %}</span>
                 </a>
                 {% endif %}
-                {% if has_job_postings %}
+                {% if user.role == 'client' %}
                 <a href="{% url 'jobs:employer_dashboard' %}" class="dropdown-item" role="menuitem">
                   <i class="bi bi-briefcase"></i>
-                  <span>Employer Dashboard</span>
+                  <span>{% trans "Employer Dashboard" %}</span>
                 </a>
                 {% endif %}
                 {% if user.is_staff %}
                 <a href="{% url 'admin_dashboard:dashboard_main' %}" class="dropdown-item" role="menuitem">
                   <i class="bi bi-shield-check"></i>
-                  <span>Admin Dashboard</span>
+                  <span>{% trans "Admin Dashboard" %}</span>
                 </a>
                 {% endif %}
-                <form method="post" action="{% url 'logout' %}" id="logoutForm" style="margin: 0;">
+                <form method="post" action="{% url 'users:logout' %}" id="logoutForm" style="margin: 0;">
                   {% csrf_token %}
                   <button type="button" onclick="confirmLogout()" role="menuitem">
                     <i class="bi bi-box-arrow-right"></i>
-                    <span>Logout</span>
+                    <span>{% trans "Logout" %}</span>
                   </button>
                 </form>
               </div>
@@ -1243,22 +1602,25 @@
             <li class="tl-nav-item me-3">
               <a
                 class="tl-nav-link {% if request.path == '/users/login/' %}active{% endif %}"
-                href="{% url 'login' %}"
+                href="{% url 'users:login' %}"
               >
                 <i class="bi bi-box-arrow-in-right nav-icon"></i>
-                <span class="nav-text">Login</span>
+                <span class="nav-text">{% trans "Login" %}</span>
               </a>
             </li>
             <li class="tl-nav-item">
               <a
                 class="tl-nav-link {% if request.path == '/users/register/' %}active{% endif %}"
-                href="{% url 'register' %}"
+                href="{% url 'users:register' %}"
               >
                 <i class="bi bi-person-plus nav-icon"></i>
-                <span class="nav-text">Register</span>
+                <span class="nav-text">{% trans "Register" %}</span>
               </a>
             </li>
             {% endif %}
+            <li class="tl-nav-item ms-2" style="overflow: visible;">
+              {% include 'components/language_switcher.html' %}
+            </li>
         </ul>
       </div>
     </div>
@@ -1271,12 +1633,12 @@
   {% if user.is_authenticated %}
   <div class="notification-dropdown" id="notificationDropdown">
     <div class="notification-dropdown-header">
-      <h3>Notifications</h3>
+      <h3>{% trans "Notifications" %}</h3>
       <div class="notification-actions">
-        <button class="mark-all-read-btn" id="markAllReadBtn" title="Mark all as read">
+        <button class="mark-all-read-btn" id="markAllReadBtn" title="{% trans 'Mark all as read' %}">
           <i class="bi bi-check-all"></i>
         </button>
-        <a href="{% url 'notifications:notification_list' %}" class="view-all-btn" title="View all">
+        <a href="{% url 'notifications:notification_list' %}" class="view-all-btn" title="{% trans 'View all' %}">
           <i class="bi bi-arrow-right-circle"></i>
         </a>
       </div>
@@ -1284,7 +1646,7 @@
     <div class="notification-dropdown-body" id="notificationDropdownBody">
       <div class="loading-notifications">
         <i class="bi bi-arrow-repeat spin"></i>
-        <span>Loading notifications...</span>
+        <span>{% trans "Loading notifications..." %}</span>
       </div>
     </div>
   </div>
@@ -1382,7 +1744,12 @@
         </div>
       </div>
 
-      <hr style="border-color: #475569; margin: 2rem 0;">
+      <style>
+      .footer-divider{border-color:#475569;margin:2rem 0}
+      @media (max-width: 767.98px){.footer-divider{margin:1rem 0}}
+      @media (min-width:768px){.footer-divider{margin:2rem 0}}
+      </style>
+      <hr class="footer-divider">
 
       <div class="row">
         <div class="col-md-6 text-center text-md-start">
@@ -1421,9 +1788,20 @@
               </label>
               <select id="reportType" class="form-select" name="report_type" required style="padding: 0.75rem; border: 2px solid #cbd5e1; border-radius: 0.5rem; font-size: 1rem; transition: all 0.2s;" onchange="handleReportTypeChange()">
                 <option value="">Select report type...</option>
-                <option value="user">👤 Suspicious User</option>
-                <option value="job">💼 Fraudulent Job Posting</option>
+                <option value="user">Report a User</option>
+                <option value="job">Report a Job Posting</option>
               </select>
+            </div>
+
+            <!-- Report Category Selection -->
+            <div class="mb-4" id="reportCategoryField" style="display: none;">
+              <label for="reportCategory" class="form-label" style="font-weight: 600; color: #1e293b; margin-bottom: 0.5rem; display: flex; align-items: center; gap: 0.5rem;">
+                <i class="bi bi-tags" style="color: #3b82f6;"></i> Category <span style="color: #ef4444;">*</span>
+              </label>
+              <select id="reportCategory" class="form-select" name="report_category" style="padding: 0.75rem; border: 2px solid #cbd5e1; border-radius: 0.5rem; font-size: 1rem; transition: all 0.2s;">
+                <option value="">Select a category...</option>
+              </select>
+              <small style="color: #64748b; display: block; margin-top: 0.5rem;">Choose the category that best describes your concern</small>
             </div>
 
             <!-- User Search Field -->
@@ -1432,7 +1810,7 @@
                 <i class="bi bi-person-search" style="color: #3b82f6;"></i> Search for User <span style="color: #ef4444;">*</span>
               </label>
               <div style="position: relative;">
-                <input type="text" id="userSearchInput" class="form-control" placeholder="Type username or name to search..." style="padding: 0.75rem 2.5rem 0.75rem 0.75rem; border: 2px solid #cbd5e1; border-radius: 0.5rem; font-size: 1rem;" oninput="searchUsers(this.value)" autocomplete="off" />
+                <input type="text" id="userSearchInput" class="form-control" placeholder="Type username or name to search..." style="padding: 0.75rem 2.5rem 0.75rem 0.75rem; border: 2px solid #cbd5e1; border-radius: 0.5rem; font-size: 1rem;" oninput="searchReportUsers(this.value)" autocomplete="off" />
                 <i class="bi bi-search" style="position: absolute; right: 1rem; top: 50%; transform: translateY(-50%); color: #94a3b8;"></i>
                 <input type="hidden" id="userId" name="user_id" />
                 <div id="userSearchResults" class="search-results" style="display: none;"></div>
@@ -1797,6 +2175,52 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script src="{% static 'js/base.js' %}"></script>
+  
+  <!-- Offline Mode Scripts (Load in order) -->
+  <script src="{% static 'js/offline-cache.js' %}"></script>
+  <script src="{% static 'js/offline-ui.js' %}"></script>
+  <script src="{% static 'js/offline-prefetch.js' %}"></script>
+  <script src="{% static 'js/offline-link-handler.js' %}"></script>
+  
+  <!-- Service Worker Registration -->
+  <script>
+    // Register Service Worker for offline page caching
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', function() {
+        navigator.serviceWorker.register('/sw.js')
+          .then(function(registration) {
+            console.log('✅ [ServiceWorker] Registered successfully:', registration.scope);
+            
+            // Check for updates periodically
+            setInterval(function() {
+              registration.update();
+            }, 60000); // Check every minute
+          })
+          .catch(function(error) {
+            console.error('❌ [ServiceWorker] Registration failed:', error);
+          });
+        
+        // Handle service worker updates
+        navigator.serviceWorker.addEventListener('controllerchange', function() {
+          console.log('🔄 [ServiceWorker] New version available, reloading...');
+          // Optionally show a toast notification before reload
+          if (window.offlineUI) {
+            window.offlineUI.showToast(
+              'Update Available', 
+              'A new version is available. Refreshing...', 
+              'info'
+            );
+          }
+          setTimeout(function() {
+            window.location.reload();
+          }, 2000);
+        });
+      });
+    } else {
+      console.warn('⚠️ Service Workers not supported in this browser');
+    }
+  </script>
+  
   {% block js %}{% endblock %}
   
   <script>
@@ -1849,30 +2273,74 @@
     let userSearchTimeout;
     let jobSearchTimeout;
 
+    // Report categories
+    const reportCategories = {
+      user: [
+        { value: 'harassment', label: 'Harassment or Bullying', icon: 'bi-exclamation-triangle' },
+        { value: 'scam', label: 'Scam or Fraud', icon: 'bi-shield-x' },
+        { value: 'fake_profile', label: 'Fake Profile', icon: 'bi-person-x' },
+        { value: 'inappropriate_content', label: 'Inappropriate Content', icon: 'bi-slash-circle' },
+        { value: 'spam', label: 'Spam or Advertising', icon: 'bi-megaphone' },
+        { value: 'impersonation', label: 'Impersonation', icon: 'bi-person-badge' },
+        { value: 'other', label: 'Other Issues', icon: 'bi-three-dots' }
+      ],
+      job: [
+        { value: 'misleading', label: 'Misleading Information', icon: 'bi-exclamation-circle' },
+        { value: 'scam', label: 'Scam or Fraud', icon: 'bi-shield-x' },
+        { value: 'inappropriate', label: 'Inappropriate Content', icon: 'bi-slash-circle' },
+        { value: 'duplicate', label: 'Duplicate Posting', icon: 'bi-files' },
+        { value: 'illegal', label: 'Illegal Activity', icon: 'bi-ban' },
+        { value: 'spam', label: 'Spam or Low Quality', icon: 'bi-megaphone' },
+        { value: 'other', label: 'Other Issues', icon: 'bi-three-dots' }
+      ]
+    };
+
     // Handle report type change
     function handleReportTypeChange() {
       const reportType = document.getElementById('reportType').value;
+      const categoryField = document.getElementById('reportCategoryField');
+      const categorySelect = document.getElementById('reportCategory');
       const userField = document.getElementById('userSearchField');
       const jobField = document.getElementById('jobSearchField');
       
-      // Hide both fields first
+      // Hide all fields first
+      categoryField.style.display = 'none';
       userField.style.display = 'none';
       jobField.style.display = 'none';
       
       // Clear selections
+      categorySelect.innerHTML = '<option value="">Select a category...</option>';
       clearUserSelection();
       clearJobSelection();
       
-      // Show appropriate field
+      // Show category and search fields based on report type
       if (reportType === 'user') {
+        categoryField.style.display = 'block';
         userField.style.display = 'block';
+        
+        // Populate user categories
+        reportCategories.user.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat.value;
+          option.textContent = cat.label;
+          categorySelect.appendChild(option);
+        });
       } else if (reportType === 'job') {
+        categoryField.style.display = 'block';
         jobField.style.display = 'block';
+        
+        // Populate job categories
+        reportCategories.job.forEach(cat => {
+          const option = document.createElement('option');
+          option.value = cat.value;
+          option.textContent = cat.label;
+          categorySelect.appendChild(option);
+        });
       }
     }
 
     // Search users with debounce
-    function searchUsers(query) {
+    function searchReportUsers(query) {
       clearTimeout(userSearchTimeout);
       const resultsDiv = document.getElementById('userSearchResults');
       
@@ -2034,8 +2502,15 @@
       
       const form = event.target;
       const reportType = document.getElementById('reportType').value;
+      const reportCategory = document.getElementById('reportCategory').value;
       const userId = document.getElementById('userId').value;
       const jobId = document.getElementById('jobId').value;
+      
+      // Validate category selection
+      if (!reportCategory) {
+        alert('Please select a report category.');
+        return false;
+      }
       
       // Validate selection
       if (reportType === 'user' && !userId) {
@@ -2128,6 +2603,46 @@
         }, 5000); // 5 seconds
       });
     });
+    
+    // Prevent back button from showing cached authenticated pages after logout
+    (function() {
+      // Detect if page was loaded via back button
+      window.addEventListener('pageshow', function(event) {
+        // If page is from cache (back/forward button)
+        if (event.persisted || (window.performance && window.performance.navigation.type === 2)) {
+          // Force reload from server
+          window.location.reload();
+        }
+      });
+      
+      // Additional protection - prevent browser from caching
+      window.onload = function() {
+        // Check if page was accessed via back button
+        if (performance.navigation.type === performance.navigation.TYPE_BACK_FORWARD) {
+          window.location.reload();
+        }
+      };
+    })();
   </script>
+
+  {% if user.is_authenticated and user_guide_enabled %}
+  <!-- ============================================================================ -->
+  <!-- USER GUIDE SYSTEM -->
+  <!-- ============================================================================ -->
+  {% include 'mainpages/user_guide_system.html' %}
+  
+  <!-- Page-Specific Guide Data (Must be in base.html for block override to work) -->
+  <script type="application/json" id="guidePageData">
+  {% block guide_data %}
+  {
+      "enabled": false,
+      "page_name": "default",
+      "title": "Welcome!",
+      "steps": []
+  }
+  {% endblock %}
+  </script>
+  {% endif %}
+
 </body>
 </html>

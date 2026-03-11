@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block content %}
 <style>
@@ -182,7 +183,7 @@
 
 <div class="review-form-container">
   <div class="form-header">
-    <h2>{% if is_edit %}✏️ Edit Your Review{% else %}✍️ Write a Review{% endif %}</h2>
+    <h2>{% if is_edit %}<i class="fa fa-pencil"></i> Edit Your Review{% else %}✍️ Write a Review{% endif %}</h2>
     <p>Share your experience with this service</p>
   </div>
 
@@ -226,9 +227,7 @@
     </div>
 
     <div class="form-actions">
-      <a href="{% url 'services:servicepost_detail' slug=service_post.slug %}" class="btn btn-secondary">
-        Cancel
-      </a>
+      <a href="{% url 'services:servicepost_detail' slug=service_post.slug %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
       <button type="submit" class="btn btn-primary">
         {% if is_edit %}💾 Update Review{% else %}📤 Submit Review{% endif %}
       </button>
@@ -298,4 +297,27 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 
+{% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "review_form",
+    "title": "Write a Review",
+    "steps": [
+        {
+            "title": "Review This Service \u2b50",
+            "content": "<h3>Share Your Experience</h3><p>Help others by reviewing the service you received.</p>"
+        },
+        {
+            "title": "Be Detailed \ud83d\udcdd",
+            "content": "<h3>What to Include</h3><ul><li>Quality of work</li><li>Professionalism</li><li>Value for money</li><li>Communication</li><li>Timeliness</li></ul>"
+        },
+        {
+            "title": "Be Fair \u2696\ufe0f",
+            "content": "<h3>Honest Reviews</h3><p>Your review impacts the provider's reputation. Be honest but constructive. Focus on facts, not emotions.</p>"
+        }
+    ]
+}
 {% endblock %}

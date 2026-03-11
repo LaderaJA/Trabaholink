@@ -1,4 +1,5 @@
 {% extends 'admin_dashboard/dashboard_base.html' %}
+{% load i18n %}
 
 {% block title %}Skill Verification Details{% endblock %}
 {% block page_title %}Skill Verification Details{% endblock %}
@@ -229,9 +230,7 @@
         </div>
         <div class="p-6 border-t border-gray-200 flex justify-end gap-3">
             <button onclick="closeRejectModal()" 
-                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-                Cancel
-            </button>
+                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">{% trans "Cancel" %}</button>
             <button onclick="confirmReject()" 
                     class="px-4 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600 transition">
                 Reject Skill
@@ -259,9 +258,7 @@
         </div>
         <div class="p-6 border-t border-gray-200 flex justify-end gap-3">
             <button onclick="closeFeedbackModal()" 
-                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">
-                Cancel
-            </button>
+                    class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50 transition">{% trans "Cancel" %}</button>
             <button onclick="confirmSendFeedback()" 
                     class="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition">
                 Send Feedback

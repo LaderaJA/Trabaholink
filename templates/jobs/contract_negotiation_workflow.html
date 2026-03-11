@@ -1,0 +1,925 @@
+{% extends "mainpages/base.html" %}
+{% load static %}
+{% load i18n %}
+
+{% block title %}Contract Negotiation - {{ contract.job.title }}{% endblock %}
+
+{% block css %}
+{{ block.super }}
+<style>
+:root {
+  --primary: #3b82f6;
+  --primary-dark: #2563eb;
+  --primary-light: #dbeafe;
+  --success: #10b981;
+  --success-light: #d1fae5;
+  --warning: #f59e0b;
+  --warning-light: #fef3c7;
+  --danger: #ef4444;
+  --danger-light: #fee2e2;
+  --gray-900: #111827;
+  --gray-700: #374151;
+  --gray-500: #6b7280;
+  --gray-100: #f3f4f6;
+  --gray-50: #f9fafb;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: var(--gray-50);
+}
+
+.page-header {
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white;
+  padding: 2rem 0;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.page-title {
+  font-size: 2rem;
+  font-weight: 700;
+  margin: 0 0 0.5rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.breadcrumb {
+  background: white;
+  padding: 1rem 1.5rem;
+  border-radius: 0.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.breadcrumb a {
+  color: var(--primary);
+  text-decoration: none;
+}
+
+/* Content Grid Layout */
+.content-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+/* Workflow Progress Section */
+.workflow-section {
+  background: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  margin-bottom: 0;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.progress-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+}
+
+.section-title {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: var(--gray-900);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+}
+
+.section-title i {
+  color: var(--primary);
+}
+
+.status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  border-radius: 2rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+}
+
+.status-badge.negotiation {
+  background: var(--warning-light);
+  color: #92400e;
+}
+
+.status-badge.finalized {
+  background: var(--success-light);
+  color: #065f46;
+}
+
+/* Progress Bar */
+.progress-bar-container {
+  position: relative;
+  height: 8px;
+  background: white;
+  border-radius: 10px;
+  overflow: hidden;
+  margin-bottom: 3rem;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.06);
+}
+
+.progress-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--success) 0%, #059669 100%);
+  border-radius: 10px;
+  transition: width 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+}
+
+.progress-bar-fill::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+  animation: shimmer 2s infinite;
+}
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* Workflow Steps */
+.workflow-steps {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  position: relative;
+  gap: 1rem;
+}
+
+.workflow-step {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.step-circle {
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 700;
+  font-size: 1.25rem;
+  margin-bottom: 0.75rem;
+  transition: all 0.3s ease;
+  border: 3px solid transparent;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.step-pending .step-circle {
+  background: white;
+  color: var(--gray-500);
+  border-color: var(--gray-200);
+}
+
+.step-current .step-circle {
+  background: var(--primary);
+  color: white;
+  border-color: var(--primary-light);
+  box-shadow: 0 0 0 4px var(--primary-light);
+  animation: pulse-glow 2s infinite;
+}
+
+.step-completed .step-circle {
+  background: var(--success);
+  color: white;
+  border-color: var(--success-light);
+}
+
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 4px var(--primary-light);
+  }
+  50% {
+    box-shadow: 0 0 0 8px var(--primary-light);
+  }
+}
+
+.step-label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: var(--gray-700);
+  max-width: 140px;
+}
+
+.step-description {
+  font-size: 0.75rem;
+  color: var(--gray-500);
+  margin-top: 0.25rem;
+  max-width: 140px;
+}
+
+.step-pending .step-label {
+  color: var(--gray-500);
+}
+
+.step-current .step-label {
+  color: var(--primary);
+}
+
+.step-completed .step-label {
+  color: var(--success);
+}
+
+/* Contract Form Card */
+.main-card {
+  background: white;
+  border-radius: 1rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.card-section {
+  padding: 2rem;
+  border-bottom: 1px solid var(--gray-100);
+}
+
+.card-section:last-child {
+  border-bottom: none;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-label {
+  display: block;
+  font-weight: 600;
+  color: var(--gray-700);
+  margin-bottom: 0.5rem;
+  font-size: 0.875rem;
+}
+
+.form-control {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--gray-300);
+  border-radius: 0.5rem;
+  font-size: 1rem;
+  transition: all 0.2s;
+  resize: none; /* Prevent textarea resizing */
+}
+
+.form-control:focus {
+  outline: none;
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+
+.form-control[readonly] {
+  background-color: var(--gray-50);
+  cursor: not-allowed;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.btn {
+  padding: 0.75rem 1.5rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  border: none;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-primary {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-primary:hover {
+  background: var(--primary-dark);
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(59, 130, 246, 0.3);
+}
+
+.btn-success {
+  background: var(--success);
+  color: white;
+}
+
+.btn-success:hover {
+  background: #059669;
+  transform: translateY(-1px);
+  box-shadow: 0 2px 8px rgba(16, 185, 129, 0.3);
+}
+
+.btn-secondary {
+  background: white;
+  color: var(--gray-700);
+  border: 1px solid var(--gray-300);
+}
+
+.btn-secondary:hover {
+  background: var(--gray-50);
+}
+
+/* Info Cards */
+.info-card {
+  background: var(--gray-50);
+  padding: 1.5rem;
+  border-radius: 0.75rem;
+  border-left: 4px solid var(--primary);
+  margin-bottom: 1.5rem;
+}
+
+.info-card.success {
+  border-left-color: var(--success);
+  background: var(--success-light);
+}
+
+.info-card.warning {
+  border-left-color: var(--warning);
+  background: var(--warning-light);
+}
+
+/* Mobile Responsive */
+@media (max-width: 768px) {
+  .workflow-steps {
+    flex-direction: column;
+    gap: 2rem;
+  }
+  
+  .workflow-step {
+    flex-direction: row;
+    width: 100%;
+    text-align: left;
+  }
+  
+  .step-circle {
+    margin-right: 1rem;
+    margin-bottom: 0;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .page-header {
+    padding: 1.5rem 0;
+  }
+  
+  .page-title {
+    font-size: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .workflow-section {
+    padding: 1rem;
+  }
+  
+  .step-circle {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+  
+  .step-label {
+    font-size: 0.75rem;
+  }
+  
+  .card-section {
+    padding: 1.5rem;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+  <div class="container">
+    <h1 class="page-title">
+      <i class="bi bi-file-earmark-text-fill"></i>
+      Contract Negotiation
+    </h1>
+    <p style="margin: 0; opacity: 0.9;">{{ contract.job.title }}</p>
+  </div>
+</div>
+
+<div class="container">
+  <!-- Breadcrumb -->
+  <nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+      <li class="breadcrumb-item">
+        <a href="{% url 'jobs:home' %}"><i class="bi bi-house-fill"></i> Home</a>
+      </li>
+      <li class="breadcrumb-item">
+        <a href="{% if request.user == contract.client %}{% url 'jobs:employer_dashboard' %}{% else %}{% url 'jobs:worker_dashboard' %}{% endif %}">
+          <i class="bi bi-speedometer2"></i> Dashboard
+        </a>
+      </li>
+      {% if contract.application %}
+      <li class="breadcrumb-item">
+        <a href="{% url 'jobs:job_application_detail' contract.application.pk %}">
+          <i class="bi bi-file-text"></i> Application
+        </a>
+      </li>
+      {% endif %}
+      <li class="breadcrumb-item active" aria-current="page">Contract Negotiation</li>
+    </ol>
+  </nav>
+
+  <div class="content-grid">
+    <!-- Main Content -->
+    <div class="main-card">
+      <!-- Workflow Progress -->
+      <div class="card-section workflow-section">
+    <div class="progress-header">
+      <h3 class="section-title">
+        <i class="bi bi-diagram-3-fill"></i>
+        Contract Progress
+      </h3>
+      <span class="status-badge {% if contract.status == 'Finalized' %}finalized{% else %}negotiation{% endif %}">
+        <i class="bi bi-{% if contract.status == 'Finalized' %}check-circle-fill{% else %}hourglass-split{% endif %}"></i>
+        {{ contract.status }}
+      </span>
+    </div>
+    
+    <!-- Progress Bar -->
+    <div class="progress-bar-container">
+      <div class="progress-bar-fill" style="width: {% if contract.finalized_by_worker and contract.finalized_by_employer %}100{% elif contract.finalized_by_worker or contract.finalized_by_employer %}66{% else %}33{% endif %}%;"></div>
+    </div>
+    
+    <!-- Workflow Steps -->
+    <div class="workflow-steps">
+      <!-- Step 1: Terms Proposal -->
+      <div class="workflow-step step-completed">
+        <div class="step-circle">✓</div>
+        <div>
+          <div class="step-label">Terms Proposed</div>
+          <div class="step-description">Initial contract created</div>
+        </div>
+      </div>
+      
+      <!-- Step 2: Worker Review -->
+      <div class="workflow-step {% if contract.finalized_by_worker %}step-completed{% elif not contract.finalized_by_employer %}step-current{% else %}step-pending{% endif %}">
+        <div class="step-circle">{% if contract.finalized_by_worker %}✓{% else %}2{% endif %}</div>
+        <div>
+          <div class="step-label">Worker Review</div>
+          <div class="step-description">{% if contract.finalized_by_worker %}Accepted{% else %}Pending{% endif %}</div>
+        </div>
+      </div>
+      
+      <!-- Step 3: Employer Review -->
+      <div class="workflow-step {% if contract.finalized_by_employer %}step-completed{% elif contract.finalized_by_worker %}step-current{% else %}step-pending{% endif %}">
+        <div class="step-circle">{% if contract.finalized_by_employer %}✓{% else %}3{% endif %}</div>
+        <div>
+          <div class="step-label">Employer Review</div>
+          <div class="step-description">{% if contract.finalized_by_employer %}Accepted{% else %}Pending{% endif %}</div>
+        </div>
+      </div>
+      
+      <!-- Step 4: Finalized -->
+      <div class="workflow-step {% if contract.finalized_by_worker and contract.finalized_by_employer %}step-completed{% else %}step-pending{% endif %}">
+        <div class="step-circle">{% if contract.finalized_by_worker and contract.finalized_by_employer %}✓{% else %}4{% endif %}</div>
+        <div>
+          <div class="step-label">Contract Finalized</div>
+          <div class="step-description">{% if contract.finalized_by_worker and contract.finalized_by_employer %}Ready to start{% else %}Both must accept{% endif %}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Status Info Card -->
+  {% if contract.finalized_by_worker and contract.finalized_by_employer %}
+  <div class="info-card success">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <i class="bi bi-check-circle-fill" style="font-size: 2rem; color: var(--success);"></i>
+      <div>
+        <h4 style="margin: 0 0 0.25rem 0; font-weight: 700;">Contract Finalized!</h4>
+        <p style="margin: 0; font-size: 0.875rem;">Both parties have accepted the terms. You can now start work on this contract.</p>
+      </div>
+    </div>
+  </div>
+  {% elif contract.finalized_by_worker or contract.finalized_by_employer %}
+  <div class="info-card warning">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <i class="bi bi-hourglass-split" style="font-size: 2rem; color: var(--warning);"></i>
+      <div>
+        <h4 style="margin: 0 0 0.25rem 0; font-weight: 700;">Waiting for Acceptance</h4>
+        <p style="margin: 0; font-size: 0.875rem;">
+          {% if request.user == contract.worker %}
+            {% if contract.finalized_by_worker %}
+              You've accepted the terms. Waiting for the employer to review and accept.
+            {% else %}
+              The employer has accepted. Please review and accept the terms below.
+            {% endif %}
+          {% else %}
+            {% if contract.finalized_by_employer %}
+              You've accepted the terms. Waiting for the worker to review and accept.
+            {% else %}
+              The worker has accepted. Please review and accept the terms below.
+            {% endif %}
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+  {% else %}
+  <div class="info-card">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <i class="bi bi-info-circle-fill" style="font-size: 2rem; color: var(--primary);"></i>
+      <div>
+        <h4 style="margin: 0 0 0.25rem 0; font-weight: 700;">Review Contract Terms</h4>
+        <p style="margin: 0; font-size: 0.875rem;">Both parties need to review and accept the contract terms before work can begin. Make any necessary changes and click "Accept Terms" when ready.</p>
+      </div>
+    </div>
+  </div>
+  {% endif %}
+
+      <!-- Availability Conflicts Warning (from context) -->
+      {% if has_availability_conflicts and request.user == contract.worker %}
+      <div class="card-section" style="background: var(--warning-light); border-left: 4px solid var(--warning);">
+        <div style="display: flex; align-items: start; gap: 1rem;">
+          <i class="bi bi-exclamation-triangle-fill" style="font-size: 2rem; color: var(--warning);"></i>
+          <div style="flex: 1;">
+            <h4 style="margin: 0 0 0.5rem 0; font-weight: 700; color: #92400e;">Schedule Conflicts Detected</h4>
+            <p style="margin: 0 0 1rem 0; font-size: 0.875rem; color: #92400e;">
+              You have {{ total_conflicts }} existing contract{{ total_conflicts|pluralize }} that overlap with this schedule:
+            </p>
+            <ul style="margin: 0 0 1rem 1.5rem; font-size: 0.875rem; color: #92400e;">
+              {% for conflict in availability_conflicts|slice:":5" %}
+              <li style="margin-bottom: 0.5rem;">
+                <strong>{{ conflict.date|date:"D, M d" }}:</strong> {{ conflict.reason }}
+              </li>
+              {% endfor %}
+              {% if total_conflicts > 5 %}
+              <li style="font-style: italic;">And {{ total_conflicts|add:"-5" }} more conflict{{ total_conflicts|add:"-5"|pluralize }}...</li>
+              {% endif %}
+            </ul>
+            <p style="margin: 0; font-size: 0.875rem; color: #92400e;">
+              <strong>Note:</strong> Please ensure you can manage multiple commitments before accepting this contract.
+            </p>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Session-based Schedule Conflict Warning -->
+      {% if request.session.schedule_conflict_warning and request.user == contract.worker %}
+      <div class="card-section" style="background: var(--warning-light); border-left: 4px solid var(--warning);">
+        <div style="display: flex; align-items: start; gap: 1rem;">
+          <i class="bi bi-exclamation-triangle-fill" style="font-size: 2rem; color: var(--warning);"></i>
+          <div style="flex: 1;">
+            <h4 style="margin: 0 0 0.5rem 0; font-weight: 700; color: #92400e;">Schedule Conflict Warning</h4>
+            <p style="margin: 0; font-size: 0.875rem; color: #92400e; white-space: pre-line;">{{ request.session.schedule_conflict_warning }}</p>
+          </div>
+        </div>
+      </div>
+      {% endif %}
+
+      <!-- Contract Form -->
+      <form method="post">
+        {% csrf_token %}
+        
+        <div class="card-section">
+          <h4>
+            <i class="bi bi-briefcase-fill"></i>
+            Job Details
+          </h4>
+        
+        <div class="form-group">
+          <label class="form-label">Job Title</label>
+          <input type="text" name="job_title" class="form-control" value="{{ contract.job_title }}" {% if contract.finalized_by_worker and contract.finalized_by_employer %}readonly{% endif %}>
+        </div>
+        
+        <div class="form-group">
+          <label class="form-label">Job Description</label>
+          <textarea name="job_description" class="form-control" rows="4" {% if contract.finalized_by_worker and contract.finalized_by_employer %}readonly{% endif %}>{{ contract.job_description }}</textarea>
+        </div>
+      </div>
+
+      <div class="card-section">
+        <h4>
+          <i class="bi bi-cash-stack"></i>
+          Payment Terms
+        </h4>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Agreed Rate (₱)</label>
+            <input type="number" name="agreed_rate" step="0.01" class="form-control" value="{{ contract.agreed_rate }}" {% if contract.finalized_by_worker and contract.finalized_by_employer %}readonly{% endif %}>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Rate Type</label>
+            <select name="rate_type" class="form-control" {% if contract.finalized_by_worker and contract.finalized_by_employer %}disabled{% endif %}>
+              <option value="hourly" {% if contract.rate_type == 'hourly' %}selected{% endif %}>Hourly</option>
+              <option value="fixed" {% if contract.rate_type == 'fixed' %}selected{% endif %}>Fixed Price</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Payment Schedule</label>
+            <input type="text" name="payment_schedule" class="form-control" value="{{ contract.payment_schedule }}" {% if contract.finalized_by_worker and contract.finalized_by_employer %}readonly{% endif %}>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-section">
+        <h4>
+          <i class="bi bi-calendar-check"></i>
+          Schedule & Duration
+        </h4>
+        
+        <div class="form-grid">
+          <div class="form-group">
+            <label class="form-label">Duration</label>
+            <input type="number" name="duration" class="form-control" value="{{ contract.duration }}" min="0" step="1" {% if contract.finalized_by_worker and contract.finalized_by_employer %}readonly{% endif %}>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Work Schedule</label>
+            <input type="text" name="schedule" class="form-control" value="{{ contract.schedule }}" {% if contract.finalized_by_worker and contract.finalized_by_employer %}readonly{% endif %}>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Start Date</label>
+            <input type="date" name="start_date" class="form-control" value="{{ contract.start_date|date:'Y-m-d' }}" {% if contract.finalized_by_worker and contract.finalized_by_employer %}readonly{% endif %}>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">Start Time (optional)</label>
+            <input type="time" name="start_time" class="form-control" value="{% if contract.start_time %}{{ contract.start_time|time:'H:i' }}{% endif %}" {% if contract.finalized_by_worker and contract.finalized_by_employer %}readonly{% endif %}>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">End Date</label>
+            <input type="date" name="end_date" class="form-control" value="{% if contract.end_date %}{{ contract.end_date|date:'Y-m-d' }}{% endif %}" {% if contract.finalized_by_worker and contract.finalized_by_employer %}readonly{% endif %}>
+          </div>
+          
+          <div class="form-group">
+            <label class="form-label">End Time (optional)</label>
+            <input type="time" name="end_time" class="form-control" value="{% if contract.end_time %}{{ contract.end_time|time:'H:i' }}{% endif %}" {% if contract.finalized_by_worker and contract.finalized_by_employer %}readonly{% endif %}>
+          </div>
+        </div>
+      </div>
+
+      <div class="card-section">
+        <h4>
+          <i class="bi bi-sticky"></i>
+          Additional Notes
+        </h4>
+        <div class="form-group">
+          <textarea name="notes" class="form-control" rows="3" {% if contract.finalized_by_worker and contract.finalized_by_employer %}readonly{% endif %}>{{ contract.notes }}</textarea>
+        </div>
+      </div>
+
+      <div class="card-section">
+        <h4>
+          <i class="bi bi-file-earmark-text"></i>
+          Terms & Conditions
+        </h4>
+        <div class="form-group">
+          <textarea name="terms" class="form-control" rows="6" {% if contract.finalized_by_worker and contract.finalized_by_employer %}readonly{% endif %}>{{ contract.terms }}</textarea>
+        </div>
+      </div>
+
+      <!-- Action Buttons Section -->
+      <div class="card-section" style="background: var(--gray-50);">
+        {% if not contract.finalized_by_worker or not contract.finalized_by_employer %}
+        <!-- Save Changes Button -->
+        <div style="display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem;">
+          {% if contract.application %}
+          <a href="{% url 'jobs:job_application_detail' contract.application.pk %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i>
+            Back to Application
+          </a>
+          {% else %}
+          <a href="{% url 'jobs:contract_detail' contract.pk %}" class="btn btn-secondary">
+            <i class="bi bi-arrow-left"></i>
+            Back
+          </a>
+          {% endif %}
+          
+          <button type="submit" name="action" value="save" class="btn btn-primary">
+            <i class="bi bi-save"></i>
+            Save Changes
+          </button>
+        </div>
+        
+        <!-- Note about acceptance -->
+        <div style="border-top: 2px solid var(--gray-200); padding-top: 1.5rem;">
+          <div class="info-card" style="margin: 0;">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+              <i class="bi bi-info-circle-fill" style="font-size: 1.5rem; color: var(--primary);"></i>
+              <div>
+                <h5 style="margin: 0 0 0.25rem 0; font-weight: 700;">Ready to Accept?</h5>
+                <p style="margin: 0; font-size: 0.875rem;">After saving your changes, go to the <a href="{% url 'jobs:contract_detail' contract.pk %}" style="color: var(--primary); font-weight: 600; text-decoration: underline;">Contract Detail page</a> to review and accept the final terms.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        {% else %}
+      <div class="card-section" style="background: var(--success-light); text-align: center;">
+        <div style="display: inline-flex; align-items: center; gap: 1rem; padding: 1rem 2rem; background: white; border-radius: 0.75rem; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);">
+          <i class="bi bi-check-circle-fill" style="font-size: 2rem; color: var(--success);"></i>
+          <div style="text-align: left;">
+            <h4 style="margin: 0 0 0.25rem 0; font-weight: 700; color: var(--success);">Contract Finalized!</h4>
+            <p style="margin: 0; font-size: 0.875rem; color: var(--gray-700);">Both parties have accepted the terms.</p>
+          </div>
+        </div>
+        
+        <div style="margin-top: 1.5rem;">
+          <a href="{% url 'jobs:contract_detail' contract.pk %}" class="btn btn-primary">
+            <i class="bi bi-eye-fill"></i>
+            View Contract Details
+          </a>
+        </div>
+      </div>
+      {% endif %}
+    </form>
+    </div>
+    <!-- End Main Card -->
+  </div>
+  <!-- End Content Grid -->
+</div>
+<!-- End Container -->
+<script>
+// Sync start_date, end_date, and duration
+(function() {
+  const startInput = document.querySelector('input[name="start_date"]');
+  const endInput = document.querySelector('input[name="end_date"]');
+  const durationInput = document.querySelector('input[name="duration"]');
+
+  if (!startInput || !endInput || !durationInput) return;
+
+  function parseYMD(val) {
+    if (!val) return null;
+    const parts = val.split('-');
+    if (parts.length !== 3) return null;
+    const y = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10) - 1;
+    const d = parseInt(parts[2], 10);
+    const dt = new Date(Date.UTC(y, m, d));
+    return isNaN(dt.getTime()) ? null : dt;
+  }
+
+  function formatYMD(date) {
+    const y = date.getUTCFullYear();
+    const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+    const d = String(date.getUTCDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  }
+
+  function computeDays(start, end) {
+    const ms = end.getTime() - start.getTime();
+    return Math.round(ms / (1000 * 60 * 60 * 24));
+  }
+
+  function setValidity(input, ok, message) {
+    if (!input) return;
+    input.setCustomValidity(ok ? '' : message);
+  }
+
+  function updateDurationFromDates() {
+    const s = parseYMD(startInput.value);
+    const e = parseYMD(endInput.value);
+    if (s && e) {
+      const days = computeDays(s, e);
+      if (days >= 0) {
+        durationInput.value = days;
+        setValidity(endInput, true, '');
+      } else {
+        setValidity(endInput, false, 'End date must be after start date');
+      }
+    }
+  }
+
+  function updateEndDateFromDuration() {
+    const s = parseYMD(startInput.value);
+    if (!s) return;
+    const match = (durationInput.value || '').match(/-?\d+/);
+    if (!match) return;
+    const days = parseInt(match[0], 10);
+    if (isNaN(days) || days < 0) return;
+    const end = new Date(s.getTime());
+    end.setUTCDate(end.getUTCDate() + days);
+    endInput.value = formatYMD(end);
+    setValidity(endInput, true, '');
+  }
+
+  startInput.addEventListener('change', function() {
+    if ((durationInput.value || '').trim()) {
+      updateEndDateFromDuration();
+    } else if ((endInput.value || '').trim()) {
+      updateDurationFromDates();
+    }
+  });
+
+  endInput.addEventListener('change', function() {
+    updateDurationFromDates();
+  });
+
+  durationInput.addEventListener('input', function() {
+    if ((startInput.value || '').trim()) {
+      updateEndDateFromDuration();
+    }
+  });
+
+  if (startInput.value && endInput.value) {
+    updateDurationFromDates();
+  } else if (startInput.value && durationInput.value) {
+    updateEndDateFromDuration();
+  }
+})();
+// Live conflict recheck on date/duration change
+async function recheckConflicts() {
+  try {
+    const url = "{% url 'jobs:check_availability_conflicts' %}";
+    const payload = {
+      contract_id: {{ contract.pk }},
+      start_date: document.querySelector('input[name="start_date"]').value,
+      end_date: document.querySelector('input[name="end_date"]').value,
+      start_time: (document.querySelector('input[name="start_time"]')||{}).value,
+      end_time: (document.querySelector('input[name="end_time"]')||{}).value
+    };
+    const resp = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-Requested-With': 'XMLHttpRequest', 'X-CSRFToken': (document.querySelector('input[name=csrfmiddlewaretoken]')||{}).value },
+      body: JSON.stringify(payload)
+    });
+    const data = await resp.json();
+    const host = document.getElementById('conflict_info') || document.querySelector('.info-card.warning') || document.querySelector('.workflow-section');
+    if (!host) return;
+    let html = '';
+    if (data && data.available === false && Array.isArray(data.conflicts)) {
+      html = `<div class="info-card warning" id="conflict_info">
+        <div style="display:flex;align-items:start;gap:1rem;">
+          <i class="bi bi-exclamation-triangle-fill" style="font-size:2rem;color: var(--warning);"></i>
+          <div style="flex:1;">
+            <h4 style="margin:0 0 0.5rem 0;font-weight:700;color:#92400e;">Schedule Conflicts Detected</h4>
+            <ul style="margin:0 0 0 1.25rem;">
+              ${data.conflicts.slice(0,5).map(c=>`<li><strong>${c.date || ''}</strong> ${c.reason || ''}</li>`).join('')}
+            </ul>
+          </div>
+        </div>
+      </div>`;
+    } else if (data && data.available === true) {
+      html = `<div class="info-card success" id="conflict_info">
+        <div style="display:flex;align-items:center;gap:1rem;">
+          <i class="bi bi-check-circle-fill" style="font-size:2rem;color: var(--success);"></i>
+          <div><h4 style="margin:0;">No schedule conflicts</h4></div>
+        </div>
+      </div>`;
+    }
+    // Insert or replace
+    const existing = document.getElementById('conflict_info');
+    if (existing) existing.remove();
+    if (html) host.insertAdjacentHTML('afterend', html);
+  } catch(e) { console.warn('Conflict check failed', e); }
+}
+
+['input[name="start_date"]','input[name="end_date"]','input[name="duration"]','input[name="start_time"]','input[name="end_time"]').forEach(sel=>{
+  const el = document.querySelector(sel);
+  if (el) el.addEventListener('change', recheckConflicts);
+});
+</script>
+<script>
+// Ensure sync also runs while typing (not only on change)
+(function(){
+  ['start_date','end_date','duration','start_time','end_time'].forEach(function(name){
+    var el = document.querySelector('input[name="'+name+'"]');
+    if (el) {
+      el.addEventListener('input', function(){
+        // Trigger existing change handlers to recompute
+        el.dispatchEvent(new Event('change'));
+      });
+    }
+  });
+})();
+</script>
+{% endblock %}

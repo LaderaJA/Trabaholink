@@ -1,5 +1,6 @@
 {% extends "mainpages/base.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block css %}
 <style>
@@ -43,10 +44,21 @@
     <div class="col-md-8">
       <div class="d-flex justify-content-between align-items-center mb-4">
         <h2 class="mb-0">Privacy Settings</h2>
-        <a href="{% url 'profile_edit' pk=user.pk %}" class="btn btn-outline-secondary">
+        <a href="{% url 'users:profile_edit' pk=user.pk %}" class="btn btn-outline-secondary">
           <i class="bi bi-arrow-left me-1"></i> Back to Profile
         </a>
       </div>
+
+      {% if messages %}
+        <div class="mb-4">
+          {% for message in messages %}
+            <div class="alert alert-{{ message.tags }} alert-dismissible fade show" role="alert">
+              {{ message }}
+              <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
 
       <form method="post" class="privacy-settings-form">
         {% csrf_token %}
@@ -54,46 +66,60 @@
         <div class="privacy-option">
           <h5>Profile Visibility</h5>
           <div class="form-check">
-            <input class="form-check-input" type="radio" name="profile_visibility" id="public" value="public" checked>
-            <label class="form-check-label" for="public">
+            <input class="form-check-input" type="radio" name="profile_visibility" id="visibility_public" value="public" 
+                   {% if form.profile_visibility.value == 'public' or not form.profile_visibility.value %}checked{% endif %}>
+            <label class="form-check-label" for="visibility_public">
               Public - Anyone can view my profile
             </label>
           </div>
           <div class="form-check">
-            <input class="form-check-input" type="radio" name="profile_visibility" id="connections" value="connections">
-            <label class="form-check-label" for="connections">
+            <input class="form-check-input" type="radio" name="profile_visibility" id="visibility_connections" value="connections"
+                   {% if form.profile_visibility.value == 'connections' %}checked{% endif %}>
+            <label class="form-check-label" for="visibility_connections">
               Connections Only - Only my connections can view my profile
             </label>
           </div>
           <div class="form-check">
-            <input class="form-check-input" type="radio" name="profile_visibility" id="private" value="private">
-            <label class="form-check-label" for="private">
+            <input class="form-check-input" type="radio" name="profile_visibility" id="visibility_private" value="private"
+                   {% if form.profile_visibility.value == 'private' %}checked{% endif %}>
+            <label class="form-check-label" for="visibility_private">
               Private - Only I can view my profile
             </label>
           </div>
+          {% if form.profile_visibility.errors %}
+            <div class="text-danger mt-2">{{ form.profile_visibility.errors }}</div>
+          {% endif %}
         </div>
 
         <div class="privacy-option">
           <h5>Contact Information</h5>
           <div class="form-check form-switch mb-3">
-            <input class="form-check-input" type="checkbox" id="show_email" name="show_email" checked>
-            <label class="form-check-label" for="show_email">Show my email address on my profile</label>
+            {{ form.show_email }}
+            <label class="form-check-label" for="{{ form.show_email.id_for_label }}">
+              {{ form.show_email.label }}
+            </label>
           </div>
           <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="show_phone" name="show_phone" checked>
-            <label class="form-check-label" for="show_phone">Show my phone number on my profile</label>
+            {{ form.show_phone }}
+            <label class="form-check-label" for="{{ form.show_phone.id_for_label }}">
+              {{ form.show_phone.label }}
+            </label>
           </div>
         </div>
 
         <div class="privacy-option">
           <h5>Activity Privacy</h5>
           <div class="form-check form-switch mb-3">
-            <input class="form-check-input" type="checkbox" id="activity_feed" name="activity_feed" checked>
-            <label class="form-check-label" for="activity_feed">Show my activity in the public feed</label>
+            {{ form.show_activity }}
+            <label class="form-check-label" for="{{ form.show_activity.id_for_label }}">
+              {{ form.show_activity.label }}
+            </label>
           </div>
           <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" id="search_engines" name="search_engines">
-            <label class="form-check-label" for="search_engines">Allow search engines to index my profile</label>
+            {{ form.allow_search_engines }}
+            <label class="form-check-label" for="{{ form.allow_search_engines.id_for_label }}">
+              {{ form.allow_search_engines.label }}
+            </label>
           </div>
         </div>
 
@@ -115,4 +141,27 @@ document.addEventListener('DOMContentLoaded', function() {
   console.log('Privacy settings page loaded');
 });
 </script>
+{% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "privacy_settings",
+    "title": "Privacy Settings Guide",
+    "steps": [
+        {
+            "title": "Control Your Privacy \ud83d\udd12",
+            "content": "<h3>Manage Visibility</h3><p>Control who can see your profile information and activity on the platform.</p>"
+        },
+        {
+            "title": "Privacy Options \u2699\ufe0f",
+            "content": "<h3>What You Can Control</h3><ul><li>Profile visibility</li><li>Contact information display</li><li>Activity feed visibility</li><li>Search engine indexing</li></ul>"
+        },
+        {
+            "title": "Stay Safe \ud83d\udee1\ufe0f",
+            "content": "<h3>Privacy Tips</h3><ul><li>Share only necessary info</li><li>Review settings regularly</li><li>Be cautious with personal data</li><li>Report suspicious activity</li></ul>"
+        }
+    ]
+}
 {% endblock %}

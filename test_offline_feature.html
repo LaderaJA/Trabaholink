@@ -1,0 +1,373 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Offline Feature Test - TrabahoLink</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <link rel="stylesheet" href="static/css/offline.css">
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            background: #f5f7fa;
+        }
+        .test-section {
+            background: white;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        .test-button {
+            background: #3b82f6;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin: 5px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+        .test-button:hover {
+            background: #2563eb;
+            transform: translateY(-2px);
+        }
+        .job-card-list {
+            border: 1px solid #e5e7eb;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 10px 0;
+            background: white;
+        }
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+        .stat-label {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+        h1, h2 {
+            color: #1e293b;
+        }
+        code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .success { color: #22c55e; }
+        .warning { color: #f59e0b; }
+        .error { color: #ef4444; }
+        .info { color: #3b82f6; }
+    </style>
+</head>
+<body>
+    <h1>🔌 TrabahoLink Offline Feature Test</h1>
+    <p>Test the new offline caching functionality with mobile-first design</p>
+
+    <!-- Test Section 1: Connection Status -->
+    <div class="test-section">
+        <h2><i class="bi bi-wifi"></i> Connection Status</h2>
+        <p>Current Status: <strong id="connectionStatus" class="info">Checking...</strong></p>
+        <button class="test-button" onclick="testConnectionStatus()">
+            <i class="bi bi-arrow-clockwise"></i> Check Connection
+        </button>
+        <button class="test-button" onclick="simulateOffline()">
+            <i class="bi bi-wifi-off"></i> Simulate Offline
+        </button>
+        <button class="test-button" onclick="simulateOnline()">
+            <i class="bi bi-wifi"></i> Simulate Online
+        </button>
+    </div>
+
+    <!-- Test Section 2: Cache Management -->
+    <div class="test-section">
+        <h2><i class="bi bi-database"></i> Cache Management</h2>
+        <button class="test-button" onclick="testCacheJob()">
+            <i class="bi bi-briefcase"></i> Cache Sample Job
+        </button>
+        <button class="test-button" onclick="testCacheService()">
+            <i class="bi bi-tools"></i> Cache Sample Service
+        </button>
+        <button class="test-button" onclick="testGetCachedJobs()">
+            <i class="bi bi-list"></i> View Cached Jobs
+        </button>
+        <button class="test-button" onclick="testGetCachedServices()">
+            <i class="bi bi-list"></i> View Cached Services
+        </button>
+        <button class="test-button" onclick="testClearCache()">
+            <i class="bi bi-trash"></i> Clear All Cache
+        </button>
+        <div id="cacheResults" style="margin-top: 15px;"></div>
+    </div>
+
+    <!-- Test Section 3: UI Components -->
+    <div class="test-section">
+        <h2><i class="bi bi-palette"></i> UI Components</h2>
+        <button class="test-button" onclick="testShowToast('success')">
+            <i class="bi bi-check-circle"></i> Success Toast
+        </button>
+        <button class="test-button" onclick="testShowToast('warning')">
+            <i class="bi bi-exclamation-triangle"></i> Warning Toast
+        </button>
+        <button class="test-button" onclick="testShowToast('error')">
+            <i class="bi bi-x-circle"></i> Error Toast
+        </button>
+        <button class="test-button" onclick="testShowToast('info')">
+            <i class="bi bi-info-circle"></i> Info Toast
+        </button>
+        <button class="test-button" onclick="testAddCachedBadge()">
+            <i class="bi bi-arrow-down-circle"></i> Add Cached Badge
+        </button>
+    </div>
+
+    <!-- Test Section 4: Sample Job Card -->
+    <div class="test-section">
+        <h2><i class="bi bi-card-list"></i> Sample Job Card (with caching)</h2>
+        <div class="job-card-list" id="sampleJobCard" 
+             data-job-id="999" 
+             data-job-title="Sample Construction Worker" 
+             data-job-description="Looking for experienced construction workers for a project in Bacoor, Cavite"
+             data-job-location="Bacoor, Cavite"
+             data-job-category="Construction"
+             data-job-employer="TestEmployer"
+             data-job-salary="₱15,000"
+             data-job-date="Jan 14, 2026">
+            <h3>Sample Construction Worker</h3>
+            <p><i class="bi bi-geo-alt"></i> Bacoor, Cavite</p>
+            <p><i class="bi bi-cash"></i> ₱15,000</p>
+            <p>Looking for experienced construction workers...</p>
+        </div>
+        <button class="test-button" onclick="cacheThisJob()">
+            <i class="bi bi-download"></i> Cache This Job
+        </button>
+    </div>
+
+    <!-- Test Section 5: Cache Statistics -->
+    <div class="test-section">
+        <h2><i class="bi bi-bar-chart"></i> Cache Statistics</h2>
+        <button class="test-button" onclick="updateStats()">
+            <i class="bi bi-arrow-clockwise"></i> Refresh Stats
+        </button>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <i class="bi bi-briefcase" style="font-size: 32px;"></i>
+                <div class="stat-value" id="statJobs">0</div>
+                <div class="stat-label">Cached Jobs</div>
+            </div>
+            <div class="stat-card">
+                <i class="bi bi-tools" style="font-size: 32px;"></i>
+                <div class="stat-value" id="statServices">0</div>
+                <div class="stat-label">Cached Services</div>
+            </div>
+            <div class="stat-card">
+                <i class="bi bi-database" style="font-size: 32px;"></i>
+                <div class="stat-value" id="statSize">0 KB</div>
+                <div class="stat-label">Storage Used</div>
+            </div>
+            <div class="stat-card">
+                <i class="bi bi-speedometer" style="font-size: 32px;"></i>
+                <div class="stat-value" id="statPercent">0%</div>
+                <div class="stat-label">Storage Capacity</div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Load Scripts -->
+    <script src="./static/js/offline-cache.js"></script>
+    <script src="./static/js/offline-ui.js"></script>
+    <script src="./static/js/offline-prefetch.js"></script>
+
+    <!-- Test Scripts -->
+    <script>
+        // Test Functions
+        function testConnectionStatus() {
+            const status = window.offlineUI.getConnectionStatus();
+            document.getElementById('connectionStatus').innerHTML = status.online 
+                ? '<span class="success">✓ Online</span>' 
+                : '<span class="error">✗ Offline</span>';
+            console.log('Connection Status:', status);
+        }
+
+        function simulateOffline() {
+            window.offlineUI.handleOffline();
+            testConnectionStatus();
+        }
+
+        function simulateOnline() {
+            window.offlineUI.handleOnline();
+            testConnectionStatus();
+        }
+
+        function testCacheJob() {
+            const jobData = {
+                title: "Construction Worker Needed",
+                description: "We are looking for skilled construction workers for a residential project in Bacoor, Cavite.",
+                location: "Bacoor, Cavite",
+                category: "Construction",
+                employer: "BuildCo Inc.",
+                salary: "₱500/day",
+                posted_date: new Date().toISOString()
+            };
+            
+            const result = window.offlineCache.cacheJob('test-job-' + Date.now(), jobData);
+            
+            if (result) {
+                window.offlineUI.showToast('Success', 'Job cached successfully!', 'success');
+                updateStats();
+            } else {
+                window.offlineUI.showToast('Error', 'Failed to cache job', 'error');
+            }
+        }
+
+        function testCacheService() {
+            const serviceData = {
+                title: "Plumbing Services Available",
+                description: "Professional plumbing services for residential and commercial needs. 10 years experience.",
+                location: "Bacoor, Cavite",
+                category: "Plumbing",
+                provider: "John Plumber",
+                price: "₱1,500",
+                rating: "4.8"
+            };
+            
+            const result = window.offlineCache.cacheService('test-service-' + Date.now(), serviceData);
+            
+            if (result) {
+                window.offlineUI.showToast('Success', 'Service cached successfully!', 'success');
+                updateStats();
+            } else {
+                window.offlineUI.showToast('Error', 'Failed to cache service', 'error');
+            }
+        }
+
+        function testGetCachedJobs() {
+            const jobs = window.offlineCache.getAllCachedJobs();
+            const resultsDiv = document.getElementById('cacheResults');
+            
+            if (jobs.length > 0) {
+                resultsDiv.innerHTML = `
+                    <h4>Cached Jobs (${jobs.length}):</h4>
+                    <ul>
+                        ${jobs.map(job => `<li><strong>${job.title}</strong> - ${job.location} - ${job.salary}</li>`).join('')}
+                    </ul>
+                `;
+            } else {
+                resultsDiv.innerHTML = '<p class="warning">No cached jobs found.</p>';
+            }
+        }
+
+        function testGetCachedServices() {
+            const services = window.offlineCache.getAllCachedServices();
+            const resultsDiv = document.getElementById('cacheResults');
+            
+            if (services.length > 0) {
+                resultsDiv.innerHTML = `
+                    <h4>Cached Services (${services.length}):</h4>
+                    <ul>
+                        ${services.map(service => `<li><strong>${service.title}</strong> - ${service.provider}</li>`).join('')}
+                    </ul>
+                `;
+            } else {
+                resultsDiv.innerHTML = '<p class="warning">No cached services found.</p>';
+            }
+        }
+
+        function testClearCache() {
+            if (confirm('Are you sure you want to clear all cached data?')) {
+                window.offlineCache.clearAll();
+                window.offlineUI.showToast('Cleared', 'All cache data cleared', 'info');
+                document.getElementById('cacheResults').innerHTML = '';
+                updateStats();
+            }
+        }
+
+        function testShowToast(type) {
+            const messages = {
+                success: { title: 'Success!', message: 'Operation completed successfully' },
+                warning: { title: 'Warning', message: 'Please check your connection' },
+                error: { title: 'Error', message: 'Something went wrong' },
+                info: { title: 'Information', message: 'This is an informational message' }
+            };
+            
+            const msg = messages[type];
+            window.offlineUI.showToast(msg.title, msg.message, type);
+        }
+
+        function testAddCachedBadge() {
+            const card = document.getElementById('sampleJobCard');
+            window.offlineUI.addCachedBadge(card);
+        }
+
+        function cacheThisJob() {
+            const card = document.getElementById('sampleJobCard');
+            const jobId = card.getAttribute('data-job-id');
+            const jobData = {
+                title: card.getAttribute('data-job-title'),
+                description: card.getAttribute('data-job-description'),
+                location: card.getAttribute('data-job-location'),
+                category: card.getAttribute('data-job-category'),
+                employer: card.getAttribute('data-job-employer'),
+                salary: card.getAttribute('data-job-salary'),
+                posted_date: card.getAttribute('data-job-date')
+            };
+            
+            window.offlineCache.cacheJob(jobId, jobData);
+            window.offlineUI.addCachedBadge(card);
+            window.offlineUI.showToast('Cached', 'Job saved for offline viewing', 'success');
+            updateStats();
+        }
+
+        function updateStats() {
+            const stats = window.offlineCache.getStats();
+            
+            // Update job count
+            const jobs = window.offlineCache.getAllCachedJobs();
+            document.getElementById('statJobs').textContent = jobs.length;
+            
+            // Update service count
+            const services = window.offlineCache.getAllCachedServices();
+            document.getElementById('statServices').textContent = services.length;
+            
+            // Update storage size
+            const sizeKB = (stats.storage_used / 1024).toFixed(2);
+            document.getElementById('statSize').textContent = sizeKB + ' KB';
+            
+            // Update percentage
+            document.getElementById('statPercent').textContent = stats.storage_percent + '%';
+            
+            console.log('Cache Stats:', stats);
+        }
+
+        // Initialize on load
+        window.addEventListener('DOMContentLoaded', function() {
+            testConnectionStatus();
+            updateStats();
+            
+            console.log('%c✅ Offline Feature Test Loaded!', 'color: green; font-size: 16px; font-weight: bold;');
+            console.log('offlineCache:', window.offlineCache);
+            console.log('offlineUI:', window.offlineUI);
+            console.log('offlinePrefetch:', window.offlinePrefetch);
+        });
+    </script>
+</body>
+</html>

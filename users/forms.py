@@ -113,9 +113,79 @@ class UserProfileForm(forms.ModelForm):
         required=False,
         widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'e.g. Software Developer, Electrician, Plumber'})
     )
-    address = forms.CharField(
+    # Normalized address fields (stored combined in single address field)
+    house_number = forms.CharField(
         required=False,
-        widget=forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Enter your address'})
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'e.g., 123, Blk 4 Lot 5',
+            'id': 'id_house_number'
+        }),
+        label='House/Unit/Block & Lot No.'
+    )
+    
+    street = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'e.g., Mabini Street',
+            'id': 'id_street'
+        }),
+        label='Street Name (Optional)'
+    )
+    
+    subdivision = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'e.g., Greenwoods Subdivision',
+            'id': 'id_subdivision'
+        }),
+        label='Subdivision/Village (Optional)'
+    )
+    
+    barangay = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'Start typing barangay name',
+            'id': 'id_barangay',
+            'autocomplete': 'off'
+        }),
+        label='Barangay'
+    )
+    
+    city = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'Start typing city/municipality',
+            'id': 'id_city',
+            'autocomplete': 'off'
+        }),
+        label='City/Municipality'
+    )
+    
+    province = forms.CharField(
+        required=True,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'Start typing province',
+            'id': 'id_province',
+            'autocomplete': 'off'
+        }),
+        label='Province'
+    )
+    
+    zip_code = forms.CharField(
+        required=False,
+        widget=forms.TextInput(attrs={
+            'class': 'form-control', 
+            'placeholder': 'e.g., 1100',
+            'id': 'id_zip_code',
+            'maxlength': '4'
+        }),
+        label='ZIP Code (Optional)'
     )
     gender = forms.ChoiceField(
         choices=[('male', 'Male'), ('female', 'Female'), ('other', 'Other')],
@@ -166,6 +236,57 @@ class UserProfileForm(forms.ModelForm):
             'gender',
             'cv_file'
         ]
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        # Parse existing address into components if available
+        if self.instance and self.instance.address:
+            parts = [p.strip() for p in self.instance.address.split(',')]
+            # Expected format: House, Street, Subdivision, Brgy. X, City, Province ZIP
+            for i, part in enumerate(parts):
+                if part.startswith('Brgy.'):
+                    self.fields['barangay'].initial = part.replace('Brgy. ', '').strip()
+                    if i > 0:
+                        if i >= 3:
+                            self.fields['subdivision'].initial = parts[i-1]
+                        if i >= 2:
+                            self.fields['street'].initial = parts[i-2]
+                        if i >= 1:
+                            self.fields['house_number'].initial = parts[0]
+                    if i + 1 < len(parts):
+                        self.fields['city'].initial = parts[i+1]
+                    if i + 2 < len(parts):
+                        province_zip = parts[i+2].split()
+                        self.fields['province'].initial = province_zip[0]
+                        if len(province_zip) > 1:
+                            self.fields['zip_code'].initial = province_zip[1]
+                    break
+    
+    def clean(self):
+        cleaned_data = super().clean()
+        # Combine normalized address fields into single address string
+        address_parts = []
+        
+        if cleaned_data.get('house_number'):
+            address_parts.append(cleaned_data['house_number'])
+        if cleaned_data.get('street'):
+            address_parts.append(cleaned_data['street'])
+        if cleaned_data.get('subdivision'):
+            address_parts.append(cleaned_data['subdivision'])
+        if cleaned_data.get('barangay'):
+            address_parts.append(f"Brgy. {cleaned_data['barangay']}")
+        if cleaned_data.get('city'):
+            address_parts.append(cleaned_data['city'])
+        if cleaned_data.get('province'):
+            province = cleaned_data['province']
+            if cleaned_data.get('zip_code'):
+                province += f" {cleaned_data['zip_code']}"
+            address_parts.append(province)
+        
+        # Store combined address in the address field
+        cleaned_data['address'] = ', '.join(address_parts)
+        
+        return cleaned_data
 
     def save(self, commit=True):
         user = super().save(commit=False)
@@ -317,7 +438,111 @@ class VerificationStep3Form(forms.Form):
     selfie_image = forms.ImageField(
         widget=forms.FileInput(attrs={
             'class': 'form-control',
-            'accept': 'image/*',
-            'capture': 'user'
+            'accept': 'image/*'
         })
     )
+
+
+class PrivacySettingsForm(forms.ModelForm):
+    """Form for managing user privacy settings"""
+    
+    class Meta:
+        from .models import PrivacySettings
+        model = PrivacySettings
+        fields = [
+            'profile_visibility',
+            'show_email',
+            'show_phone',
+            'show_activity',
+            'allow_search_engines'
+        ]
+        widgets = {
+            'profile_visibility': forms.RadioSelect(attrs={'class': 'form-check-input'}),
+            'show_email': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'show_phone': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'show_activity': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'allow_search_engines': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+        labels = {
+            'profile_visibility': 'Profile Visibility',
+            'show_email': 'Show my email address on my profile',
+            'show_phone': 'Show my phone number on my profile',
+            'show_activity': 'Show my activity in the public feed',
+            'allow_search_engines': 'Allow search engines to index my profile',
+        }
+
+
+class NotificationPreferenceForm(forms.ModelForm):
+    """Form for job notification settings"""
+    
+    notification_radius_km = forms.ChoiceField(
+        label='Notification Radius',
+        initial='5.0',
+        choices=[
+            ('1.0', '1 km'),
+            ('2.0', '2 km'),
+            ('5.0', '5 km'),
+            ('10.0', '10 km'),
+            ('20.0', '20 km'),
+            ('50.0', '50 km'),
+        ],
+        widget=forms.Select(attrs={'class': 'form-control'}),
+        help_text='Jobs within this distance from your set location will trigger notifications'
+    )
+    
+    def clean_notification_radius_km(self):
+        """Convert string choice to Decimal for database storage"""
+        from decimal import Decimal
+        value = self.cleaned_data.get('notification_radius_km')
+        if value:
+            return Decimal(value)
+        return Decimal('5.0')  # Default to 5km
+    
+    preferred_categories = forms.ModelMultipleChoiceField(
+        queryset=None,  # Will be set in __init__
+        widget=forms.CheckboxSelectMultiple(attrs={'class': 'form-check-input'}),
+        required=False,
+        label='Job Categories',
+        help_text='Select the types of jobs you want to be notified about'
+    )
+    
+    is_active = forms.BooleanField(
+        required=False,
+        label='Enable Job Notifications',
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        help_text='Turn on/off all job notifications'
+    )
+    
+    class Meta:
+        from .models import NotificationPreference
+        model = NotificationPreference
+        fields = ['notification_location', 'notification_radius_km', 'preferred_categories', 'is_active']
+        widgets = {
+            'notification_location': forms.HiddenInput(attrs={'id': 'id_notification_location'})
+        }
+    
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        
+        # Set queryset for preferred_categories
+        from jobs.models import GeneralCategory
+        all_categories = GeneralCategory.objects.all().order_by('name')
+        self.fields['preferred_categories'].queryset = all_categories
+        
+        # Set all categories as initial/default selection for new preferences
+        if not self.instance.pk or not self.instance.preferred_categories.exists():
+            self.fields['preferred_categories'].initial = all_categories
+        
+        # Set initial location value if exists
+        if self.instance and self.instance.notification_location:
+            self.fields['notification_location'].initial = self.instance.notification_location.wkt
+        
+        # Set initial radius value if exists (convert Decimal to string for ChoiceField)
+        if self.instance and self.instance.pk and self.instance.notification_radius_km:
+            # Convert Decimal to string and normalize format to match choice values
+            # E.g., Decimal('50.00') -> '50.0' (remove trailing zeros)
+            from decimal import Decimal
+            radius_value = self.instance.notification_radius_km
+            # Normalize: convert to float then to string to remove trailing zeros
+            normalized_value = str(float(radius_value))
+            self.fields['notification_radius_km'].initial = normalized_value

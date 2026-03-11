@@ -1,5 +1,6 @@
 {% extends "mainpages/base.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Worker Dashboard - TrabahoLink{% endblock %}
 
@@ -8,9 +9,7 @@
 <link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
 
 <style>
-    body {
-        background: #f3f4f6 !important;
-    }
+    /* Use inherited animated gradient background from base.html */
 
     .dashboard-container {
         max-width: 1400px;
@@ -46,7 +45,8 @@
     }
 
     .stat-card {
-        background: white;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
         padding: 1.5rem;
         border-radius: 12px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -89,7 +89,8 @@
     }
 
     .content-section {
-        background: white;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
         border-radius: 12px;
         padding: 1.5rem;
         margin-bottom: 1.5rem;
@@ -270,7 +271,8 @@
 
     /* Tabs Styling */
     .tabs-container {
-        background: white;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
         border-radius: 12px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         border: 1px solid #e5e7eb;
@@ -444,6 +446,23 @@
 
     .stat-card-icon.red { background: #fee2e2; color: #dc2626; }
 
+    @media (max-width: 1024px) {
+        /* Calendar and deadlines responsive layout */
+        .calendar-deadlines-grid {
+            grid-template-columns: 1fr !important;
+            gap: 1rem !important;
+        }
+        
+        .deadlines-sidebar {
+            order: -1; /* Show deadlines before calendar on tablet/mobile */
+        }
+        
+        #calendar,
+        #calendar-loading {
+            min-height: 500px !important;
+        }
+    }
+    
     @media (max-width: 768px) {
         .stats-grid {
             grid-template-columns: 1fr;
@@ -476,6 +495,22 @@
         .search-input {
             width: 100%;
         }
+        
+        /* Calendar adjustments for mobile */
+        #calendar {
+            padding: 0.5rem !important;
+        }
+        
+        .fc-toolbar {
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+        
+        .fc-toolbar-chunk {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+        }
     }
 
     /* Calendar completed contract styling */
@@ -494,6 +529,264 @@
     .fc-event.completed-contract:hover {
         opacity: 0.8;
     }
+
+    /* Active Contracts Grid Responsive */
+    .active-contracts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1rem;
+    }
+
+    .contract-tracking-card {
+        background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 1.25rem;
+        transition: all 0.3s;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+
+    .contract-tracking-card:hover {
+        border-color: #059669;
+        box-shadow: 0 4px 12px rgba(5, 150, 105, 0.1);
+    }
+
+    .contract-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 0.75rem;
+        gap: 0.75rem;
+    }
+
+    .contract-card-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0;
+        flex: 1;
+        min-width: 0;
+        word-break: break-word;
+    }
+
+    .contract-card-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.625rem;
+        border-radius: 9999px;
+        font-weight: 600;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .contract-card-info {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .contract-card-info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.25rem;
+        word-break: break-word;
+    }
+
+    .contract-card-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .contract-card-btn {
+        flex: 1;
+        background: #059669;
+        color: white;
+        padding: 0.625rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .contract-card-btn:hover {
+        background: #047857;
+        color: white;
+    }
+
+    .contract-card-btn-secondary {
+        flex: 0 0 auto;
+        background: #f3f4f6;
+        color: #374151;
+        padding: 0.625rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+    .contract-card-btn-secondary:hover {
+        background: #e5e7eb;
+        color: #111827;
+    }
+
+    @media (max-width: 768px) {
+        .active-contracts-grid {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+
+        .contract-tracking-card {
+            padding: 1rem;
+        }
+
+        .contract-card-title {
+            font-size: 0.9375rem;
+        }
+
+        .contract-card-badge {
+            font-size: 0.6875rem;
+            padding: 0.2rem 0.5rem;
+        }
+
+        .contract-card-info {
+            font-size: 0.8125rem;
+        }
+
+        .contract-card-info-item {
+            gap: 0.375rem;
+        }
+
+        .contract-card-btn {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8125rem;
+            gap: 0.375rem;
+        }
+
+        .contract-card-btn-secondary {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8125rem;
+        }
+    }
+
+    /* FullCalendar Mobile Responsive Fixes */
+    @media (max-width: 768px) {
+        /* Fix week view day names overlapping */
+        .fc-col-header-cell {
+            font-size: 0.75rem !important;
+            padding: 0.25rem !important;
+        }
+        
+        .fc-col-header-cell-cushion {
+            padding: 0.25rem 0.125rem !important;
+        }
+        
+        .fc-daygrid-day-number {
+            font-size: 0.8rem !important;
+            padding: 0.25rem !important;
+        }
+        
+        .fc-event {
+            font-size: 0.7rem !important;
+        }
+    }
+    
+    @media (max-width: 480px) {
+        .contract-tracking-card {
+            padding: 0.875rem;
+        }
+
+        .contract-card-header {
+            gap: 0.5rem;
+        }
+
+        .contract-card-title {
+            font-size: 0.875rem;
+            line-height: 1.3;
+        }
+
+        .contract-card-badge {
+            font-size: 0.625rem;
+            padding: 0.2rem 0.4rem;
+        }
+
+        .contract-card-info {
+            font-size: 0.75rem;
+            margin-bottom: 0.625rem;
+        }
+
+        .contract-card-info-item {
+            gap: 0.3rem;
+        }
+
+        .contract-card-info-item i {
+            font-size: 0.875rem;
+        }
+
+        .contract-card-actions {
+            gap: 0.375rem;
+        }
+
+        .contract-card-btn {
+            padding: 0.5rem;
+            font-size: 0.75rem;
+            gap: 0.25rem;
+        }
+
+        .contract-card-btn i {
+            font-size: 0.875rem;
+        }
+
+        .contract-card-btn-secondary {
+            padding: 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .contract-card-btn-secondary i {
+            font-size: 0.875rem;
+        }
+        
+        /* Calendar mobile optimizations */
+        .fc-col-header-cell {
+            font-size: 0.625rem !important;
+            padding: 0.2rem 0 !important;
+        }
+        
+        .fc-col-header-cell-cushion {
+            padding: 0.2rem 0.1rem !important;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .fc-daygrid-day-number {
+            font-size: 0.7rem !important;
+            padding: 0.2rem !important;
+        }
+        
+        .fc-event-title {
+            font-size: 0.65rem !important;
+        }
+        
+        .fc-toolbar-chunk {
+            font-size: 0.75rem !important;
+        }
+        
+        .fc-button {
+            padding: 0.25rem 0.5rem !important;
+            font-size: 0.75rem !important;
+        }
+    }
 </style>
 {% endblock %}
 
@@ -509,7 +802,7 @@
 
     <!-- Dashboard Header -->
     <div class="dashboard-header">
-        <h1><i class="bi bi-person-workspace"></i> Worker Dashboard</h1>
+        <h1><i class="bi bi-person-workspace"></i> {% trans "Worker Dashboard" %}</h1>
         <p>Track your applications, offers, and contracts</p>
     </div>
 
@@ -532,14 +825,6 @@
         </div>
 
         <div class="stat-card">
-            <div class="stat-card-icon purple">
-                <i class="bi bi-envelope-paper"></i>
-            </div>
-            <div class="stat-card-value">{{ pending_offers|length|default:0 }}</div>
-            <div class="stat-card-label">Pending Offers</div>
-        </div>
-
-        <div class="stat-card">
             <div class="stat-card-icon green">
                 <i class="bi bi-file-earmark-check"></i>
             </div>
@@ -556,6 +841,22 @@
         </div>
     </div>
 
+    <!-- Quick Actions -->
+    <div class="quick-actions" style="margin-bottom: 2rem;">
+        <a href="{% url 'jobs:manage_availability' %}" class="action-btn action-btn-primary">
+            <i class="bi bi-calendar-check"></i>
+            Manage My Availability
+        </a>
+        <a href="{% url 'jobs:home' %}" class="action-btn action-btn-secondary">
+            <i class="bi bi-search"></i>
+            Browse Jobs
+        </a>
+        <a href="{% url 'users:profile' user.id %}" class="action-btn action-btn-secondary">
+            <i class="bi bi-person-circle"></i>
+            View My Profile
+        </a>
+    </div>
+
     <!-- PROMINENT ACTIVE CONTRACTS TRACKING SECTION -->
     {% if active_contracts_list %}
     <div class="content-section" style="margin-bottom: 2rem; border: 2px solid #059669;">
@@ -568,41 +869,41 @@
             <p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: rgba(255,255,255,0.9);">Track your ongoing work and deadlines at a glance</p>
         </div>
         
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem;">
+        <div class="active-contracts-grid">
             {% for contract in active_contracts_list|slice:":6" %}
-            <div style="background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%); border: 2px solid #e5e7eb; border-radius: 12px; padding: 1.25rem; transition: all 0.3s;">
-                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
-                    <h3 style="font-size: 1rem; font-weight: 700; color: #111827; margin: 0; flex: 1;">{{ contract.job.title }}</h3>
-                    <span style="font-size: 0.75rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-weight: 600; white-space: nowrap; margin-left: 0.5rem; {% if contract.status == 'In Progress' %}background: #d1fae5; color: #065f46;{% elif contract.status == 'Accepted' %}background: #dbeafe; color: #1e40af;{% else %}background: #fef3c7; color: #92400e;{% endif %}">
+            <div class="contract-tracking-card">
+                <div class="contract-card-header">
+                    <h3 class="contract-card-title">{{ contract.job.title }}</h3>
+                    <span class="contract-card-badge" style="{% if contract.status == 'In Progress' %}background: #d1fae5; color: #065f46;{% elif contract.status == 'Finalized' %}background: #d1fae5; color: #065f46;{% else %}background: #fef3c7; color: #92400e;{% endif %}">
                         {{ contract.status }}
                     </span>
                 </div>
                 
-                <div style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.75rem;">
-                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                <div class="contract-card-info">
+                    <div class="contract-card-info-item">
                         <i class="bi bi-person-circle"></i>
                         <span>Client: <strong>{{ contract.client.get_full_name|default:contract.client.username }}</strong></span>
                     </div>
                     {% if contract.start_date %}
-                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                    <div class="contract-card-info-item">
                         <i class="bi bi-calendar-range"></i>
                         <span>{{ contract.start_date|date:"M d" }} - {% if contract.end_date %}{{ contract.end_date|date:"M d, Y" }}{% else %}Ongoing{% endif %}</span>
                     </div>
                     {% endif %}
                     {% if contract.agreed_rate %}
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <div class="contract-card-info-item">
                         <i class="bi bi-cash-coin"></i>
                         <span><strong>₱{{ contract.agreed_rate }}</strong></span>
                     </div>
                     {% endif %}
                 </div>
                 
-                <div style="display: flex; gap: 0.5rem;">
-                    <a href="{% url 'jobs:job_tracking' contract.pk %}" style="flex: 1; background: #059669; color: white; padding: 0.625rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.875rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s;">
+                <div class="contract-card-actions">
+                    <a href="{% url 'jobs:job_tracking' contract.pk %}" class="contract-card-btn">
                         <i class="bi bi-graph-up"></i>
                         Track Progress
                     </a>
-                    <a href="{% url 'jobs:contract_detail' contract.pk %}" style="background: #f3f4f6; color: #374151; padding: 0.625rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.875rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                    <a href="{% url 'jobs:contract_detail' contract.pk %}" class="contract-card-btn-secondary">
                         <i class="bi bi-eye"></i>
                     </a>
                 </div>
@@ -628,9 +929,9 @@
             </h2>
         </div>
         
-        <div style="display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem;">
+        <div class="calendar-deadlines-grid" style="display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem;">
             <!-- Calendar -->
-            <div>
+            <div class="calendar-main">
                 <div id="calendar-loading" style="background: white; border-radius: 8px; padding: 2rem; text-align: center; min-height: 600px; display: flex; align-items: center; justify-content: center;">
                     <div>
                         <div class="spinner-border text-primary" role="status">
@@ -643,7 +944,7 @@
             </div>
             
             <!-- Upcoming Deadlines Sidebar -->
-            <div>
+            <div class="deadlines-sidebar">
                 <div style="background: #f9fafb; border-radius: 8px; padding: 1.25rem; border: 1px solid #e5e7eb;">
                     <h3 style="font-size: 1.125rem; font-weight: 600; color: #111827; margin-bottom: 1rem; display: flex; align-items: center; gap: 0.5rem;">
                         <i class="bi bi-alarm" style="color: #f59e0b;"></i>
@@ -689,7 +990,7 @@
                                         {{ contract.start_date|date:"M d" }} - {% if contract.end_date %}{{ contract.end_date|date:"M d, Y" }}{% else %}Ongoing{% endif %}
                                     </div>
                                     <div style="margin-top: 0.25rem;">
-                                        <span style="font-size: 0.7rem; padding: 0.125rem 0.5rem; border-radius: 9999px; background: {% if contract.status == 'In Progress' %}#d1fae5; color: #059669{% elif contract.status == 'Accepted' %}#dbeafe; color: #2563eb{% else %}#e9d5ff; color: #7c3aed{% endif %};">
+                                        <span style="font-size: 0.7rem; padding: 0.125rem 0.5rem; border-radius: 9999px; background: {% if contract.status == 'In Progress' %}#d1fae5; color: #059669{% elif contract.status == 'Finalized' %}#d1fae5; color: #059669{% else %}#e9d5ff; color: #7c3aed{% endif %};">
                                             {{ contract.status }}
                                         </span>
                                     </div>
@@ -795,8 +1096,7 @@
                     </div>
                     <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
                         <a href="{% url 'jobs:job_application_detail' application.pk %}" class="btn-action btn-primary-custom">
-                            <i class="bi bi-eye"></i> View Details
-                        </a>
+                            <i class="bi bi-eye"></i>{% trans "View Details" %}</a>
                         {% if application.status|lower == 'negotiation' %}
                             {% with negotiation_contract=application.current_contract %}
                                 {% if negotiation_contract and negotiation_contract.worker_id == application.worker_id %}
@@ -902,8 +1202,7 @@
                     </div>
                     <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
                         <a href="{% url 'jobs:contract_detail' contract.pk %}" class="btn-action btn-secondary">
-                            <i class="bi bi-eye"></i> View Details
-                        </a>
+                            <i class="bi bi-eye"></i>{% trans "View Details" %}</a>
                     </div>
                 </div>
                 {% empty %}
@@ -1183,7 +1482,7 @@ document.addEventListener('DOMContentLoaded', function() {
         eventDisplay: 'block',    // Display as blocks spanning full duration
         events: function(info, successCallback, failureCallback) {
             console.log('Fetching events from:', info.startStr, 'to:', info.endStr);
-            const url = `/api/schedule/events/?start=${info.startStr}&end=${info.endStr}`;
+            const url = `/api/jobs/schedule/events/?start=${info.startStr}&end=${info.endStr}`;
             console.log('API URL:', url);
             
             fetch(url)
@@ -1194,12 +1493,21 @@ document.addEventListener('DOMContentLoaded', function() {
                 .then(data => {
                     console.log('Calendar events loaded:', data);
                     console.log('Number of events:', data.length);
-                    if (data.length > 0) {
-                        console.log('First event:', data[0]);
+                    
+                    // Flatten array if nested (API returns array of arrays after daily event changes)
+                    let flattenedData = data;
+                    if (data.length > 0 && Array.isArray(data[0])) {
+                        console.log('Flattening nested array...');
+                        flattenedData = data.flat();
+                        console.log('Flattened to:', flattenedData.length, 'events');
+                    }
+                    
+                    if (flattenedData.length > 0) {
+                        console.log('First event:', flattenedData[0]);
                     } else {
                         console.warn('No events returned from API');
                     }
-                    successCallback(data);
+                    successCallback(flattenedData);
                 })
                 .catch(error => {
                     console.error('Error loading calendar events:', error);
@@ -1217,13 +1525,38 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
         eventDidMount: function(info) {
-            // Add tooltip with contract details
-            const tooltip = `${info.event.title}\nClient: ${info.event.extendedProps.client}\nStatus: ${info.event.extendedProps.status}`;
+            // Add tooltip with event details
+            const extProps = info.event.extendedProps;
+            let tooltip = `${info.event.title}`;
+            
+            if (extProps.type === 'interview') {
+                tooltip += `\nJob: ${extProps.job_title}\nType: ${extProps.interview_type}\nStatus: ${extProps.status}`;
+            } else {
+                tooltip += `\nClient: ${extProps.client}\nStatus: ${extProps.status}`;
+            }
+            
             info.el.title = tooltip;
             
-            // Add bold font weight for better visibility
+            // Style based on type
             info.el.style.fontWeight = '600';
             info.el.style.fontSize = '0.85rem';
+            info.el.style.borderRadius = '4px';
+            info.el.style.padding = '2px';
+            
+            // Add icon prefix for interviews
+            if (extProps.type === 'interview') {
+                const iconMap = {
+                    'Video': '🎥',
+                    'Phone': '📞',
+                    'In-Person': '🏢'
+                };
+                const interviewType = extProps.interview_type || 'Video';
+                const icon = iconMap[interviewType] || '📅';
+                const titleEl = info.el.querySelector('.fc-event-title');
+                if (titleEl) {
+                    titleEl.textContent = icon + ' ' + titleEl.textContent;
+                }
+            }
             
             // Add subtle shadow for depth
             info.el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.15)';
@@ -1236,10 +1569,30 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         },
         eventContent: function(arg) {
-            // Customize event display to show full title
-            return {
-                html: `<div style="padding: 2px 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${arg.event.title}</div>`
-            };
+            const extProps = arg.event.extendedProps;
+            
+            // Add icon based on type
+            let icon = '';
+            if (extProps.type === 'interview') {
+                const iconMap = {
+                    'Video': '🎥',
+                    'Phone': '📞',
+                    'In-Person': '🏢'
+                };
+                icon = iconMap[extProps.interview_type] || '📅';
+            }
+            
+            // Show join button for video interviews that can be joined
+            let content = `<div style="padding: 2px 4px; display: flex; align-items: center; gap: 4px;">
+                <span>${icon} ${arg.event.title}</span>`;
+            
+            if (extProps.type === 'interview' && extProps.interview_type === 'Video' && extProps.can_join) {
+                content += `<span style="background: #10b981; color: white; padding: 1px 4px; border-radius: 3px; font-size: 0.7rem; font-weight: bold;">JOIN</span>`;
+            }
+            
+            content += `</div>`;
+            
+            return { html: content };
         }
     });
     
@@ -1251,4 +1604,39 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('calendar').style.display = 'block';
 });
 </script>
+{% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "worker_dashboard",
+    "title": "Worker Dashboard Guide",
+    "steps": [
+        {
+            "title": "Welcome to Your Dashboard! 👷",
+            "content": "<h3>Your Command Center</h3><p>This is your personal dashboard where you can manage all your job activities, track applications, and view your work schedule.</p><div class=\"guide-tip\"><strong><i class="fa fa-lightbulb-o"></i> Quick Tip:</strong> Check your dashboard daily to stay updated on new opportunities and contract statuses.</div>"
+        },
+        {
+            "title": "Applications Overview 📋",
+            "content": "<h3>Track Your Job Applications</h3><p>The applications section shows:</p><ul><li><strong>Pending:</strong> Applications awaiting employer review</li><li><strong>Accepted:</strong> Jobs you have been selected for</li><li><strong>In Negotiation:</strong> Contract terms being discussed</li><li><strong>Rejected:</strong> Applications not successful</li></ul><p>Click on any application to view details and take action.</p>"
+        },
+        {
+            "title": "Active Contracts <i class="fa fa-file-text-o"></i>",
+            "content": "<h3>Manage Your Work</h3><p>Your active contracts section displays:</p><ul><li><strong>Negotiation:</strong> Finalize contract terms</li><li><strong>In Progress:</strong> Currently working jobs</li><li><strong>Awaiting Review:</strong> Work submitted for approval</li><li><strong>Completed:</strong> Finished jobs</li></ul><div class=\"guide-warning\"><strong><i class="fa fa-exclamation-triangle"></i> Important:</strong> Update your progress regularly to keep employers informed.</div>"
+        },
+        {
+            "title": "Work Schedule Calendar 📅",
+            "content": "<h3>Visual Schedule Management</h3><p>The calendar shows all your contracted work times:</p><ul><li>Each contract appears as a colored block</li><li>Different colors = different jobs</li><li>Hover over events for details</li><li>Click events to view full contract</li></ul><p>Use this to avoid double-booking and plan your time effectively.</p>"
+        },
+        {
+            "title": "Quick Actions ⚡",
+            "content": "<h3>Common Tasks</h3><p>From your dashboard, you can:</p><ol><li>View and respond to job offers</li><li>Update contract progress</li><li>Manage your availability schedule</li><li>Browse new job postings</li><li>Communicate with employers</li></ol><p>All your important actions are just one click away!</p>"
+        },
+        {
+            "title": "Stay Organized! <i class="fa fa-bullseye"></i>",
+            "content": "<h3>Dashboard Best Practices</h3><p>To make the most of your dashboard:</p><ul><li>Check notifications regularly</li><li>Respond promptly to job offers</li><li>Keep your availability calendar updated</li><li>Submit progress updates on time</li><li>Maintain good communication</li></ul><div class=\"guide-tip\"><strong><i class="fa fa-lightbulb-o"></i> Pro Tip:</strong> A well-maintained dashboard leads to better ratings and more job opportunities!</div><p>Ready to manage your work? Let's get started! 🚀</p>"
+        }
+    ]
+}
 {% endblock %}

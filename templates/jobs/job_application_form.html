@@ -1,4 +1,490 @@
 {% extends "mainpages/base.html" %}
+{% load i18n %}
+
+{% block extra_css %}
+<!-- Quill.js CSS -->
+<link href="https://cdn.quilljs.com/1.3.6/quill.snow.css" rel="stylesheet">
+<style>
+/* Quill Editor Custom Styles */
+.ql-container {
+  font-size: 1rem;
+  font-family: inherit;
+}
+.ql-editor {
+  min-height: 200px;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+/* CRITICAL: Allow ALL parent containers to show overflowing dropdowns */
+.application-container,
+.form-layout,
+.form-fields,
+.application-form-section,
+.ql-toolbar,
+.ql-container {
+  overflow: visible !important;
+}
+.ql-editor.ql-blank::before {
+  color: #9ca3af;
+  font-style: italic;
+}
+/* Quill Toolbar - Grouped with Labels */
+.ql-toolbar {
+  background: #f9fafb;
+  border-top-left-radius: 8px;
+  border-top-right-radius: 8px;
+  border: 1px solid #e5e7eb;
+  padding: 12px;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 12px;
+  overflow: visible !important;
+}
+
+/* Toolbar Groups with Labels */
+.ql-toolbar .ql-formats {
+  display: flex !important;
+  flex-wrap: wrap;
+  align-items: center !important;
+  gap: 4px;
+  padding: 8px 12px;
+  background: white;
+  border-radius: 6px;
+  border: 1px solid #e5e7eb;
+  position: relative;
+  vertical-align: middle;
+}
+
+/* Add labels to groups */
+.ql-toolbar .ql-formats::before {
+  content: attr(data-group);
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #6b7280;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  width: 100%;
+  margin-bottom: 6px;
+  display: block;
+}
+/* Override Quill default button sizes with higher specificity */
+.ql-snow.ql-toolbar button,
+.ql-snow .ql-toolbar button,
+.ql-toolbar button {
+  width: 32px !important;
+  height: 32px !important;
+  padding: 3px !important;
+  border-radius: 3px;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+/* CRITICAL: Override Quill's default SVG sizing - including inline styles */
+.ql-snow.ql-toolbar button svg[width],
+.ql-snow.ql-toolbar button svg[height],
+.ql-snow .ql-toolbar button svg[width],
+.ql-snow .ql-toolbar button svg[height],
+.ql-toolbar button svg[width],
+.ql-toolbar button svg[height],
+.ql-snow.ql-toolbar button svg,
+.ql-snow .ql-toolbar button svg,
+.ql-toolbar button svg,
+.ql-toolbar .ql-stroke,
+.ql-toolbar .ql-fill,
+.ql-toolbar svg {
+  width: 18px !important;
+  height: 18px !important;
+  max-width: 18px !important;
+  max-height: 18px !important;
+  min-width: 18px !important;
+  min-height: 18px !important;
+}
+
+.ql-toolbar button:hover {
+  background: #e8f0fe;
+  border-color: #c6dafc;
+}
+
+.ql-toolbar button.ql-active {
+  background: #d3e3fd;
+  border-color: #a8c7fa;
+}
+
+.ql-snow .ql-picker {
+  font-size: 13px;
+  border: 1px solid transparent;
+  border-radius: 3px;
+}
+
+.ql-snow .ql-picker:hover {
+  background: #e8f0fe;
+}
+
+.ql-snow .ql-picker.ql-expanded {
+  background: #d3e3fd;
+  border-color: #a8c7fa;
+}
+
+/* Picker dropdowns (Font, Size, etc.) - Force visibility outside containers */
+.ql-snow .ql-picker-options {
+  max-height: 250px !important;
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  z-index: 999999 !important;
+  position: absolute !important;
+  background: white !important;
+  border: 1px solid #ccc !important;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.2) !important;
+  margin-top: 2px !important;
+  padding: 5px !important;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e0 #f7fafc;
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  transform: none !important;
+  clip: auto !important;
+  clip-path: none !important;
+}
+
+/* Portal clone in body - MAXIMUM visibility overrides */
+.ql-picker-options-portal {
+  position: fixed !important;
+  z-index: 2147483647 !important; /* Maximum possible z-index */
+  display: block !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+  pointer-events: auto !important;
+  height: auto !important; /* Let it size naturally based on content */
+  max-height: none !important; /* Remove max-height limit */
+  overflow-y: auto !important;
+  overflow-x: hidden !important;
+  background: white !important;
+  border: 2px solid #2563eb !important; /* Blue border for visibility testing */
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3) !important;
+  padding: 8px !important;
+  margin: 0 !important;
+  transform: none !important;
+  clip: auto !important;
+  clip-path: none !important;
+  filter: none !important;
+  backdrop-filter: none !important;
+  isolation: auto !important;
+  mix-blend-mode: normal !important;
+  will-change: auto !important;
+}
+
+/* Make sure portal items are visible */
+.ql-picker-options-portal .ql-picker-item {
+  display: block !important;
+  padding: 5px 10px !important;
+  cursor: pointer !important;
+  min-height: 30px !important;
+}
+
+/* Webkit scrollbar for dropdowns */
+.ql-snow .ql-picker-options::-webkit-scrollbar {
+  width: 6px;
+}
+
+.ql-snow .ql-picker-options::-webkit-scrollbar-track {
+  background: #f7fafc;
+}
+
+.ql-snow .ql-picker-options::-webkit-scrollbar-thumb {
+  background: #cbd5e0;
+  border-radius: 3px;
+}
+
+/* Prevent body scroll when dropdown is open */
+.ql-snow .ql-picker.ql-expanded {
+  z-index: 10000 !important;
+  position: relative;
+}
+
+/* Ensure color picker dropdown is visible */
+.ql-snow .ql-color-picker .ql-picker-options,
+.ql-snow .ql-background .ql-picker-options {
+  min-width: 150px !important;
+  padding: 5px;
+}
+
+/* Mobile responsive dropdown sizes */
+@media (max-width: 768px) {
+  .ql-snow .ql-picker-options {
+    max-height: 180px !important;
+    font-size: 14px;
+  }
+  
+  .ql-snow .ql-picker-item {
+    padding: 8px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ql-snow .ql-picker-options {
+    max-height: 150px !important;
+    font-size: 13px;
+  }
+  
+  .ql-snow .ql-picker-item {
+    padding: 6px 10px;
+  }
+}
+
+/* Fix toolbar overflow to allow dropdowns to be visible */
+.ql-toolbar {
+  overflow: visible !important;
+}
+
+.ql-snow .ql-picker.ql-header .ql-picker-label,
+.ql-snow .ql-picker.ql-font .ql-picker-label,
+.ql-snow .ql-picker.ql-size .ql-picker-label {
+  padding-left: 8px;
+  padding-right: 20px;
+}
+/* Make container border match toolbar */
+#quill-cover-letter-editor {
+  border-top: none !important;
+  border-top-left-radius: 0 !important;
+  border-top-right-radius: 0 !important;
+}
+
+
+/* CV Attachment Section Mobile Responsive */
+@media (max-width: 768px) {
+  .form-group .fa-file-pdf {
+    font-size: 1.5rem !important;
+  }
+  
+  .form-group input[type="checkbox"] {
+    width: 18px !important;
+    height: 18px !important;
+  }
+  
+  .form-group label[for="attach_cv"] {
+    font-size: 0.9rem !important;
+  }
+}
+
+/* Responsive Design for Mobile */
+@media (max-width: 768px) {
+  .toolbar-toggle-btn {
+    display: block;
+  }
+  
+  .ql-snow.ql-toolbar button,
+  .ql-snow .ql-toolbar button,
+  .ql-toolbar button {
+    width: 28px !important;
+    height: 28px !important;
+    flex-shrink: 0;
+  }
+  
+  /* CRITICAL: Force smaller SVG icons on tablet - including inline styles */
+  .ql-snow.ql-toolbar button svg[width],
+  .ql-snow.ql-toolbar button svg[height],
+  .ql-snow .ql-toolbar button svg[width],
+  .ql-snow .ql-toolbar button svg[height],
+  .ql-toolbar button svg[width],
+  .ql-toolbar button svg[height],
+  .ql-snow.ql-toolbar button svg,
+  .ql-snow .ql-toolbar button svg,
+  .ql-toolbar button svg,
+  .ql-toolbar .ql-stroke,
+  .ql-toolbar .ql-fill,
+  .ql-toolbar svg {
+    width: 16px !important;
+    height: 16px !important;
+    max-width: 16px !important;
+    max-height: 16px !important;
+    min-width: 16px !important;
+    min-height: 16px !important;
+  }
+  
+  .ql-toolbar {
+    padding: 6px 8px;
+    gap: 3px;
+  }
+  
+  .ql-toolbar .ql-formats {
+    padding: 0 8px;
+    gap: 3px;
+  }
+  
+  .ql-snow .ql-picker {
+    flex-shrink: 0;
+    max-width: 120px;
+  }
+  
+  .ql-snow .ql-picker-label {
+    padding: 6px 8px;
+    font-size: 13px;
+  }
+  
+  /* Make dropdown menus full width on mobile */
+  .ql-snow .ql-picker-options {
+    left: 0 !important;
+    right: auto !important;
+    min-width: 180px;
+    max-height: 200px;
+    font-size: 14px;
+  }
+  
+  .ql-snow .ql-picker-item {
+    padding: 8px 12px;
+  }
+}
+
+@media (max-width: 480px) {
+  .ql-snow.ql-toolbar button,
+  .ql-snow .ql-toolbar button,
+  .ql-toolbar button {
+    width: 24px !important;
+    height: 24px !important;
+  }
+  
+  /* CRITICAL: Force smaller SVG icons on phone - including inline styles */
+  .ql-snow.ql-toolbar button svg[width],
+  .ql-snow.ql-toolbar button svg[height],
+  .ql-snow .ql-toolbar button svg[width],
+  .ql-snow .ql-toolbar button svg[height],
+  .ql-toolbar button svg[width],
+  .ql-toolbar button svg[height],
+  .ql-snow.ql-toolbar button svg,
+  .ql-snow .ql-toolbar button svg,
+  .ql-toolbar button svg,
+  .ql-toolbar .ql-stroke,
+  .ql-toolbar .ql-fill,
+  .ql-toolbar svg {
+    width: 14px !important;
+    height: 14px !important;
+    max-width: 14px !important;
+    max-height: 14px !important;
+    min-width: 14px !important;
+    min-height: 14px !important;
+  }
+  
+  .ql-toolbar {
+    padding: 4px 6px;
+    gap: 2px;
+  }
+  
+  .ql-toolbar .ql-formats {
+    padding: 0 6px;
+    gap: 2px;
+  }
+  
+  .ql-snow .ql-picker-label {
+    padding: 4px 6px;
+    font-size: 12px;
+  }
+}
+
+/* Enhanced Tooltips for Toolbar */
+.ql-toolbar button[title],
+.ql-toolbar .ql-picker-label[title] {
+  position: relative;
+}
+
+.ql-toolbar button:hover::after,
+.ql-toolbar .ql-picker-label:hover::after {
+  content: attr(title);
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-4px);
+  background: #1f2937;
+  color: white;
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-size: 12px;
+  white-space: nowrap;
+  z-index: 1000;
+  pointer-events: none;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  animation: tooltipFadeIn 0.2s ease-out;
+}
+
+.ql-toolbar button:hover::before,
+.ql-toolbar .ql-picker-label:hover::before {
+  content: '';
+  position: absolute;
+  bottom: 100%;
+  left: 50%;
+  transform: translateX(-50%) translateY(2px);
+  border: 4px solid transparent;
+  border-top-color: #1f2937;
+  z-index: 1001;
+  pointer-events: none;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(-50%) translateY(-4px);
+  }
+}
+/* Grammar error highlighting */
+.grammar-error {
+  background-color: #fee2e2;
+  border-bottom: 2px wavy #ef4444;
+  cursor: pointer;
+}
+.spelling-error {
+  background-color: #fef3c7;
+  border-bottom: 2px wavy #f59e0b;
+  cursor: pointer;
+}
+.style-suggestion {
+  background-color: #dbeafe;
+  border-bottom: 2px wavy #3b82f6;
+  cursor: pointer;
+}
+/* Grammar tooltip */
+.grammar-tooltip {
+  position: absolute;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 12px;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  z-index: 1000;
+  max-width: 300px;
+  font-size: 0.875rem;
+}
+.grammar-tooltip-title {
+  font-weight: 600;
+  margin-bottom: 5px;
+  color: #111827;
+}
+.grammar-tooltip-message {
+  color: #6b7280;
+  margin-bottom: 8px;
+}
+.grammar-tooltip-suggestion {
+  color: #10b981;
+  cursor: pointer;
+  padding: 4px 8px;
+  background: #f0fdf4;
+  border-radius: 4px;
+  display: inline-block;
+  margin-top: 4px;
+}
+.grammar-tooltip-suggestion:hover {
+  background: #dcfce7;
+}
+</style>
+{% endblock %}
+
 {% block content %}
 <style>
 /* Enhanced CSS Variables */
@@ -544,7 +1030,22 @@ input[type="number"].form-control {
                 Cover Letter
                 {% if form.cover_letter.field.required %}<span class="required-indicator">*</span>{% endif %}
               </label>
-              {{ form.cover_letter }}
+              
+              <!-- Quill Editor Container -->
+              <div id="quill-cover-letter-editor" style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; min-height: 200px;"></div>
+              
+              <!-- Hidden textarea for form submission -->
+              <textarea id="{{ form.cover_letter.id_for_label }}" name="cover_letter" style="display: none;">{{ form.cover_letter.value|default:"" }}</textarea>
+              
+              <!-- Grammar Check Button and Status -->
+              <div style="margin-top: 10px; display: flex; justify-content: space-between; align-items: center;">
+                <button type="button" id="grammar-check-btn" class="btn btn-sm btn-outline-primary" style="display: flex; align-items: center; gap: 5px;">
+                  <i class="fa fa-spell-check"></i>
+                  Check Grammar
+                </button>
+                <div id="grammar-status" style="font-size: 0.875rem; color: #6b7280;"></div>
+              </div>
+              
               <div class="char-counter" id="coverLetterCounter">0 characters</div>
               <div class="field-instruction">
                 <i class="fa fa-lightbulb instruction-icon"></i>
@@ -771,6 +1272,45 @@ input[type="number"].form-control {
                 </div>
               {% endif %}
             </div>
+            
+            <!-- CV/Resume Attachment -->
+            <div class="form-group" style="margin-top: 1.5rem;">
+              <div style="background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%); border: 2px solid #3b82f6; border-radius: 12px; padding: 1.25rem;">
+                <div style="display: flex; align-items: start; gap: 1rem;">
+                  <div style="flex-shrink: 0;">
+                    <i class="fa fa-file-pdf" style="font-size: 2rem; color: #3b82f6;"></i>
+                  </div>
+                  <div style="flex: 1;">
+                    <div style="display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.5rem;">
+                      <input type="checkbox" id="attach_cv" name="attach_cv" style="width: 20px; height: 20px; cursor: pointer;">
+                      <label for="attach_cv" style="font-weight: 600; color: #1e40af; margin: 0; cursor: pointer; font-size: 1rem;">
+                        Attach my CV/Resume from profile
+                      </label>
+                    </div>
+                    {% if user.cv_file %}
+                    <p style="margin: 0.5rem 0 0 0; font-size: 0.875rem; color: #475569;">
+                      <i class="fa fa-check-circle" style="color: #10b981;"></i>
+                      <strong>CV Available:</strong> {{ user.cv_file.name|slice:"9:" }}
+                      <a href="{{ user.cv_file.url }}" target="_blank" style="color: #3b82f6; text-decoration: none; margin-left: 0.5rem;">
+                        <i class="fa fa-eye"></i> Preview
+                      </a>
+                    </p>
+                    <p style="margin: 0.25rem 0 0 0; font-size: 0.8rem; color: #64748b;">
+                      Checking this box will include your CV with this application for the employer to review.
+                    </p>
+                    {% else %}
+                    <p style="margin: 0.5rem 0 0 0; font-size: 0.875rem; color: #dc2626;">
+                      <i class="fa fa-exclamation-circle"></i>
+                      <strong>No CV uploaded yet.</strong> 
+                      <a href="{% url 'users:profile_edit' user.username %}" style="color: #3b82f6; text-decoration: none;">
+                        Upload CV in your profile
+                      </a>
+                    </p>
+                    {% endif %}
+                  </div>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
@@ -827,14 +1367,10 @@ input[type="number"].form-control {
         <div class="form-actions">
           {% if form.instance.job and form.instance.job.pk %}
             <a href="{% url 'jobs:job_detail' form.instance.job.pk %}" class="btn btn-secondary">
-              <i class="fa fa-times"></i>
-              Cancel
-            </a>
+              <i class="fa fa-times"></i>{% trans "Cancel" %}</a>
           {% else %}
             <a href="{% url 'jobs:job_list' %}" class="btn btn-secondary">
-              <i class="fa fa-times"></i>
-              Cancel
-            </a>
+              <i class="fa fa-times"></i>{% trans "Cancel" %}</a>
           {% endif %}
           <button type="submit" class="btn btn-primary">
             <i class="fa fa-paper-plane"></i>
@@ -846,13 +1382,481 @@ input[type="number"].form-control {
   </div>
 </div>
 
+<!-- Quill.js JavaScript -->
+<script src="https://cdn.quilljs.com/1.3.6/quill.js"></script>
+
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-  // Character counters
+  // Initialize Quill Editor with Organized Toolbar
+  const quill = new Quill('#quill-cover-letter-editor', {
+    theme: 'snow',
+    placeholder: 'Introduce yourself and explain why you\'re a good fit for this job...',
+    modules: {
+      toolbar: {
+        container: [
+          // Row 0: History (Undo/Redo)
+          ['undo', 'redo'],
+          
+          // Row 1: Text Style & Size
+          [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+          [{ 'font': [] }],
+          [{ 'size': ['small', false, 'large', 'huge'] }],
+          
+          // Row 2: Text Formatting
+          ['bold', 'italic', 'underline', 'strike'],
+          [{ 'script': 'sub'}, { 'script': 'super' }],
+          
+          // Row 3: Colors
+          [{ 'color': [] }, { 'background': [] }],
+          
+          // Row 4: Paragraph Formatting
+          [{ 'align': [] }],
+          [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+          [{ 'indent': '-1'}, { 'indent': '+1' }],
+          
+          // Row 5: Blocks & Media
+          ['blockquote', 'code-block'],
+          ['link'],
+          
+          // Row 6: Utilities
+          [{ 'direction': 'rtl' }],
+          ['clean']
+        ],
+        handlers: {
+          'undo': function() {
+            this.quill.history.undo();
+          },
+          'redo': function() {
+            this.quill.history.redo();
+          }
+        }
+      },
+      history: {
+        delay: 1000,
+        maxStack: 50,
+        userOnly: true
+      }
+    }
+  });
+  
+  // Add custom icons for undo/redo buttons
+  setTimeout(() => {
+    const undoButton = document.querySelector('.ql-undo');
+    const redoButton = document.querySelector('.ql-redo');
+    if (undoButton) {
+      undoButton.innerHTML = '<svg viewBox="0 0 18 18" style="width: 18px; height: 18px;"><polygon class="ql-fill" points="6 10 4 12 2 10 6 10"></polygon><path class="ql-stroke" d="M8.09,13.91A4.6,4.6,0,0,0,9,14,5,5,0,1,0,4,9"></path></svg>';
+      undoButton.style.display = 'inline-block';
+    }
+    if (redoButton) {
+      redoButton.innerHTML = '<svg viewBox="0 0 18 18" style="width: 18px; height: 18px;"><polygon class="ql-fill" points="12 10 14 12 16 10 12 10"></polygon><path class="ql-stroke" d="M9.91,13.91A4.6,4.6,0,0,1,9,14a5,5,0,1,1,5-5"></path></svg>';
+      redoButton.style.display = 'inline-block';
+    }
+  }, 200);
+
+  // Get references
   const coverLetterField = document.querySelector('#{{ form.cover_letter.id_for_label }}');
   const experienceField = document.querySelector('#{{ form.experience.id_for_label }}');
   const notesField = document.querySelector('#{{ form.additional_notes.id_for_label }}');
+  const grammarBtn = document.getElementById('grammar-check-btn');
+  const grammarStatus = document.getElementById('grammar-status');
   
+  // Load initial content if editing
+  if (coverLetterField.value) {
+    quill.root.innerHTML = coverLetterField.value;
+  }
+  
+  // Add tooltips to toolbar buttons
+  function addQuillTooltips() {
+    const tooltips = {
+      // History
+      '.ql-undo': 'Undo (Ctrl+Z)',
+      '.ql-redo': 'Redo (Ctrl+Y)',
+      
+      // Headers and fonts
+      '.ql-header': 'Heading Style',
+      '.ql-header[value="1"]': 'Heading 1 (Largest)',
+      '.ql-header[value="2"]': 'Heading 2',
+      '.ql-header[value="3"]': 'Heading 3',
+      '.ql-header[value="4"]': 'Heading 4',
+      '.ql-header[value="5"]': 'Heading 5',
+      '.ql-header[value="6"]': 'Heading 6 (Smallest)',
+      '.ql-font': 'Font Family',
+      '.ql-size': 'Font Size',
+      '.ql-size[value="small"]': 'Small',
+      '.ql-size[value="large"]': 'Large',
+      '.ql-size[value="huge"]': 'Huge',
+      
+      // Text formatting
+      '.ql-bold': 'Bold (Ctrl+B)',
+      '.ql-italic': 'Italic (Ctrl+I)',
+      '.ql-underline': 'Underline (Ctrl+U)',
+      '.ql-strike': 'Strikethrough',
+      '.ql-script[value="sub"]': 'Subscript',
+      '.ql-script[value="super"]': 'Superscript',
+      
+      // Colors
+      '.ql-color': 'Text Color',
+      '.ql-background': 'Background Color',
+      
+      // Alignment and lists
+      '.ql-align': 'Text Alignment',
+      '.ql-align[value="center"]': 'Align Center',
+      '.ql-align[value="right"]': 'Align Right',
+      '.ql-align[value="justify"]': 'Justify',
+      '.ql-list[value="ordered"]': 'Numbered List',
+      '.ql-list[value="bullet"]': 'Bullet List',
+      '.ql-indent[value="-1"]': 'Decrease Indent',
+      '.ql-indent[value="+1"]': 'Increase Indent',
+      
+      // Blocks and media
+      '.ql-blockquote': 'Block Quote',
+      '.ql-code-block': 'Code Block',
+      '.ql-link': 'Insert Link',
+      
+      // Utilities
+      '.ql-direction[value="rtl"]': 'Right-to-Left Text Direction',
+      '.ql-clean': 'Remove Formatting'
+    };
+    
+    const toolbar = document.querySelector('#quill-cover-letter-editor').previousElementSibling;
+    
+    Object.keys(tooltips).forEach(selector => {
+      const elements = toolbar.querySelectorAll(selector);
+      elements.forEach(el => {
+        el.setAttribute('title', tooltips[selector]);
+        el.setAttribute('data-tooltip', tooltips[selector]);
+      });
+    });
+  }
+  
+  // Add tooltips after a brief delay to ensure toolbar is fully rendered
+  setTimeout(addQuillTooltips, 100);
+  
+  // PORTAL PATTERN: Clone dropdown to body for visibility, sync with original
+  setTimeout(() => {
+    console.log('[Dropdown Fix] Implementing portal pattern for dropdown visibility');
+    
+    const toolbar = document.querySelector('#quill-cover-letter-editor').previousElementSibling;
+    if (toolbar) {
+      const allPickers = toolbar.querySelectorAll('.ql-picker');
+      const dropdownClones = new Map();
+      
+      allPickers.forEach(picker => {
+        const options = picker.querySelector('.ql-picker-options');
+        if (!options) return;
+        
+        // Store original parent
+        const originalParent = options.parentElement;
+        let portalClone = null;
+        
+        const observer = new MutationObserver(() => {
+          const isExpanded = picker.classList.contains('ql-expanded');
+          
+          if (isExpanded && options) {
+            console.log('[Dropdown Fix] Picker expanded - creating portal');
+            
+            // Get picker button position
+            const pickerLabel = picker.querySelector('.ql-picker-label');
+            const rect = pickerLabel ? pickerLabel.getBoundingClientRect() : picker.getBoundingClientRect();
+            
+            // Create portal clone if doesn't exist  
+            if (!portalClone) {
+              // Clone with deep copy to get all children
+              portalClone = options.cloneNode(true);
+              portalClone.classList.add('ql-picker-options-portal');
+              
+              // Force items to be blocks with content
+              const portalItems = portalClone.querySelectorAll('.ql-picker-item');
+              const originalItems = options.querySelectorAll('.ql-picker-item');
+              
+              portalItems.forEach((portalItem, index) => {
+                const originalItem = originalItems[index];
+                if (originalItem) {
+                  // Copy any data attributes
+                  const dataValue = originalItem.getAttribute('data-value');
+                  const dataLabel = originalItem.getAttribute('data-label');
+                  
+                  // Get text content from original (Quill might populate via JS)
+                  const text = originalItem.textContent || originalItem.innerText || dataLabel || dataValue || `Option ${index + 1}`;
+                  
+                  // Set content and styles
+                  portalItem.textContent = text;
+                  portalItem.style.display = 'block';
+                  portalItem.style.padding = '5px 10px';
+                  portalItem.style.cursor = 'pointer';
+                  portalItem.style.minHeight = '30px';
+                  
+                  console.log('[Dropdown Fix] Item', index, 'text:', text);
+                }
+              });
+              
+              document.body.appendChild(portalClone);
+              dropdownClones.set(picker, portalClone);
+            }
+            
+            // Calculate dropdown height based on items
+            const items = portalClone.querySelectorAll('.ql-picker-item');
+            const itemCount = items.length;
+            const estimatedHeight = Math.min(itemCount * 30, 300); // 30px per item, max 300px
+            
+            console.log('[Dropdown Fix] Portal created with', itemCount, 'items, height:', estimatedHeight + 'px');
+            
+            // Position portal - let it size naturally
+            portalClone.style.cssText = `
+              position: fixed !important;
+              top: ${rect.bottom}px !important;
+              left: ${rect.left}px !important;
+              z-index: 2147483647 !important;
+              display: block !important;
+              visibility: visible !important;
+              opacity: 1 !important;
+              pointer-events: auto !important;
+              min-width: ${rect.width}px !important;
+              width: auto !important;
+              height: auto !important;
+              max-height: none !important;
+              overflow: visible !important;
+              background: white !important;
+              border: 2px solid #2563eb !important;
+              box-shadow: 0 10px 40px rgba(0,0,0,0.3) !important;
+              padding: 8px !important;
+            `;
+            
+            // Hide original (keep in DOM for Quill)
+            options.style.display = 'none';
+            
+            // Remove aria-hidden for accessibility
+            portalClone.removeAttribute('aria-hidden');
+            portalClone.setAttribute('aria-expanded', 'true');
+            
+            // Debug: Log portal details
+            console.log('[Dropdown Fix] Portal created at', rect.bottom, rect.left);
+            console.log('[Dropdown Fix] Portal element:', portalClone);
+            console.log('[Dropdown Fix] Portal in DOM?', document.body.contains(portalClone));
+            console.log('[Dropdown Fix] Portal computed style:', window.getComputedStyle(portalClone));
+            console.log('[Dropdown Fix] Portal bounding rect:', portalClone.getBoundingClientRect());
+            
+            // Sync clicks from portal to original
+            const portalItems = portalClone.querySelectorAll('.ql-picker-item');
+            const originalItems = options.querySelectorAll('.ql-picker-item');
+            
+            console.log('[Dropdown Fix] Portal has', portalItems.length, 'items');
+            
+            portalItems.forEach((portalItem, index) => {
+              portalItem.addEventListener('click', (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                if (originalItems[index]) {
+                  originalItems[index].click();
+                }
+                picker.classList.remove('ql-expanded');
+              });
+            });
+            
+          } else {
+            // Cleanup portal when closed
+            if (portalClone && portalClone.parentElement) {
+              portalClone.remove();
+              portalClone = null;
+            }
+            if (options) {
+              options.style.display = '';
+              options.setAttribute('aria-hidden', 'true');
+              options.setAttribute('aria-expanded', 'false');
+            }
+          }
+        });
+        
+        observer.observe(picker, { 
+          attributes: true, 
+          attributeFilter: ['class']
+        });
+      });
+      
+      // Cleanup on scroll
+      window.addEventListener('scroll', () => {
+        allPickers.forEach(picker => {
+          picker.classList.remove('ql-expanded');
+        });
+      }, true);
+    }
+  }, 200);
+  
+  // Add labels to toolbar groups
+  function addToolbarLabels() {
+    const toolbar = document.querySelector('.ql-toolbar');
+    const groups = toolbar.querySelectorAll('.ql-formats');
+    
+    const labels = [
+      'History',           // Undo/Redo
+      'Heading',          // Headers
+      'Font',             // Font family
+      'Size',             // Font size
+      'Text Style',       // Bold, Italic, etc.
+      'Script',           // Sub/Super
+      'Colors',           // Text/Background color
+      'Alignment',        // Text alignment
+      'Lists',            // Ordered/Bullet
+      'Indent',           // Indent controls
+      'Blocks',           // Blockquote, Code
+      'Media',            // Link
+      'Tools'             // Direction, Clean
+    ];
+    
+    groups.forEach((group, index) => {
+      if (labels[index]) {
+        group.setAttribute('data-group', labels[index]);
+      }
+    });
+  }
+  
+  setTimeout(addToolbarLabels, 150);
+  
+    }
+  }, 300);
+
+  
+  // Sync Quill content to hidden textarea
+  quill.on('text-change', function() {
+    coverLetterField.value = quill.root.innerHTML;
+    updateCharCounterForQuill();
+  });
+  
+  // Update character counter for Quill
+  function updateCharCounterForQuill() {
+    const counter = document.getElementById('coverLetterCounter');
+    if (counter) {
+      const text = quill.getText();
+      const length = text.trim().length;
+      counter.textContent = `${length} characters`;
+      
+      counter.className = 'char-counter';
+      if (length > 1000) {
+        counter.classList.add('danger');
+      } else if (length > 800) {
+        counter.classList.add('warning');
+      }
+    }
+  }
+  
+  // Grammar Checking with LanguageTool API
+  let currentTooltip = null;
+  let grammarErrors = [];
+  
+  grammarBtn.addEventListener('click', async function() {
+    const text = quill.getText().trim();
+    
+    if (!text) {
+      grammarStatus.textContent = 'Please write something first!';
+      grammarStatus.style.color = '#f59e0b';
+      return;
+    }
+    
+    // Show loading state
+    grammarBtn.disabled = true;
+    grammarBtn.innerHTML = '<i class="fa fa-spinner fa-spin"></i> Checking...';
+    grammarStatus.textContent = 'Analyzing your text...';
+    grammarStatus.style.color = '#6b7280';
+    
+    try {
+      // Call LanguageTool API
+      const response = await fetch('https://api.languagetool.org/v2/check', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: new URLSearchParams({
+          'text': text,
+          'language': 'en-US',
+          'enabledOnly': 'false'
+        })
+      });
+      
+      const data = await response.json();
+      // Filter out whitespace-only errors and minor issues
+      grammarErrors = (data.matches || []).filter(error => {
+        const ruleId = error.rule.id.toLowerCase();
+        const issueType = error.rule.issueType || '';
+        
+        // Skip whitespace errors
+        if (ruleId.includes('whitespace') || ruleId.includes('double_space')) {
+          return false;
+        }
+        
+        // Skip very minor punctuation issues
+        if (ruleId.includes('comma_parenthesis_whitespace')) {
+          return false;
+        }
+        
+        return true;
+      });
+      
+      // Clear previous highlights
+      const editor = quill.root;
+      const oldHighlights = editor.querySelectorAll('.grammar-error, .spelling-error, .style-suggestion');
+      oldHighlights.forEach(el => {
+        const parent = el.parentNode;
+        while (el.firstChild) {
+          parent.insertBefore(el.firstChild, el);
+        }
+        parent.removeChild(el);
+      });
+      
+      // Show results
+      if (grammarErrors.length === 0) {
+        grammarStatus.textContent = '✓ No issues found!';
+        grammarStatus.style.color = '#10b981';
+        
+        // Remove any previous error list
+        const existingList = document.getElementById('grammar-error-list');
+        if (existingList) {
+          existingList.remove();
+        }
+      } else {
+        grammarStatus.textContent = `Found ${grammarErrors.length} issue(s)`;
+        grammarStatus.style.color = '#ef4444';
+        
+        // Highlight errors (simplified approach - showing in status)
+        highlightGrammarErrors(grammarErrors);
+      }
+    } catch (error) {
+      console.error('Grammar check error:', error);
+      grammarStatus.textContent = '⚠ Error checking grammar';
+      grammarStatus.style.color = '#ef4444';
+    } finally {
+      grammarBtn.disabled = false;
+      grammarBtn.innerHTML = '<i class="fa fa-spell-check"></i> Check Grammar';
+    }
+  });
+  
+  // Show all grammar errors (no truncation)
+  function highlightGrammarErrors(errors) {
+    let errorList = '<div style="margin-top: 10px; padding: 10px; background: #fef3c7; border-radius: 6px; font-size: 0.875rem;"><strong>Issues found:</strong><ul style="margin: 5px 0; padding-left: 20px;">';
+    
+    errors.forEach((error, index) => {
+      const type = error.rule.issueType || 'grammar';
+      const icon = type === 'misspelling' ? '<i class="fa fa-spell-check"></i>' : type === 'style' ? '<i class="fa fa-lightbulb-o"></i>' : '<i class="fa fa-pencil"></i>';
+      errorList += `<li>${icon} <strong>"${error.context.text.substring(error.context.offset, error.context.offset + error.context.length)}"</strong>: ${error.message}`;
+      if (error.replacements && error.replacements.length > 0) {
+        errorList += ` <span style="color: #10b981;">→ ${error.replacements[0].value}</span>`;
+      }
+      errorList += '</li>';
+    });
+    
+    errorList += '</ul></div>';
+    
+    const existingList = document.getElementById('grammar-error-list');
+    if (existingList) {
+      existingList.remove();
+    }
+    
+    const errorDiv = document.createElement('div');
+    errorDiv.id = 'grammar-error-list';
+    errorDiv.innerHTML = errorList;
+    grammarStatus.parentNode.parentNode.insertBefore(errorDiv, grammarStatus.parentNode.nextSibling);
+  }
+  
+  // Character counters for other fields
   function updateCharCounter(field, counterId) {
     const counter = document.getElementById(counterId);
     if (field && counter) {
@@ -874,16 +1878,17 @@ document.addEventListener('DOMContentLoaded', function() {
     }
   }
   
-  updateCharCounter(coverLetterField, 'coverLetterCounter');
   updateCharCounter(experienceField, 'experienceCounter');
   updateCharCounter(notesField, 'notesCounter');
+  updateCharCounterForQuill(); // Initial count for Quill
   
   // Progress tracking
   function updateProgress() {
     const steps = document.querySelectorAll('.step');
     
-    // Check cover letter
-    if (coverLetterField && coverLetterField.value.trim()) {
+    // Check cover letter (using Quill's text)
+    const quillText = quill.getText().trim();
+    if (quillText && quillText.length > 10) {
       steps[0].classList.add('completed');
       steps[1].classList.add('active');
     }
@@ -941,4 +1946,35 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 });
 </script>
+{% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "job_application_form",
+    "title": "Job Application Guide",
+    "steps": [
+        {
+            "title": "Apply for This Job \ud83d\udcdd",
+            "content": "<h3>Submit Your Application</h3><p>Complete this form to apply for the job. A strong application increases your chances of getting hired!</p><div class='guide-tip'><strong>\ud83d\udca1 Tip:</strong> Personalize your application for each job.</div>"
+        },
+        {
+            "title": "Your Message \u2709\ufe0f",
+            "content": "<h3>Introduce Yourself</h3><p>Write a brief message explaining:</p><ul><li>Why you're interested in this job</li><li>Your relevant experience</li><li>What makes you a good fit</li><li>Your availability</li></ul><p>Keep it professional but personable!</p>"
+        },
+        {
+            "title": "Skills & Experience \ud83d\udee0\ufe0f",
+            "content": "<h3>Highlight Your Qualifications</h3><ul><li><strong>Experience:</strong> Relevant past work</li><li><strong>Certifications:</strong> Any credentials</li><li><strong>Portfolio:</strong> Link to your work</li></ul><div class='guide-warning'><strong>\u26a0\ufe0f Important:</strong> Only apply if you meet the requirements.</div>"
+        },
+        {
+            "title": "Proposed Terms \ud83d\udcb0",
+            "content": "<h3>Rate & Availability</h3><p>Specify:</p><ul><li>Your proposed rate (if negotiable)</li><li>When you can start</li><li>Expected duration to complete</li></ul><p>Be realistic and competitive with your offer.</p>"
+        },
+        {
+            "title": "Submit Application! \ud83d\ude80",
+            "content": "<h3>Final Review</h3><p>Before submitting:</p><ol><li>Proofread your message</li><li>Check all information is accurate</li><li>Make sure your profile is complete</li><li>Click 'Submit Application'</li></ol><p>The employer will be notified immediately. Good luck! \ud83c\udf89</p>"
+        }
+    ]
+}
 {% endblock %}

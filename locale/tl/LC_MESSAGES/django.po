@@ -1,0 +1,1346 @@
+# TRABAHOLINK TAGALOG TRANSLATIONS
+# Copyright (C) 2025
+# This file is distributed under the same license as the TrabahoLink package.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: TrabahoLink 1.0\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-01-29 00:00+0800\n"
+"PO-Revision-Date: 2025-01-29 00:00+0800\n"
+"Last-Translator: TrabahoLink Team\n"
+"Language-Team: Tagalog\n"
+"Language: tl\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+# Navigation & Menu
+msgid "Home"
+msgstr "Tahanan"
+
+msgid "Postings"
+msgstr "Mga Trabaho"
+
+msgid "Announcements"
+msgstr "Mga Anunsyo"
+
+msgid "Messages"
+msgstr "Mga Mensahe"
+
+msgid "Notifications"
+msgstr "Mga Notipikasyon"
+
+msgid "Login"
+msgstr "Mag-login"
+
+msgid "Register"
+msgstr "Mag-rehistro"
+
+msgid "Logout"
+msgstr "Mag-logout"
+
+msgid "View Profile"
+msgstr "Tingnan ang Profile"
+
+msgid "Worker Dashboard"
+msgstr "Dashboard ng Manggagawa"
+
+msgid "Employer Dashboard"
+msgstr "Dashboard ng Employer"
+
+msgid "Admin Dashboard"
+msgstr "Dashboard ng Admin"
+
+msgid "Mark all as read"
+msgstr "Markahan lahat bilang nabasa"
+
+msgid "View all"
+msgstr "Tingnan lahat"
+
+msgid "Loading notifications..."
+msgstr "Naglo-load ng mga notipikasyon..."
+
+# Buttons & Actions
+msgid "Submit"
+msgstr "Isumite"
+
+msgid "Save"
+msgstr "I-save"
+
+msgid "Cancel"
+msgstr "Kanselahin"
+
+msgid "Delete"
+msgstr "Tanggalin"
+
+msgid "Edit"
+msgstr "I-edit"
+
+msgid "Update"
+msgstr "I-update"
+
+msgid "Search"
+msgstr "Maghanap"
+
+msgid "Filter"
+msgstr "I-filter"
+
+msgid "Apply"
+msgstr "Mag-apply"
+
+msgid "Send"
+msgstr "Ipadala"
+
+msgid "Upload"
+msgstr "Mag-upload"
+
+msgid "Download"
+msgstr "Mag-download"
+
+msgid "Close"
+msgstr "Isara"
+
+msgid "Back"
+msgstr "Bumalik"
+
+msgid "Next"
+msgstr "Susunod"
+
+msgid "Previous"
+msgstr "Nakaraan"
+
+msgid "Continue"
+msgstr "Magpatuloy"
+
+msgid "Confirm"
+msgstr "Kumpirmahin"
+
+msgid "Yes"
+msgstr "Oo"
+
+msgid "No"
+msgstr "Hindi"
+
+msgid "Browse Jobs"
+msgstr "Mag-browse ng Trabaho"
+
+msgid "Find Services"
+msgstr "Maghanap ng Serbisyo"
+
+msgid "Join Now"
+msgstr "Sumali Ngayon"
+
+msgid "Click to read more"
+msgstr "I-click para magbasa pa"
+
+msgid "Read more"
+msgstr "Magbasa pa"
+
+# Jobs & Employment
+msgid "Jobs"
+msgstr "Mga Trabaho"
+
+msgid "Find Jobs"
+msgstr "Maghanap ng Trabaho"
+
+msgid "Post a Job"
+msgstr "Mag-post ng Trabaho"
+
+msgid "Job Title"
+msgstr "Titulo ng Trabaho"
+
+msgid "Job Description"
+msgstr "Deskripsyon ng Trabaho"
+
+msgid "Location"
+msgstr "Lokasyon"
+
+msgid "Salary"
+msgstr "Sahod"
+
+msgid "Requirements"
+msgstr "Mga Kinakailangan"
+
+msgid "Apply Now"
+msgstr "Mag-apply Ngayon"
+
+msgid "Application"
+msgstr "Aplikasyon"
+
+msgid "Applications"
+msgstr "Mga Aplikasyon"
+
+msgid "Active Jobs"
+msgstr "Mga Aktibong Trabaho"
+
+msgid "Employer"
+msgstr "Employer"
+
+msgid "Worker"
+msgstr "Manggagawa"
+
+msgid "Posted"
+msgstr "Nai-post"
+
+# Services
+msgid "Services"
+msgstr "Mga Serbisyo"
+
+msgid "My Services"
+msgstr "Aking mga Serbisyo"
+
+msgid "Service Category"
+msgstr "Kategorya ng Serbisyo"
+
+msgid "Available"
+msgstr "Available"
+
+# User Profile
+msgid "Profile"
+msgstr "Profile"
+
+msgid "Edit Profile"
+msgstr "I-edit ang Profile"
+
+msgid "Full Name"
+msgstr "Buong Pangalan"
+
+msgid "Email"
+msgstr "Email"
+
+msgid "Phone"
+msgstr "Telepono"
+
+msgid "Address"
+msgstr "Address"
+
+msgid "Bio"
+msgstr "Bio"
+
+msgid "Skills"
+msgstr "Mga Kasanayan"
+
+msgid "Change Password"
+msgstr "Baguhin ang Password"
+
+msgid "Old Password"
+msgstr "Lumang Password"
+
+msgid "New Password"
+msgstr "Bagong Password"
+
+msgid "Confirm Password"
+msgstr "Kumpirmahin ang Password"
+
+# Authentication
+msgid "Password"
+msgstr "Password"
+
+msgid "Forgot Password?"
+msgstr "Nakalimutan ang Password?"
+
+msgid "Create Account"
+msgstr "Gumawa ng Account"
+
+msgid "Welcome back!"
+msgstr "Maligayang pagbabalik!"
+
+# Messaging
+msgid "Message"
+msgstr "Mensahe"
+
+msgid "Send Message"
+msgstr "Magpadala ng Mensahe"
+
+msgid "Type a message..."
+msgstr "Mag-type ng mensahe..."
+
+msgid "Conversations"
+msgstr "Mga Pag-uusap"
+
+# Status & States
+msgid "Active"
+msgstr "Aktibo"
+
+msgid "Pending"
+msgstr "Naghihintay"
+
+msgid "Completed"
+msgstr "Natapos na"
+
+msgid "Cancelled"
+msgstr "Kinansela"
+
+# Common Phrases
+msgid "Welcome"
+msgstr "Maligayang pagdating"
+
+msgid "Loading..."
+msgstr "Naglo-load..."
+
+msgid "Please wait..."
+msgstr "Pakihintay..."
+
+msgid "Success!"
+msgstr "Tagumpay!"
+
+msgid "Error occurred"
+msgstr "May naganap na error"
+
+msgid "Try again"
+msgstr "Subukan muli"
+
+msgid "Learn more"
+msgstr "Alamin pa"
+
+msgid "See all"
+msgstr "Tingnan lahat"
+
+msgid "Help"
+msgstr "Tulong"
+
+msgid "Contact"
+msgstr "Makipag-ugnayan"
+
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Settings"
+msgstr "Mga Setting"
+
+# Home Page
+msgid "Connect. Collaborate. Succeed."
+msgstr "Kumonekta. Makipagtulungan. Magtagumpay."
+
+msgid "Your gateway to endless opportunities. Find the perfect job or discover talented professionals ready to bring your vision to life."
+msgstr "Ang iyong daan tungo sa walang hanggang oportunidad. Maghanap ng perpektong trabaho o tuklasin ang mga bihasang propesyonal na handang isabuhay ang iyong pangarap."
+
+msgid "Users"
+msgstr "Mga Gumagamit"
+
+msgid "Welcome to TrabahoLink!"
+msgstr "Maligayang pagdating sa TrabahoLink!"
+
+msgid "Join thousands of professionals finding their dream opportunities"
+msgstr "Sumali sa libu-libong propesyonal na naghahanap ng kanilang mga pangarap na oportunidad"
+
+# Additional Translations
+msgid "Total Jobs"
+msgstr "Kabuuang Trabaho"
+
+msgid "Latest Opportunities"
+msgstr "Pinakabagong Oportunidad"
+
+msgid "Discover the newest job postings"
+msgstr "Tuklasin ang pinakabagong job postings"
+
+msgid "No jobs available at the moment. Check back soon!"
+msgstr "Walang available na trabaho sa ngayon. Bumalik mamaya!"
+
+msgid "Get started in three simple steps"
+msgstr "Magsimula sa tatlong simpleng hakbang"
+
+msgid "1. Create Your Profile"
+msgstr "1. Gumawa ng Iyong Profile"
+
+msgid "Sign up for free and build your professional profile. Showcase your skills, experience, and portfolio to stand out."
+msgstr "Mag-sign up nang libre at buuin ang iyong propesyonal na profile. Ipakita ang iyong mga kasanayan, karanasan, at portfolio para mag-standout."
+
+msgid "2. Browse & Connect"
+msgstr "2. Mag-browse at Kumonekta"
+
+msgid "Explore thousands of job listings or find talented professionals. Use our advanced filters to find the perfect match."
+msgstr "Tuklasin ang libu-libong job listings o maghanap ng bihasang propesyonal. Gamitin ang aming advanced filters para makahanap ng perpektong match."
+
+msgid "3. Start Working"
+msgstr "3. Magsimulang Magtrabaho"
+
+msgid "Get hired or hire the right talent. Communicate securely, track progress, and build lasting professional relationships."
+msgstr "Matanggap o mag-hire ng tamang talento. Makipag-ugnayan nang ligtas, subaybayan ang progreso, at bumuo ng pangmatagalang propesyonal na relasyon."
+
+msgid "Why Choose TrabahoLink?"
+msgstr "Bakit Piliin ang TrabahoLink?"
+
+msgid "Everything you need to succeed"
+msgstr "Lahat ng kailangan mo para magtagumpay"
+
+msgid "Secure & Trusted"
+msgstr "Ligtas at Mapagkakatiwalaan"
+
+msgid "Your safety and privacy are our top priorities. All users are verified."
+msgstr "Ang iyong kaligtasan at privacy ay aming pangunahing priority. Lahat ng users ay na-verify."
+
+msgid "Wide Network"
+msgstr "Malawak na Network"
+
+msgid "Connect with professionals and companies across various industries."
+msgstr "Kumonekta sa mga propesyonal at kumpanya sa iba't ibang industriya."
+
+msgid "Fast & Easy"
+msgstr "Mabilis at Madali"
+
+msgid "Get started in minutes with our simple and intuitive platform."
+msgstr "Magsimula sa loob ng ilang minuto sa aming simple at intuitive na platform."
+
+msgid "Ready to explore new opportunities or manage your profile?"
+msgstr "Handa nang tuklasin ang mga bagong oportunidad o pamahalaan ang iyong profile?"
+
+msgid "My Profile"
+msgstr "Aking Profile"
+
+msgid "Ready to Get Started?"
+msgstr "Handa Nang Magsimula?"
+
+msgid "Join our community today and unlock endless opportunities for growth and success."
+msgstr "Sumali sa aming komunidad ngayon at buksan ang walang hanggang oportunidad para sa paglaki at tagumpay."
+
+msgid "Sign Up Free"
+msgstr "Mag-sign Up Nang Libre"
+
+msgid "Explore Jobs"
+msgstr "Tuklasin ang mga Trabaho"
+
+msgid "View Details"
+msgstr "Tingnan ang mga Detalye"
+
+msgid "Show More"
+msgstr "Ipakita pa"
+
+msgid "Load More"
+msgstr "Mag-load pa"
+
+msgid "Language"
+msgstr "Wika"
+
+
+# Login Page Translations
+msgid "Sign in to continue your journey to success"
+msgstr "Mag-sign in para ipagpatuloy ang iyong paglalakbay tungo sa tagumpay"
+
+msgid "Secure & Trusted Platform"
+msgstr "Ligtas at Mapagkakatiwalaang Platform"
+
+msgid "Connect with Opportunities"
+msgstr "Kumonekta sa mga Oportunidad"
+
+msgid "Build Your Career"
+msgstr "Bumuo ng Iyong Karera"
+
+msgid "Enter your credentials to access your account"
+msgstr "Ilagay ang iyong mga kredensyal upang ma-access ang iyong account"
+
+msgid "Your username and password didn't match. Please try again."
+msgstr "Hindi nagtugma ang iyong username at password. Pakisubukan muli."
+
+msgid "Forgot password?"
+msgstr "Nakalimutan ang password?"
+
+msgid "OR CONTINUE WITH"
+msgstr "O MAGPATULOY SA"
+
+msgid "Continue with Google"
+msgstr "Magpatuloy sa Google"
+
+msgid "Don't have an account?"
+msgstr "Wala kang account?"
+
+msgid "Create Account"
+msgstr "Gumawa ng Account"
+
+# Form Fields
+msgid "First Name"
+msgstr "Pangalan"
+
+msgid "Last Name"
+msgstr "Apelyido"
+
+msgid "Email Address"
+msgstr "Email Address"
+
+msgid "Phone Number"
+msgstr "Numero ng Telepono"
+
+msgid "Date of Birth"
+msgstr "Petsa ng Kapanganakan"
+
+msgid "Gender"
+msgstr "Kasarian"
+
+msgid "Male"
+msgstr "Lalaki"
+
+msgid "Female"
+msgstr "Babae"
+
+msgid "Other"
+msgstr "Iba pa"
+
+msgid "City"
+msgstr "Lungsod"
+
+msgid "Province"
+msgstr "Probinsya"
+
+msgid "Postal Code"
+msgstr "Postal Code"
+
+msgid "Description"
+msgstr "Deskripsyon"
+
+msgid "Select"
+msgstr "Pumili"
+
+msgid "Choose File"
+msgstr "Pumili ng File"
+
+msgid "Upload"
+msgstr "Mag-upload"
+
+msgid "Required"
+msgstr "Kinakailangan"
+
+msgid "Optional"
+msgstr "Opsyonal"
+
+# Common Messages
+msgid "Success!"
+msgstr "Tagumpay!"
+
+msgid "Error"
+msgstr "Error"
+
+msgid "Warning"
+msgstr "Babala"
+
+msgid "Information"
+msgstr "Impormasyon"
+
+msgid "Are you sure?"
+msgstr "Sigurado ka ba?"
+
+msgid "This action cannot be undone"
+msgstr "Hindi maaaring bawiin ang aksyong ito"
+
+msgid "Please wait..."
+msgstr "Pakihintay..."
+
+msgid "Processing..."
+msgstr "Pinoproseso..."
+
+msgid "Saving..."
+msgstr "Sine-save..."
+
+msgid "Loading..."
+msgstr "Naglo-load..."
+
+msgid "No results found"
+msgstr "Walang nahanap na resulta"
+
+msgid "Try again"
+msgstr "Subukan muli"
+
+msgid "Go back"
+msgstr "Bumalik"
+
+# Job Related
+msgid "Job Title"
+msgstr "Titulo ng Trabaho"
+
+msgid "Company"
+msgstr "Kumpanya"
+
+msgid "Employment Type"
+msgstr "Uri ng Trabaho"
+
+msgid "Full-time"
+msgstr "Full-time"
+
+msgid "Part-time"
+msgstr "Part-time"
+
+msgid "Contract"
+msgstr "Kontrata"
+
+msgid "Freelance"
+msgstr "Freelance"
+
+msgid "Internship"
+msgstr "Internship"
+
+msgid "Temporary"
+msgstr "Pansamantala"
+
+msgid "Experience Level"
+msgstr "Antas ng Karanasan"
+
+msgid "Entry Level"
+msgstr "Entry Level"
+
+msgid "Mid Level"
+msgstr "Mid Level"
+
+msgid "Senior Level"
+msgstr "Senior Level"
+
+msgid "Salary Range"
+msgstr "Saklaw ng Sahod"
+
+msgid "Minimum Salary"
+msgstr "Pinakamababang Sahod"
+
+msgid "Maximum Salary"
+msgstr "Pinakamataas na Sahod"
+
+msgid "Job Description"
+msgstr "Deskripsyon ng Trabaho"
+
+msgid "Qualifications"
+msgstr "Mga Kwalipikasyon"
+
+msgid "Responsibilities"
+msgstr "Mga Responsibilidad"
+
+msgid "Benefits"
+msgstr "Mga Benepisyo"
+
+msgid "Application Deadline"
+msgstr "Deadline ng Aplikasyon"
+
+msgid "Posted on"
+msgstr "Nai-post noong"
+
+msgid "Expires on"
+msgstr "Mag-e-expire noong"
+
+msgid "Apply for this position"
+msgstr "Mag-apply para sa posisyong ito"
+
+msgid "View Job Details"
+msgstr "Tingnan ang mga Detalye ng Trabaho"
+
+msgid "No jobs available"
+msgstr "Walang available na trabaho"
+
+msgid "Search jobs..."
+msgstr "Maghanap ng trabaho..."
+
+msgid "Filter by category"
+msgstr "I-filter ayon sa kategorya"
+
+msgid "Filter by location"
+msgstr "I-filter ayon sa lokasyon"
+
+msgid "Filter by salary"
+msgstr "I-filter ayon sa sahod"
+
+msgid "Sort by"
+msgstr "Ayusin ayon sa"
+
+msgid "Newest first"
+msgstr "Pinakabago muna"
+
+msgid "Oldest first"
+msgstr "Pinakaluma muna"
+
+msgid "Highest salary"
+msgstr "Pinakamataas na sahod"
+
+msgid "Lowest salary"
+msgstr "Pinakamababang sahod"
+
+# Profile
+msgid "Profile Picture"
+msgstr "Larawan ng Profile"
+
+msgid "Cover Photo"
+msgstr "Cover Photo"
+
+msgid "About Me"
+msgstr "Tungkol sa Akin"
+
+msgid "Work Experience"
+msgstr "Karanasan sa Trabaho"
+
+msgid "Education"
+msgstr "Edukasyon"
+
+msgid "Certifications"
+msgstr "Mga Sertipiko"
+
+msgid "Add"
+msgstr "Magdagdag"
+
+msgid "Remove"
+msgstr "Alisin"
+
+msgid "Add Experience"
+msgstr "Magdagdag ng Karanasan"
+
+msgid "Add Education"
+msgstr "Magdagdag ng Edukasyon"
+
+msgid "Add Skill"
+msgstr "Magdagdag ng Kasanayan"
+
+msgid "Edit Profile"
+msgstr "I-edit ang Profile"
+
+msgid "Save Changes"
+msgstr "I-save ang mga Pagbabago"
+
+msgid "Cancel Changes"
+msgstr "Kanselahin ang mga Pagbabago"
+
+msgid "Your changes have been saved"
+msgstr "Na-save na ang iyong mga pagbabago"
+
+msgid "Failed to save changes"
+msgstr "Nabigo sa pag-save ng mga pagbabago"
+
+# Dashboard
+msgid "Dashboard"
+msgstr "Dashboard"
+
+msgid "Overview"
+msgstr "Pangkalahatang-ideya"
+
+msgid "Recent Activity"
+msgstr "Kamakailang Aktibidad"
+
+msgid "My Applications"
+msgstr "Aking mga Aplikasyon"
+
+msgid "Saved Jobs"
+msgstr "Naka-save na Trabaho"
+
+msgid "Messages"
+msgstr "Mga Mensahe"
+
+msgid "Account Settings"
+msgstr "Mga Setting ng Account"
+
+msgid "Logout"
+msgstr "Mag-logout"
+
+# Notifications
+msgid "Mark as read"
+msgstr "Markahan bilang nabasa"
+
+msgid "Mark all as read"
+msgstr "Markahan lahat bilang nabasa"
+
+msgid "Delete notification"
+msgstr "Tanggalin ang notipikasyon"
+
+msgid "No new notifications"
+msgstr "Walang bagong notipikasyon"
+
+msgid "You have"
+msgstr "Mayroon kang"
+
+msgid "new notification"
+msgstr "bagong notipikasyon"
+
+msgid "new notifications"
+msgstr "mga bagong notipikasyon"
+
+# Time
+msgid "just now"
+msgstr "ngayon lang"
+
+msgid "minute ago"
+msgstr "minutong nakaraan"
+
+msgid "minutes ago"
+msgstr "mga minutong nakaraan"
+
+msgid "hour ago"
+msgstr "oras na nakaraan"
+
+msgid "hours ago"
+msgstr "mga oras na nakaraan"
+
+msgid "day ago"
+msgstr "araw na nakaraan"
+
+msgid "days ago"
+msgstr "mga araw na nakaraan"
+
+msgid "week ago"
+msgstr "linggo na nakaraan"
+
+msgid "weeks ago"
+msgstr "mga linggo na nakaraan"
+
+msgid "month ago"
+msgstr "buwan na nakaraan"
+
+msgid "months ago"
+msgstr "mga buwan na nakaraan"
+
+msgid "year ago"
+msgstr "taon na nakaraan"
+
+msgid "years ago"
+msgstr "mga taon na nakaraan"
+
+
+# Register Page
+msgid "Join Us Today!"
+msgstr "Sumali sa Amin Ngayon!"
+
+msgid "Create your account and start your journey to success"
+msgstr "Gumawa ng iyong account at simulan ang iyong paglalakbay tungo sa tagumpay"
+
+msgid "Free Registration"
+msgstr "Libreng Pagrehistro"
+
+msgid "Access to Opportunities"
+msgstr "Access sa mga Oportunidad"
+
+msgid "Build Your Network"
+msgstr "Bumuo ng Iyong Network"
+
+msgid "Fill in your details to get started"
+msgstr "Punan ang iyong mga detalye para magsimula"
+
+msgid "Confirm Password"
+msgstr "Kumpirmahin ang Password"
+
+msgid "I am a:"
+msgstr "Ako ay:"
+
+msgid "I agree to the"
+msgstr "Sumasang-ayon ako sa"
+
+msgid "Terms and Conditions"
+msgstr "Mga Tuntunin at Kundisyon"
+
+msgid "and the"
+msgstr "at sa"
+
+msgid "Privacy Consent Agreement"
+msgstr "Kasunduan sa Privacy"
+
+msgid "Sign up with Google"
+msgstr "Mag-sign up sa Google"
+
+msgid "Already have an account?"
+msgstr "Mayroon ka nang account?"
+
+# Additional Common Translations
+msgid "Worker"
+msgstr "Manggagawa"
+
+msgid "Employer"
+msgstr "Employer"
+
+msgid "Both"
+msgstr "Pareho"
+
+msgid "Select your role"
+msgstr "Pumili ng iyong papel"
+
+msgid "This field is required"
+msgstr "Kinakailangan ang field na ito"
+
+msgid "Please enter a valid email"
+msgstr "Pakitagay ng wastong email"
+
+msgid "Passwords must match"
+msgstr "Dapat magkatugma ang mga password"
+
+msgid "Password is too short"
+msgstr "Masyadong maikli ang password"
+
+msgid "Password is too common"
+msgstr "Masyadong karaniwan ang password"
+
+msgid "Must contain at least 8 characters"
+msgstr "Dapat may kahit 8 karakter"
+
+msgid "Loading"
+msgstr "Naglo-load"
+
+
+# Job Listing & Detail Pages
+msgid "All Categories"
+msgstr "Lahat ng Kategorya"
+
+msgid "All Locations"
+msgstr "Lahat ng Lokasyon"
+
+msgid "Clear Filters"
+msgstr "I-clear ang mga Filter"
+
+msgid "Apply Filters"
+msgstr "Ilapat ang mga Filter"
+
+msgid "jobs found"
+msgstr "trabahong nahanap"
+
+msgid "No jobs match your criteria"
+msgstr "Walang trabahong tumutugma sa iyong pamantayan"
+
+msgid "Showing"
+msgstr "Nagpapakita ng"
+
+msgid "to"
+msgstr "hanggang"
+
+msgid "of"
+msgstr "sa"
+
+msgid "results"
+msgstr "mga resulta"
+
+msgid "Posted by"
+msgstr "Nai-post ni"
+
+msgid "Applicants"
+msgstr "Mga Aplikante"
+
+msgid "View Application"
+msgstr "Tingnan ang Aplikasyon"
+
+msgid "Already Applied"
+msgstr "Nag-apply Na"
+
+msgid "Job Closed"
+msgstr "Sarado na ang Trabaho"
+
+msgid "Save Job"
+msgstr "I-save ang Trabaho"
+
+msgid "Share"
+msgstr "I-share"
+
+msgid "Report Job"
+msgstr "I-report ang Trabaho"
+
+# Job Application Form
+msgid "Apply for Job"
+msgstr "Mag-apply para sa Trabaho"
+
+msgid "Your Application"
+msgstr "Iyong Aplikasyon"
+
+msgid "Tell the employer why you're a good fit"
+msgstr "Sabihin sa employer kung bakit ikaw ay swak"
+
+msgid "Attach Resume"
+msgstr "Maglakip ng Resume"
+
+msgid "Attach Portfolio"
+msgstr "Maglakip ng Portfolio"
+
+msgid "Expected Salary"
+msgstr "Inaasahang Sahod"
+
+msgid "Available to Start"
+msgstr "Available na Magsimula"
+
+msgid "Immediately"
+msgstr "Kaagad"
+
+msgid "Within 1 week"
+msgstr "Sa loob ng 1 linggo"
+
+msgid "Within 2 weeks"
+msgstr "Sa loob ng 2 linggo"
+
+msgid "Within 1 month"
+msgstr "Sa loob ng 1 buwan"
+
+msgid "Submit Application"
+msgstr "Isumite ang Aplikasyon"
+
+msgid "Application submitted successfully"
+msgstr "Matagumpay na naisumite ang aplikasyon"
+
+msgid "You have already applied for this job"
+msgstr "Nag-apply ka na para sa trabahong ito"
+
+# Profile Pages
+msgid "Personal Information"
+msgstr "Personal na Impormasyon"
+
+msgid "Contact Information"
+msgstr "Impormasyon sa Pakikipag-ugnayan"
+
+msgid "Professional Information"
+msgstr "Propesyonal na Impormasyon"
+
+msgid "Upload Photo"
+msgstr "Mag-upload ng Larawan"
+
+msgid "Change Photo"
+msgstr "Palitan ang Larawan"
+
+msgid "Remove Photo"
+msgstr "Tanggalin ang Larawan"
+
+msgid "Drag and drop files here"
+msgstr "I-drag at i-drop ang mga file dito"
+
+msgid "or click to browse"
+msgstr "o mag-click para mag-browse"
+
+msgid "Maximum file size"
+msgstr "Pinakamataas na laki ng file"
+
+msgid "Allowed formats"
+msgstr "Mga pinapayagang format"
+
+msgid "Update Profile"
+msgstr "I-update ang Profile"
+
+msgid "Profile updated successfully"
+msgstr "Matagumpay na na-update ang profile"
+
+msgid "Failed to update profile"
+msgstr "Nabigo sa pag-update ng profile"
+
+# Dashboard
+msgid "Welcome"
+msgstr "Maligayang pagdating"
+
+msgid "Quick Stats"
+msgstr "Mabilis na Stats"
+
+msgid "Jobs Posted"
+msgstr "Mga Nai-post na Trabaho"
+
+msgid "Applications Received"
+msgstr "Mga Natanggap na Aplikasyon"
+
+msgid "Applications Sent"
+msgstr "Mga Ipinadala na Aplikasyon"
+
+msgid "Profile Views"
+msgstr "Mga Pagtingin sa Profile"
+
+msgid "Manage Jobs"
+msgstr "Pamahalaan ang mga Trabaho"
+
+msgid "View Applications"
+msgstr "Tingnan ang mga Aplikasyon"
+
+msgid "Post New Job"
+msgstr "Mag-post ng Bagong Trabaho"
+
+msgid "Edit Job"
+msgstr "I-edit ang Trabaho"
+
+msgid "Delete Job"
+msgstr "Tanggalin ang Trabaho"
+
+msgid "Are you sure you want to delete this job?"
+msgstr "Sigurado ka bang gusto mong tanggalin ang trabahong ito?"
+
+msgid "This will remove all applications"
+msgstr "Tatanggalin nito ang lahat ng aplikasyon"
+
+msgid "Job deleted successfully"
+msgstr "Matagumpay na natanggal ang trabaho"
+
+# Service Pages
+msgid "Service Categories"
+msgstr "Mga Kategorya ng Serbisyo"
+
+msgid "Rate per Hour"
+msgstr "Bayad bawat Oras"
+
+msgid "Minimum Rate"
+msgstr "Pinakamababang Bayad"
+
+msgid "Maximum Rate"
+msgstr "Pinakamataas na Bayad"
+
+msgid "Service Area"
+msgstr "Lugar ng Serbisyo"
+
+msgid "Years of Experience"
+msgstr "Taon ng Karanasan"
+
+msgid "Portfolio Items"
+msgstr "Mga Item sa Portfolio"
+
+msgid "Client Reviews"
+msgstr "Mga Review ng Kliyente"
+
+msgid "Book Service"
+msgstr "Mag-book ng Serbisyo"
+
+msgid "Contact Provider"
+msgstr "Makipag-ugnayan sa Provider"
+
+msgid "Request Quote"
+msgstr "Humiling ng Quote"
+
+msgid "Service booked successfully"
+msgstr "Matagumpay na naka-book ang serbisyo"
+
+# Messaging
+msgid "New Conversation"
+msgstr "Bagong Pag-uusap"
+
+msgid "Start typing..."
+msgstr "Magsimulang mag-type..."
+
+msgid "Send Message"
+msgstr "Magpadala ng Mensahe"
+
+msgid "Attach File"
+msgstr "Maglakip ng File"
+
+msgid "No messages yet"
+msgstr "Wala pang mga mensahe"
+
+msgid "Start a conversation"
+msgstr "Magsimula ng pag-uusap"
+
+msgid "Delivered"
+msgstr "Naihatid na"
+
+msgid "Seen"
+msgstr "Nakita na"
+
+msgid "Delete Conversation"
+msgstr "Tanggalin ang Pag-uusap"
+
+msgid "Block User"
+msgstr "I-block ang User"
+
+msgid "Report User"
+msgstr "I-report ang User"
+
+# Settings
+msgid "General Settings"
+msgstr "Pangkalahatang Settings"
+
+msgid "Privacy Settings"
+msgstr "Mga Setting ng Privacy"
+
+msgid "Notification Settings"
+msgstr "Mga Setting ng Notipikasyon"
+
+msgid "Email Preferences"
+msgstr "Mga Kagustuhan sa Email"
+
+msgid "Security Settings"
+msgstr "Mga Setting ng Seguridad"
+
+msgid "Change Password"
+msgstr "Baguhin ang Password"
+
+msgid "Old Password"
+msgstr "Lumang Password"
+
+msgid "New Password"
+msgstr "Bagong Password"
+
+msgid "Two-Factor Authentication"
+msgstr "Two-Factor Authentication"
+
+msgid "Enable"
+msgstr "I-enable"
+
+msgid "Disable"
+msgstr "I-disable"
+
+msgid "Deactivate Account"
+msgstr "I-deactivate ang Account"
+
+msgid "Delete Account"
+msgstr "Tanggalin ang Account"
+
+msgid "Download Your Data"
+msgstr "I-download ang Iyong Data"
+
+# Verification
+msgid "Verify Your Identity"
+msgstr "I-verify ang Iyong Pagkakakilanlan"
+
+msgid "Upload ID"
+msgstr "Mag-upload ng ID"
+
+msgid "Take Selfie"
+msgstr "Mag-selfie"
+
+msgid "Verification Pending"
+msgstr "Naghihintay ng Verification"
+
+msgid "Verified"
+msgstr "Na-verify"
+
+msgid "Verification Failed"
+msgstr "Nabigo ang Verification"
+
+msgid "Try Again"
+msgstr "Subukan Muli"
+
+# Common Actions
+msgid "Download"
+msgstr "Mag-download"
+
+msgid "Print"
+msgstr "I-print"
+
+msgid "Export"
+msgstr "I-export"
+
+msgid "Import"
+msgstr "I-import"
+
+msgid "Refresh"
+msgstr "I-refresh"
+
+msgid "Expand"
+msgstr "Palawakin"
+
+msgid "Collapse"
+msgstr "I-collapse"
+
+msgid "Show All"
+msgstr "Ipakita Lahat"
+
+msgid "Hide"
+msgstr "Itago"
+
+msgid "More Options"
+msgstr "Higit Pang Opsyon"
+
+msgid "Less"
+msgstr "Mas Kaunti"
+
+msgid "All"
+msgstr "Lahat"
+
+msgid "None"
+msgstr "Wala"
+
+msgid "Select All"
+msgstr "Piliin Lahat"
+
+msgid "Deselect All"
+msgstr "I-deselect Lahat"
+
+msgid "Undo"
+msgstr "I-undo"
+
+msgid "Redo"
+msgstr "I-redo"
+
+
+# Announcements Page
+msgid "Stay updated with the latest news and updates from TrabahoLink"
+msgstr "Manatiling updated sa pinakabagong balita at updates mula sa TrabahoLink"
+
+msgid "Create Announcement"
+msgstr "Gumawa ng Anunsyo"
+
+msgid "Announcement"
+msgstr "Anunsyo"
+
+msgid "Read More"
+msgstr "Magbasa pa"
+
+
+# Job List Page Banners
+msgid "Job Opportunities"
+msgstr "Mga Oportunidad sa Trabaho"
+
+msgid "Find your next opportunity from %(count)s available positions"
+msgstr "Hanapin ang iyong susunod na oportunidad mula sa %(count)s available na posisyon"
+
+msgid "Categories"
+msgstr "Mga Kategorya"
+
+msgid "Search by job title, skills, or location..."
+msgstr "Maghanap ayon sa titulo ng trabaho, kasanayan, o lokasyon..."
+
+msgid "Filters"
+msgstr "Mga Filter"
+
+msgid "Category"
+msgstr "Kategorya"
+
+msgid "Municipality"
+msgstr "Munisipalidad"
+
+msgid "Enter municipality"
+msgstr "Ilagay ang munisipalidad"
+
+msgid "Barangay"
+msgstr "Barangay"
+
+msgid "Enter barangay"
+msgstr "Ilagay ang barangay"
+
+msgid "Min Budget"
+msgstr "Pinakamababang Budget"
+
+msgid "Max Budget"
+msgstr "Pinakamataas na Budget"
+
+msgid "Status"
+msgstr "Katayuan"
+
+msgid "All Status"
+msgstr "Lahat ng Katayuan"
+
+msgid "Hiring"
+msgstr "Nag-hire"
+
+msgid "Closed"
+msgstr "Sarado"
+
+msgid "Clear Filters"
+msgstr "I-clear ang mga Filter"
+
+msgid "Apply Filters"
+msgstr "Ilapat ang mga Filter"
+
+
+# Dashboard & Profile Banners
+msgid "Welcome back"
+msgstr "Maligayang pagbabalik"
+
+msgid "Worker Dashboard"
+msgstr "Dashboard ng Manggagawa"
+
+msgid "Employer Dashboard"
+msgstr "Dashboard ng Employer"
+
+msgid "My Profile"
+msgstr "Aking Profile"
+
+msgid "Edit Profile"
+msgstr "I-edit ang Profile"
+
+msgid "Services"
+msgstr "Mga Serbisyo"
+
+msgid "My Services"
+msgstr "Aking mga Serbisyo"
+
+msgid "Service Providers"
+msgstr "Mga Tagapagbigay ng Serbisyo"
+
+msgid "Find skilled professionals for your needs"
+msgstr "Maghanap ng mga bihasang propesyonal para sa iyong pangangailangan"
+
+msgid "Browse all available services"
+msgstr "Mag-browse ng lahat ng available na serbisyo"
+
+msgid "Manage your service offerings"
+msgstr "Pamahalaan ang iyong mga alok na serbisyo"
+
+
+# Language Switcher
+msgid "Switch Language"
+msgstr "Palitan ang Wika"
+

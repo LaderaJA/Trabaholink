@@ -6,6 +6,7 @@ class UsersConfig(AppConfig):
     name = 'users'
 
     def ready(self):
+        import users.signals  # Import user signals (including guide status)
         import announcements.signals
         import jobs.signals
         import messaging.signals

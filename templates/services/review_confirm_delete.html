@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block content %}
 <style>
@@ -157,9 +158,7 @@
   <form method="POST">
     {% csrf_token %}
     <div class="form-actions">
-      <a href="{% url 'services:servicepost_detail' slug=review.service_post.slug %}" class="btn btn-secondary">
-        Cancel
-      </a>
+      <a href="{% url 'services:servicepost_detail' slug=review.service_post.slug %}" class="btn btn-secondary">{% trans "Cancel" %}</a>
       <button type="submit" class="btn btn-danger">
         🗑️ Delete Review
       </button>
@@ -167,4 +166,19 @@
   </form>
 </div>
 
+{% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "review_delete",
+    "title": "Delete Review",
+    "steps": [
+        {
+            "title": "Delete Your Review \u26a0\ufe0f",
+            "content": "<h3>Remove Review</h3><p>This will permanently delete your review. The service provider will no longer see your feedback.</p>"
+        }
+    ]
+}
 {% endblock %}

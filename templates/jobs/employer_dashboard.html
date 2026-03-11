@@ -1,13 +1,15 @@
 {% extends "mainpages/base.html" %}
 {% load static %}
+{% load i18n %}
 
 {% block title %}Employer Dashboard - TrabahoLink{% endblock %}
 
 {% block css %}
+<!-- FullCalendar CSS -->
+<link href='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.css' rel='stylesheet' />
+
 <style>
-    body {
-        background: #f3f4f6 !important;
-    }
+    /* Use inherited animated gradient background from base.html */
 
     .dashboard-container {
         max-width: 1400px;
@@ -43,7 +45,8 @@
     }
 
     .stat-card {
-        background: white;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
         padding: 1.5rem;
         border-radius: 12px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
@@ -87,7 +90,8 @@
     }
 
     .content-section {
-        background: white;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
         border-radius: 12px;
         padding: 1.5rem;
         margin-bottom: 1.5rem;
@@ -259,7 +263,8 @@
 
     /* Tabs Styling */
     .tabs-container {
-        background: white;
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(10px);
         border-radius: 12px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
         border: 1px solid #e5e7eb;
@@ -442,6 +447,116 @@
         font-size: 1.125rem;
     }
 
+    /* Active Contracts Grid Responsive */
+    .active-contracts-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 1rem;
+    }
+
+    .contract-tracking-card {
+        background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%);
+        border: 2px solid #e5e7eb;
+        border-radius: 12px;
+        padding: 1.25rem;
+        transition: all 0.3s;
+        overflow: hidden;
+        box-sizing: border-box;
+    }
+
+    .contract-tracking-card:hover {
+        border-color: #2563eb;
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.1);
+    }
+
+    .contract-card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: start;
+        margin-bottom: 0.75rem;
+        gap: 0.75rem;
+    }
+
+    .contract-card-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0;
+        flex: 1;
+        min-width: 0;
+        word-break: break-word;
+    }
+
+    .contract-card-badge {
+        font-size: 0.75rem;
+        padding: 0.25rem 0.625rem;
+        border-radius: 9999px;
+        font-weight: 600;
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    .contract-card-info {
+        color: #6b7280;
+        font-size: 0.875rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .contract-card-info-item {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.25rem;
+        word-break: break-word;
+    }
+
+    .contract-card-actions {
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .contract-card-btn {
+        flex: 1;
+        background: #2563eb;
+        color: white;
+        padding: 0.625rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+        transition: all 0.2s;
+        white-space: nowrap;
+    }
+
+    .contract-card-btn:hover {
+        background: #1d4ed8;
+        color: white;
+    }
+
+    .contract-card-btn-secondary {
+        flex: 0 0 auto;
+        background: #f3f4f6;
+        color: #374151;
+        padding: 0.625rem 1rem;
+        border-radius: 8px;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 0.875rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+    }
+
+    .contract-card-btn-secondary:hover {
+        background: #e5e7eb;
+        color: #111827;
+    }
+
     @media (max-width: 768px) {
         .stats-grid {
             grid-template-columns: 1fr;
@@ -474,6 +589,99 @@
         .search-input {
             width: 100%;
         }
+
+        .active-contracts-grid {
+            grid-template-columns: 1fr;
+            gap: 0.75rem;
+        }
+
+        .contract-tracking-card {
+            padding: 1rem;
+        }
+
+        .contract-card-title {
+            font-size: 0.9375rem;
+        }
+
+        .contract-card-badge {
+            font-size: 0.6875rem;
+            padding: 0.2rem 0.5rem;
+        }
+
+        .contract-card-info {
+            font-size: 0.8125rem;
+        }
+
+        .contract-card-info-item {
+            gap: 0.375rem;
+        }
+
+        .contract-card-btn {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8125rem;
+            gap: 0.375rem;
+        }
+
+        .contract-card-btn-secondary {
+            padding: 0.5rem 0.75rem;
+            font-size: 0.8125rem;
+        }
+    }
+
+    @media (max-width: 480px) {
+        .contract-tracking-card {
+            padding: 0.875rem;
+        }
+
+        .contract-card-header {
+            gap: 0.5rem;
+        }
+
+        .contract-card-title {
+            font-size: 0.875rem;
+            line-height: 1.3;
+        }
+
+        .contract-card-badge {
+            font-size: 0.625rem;
+            padding: 0.2rem 0.4rem;
+        }
+
+        .contract-card-info {
+            font-size: 0.75rem;
+            margin-bottom: 0.625rem;
+        }
+
+        .contract-card-info-item {
+            gap: 0.3rem;
+        }
+
+        .contract-card-info-item i {
+            font-size: 0.875rem;
+        }
+
+        .contract-card-actions {
+            gap: 0.375rem;
+        }
+
+        .contract-card-btn {
+            padding: 0.5rem;
+            font-size: 0.75rem;
+            gap: 0.25rem;
+        }
+
+        .contract-card-btn i {
+            font-size: 0.875rem;
+        }
+
+        .contract-card-btn-secondary {
+            padding: 0.5rem;
+            font-size: 0.75rem;
+        }
+
+        .contract-card-btn-secondary i {
+            font-size: 0.875rem;
+        }
     }
 </style>
 {% endblock %}
@@ -490,7 +698,7 @@
 
     <!-- Dashboard Header -->
     <div class="dashboard-header">
-        <h1><i class="bi bi-briefcase-fill"></i> Employer Dashboard</h1>
+        <h1><i class="bi bi-briefcase-fill"></i> {% trans "Employer Dashboard" %}</h1>
         <p>Manage your job postings, applications, and contracts</p>
     </div>
 
@@ -537,6 +745,30 @@
         </div>
     </div>
 
+    <!-- Calendar and Schedule Section -->
+    <div class="content-section" style="margin-bottom: 2rem;">
+        <div class="section-header" style="margin-bottom: 1.5rem;">
+            <h2 style="font-size: 1.5rem; font-weight: 700; color: #111827; margin: 0;">
+                <i class="bi bi-calendar3" style="color: #2563eb;"></i> My Schedule
+            </h2>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: 1fr; gap: 1.5rem;">
+            <!-- Calendar -->
+            <div class="calendar-main">
+                <div id="calendar-loading" style="background: white; border-radius: 8px; padding: 2rem; text-align: center; min-height: 600px; display: flex; align-items: center; justify-content: center;">
+                    <div>
+                        <div class="spinner-border text-primary" role="status">
+                            <span class="visually-hidden">Loading...</span>
+                        </div>
+                        <p style="margin-top: 1rem; color: #6b7280;">Loading calendar...</p>
+                    </div>
+                </div>
+                <div id="calendar" style="background: white; border-radius: 8px; padding: 1rem; min-height: 600px; display: none;"></div>
+            </div>
+        </div>
+    </div>
+
     <!-- PROMINENT ACTIVE CONTRACTS TRACKING SECTION -->
     {% if active_contracts_list %}
     <div class="content-section" style="margin-bottom: 2rem; border: 2px solid #2563eb;">
@@ -549,41 +781,41 @@
             <p style="margin: 0.5rem 0 0; font-size: 0.875rem; color: rgba(255,255,255,0.9);">Monitor your ongoing projects and worker progress</p>
         </div>
         
-        <div style="display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1rem;">
+        <div class="active-contracts-grid">
             {% for contract in active_contracts_list|slice:":6" %}
-            <div style="background: linear-gradient(135deg, #f9fafb 0%, #ffffff 100%); border: 2px solid #e5e7eb; border-radius: 12px; padding: 1.25rem; transition: all 0.3s;">
-                <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 0.75rem;">
-                    <h3 style="font-size: 1rem; font-weight: 700; color: #111827; margin: 0; flex: 1;">{{ contract.job.title }}</h3>
-                    <span style="font-size: 0.75rem; padding: 0.25rem 0.625rem; border-radius: 9999px; font-weight: 600; white-space: nowrap; margin-left: 0.5rem; {% if contract.status == 'In Progress' %}background: #d1fae5; color: #065f46;{% elif contract.status == 'Accepted' %}background: #dbeafe; color: #1e40af;{% else %}background: #fef3c7; color: #92400e;{% endif %}">
+            <div class="contract-tracking-card">
+                <div class="contract-card-header">
+                    <h3 class="contract-card-title">{{ contract.job.title }}</h3>
+                    <span class="contract-card-badge" style="{% if contract.status == 'In Progress' %}background: #d1fae5; color: #065f46;{% elif contract.status == 'Finalized' %}background: #d1fae5; color: #065f46;{% else %}background: #fef3c7; color: #92400e;{% endif %}">
                         {{ contract.status }}
                     </span>
                 </div>
                 
-                <div style="color: #6b7280; font-size: 0.875rem; margin-bottom: 0.75rem;">
-                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                <div class="contract-card-info">
+                    <div class="contract-card-info-item">
                         <i class="bi bi-person-badge"></i>
                         <span>Worker: <strong>{{ contract.worker.get_full_name|default:contract.worker.username }}</strong></span>
                     </div>
                     {% if contract.start_date %}
-                    <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.25rem;">
+                    <div class="contract-card-info-item">
                         <i class="bi bi-calendar-range"></i>
                         <span>{{ contract.start_date|date:"M d" }} - {% if contract.end_date %}{{ contract.end_date|date:"M d, Y" }}{% else %}Ongoing{% endif %}</span>
                     </div>
                     {% endif %}
                     {% if contract.agreed_rate %}
-                    <div style="display: flex; align-items: center; gap: 0.5rem;">
+                    <div class="contract-card-info-item">
                         <i class="bi bi-cash-coin"></i>
                         <span><strong>₱{{ contract.agreed_rate }}</strong></span>
                     </div>
                     {% endif %}
                 </div>
                 
-                <div style="display: flex; gap: 0.5rem;">
-                    <a href="{% url 'jobs:job_tracking' contract.pk %}" style="flex: 1; background: #2563eb; color: white; padding: 0.625rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.875rem; display: flex; align-items: center; justify-content: center; gap: 0.5rem; transition: all 0.2s;">
+                <div class="contract-card-actions">
+                    <a href="{% url 'jobs:job_tracking' contract.pk %}" class="contract-card-btn">
                         <i class="bi bi-graph-up"></i>
                         Track Progress
                     </a>
-                    <a href="{% url 'jobs:contract_detail' contract.pk %}" style="background: #f3f4f6; color: #374151; padding: 0.625rem 1rem; border-radius: 8px; text-decoration: none; font-weight: 600; font-size: 0.875rem; display: flex; align-items: center; justify-content: center; transition: all 0.2s;">
+                    <a href="{% url 'jobs:contract_detail' contract.pk %}" class="contract-card-btn-secondary">
                         <i class="bi bi-eye"></i>
                     </a>
                 </div>
@@ -633,6 +865,11 @@
                 <i class="bi bi-briefcase"></i>
                 <span>My Jobs</span>
                 <span class="tab-badge">{{ active_jobs }}</span>
+            </button>
+            <button class="tab-button" onclick="switchTab(event, 'deactivated-jobs')">
+                <i class="bi bi-pause-circle"></i>
+                <span>Deactivated</span>
+                <span class="tab-badge">{{ deactivated_jobs_count }}</span>
             </button>
         </div>
 
@@ -927,7 +1164,7 @@
                             <i class="bi bi-pencil"></i> Edit Terms
                         </a>
                         {% endif %}
-                        {% if contract.status == 'Finalized' or contract.status == 'Accepted' or contract.status == 'In Progress' or contract.status == 'Awaiting Review' %}
+                        {% if contract.status == 'Finalized' or contract.status == 'In Progress' or contract.status == 'Awaiting Review' %}
                         <a href="{% url 'jobs:job_tracking' contract.pk %}" class="btn-action btn-success">
                             <i class="bi bi-graph-up"></i> Track Progress
                         </a>
@@ -984,8 +1221,7 @@
                             <i class="bi bi-eye"></i> View Job
                         </a>
                         <a href="{% url 'jobs:job_edit' job.pk %}" class="btn-action action-btn-secondary">
-                            <i class="bi bi-pencil"></i> Edit
-                        </a>
+                            <i class="bi bi-pencil"></i>{% trans "Edit" %}</a>
                     </div>
                 </div>
                 {% empty %}
@@ -996,6 +1232,74 @@
                     <a href="{% url 'jobs:job_create' %}" class="btn-action btn-primary-custom" style="margin-top: 1rem;">
                         <i class="bi bi-plus-circle"></i> Post New Job
                     </a>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Deactivated Jobs Tab -->
+        <div id="deactivated-jobs-tab" class="tab-content">
+            <div class="filter-bar">
+                <input type="text" class="search-input" id="deactivated-jobs-search" placeholder="Search deactivated jobs..." onkeyup="filterDeactivatedJobs()">
+                <span style="color: #6b7280; font-size: 0.875rem; padding: 0.5rem 1rem;">
+                    <i class="bi bi-info-circle"></i> Jobs automatically deactivated when all positions filled or expired
+                </span>
+            </div>
+
+            <div id="deactivated-jobs-list">
+                {% for job in deactivated_jobs %}
+                <div class="application-card" data-title="{{ job.title|lower }}" style="border-left: 4px solid #ef4444;">
+                    <div class="application-header">
+                        <div>
+                            <div class="applicant-name">{{ job.title }}</div>
+                            <div class="job-title">
+                                <i class="bi bi-geo-alt"></i> {{ job.municipality }}, {{ job.barangay }}
+                            </div>
+                        </div>
+                        <span class="status-badge status-rejected">
+                            <i class="bi bi-pause-circle"></i> Deactivated
+                        </span>
+                    </div>
+
+                    <div class="application-meta">
+                        <span><i class="bi bi-calendar"></i> Posted: {{ job.created_at|date:"M d, Y" }}</span>
+                        <span><i class="bi bi-clock-history"></i> Last updated: {{ job.updated_at|date:"M d, Y" }}</span>
+                        <span><i class="bi bi-briefcase"></i> {{ job.vacancies }} Vacanc{{ job.vacancies|pluralize:"y,ies" }} {% if job.vacancies == 0 %}<strong>(All Filled!)</strong>{% endif %}</span>
+                        <span><i class="bi bi-people"></i> {{ job.applications.count }} Application(s)</span>
+                    </div>
+
+                    {% if job.is_expired %}
+                    <div style="background: #fef3c7; border: 1px solid #fbbf24; padding: 0.75rem; border-radius: 6px; margin-top: 0.75rem; font-size: 0.875rem; color: #78350f;">
+                        <i class="bi bi-exclamation-triangle-fill"></i> <strong>Expired:</strong> This job posting has reached its expiration date.
+                    </div>
+                    {% elif job.vacancies == 0 %}
+                    <div style="background: #d1fae5; border: 1px solid #10b981; padding: 0.75rem; border-radius: 6px; margin-top: 0.75rem; font-size: 0.875rem; color: #065f46;">
+                        <i class="bi bi-check-circle-fill"></i> <strong>All positions filled!</strong> This job was automatically deactivated.
+                    </div>
+                    {% endif %}
+
+                    <div style="margin-top: 0.75rem; display: flex; gap: 0.5rem; flex-wrap: wrap;">
+                        <a href="{% url 'jobs:job_detail' job.pk %}" class="btn-action btn-primary-custom">
+                            <i class="bi bi-eye"></i> View Job
+                        </a>
+                        <a href="{% url 'jobs:job_edit' job.pk %}" class="btn-action action-btn-secondary">
+                            <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        {% if not job.is_expired and job.vacancies > 0 %}
+                        <form method="post" action="{% url 'jobs:reactivate_job' job.pk %}" style="display: inline;">
+                            {% csrf_token %}
+                            <button type="submit" class="btn-action btn-success" onclick="return confirm('Reactivate this job posting?')">
+                                <i class="bi bi-play-circle"></i> Reactivate Job
+                            </button>
+                        </form>
+                        {% endif %}
+                    </div>
+                </div>
+                {% empty %}
+                <div class="empty-state">
+                    <i class="bi bi-pause-circle"></i>
+                    <h3>No Deactivated Jobs</h3>
+                    <p>Jobs that are deactivated will appear here</p>
                 </div>
                 {% endfor %}
             </div>
@@ -1100,6 +1404,178 @@ function filterJobs() {
         card.style.display = matchesSearch ? 'block' : 'none';
     });
 }
+
+// Filter Deactivated Jobs
+function filterDeactivatedJobs() {
+    const searchTerm = document.getElementById('deactivated-jobs-search').value.toLowerCase();
+    const cards = document.querySelectorAll('#deactivated-jobs-list .application-card');
+    
+    cards.forEach(card => {
+        const title = card.getAttribute('data-title');
+        card.style.display = title.includes(searchTerm) ? 'block' : 'none';
+    });
+}
 </script>
 
+<!-- FullCalendar JS -->
+<script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.10/index.global.min.js'></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    console.log('Initializing employer calendar...');
+    
+    const calendarEl = document.getElementById('calendar');
+    if (!calendarEl) {
+        console.error('Calendar element not found!');
+        return;
+    }
+    
+    if (typeof FullCalendar === 'undefined') {
+        console.error('FullCalendar library not loaded!');
+        return;
+    }
+    
+    const calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        headerToolbar: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'dayGridMonth,timeGridWeek,listWeek'
+        },
+        height: 'auto',
+        events: function(info, successCallback, failureCallback) {
+            console.log('Fetching events from:', info.startStr, 'to:', info.endStr);
+            const url = `/api/jobs/schedule/events/?start=${info.startStr}&end=${info.endStr}`;
+            
+            fetch(url)
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Calendar events loaded:', data);
+                    
+                    // Flatten array if nested
+                    let flattenedData = data;
+                    if (data.length > 0 && Array.isArray(data[0])) {
+                        flattenedData = data.flat();
+                    }
+                    
+                    successCallback(flattenedData);
+                })
+                .catch(error => {
+                    console.error('Error loading calendar events:', error);
+                    failureCallback(error);
+                });
+        },
+        eventClick: function(info) {
+            if (info.event.url) {
+                window.location.href = info.event.url;
+                info.jsEvent.preventDefault();
+            }
+        },
+        eventDidMount: function(info) {
+            // Add tooltip
+            const extProps = info.event.extendedProps;
+            let tooltip = `${info.event.title}`;
+            
+            if (extProps.type === 'interview') {
+                tooltip += `\nJob: ${extProps.job_title}\nType: ${extProps.interview_type}\nStatus: ${extProps.status}`;
+            }
+            
+            info.el.title = tooltip;
+            info.el.style.fontWeight = '600';
+            info.el.style.fontSize = '0.85rem';
+            info.el.style.borderRadius = '4px';
+            info.el.style.padding = '2px';
+            
+            // Add icon prefix for interviews
+            if (extProps.type === 'interview') {
+                const iconMap = {
+                    'Video': '🎥',
+                    'Phone': '📞',
+                    'In-Person': '🏢'
+                };
+                const interviewType = extProps.interview_type || 'Video';
+                const icon = iconMap[interviewType] || '📅';
+                const titleEl = info.el.querySelector('.fc-event-title');
+                if (titleEl) {
+                    titleEl.textContent = icon + ' ' + titleEl.textContent;
+                }
+            }
+            
+            info.el.style.boxShadow = '0 2px 4px rgba(0,0,0,0.15)';
+        },
+        dayCellDidMount: function(info) {
+            if (info.isToday) {
+                info.el.style.backgroundColor = '#eff6ff';
+                info.el.style.border = '2px solid #3b82f6';
+            }
+        },
+        eventContent: function(arg) {
+            const extProps = arg.event.extendedProps;
+            
+            // Add icon based on type
+            let icon = '';
+            if (extProps.type === 'interview') {
+                const iconMap = {
+                    'Video': '🎥',
+                    'Phone': '📞',
+                    'In-Person': '🏢'
+                };
+                icon = iconMap[extProps.interview_type] || '📅';
+            }
+            
+            // Show join button for video interviews that can be joined
+            let content = `<div style="padding: 2px 4px; display: flex; align-items: center; gap: 4px;">
+                <span>${icon} ${arg.event.title}</span>`;
+            
+            if (extProps.type === 'interview' && extProps.interview_type === 'Video' && extProps.can_join) {
+                content += `<span style="background: #10b981; color: white; padding: 1px 4px; border-radius: 3px; font-size: 0.7rem; font-weight: bold;">JOIN</span>`;
+            }
+            
+            content += `</div>`;
+            
+            return { html: content };
+        }
+    });
+    
+    calendar.render();
+    
+    // Hide loading, show calendar
+    document.getElementById('calendar-loading').style.display = 'none';
+    document.getElementById('calendar').style.display = 'block';
+    
+    console.log('Employer calendar initialized successfully');
+});
+</script>
+
+{% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "employer_dashboard",
+    "title": "Employer Dashboard Guide",
+    "steps": [
+        {
+            "title": "Welcome to Your Employer Dashboard! \ud83d\udcbc",
+            "content": "<h3>Manage Your Hiring</h3><p>This is your central hub for managing job postings, reviewing applications, and tracking your hired workers.</p><div class='guide-tip'><strong>\ud83d\udca1 Quick Tip:</strong> Post clear, detailed job descriptions to attract qualified candidates.</div>"
+        },
+        {
+            "title": "Your Job Postings \ud83d\udce2",
+            "content": "<h3>Active Job Listings</h3><p>View and manage all your job postings:</p><ul><li><strong>Active:</strong> Currently accepting applications</li><li><strong>Expired:</strong> Past deadline or filled</li><li><strong>Vacancies:</strong> Available positions remaining</li></ul><p>Click 'Post New Job' to create listings anytime.</p>"
+        },
+        {
+            "title": "Review Applications \ud83d\udc65",
+            "content": "<h3>Find the Right Worker</h3><p>When you receive applications:</p><ol><li>Review worker profiles and experience</li><li>Check ratings and past work</li><li>Send job offers to qualified candidates</li><li>Negotiate contract terms</li></ol><div class='guide-warning'><strong>\u26a0\ufe0f Important:</strong> Respond to applications promptly to secure top talent.</div>"
+        },
+        {
+            "title": "Manage Contracts \ud83d\udccb",
+            "content": "<h3>Track Your Hires</h3><p>Monitor all your active contracts:</p><ul><li>View worker progress updates</li><li>Communicate with hired workers</li><li>Review completed work</li><li>Provide feedback and ratings</li></ul><p>Good communication leads to better results!</p>"
+        },
+        {
+            "title": "Success Tips! \ud83c\udfaf",
+            "content": "<h3>Best Practices for Employers</h3><ul><li>Write clear job descriptions</li><li>Offer competitive rates</li><li>Communicate expectations clearly</li><li>Provide timely feedback</li><li>Rate workers fairly</li></ul><p>Ready to hire great workers? Let's go! \ud83d\ude80</p>"
+        }
+    ]
+}
 {% endblock %}

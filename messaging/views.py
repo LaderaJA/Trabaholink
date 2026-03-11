@@ -39,6 +39,14 @@ class ConversationsListView(LoginRequiredMixin, ListView):
             last_message_content=last_message_subquery,
             last_message_created_at=last_message_time_subquery,  
         ).order_by('-last_message_created_at', '-updated_at')
+    
+    def render_to_response(self, context, **response_kwargs):
+        """Override to add no-cache headers"""
+        response = super().render_to_response(context, **response_kwargs)
+        response['Cache-Control'] = 'no-cache, no-store, must-revalidate, max-age=0'
+        response['Pragma'] = 'no-cache'
+        response['Expires'] = '0'
+        return response
 
 
 @login_required
@@ -87,12 +95,27 @@ def conversation_detail(request, conversation_id):
     ).order_by('-last_message_created_at', '-updated_at')
 
     receiver_id = conversation.user2.id if request.user == conversation.user1 else conversation.user1.id
+    
+    # Get banned words for frontend censoring
+    from admin_dashboard.models import ModeratedWord
+    banned_words = list(ModeratedWord.objects.filter(is_banned=True).values_list('word', flat=True))
+    banned_words_json = json.dumps(banned_words)
+    
+    # Mark notifications as read for this conversation
+    from notifications.models import Notification
+    Notification.objects.filter(
+        user=request.user,
+        notif_type='message',
+        object_id=conversation_id,
+        is_read=False
+    ).update(is_read=True)
 
     return render(request, "messaging/conversation_detail.html", {
         "conversation": conversation,
-        "chat_messages": messages,
+        "chat_messages": messages,  # Changed from 'messages' to 'chat_messages' to match template
         "receiver_id": receiver_id,
-        "conversations": conversations,  
+        "conversations": conversations,
+        "banned_words_json": banned_words_json,
     })
 
 
@@ -136,21 +159,48 @@ def send_message(request, conversation_id):
 
     if request.method == "POST":
         try:
-            # Check if request has files (FormData) or JSON
-            if request.FILES or request.POST:
-                # Handle FormData (with file upload) or regular POST
-                content = request.POST.get("content", "")
+            # Debug: Print request info
+            print(f"=== DEBUG send_message ===")
+            print(f"Content-Type: {request.content_type}")
+            print(f"POST data: {request.POST}")
+            print(f"FILES: {request.FILES}")
+            
+            # Always check POST/FILES first (FormData always uses POST)
+            if request.POST or request.FILES:
+                # Handle FormData (with or without file upload)
+                content = request.POST.get("content", "").strip()
                 file = request.FILES.get("file", None)
-                print(f"Received FormData/POST - content: {content}, file: {file}")  # Debugging
+                print(f"Received FormData/POST - content: '{content}', file: {file}")
+            elif request.body:
+                # Handle JSON data (text only) - fallback
+                try:
+                    data = json.loads(request.body)
+                    content = data.get("content", "").strip()
+                    file = None
+                    print(f"Received JSON - content: '{content}'")
+                except json.JSONDecodeError as je:
+                    print(f"JSON decode error: {je}")
+                    return JsonResponse({"error": "Invalid JSON"}, status=400)
             else:
-                # Handle JSON data (text only)
-                data = json.loads(request.body)
-                content = data.get("content", "")
-                file = None
-                print(f"Received JSON - content: {content}")  # Debugging
+                # No data received
+                print("No POST, FILES, or body data")
+                return JsonResponse({"error": "No content provided"}, status=400)
+
+            # Validate that we have content or file
+            if not content and not file:
+                print("Empty content and no file")
+                return JsonResponse({"error": "Message cannot be empty"}, status=400)
 
             # Check for banned words
             is_flagged, flagged_words = check_for_banned_words(content)
+            print(f"Word moderation check - Is flagged: {is_flagged}, Words: {flagged_words}")
+            
+            # Censor banned words if found
+            if is_flagged:
+                from admin_dashboard.moderation_utils import sanitize_text
+                original_content = content
+                content = sanitize_text(content)
+                print(f"Censored content: '{original_content}' -> '{content}'")
             
             # Create and save the new message
             new_message = Message.objects.create(

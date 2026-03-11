@@ -139,6 +139,8 @@ def check_contract_conflicts(contract_id):
             worker_id=contract.worker.id,
             start_date=contract.start_date,
             end_date=contract.end_date,
+            start_time=contract.start_time,
+            end_time=contract.end_time,
             exclude_contract_id=contract.id
         )
         

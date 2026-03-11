@@ -1,4 +1,5 @@
 {% extends 'mainpages/base.html' %}
+{% load i18n %}
 
 {% block content %}
 <div class="auth-page-wrapper">
@@ -19,29 +20,29 @@
                   <h1 class="brand-title">
                     <span class="brand-text">Trabaho</span><span class="brand-highlight">Link</span>
                   </h1>
-                  <p class="brand-tagline">Your gateway to endless opportunities</p>
+                  <p class="brand-tagline">{% trans "Your gateway to endless opportunities" %}</p>
                 </div>
                 
                 <div class="auth-illustration">
                   <div class="illustration-wrapper">
                     <i class="bi bi-person-plus-fill illustration-icon"></i>
                   </div>
-                  <h3 class="illustration-title">Join Us Today!</h3>
-                  <p class="illustration-text">Create your account and start your journey to success</p>
+                  <h3 class="illustration-title">{% trans "Join Us Today!" %}</h3>
+                  <p class="illustration-text">{% trans "Create your account and start your journey to success" %}</p>
                 </div>
                 
                 <div class="auth-features">
                   <div class="feature-item">
                     <i class="bi bi-check-circle-fill"></i>
-                    <span>Free Registration</span>
+                    <span>{% trans "Free Registration" %}</span>
                   </div>
                   <div class="feature-item">
                     <i class="bi bi-check-circle-fill"></i>
-                    <span>Access to Opportunities</span>
+                    <span>{% trans "Access to Opportunities" %}</span>
                   </div>
                   <div class="feature-item">
                     <i class="bi bi-check-circle-fill"></i>
-                    <span>Build Your Network</span>
+                    <span>{% trans "Build Your Network" %}</span>
                   </div>
                 </div>
               </div>
@@ -51,8 +52,8 @@
             <div class="col-lg-7 auth-form-section">
               <div class="auth-form-wrapper">
                 <div class="auth-form-header">
-                  <h2 class="form-title">Create Account</h2>
-                  <p class="form-subtitle">Fill in your details to get started</p>
+                  <h2 class="form-title">{% trans "Create Account" %}</h2>
+                  <p class="form-subtitle">{% trans "Fill in your details to get started" %}</p>
                 </div>
                 
                 <form method="post" class="auth-form">
@@ -72,7 +73,7 @@
                   
                   <div class="form-group-modern">
                     <label for="{{ form.email.id_for_label }}" class="form-label-modern">
-                      <i class="bi bi-envelope-fill me-2"></i>Email Address
+                      <i class="bi bi-envelope-fill me-2"></i>{% trans "Email Address" %}
                     </label>
                     <div class="input-wrapper">
                       {{ form.email }}
@@ -102,7 +103,7 @@
                   
                   <div class="form-group-modern">
                     <label for="{{ form.password2.id_for_label }}" class="form-label-modern">
-                      <i class="bi bi-shield-lock-fill me-2"></i>Confirm Password
+                      <i class="bi bi-shield-lock-fill me-2"></i>{% trans "Confirm Password" %}
                     </label>
                     <div class="input-wrapper password-wrapper">
                       {{ form.password2 }}
@@ -117,7 +118,7 @@
                   
                   <div class="form-group-modern">
                     <label for="{{ form.role.id_for_label }}" class="form-label-modern">
-                      <i class="bi bi-briefcase-fill me-2"></i>I am a:
+                      <i class="bi bi-briefcase-fill me-2"></i>{% trans "I am a:" %}
                     </label>
                     <div class="input-wrapper">
                       {{ form.role }}
@@ -132,20 +133,20 @@
                     <input type="checkbox" name="consent" id="consent" required>
                     <label for="consent">
                       I agree to the
-                      <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">Terms and Conditions</a>
+                      <a href="#" data-bs-toggle="modal" data-bs-target="#termsModal">{% trans "Terms and Conditions" %}</a>
                       and the
-                      <a href="#" data-bs-toggle="modal" data-bs-target="#privacyConsentModal">Privacy Consent Agreement</a>.
+                      <a href="#" data-bs-toggle="modal" data-bs-target="#privacyConsentModal">{% trans "Privacy Consent Agreement" %}</a>.
                     </label>
                   </div>
                   
                   <button type="submit" class="btn btn-primary-modern btn-block-modern">
-                    <span>Create Account</span>
+                    <span>{% trans "Create Account" %}</span>
                     <i class="bi bi-arrow-right-circle ms-2"></i>
                   </button>
                 </form>
                 
                 <div class="divider-modern">
-                  <span>OR CONTINUE WITH</span>
+                  <span>{% trans "OR CONTINUE WITH" %}</span>
                 </div>
                 
                 <div class="social-auth">
@@ -157,12 +158,12 @@
                       <path fill="#4CAF50" d="M24,44c5.166,0,9.86-1.977,13.409-5.192l-6.19-5.238C29.211,35.091,26.715,36,24,36c-5.202,0-9.619-3.317-11.283-7.946l-6.522,5.025C9.505,39.556,16.227,44,24,44z"/>
                       <path fill="#1976D2" d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"/>
                     </svg>
-                    <span>Sign up with Google</span>
+                    <span>{% trans "Sign up with Google" %}</span>
                   </a>
                 </div>
                 
                 <div class="auth-switch">
-                  <p>Already have an account? <a href="{% url 'login' %}" class="switch-link">Sign In</a></p>
+                  <p>{% trans "Already have an account?" %} <a href="{% url 'users:login' %}" class="switch-link">{% trans "Sign In" %}</a></p>
                 </div>
               </div>
             </div>
@@ -228,7 +229,7 @@
 
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
         </div>
       </div>
     </div>
@@ -239,7 +240,7 @@
     <div class="modal-dialog">
       <div class="modal-content">
         <div class="modal-header">
-          <h5 class="modal-title" id="privacyConsentModalLabel">Privacy Consent Agreement</h5>
+          <h5 class="modal-title" id="privacyConsentModalLabel">{% trans "Privacy Consent Agreement" %}</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
         </div>
         <div class="modal-body">
@@ -297,7 +298,7 @@
           <p>By continuing to use Trabaholink and submitting your personal data, you affirm that you have read, understood, and voluntarily consented to the terms of this Privacy Consent Agreement. You may withdraw your consent at any time by submitting a written request to [Insert Contact Email].</p>
         </div>
         <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">{% trans "Close" %}</button>
         </div>
       </div>
     </div>
@@ -551,6 +552,7 @@
   /* Form Section */
   .auth-form-section {
     padding: 3rem 2.5rem;
+    box-sizing: border-box;
   }
   
   .auth-form-wrapper {
@@ -596,12 +598,14 @@
   .input-wrapper input,
   .input-wrapper select {
     width: 100%;
+    max-width: 100%;
     padding: 0.875rem 1rem;
     border: 2px solid #e2e8f0;
     border-radius: 10px;
     font-size: 1rem;
     transition: all 0.3s ease;
     background: #f8f9fa;
+    box-sizing: border-box;
   }
   
   .input-wrapper input:focus,
@@ -637,7 +641,7 @@
   
   .password-toggle:hover {
     color: var(--primary-color);
-    transform: scale(1.1);
+    transform: translateY(-50%) scale(1.05);
   }
   
   .password-toggle i {
@@ -835,15 +839,31 @@
     .brand-title {
       font-size: 2rem;
     }
+    
+    .input-wrapper input,
+    .input-wrapper select {
+      font-size: 0.95rem;
+      padding: 0.75rem 0.875rem;
+    }
   }
   
   @media (max-width: 575.98px) {
     .auth-page-wrapper {
-      padding: 1rem 0;
+      padding: 1rem;
+    }
+    
+    .auth-card {
+      margin: 0;
+      border-radius: 15px;
     }
     
     .auth-form-section {
-      padding: 1.5rem 1rem;
+      padding: 2rem 2rem;
+    }
+    
+    .auth-form-wrapper {
+      max-width: 100%;
+      padding: 0;
     }
     
     .form-title {
@@ -852,6 +872,75 @@
     
     .form-group-modern {
       margin-bottom: 1rem;
+    }
+    
+    .input-wrapper input,
+    .input-wrapper select {
+      font-size: 0.9rem;
+      padding: 0.75rem;
+    }
+    
+    .password-wrapper input {
+      padding-right: 2.75rem;
+    }
+    
+    .password-toggle {
+      right: 0.75rem;
+    }
+    
+    .btn-primary-modern {
+      padding: 0.875rem;
+      font-size: 0.95rem;
+    }
+    
+    .btn-google-modern {
+      padding: 0.75rem 0.875rem;
+      font-size: 0.9rem;
+    }
+    
+    .consent-checkbox-modern {
+      padding: 0.875rem;
+    }
+    
+    .consent-checkbox-modern label {
+      font-size: 0.85rem;
+    }
+  }
+  
+  @media (max-width: 374.98px) {
+    .auth-page-wrapper {
+      padding: 0.75rem;
+    }
+    
+    .auth-form-section {
+      padding: 1.5rem 1.5rem;
+    }
+    
+    .form-title {
+      font-size: 1.5rem;
+    }
+    
+    .form-subtitle {
+      font-size: 0.875rem;
+    }
+    
+    .input-wrapper input,
+    .input-wrapper select {
+      font-size: 0.875rem;
+      padding: 0.7rem 0.75rem;
+    }
+    
+    .password-wrapper input {
+      padding-right: 2.5rem;
+    }
+    
+    .btn-primary-modern,
+    .btn-google-modern {
+      font-size: 0.875rem;
+    }
+    
+    .consent-checkbox-modern label {
+      font-size: 0.8rem;
     }
   }
 </style>
@@ -875,4 +964,35 @@
 
 <!-- Bootstrap JS (required for the modal to function) -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+{% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "register",
+    "title": "Registration Guide",
+    "steps": [
+        {
+            "title": "Join Trabaholink! \ud83c\udf89",
+            "content": "<h3>Create Your Free Account</h3><p>Register to start finding work or hiring workers in your area!</p><div class='guide-tip'><strong>\ud83d\udca1 Quick & Easy:</strong> Registration takes less than 2 minutes!</div>"
+        },
+        {
+            "title": "Choose Your Role \ud83d\udc64",
+            "content": "<h3>Worker or Employer?</h3><ul><li><strong>Worker:</strong> Find and apply for jobs</li><li><strong>Client:</strong> Post jobs and hire workers</li></ul><p>You can switch roles anytime later.</p>"
+        },
+        {
+            "title": "Your Information \ud83d\udccb",
+            "content": "<h3>Required Details</h3><p>We'll need:</p><ul><li>Username (unique)</li><li>Email address (for verification)</li><li>Secure password</li><li>Basic contact information</li></ul><p>All information is kept secure and private.</p>"
+        },
+        {
+            "title": "Email Verification \u2709\ufe0f",
+            "content": "<h3>Confirm Your Email</h3><p>After registering:</p><ol><li>Check your email inbox</li><li>Look for verification code</li><li>Enter the code</li><li>Account activated!</li></ol><div class='guide-warning'><strong>\u26a0\ufe0f Important:</strong> Check spam folder if you don't see the email.</div>"
+        },
+        {
+            "title": "Complete Your Profile \ud83c\udf1f",
+            "content": "<h3>Get Started</h3><p>After verification:</p><ul><li>Set your location</li><li>Add skills (for workers)</li><li>Upload profile picture</li><li>Start browsing or posting jobs!</li></ul><p>Welcome to Trabaholink! \ud83d\ude80</p>"
+        }
+    ]
+}
 {% endblock %}

@@ -1,0 +1,464 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trabaholink System Test Results</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 20px;
+            line-height: 1.6;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+            overflow: hidden;
+        }
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        .header .timestamp {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+        .summary {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            padding: 30px;
+            background: #f8f9fa;
+        }
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        .summary-card .number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .summary-card .label {
+            color: #666;
+            text-transform: uppercase;
+            font-size: 0.85em;
+            letter-spacing: 1px;
+        }
+        .passed { color: #28a745; }
+        .failed { color: #dc3545; }
+        .skipped { color: #ffc107; }
+        .total { color: #007bff; }
+        
+        .category {
+            margin: 30px;
+        }
+        .category-header {
+            background: #f8f9fa;
+            padding: 15px 20px;
+            border-left: 4px solid #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #333;
+        }
+        .test-item {
+            background: white;
+            border: 1px solid #e0e0e0;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+        .test-item:hover {
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+            transform: translateY(-2px);
+        }
+        .test-header {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            background: #fafafa;
+        }
+        .test-name {
+            font-weight: 600;
+            font-size: 1.1em;
+        }
+        .test-status {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .status-badge {
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.85em;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .status-passed {
+            background: #d4edda;
+            color: #155724;
+        }
+        .status-failed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+        .status-skipped {
+            background: #fff3cd;
+            color: #856404;
+        }
+        .duration {
+            color: #666;
+            font-size: 0.9em;
+        }
+        .test-details {
+            padding: 20px;
+            border-top: 1px solid #e0e0e0;
+            background: white;
+            display: none;
+        }
+        .test-item.expanded .test-details {
+            display: block;
+        }
+        .error-message {
+            background: #f8d7da;
+            border: 1px solid #f5c6cb;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 10px;
+            color: #721c24;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9em;
+            white-space: pre-wrap;
+        }
+        .screenshot {
+            margin-top: 15px;
+        }
+        .screenshot img {
+            max-width: 100%;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .footer {
+            text-align: center;
+            padding: 20px;
+            color: #666;
+            border-top: 1px solid #e0e0e0;
+        }
+        .progress-bar {
+            height: 10px;
+            background: #e0e0e0;
+            border-radius: 5px;
+            overflow: hidden;
+            margin: 20px 30px;
+        }
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #28a745 0%, #20c997 100%);
+            transition: width 0.3s ease;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🧪 Trabaholink System Test Results</h1>
+            <div class="timestamp">Generated: 2026-01-04 09:10:38</div>
+        </div>
+        
+        <div class="summary">
+            <div class="summary-card">
+                <div class="number total">11</div>
+                <div class="label">Total Tests</div>
+            </div>
+            <div class="summary-card">
+                <div class="number passed">8</div>
+                <div class="label">Passed</div>
+            </div>
+            <div class="summary-card">
+                <div class="number failed">1</div>
+                <div class="label">Failed</div>
+            </div>
+            <div class="summary-card">
+                <div class="number skipped">2</div>
+                <div class="label">Skipped</div>
+            </div>
+        </div>
+        
+        <div class="progress-bar">
+            <div class="progress-fill" style="width: 72.72727272727273%"></div>
+        </div>
+
+        <div class="category">
+            <div class="category-header">📁 Basic Functionality</div>
+
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <div class="test-name">Homepage loads</div>
+                    <div class="test-status">
+                        <span class="duration">1.65s</span>
+                        <span class="status-badge status-passed">passed</span>
+                    </div>
+                </div>
+                <div class="test-details">
+
+                    <div class="screenshot">
+                        <strong>Screenshot:</strong><br>
+                        <img src="test_screenshots/screenshot_homepage_20260104_091014.png" alt="Screenshot" onclick="window.open(this.src, '_blank')">
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="category">
+            <div class="category-header">📁 Navigation</div>
+
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <div class="test-name">Navigation links present</div>
+                    <div class="test-status">
+                        <span class="duration">1.43s</span>
+                        <span class="status-badge status-passed">passed</span>
+                    </div>
+                </div>
+                <div class="test-details">
+
+                    <div class="screenshot">
+                        <strong>Screenshot:</strong><br>
+                        <img src="test_screenshots/screenshot_navigation_20260104_091016.png" alt="Screenshot" onclick="window.open(this.src, '_blank')">
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="category">
+            <div class="category-header">📁 Categories</div>
+
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <div class="test-name">Service categories dropdown</div>
+                    <div class="test-status">
+                        <span class="duration">1.36s</span>
+                        <span class="status-badge status-passed">passed</span>
+                    </div>
+                </div>
+                <div class="test-details">
+
+                    <div class="screenshot">
+                        <strong>Screenshot:</strong><br>
+                        <img src="test_screenshots/screenshot_service_categories_20260104_091017.png" alt="Screenshot" onclick="window.open(this.src, '_blank')">
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <div class="test-name">Job categories dropdown</div>
+                    <div class="test-status">
+                        <span class="duration">1.04s</span>
+                        <span class="status-badge status-passed">passed</span>
+                    </div>
+                </div>
+                <div class="test-details">
+
+                    <div class="screenshot">
+                        <strong>Screenshot:</strong><br>
+                        <img src="test_screenshots/screenshot_job_categories_20260104_091018.png" alt="Screenshot" onclick="window.open(this.src, '_blank')">
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="category">
+            <div class="category-header">📁 Services</div>
+
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <div class="test-name">Services list loads</div>
+                    <div class="test-status">
+                        <span class="duration">0.99s</span>
+                        <span class="status-badge status-passed">passed</span>
+                    </div>
+                </div>
+                <div class="test-details">
+
+                    <div class="screenshot">
+                        <strong>Screenshot:</strong><br>
+                        <img src="test_screenshots/screenshot_services_list_20260104_091019.png" alt="Screenshot" onclick="window.open(this.src, '_blank')">
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="category">
+            <div class="category-header">📁 Jobs</div>
+
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <div class="test-name">Jobs list loads</div>
+                    <div class="test-status">
+                        <span class="duration">1.14s</span>
+                        <span class="status-badge status-passed">passed</span>
+                    </div>
+                </div>
+                <div class="test-details">
+
+                    <div class="screenshot">
+                        <strong>Screenshot:</strong><br>
+                        <img src="test_screenshots/screenshot_jobs_list_20260104_091021.png" alt="Screenshot" onclick="window.open(this.src, '_blank')">
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="category">
+            <div class="category-header">📁 Authentication</div>
+
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <div class="test-name">Registration page loads</div>
+                    <div class="test-status">
+                        <span class="duration">10.68s</span>
+                        <span class="status-badge status-failed">failed</span>
+                    </div>
+                </div>
+                <div class="test-details">
+
+                    <div class="error-message">Page.wait_for_selector: Timeout 10000ms exceeded.
+Call log:
+  - waiting for locator("form") to be visible
+  -     24 × locator resolved to 4 elements. Proceeding with the first one: <form method="post" action="/i18n/setlang/">…</form>
+</div>
+
+                    <div class="screenshot">
+                        <strong>Screenshot:</strong><br>
+                        <img src="test_screenshots/screenshot_registration_fail_20260104_091031.png" alt="Screenshot" onclick="window.open(this.src, '_blank')">
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <div class="test-name">Login page loads</div>
+                    <div class="test-status">
+                        <span class="duration">1.21s</span>
+                        <span class="status-badge status-passed">passed</span>
+                    </div>
+                </div>
+                <div class="test-details">
+
+                    <div class="screenshot">
+                        <strong>Screenshot:</strong><br>
+                        <img src="test_screenshots/screenshot_login_page_20260104_091033.png" alt="Screenshot" onclick="window.open(this.src, '_blank')">
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="category">
+            <div class="category-header">📁 API</div>
+
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <div class="test-name">API: Service categories</div>
+                    <div class="test-status">
+                        <span class="duration">N/A</span>
+                        <span class="status-badge status-skipped">skipped</span>
+                    </div>
+                </div>
+                <div class="test-details">
+
+                    <div class="error-message">API endpoint not found or not exposed</div>
+
+                </div>
+            </div>
+
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <div class="test-name">API: Job categories</div>
+                    <div class="test-status">
+                        <span class="duration">N/A</span>
+                        <span class="status-badge status-skipped">skipped</span>
+                    </div>
+                </div>
+                <div class="test-details">
+
+                    <div class="error-message">API endpoint not found or not exposed</div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="category">
+            <div class="category-header">📁 UI/UX</div>
+
+            <div class="test-item" onclick="this.classList.toggle('expanded')">
+                <div class="test-header">
+                    <div class="test-name">Responsive design (mobile)</div>
+                    <div class="test-status">
+                        <span class="duration">0.99s</span>
+                        <span class="status-badge status-passed">passed</span>
+                    </div>
+                </div>
+                <div class="test-details">
+
+                    <div class="screenshot">
+                        <strong>Screenshot:</strong><br>
+                        <img src="test_screenshots/screenshot_mobile_view_20260104_091037.png" alt="Screenshot" onclick="window.open(this.src, '_blank')">
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <div class="footer">
+            <p>Trabaholink System Test Suite | Powered by Playwright</p>
+            <p style="margin-top: 10px; font-size: 0.9em;">
+                Success Rate: 72.7%
+            </p>
+        </div>
+    </div>
+    
+    <script>
+        // Click to expand/collapse test details
+        document.querySelectorAll('.test-item').forEach(item => {
+            item.style.cursor = 'pointer';
+        });
+    </script>
+</body>
+</html>

@@ -65,6 +65,8 @@ def notify_contract_schedule_updates(sender, instance, created, **kwargs):
             worker_id=instance.worker.id,
             start_date=instance.start_date,
             end_date=instance.end_date,
+            start_time=instance.start_time,
+            end_time=instance.end_time,
             exclude_contract_id=instance.id
         )
         

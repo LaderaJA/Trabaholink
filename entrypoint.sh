@@ -13,18 +13,19 @@ echo "PostgreSQL is up and running!"
 
 # Wait for Redis to be ready
 echo "Waiting for Redis..."
-if [ -n "$REDIS_PASSWORD" ]; then
-  until python -c "import redis; redis.Redis(host=\"${REDIS_HOST}\", port=${REDIS_PORT:-6379}, password=\"${REDIS_PASSWORD}\", socket_connect_timeout=1).ping()" 2>/dev/null; do
-    echo "Redis is unavailable - sleeping"
-    sleep 2
-  done
-else
-  until python -c "import redis; redis.Redis(host=\"${REDIS_HOST}\", port=${REDIS_PORT:-6379}, socket_connect_timeout=1).ping()" 2>/dev/null; do
-    echo "Redis is unavailable - sleeping"
-    sleep 2
-  done
-fi
+until python -c "import redis; redis.Redis(host=\"${REDIS_HOST}\", port=${REDIS_PORT:-6379}, password=\"${REDIS_PASSWORD}\", socket_connect_timeout=1).ping()" 2>/dev/null; do 
+  echo "Redis is unavailable - sleeping"
+  sleep 2
+done
 echo "Redis is up and running!"
+
+# Install bleach if not present (for Quill.js HTML sanitization)
+echo "Checking for bleach package..."
+python -c "import bleach" 2>/dev/null || {
+  echo "Installing bleach..."
+  pip install -q bleach==6.1.0
+  echo "✓ bleach installed"
+}
 
 # Run migrations
 if [ "$RUN_MIGRATIONS" = "true" ]; then

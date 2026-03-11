@@ -1,7 +1,14 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+  {% load i18n %}
 
 {% block content %}
+<!-- Floating Shapes Background -->
+<div class="job-list-page-wrapper">
+  <div class="floating-shape shape-1"></div>
+  <div class="floating-shape shape-2"></div>
+  <div class="floating-shape shape-3"></div>
+
 <style>
 :root {
   /* Bacoor City Official Colors */
@@ -27,6 +34,78 @@
   --shadow-sm: 0 1px 3px 0 rgba(30, 64, 175, 0.1);
   --shadow-md: 0 4px 6px -1px rgba(30, 64, 175, 0.1);
   --shadow-lg: 0 10px 15px -3px rgba(30, 64, 175, 0.1);
+}
+
+/* Job List Page Wrapper - Floating Shapes Background */
+.job-list-page-wrapper {
+  min-height: 100vh;
+  background: linear-gradient(135deg, #dbeafe 0%, #fef3c7 100%);
+  position: relative;
+  overflow: hidden;
+  animation: backgroundShift 20s ease infinite;
+  background-size: 200% 200%;
+}
+
+@keyframes backgroundShift {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Floating Shapes Animation */
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-20px) rotate(5deg);
+  }
+}
+
+.floating-shape {
+  position: absolute;
+  opacity: 0.08;
+  animation: float 15s infinite ease-in-out;
+  z-index: 1;
+}
+
+.shape-1 {
+  top: 10%;
+  left: 5%;
+  width: 120px;
+  height: 120px;
+  background: #1e40af;
+  border-radius: 30% 70% 70% 30% / 30% 30% 70% 70%;
+  animation-delay: 0s;
+  filter: blur(2px);
+}
+
+.shape-2 {
+  top: 60%;
+  right: 10%;
+  width: 100px;
+  height: 100px;
+  background: #fbbf24;
+  border-radius: 50%;
+  animation-delay: 2s;
+  animation-duration: 18s;
+  filter: blur(2px);
+}
+
+.shape-3 {
+  bottom: 15%;
+  left: 15%;
+  width: 90px;
+  height: 90px;
+  background: #1e3a8a;
+  border-radius: 15% 85% 35% 65% / 65% 35% 65% 35%;
+  animation-delay: 4s;
+  animation-duration: 20s;
+  filter: blur(2px);
+}
+
+.compact-hero, .main-wrapper {
+  position: relative;
+  z-index: 2;
 }
 
 /* Compact Hero Section - Bacoor Theme */
@@ -235,7 +314,7 @@
 
 /* Main Content */
 .main-wrapper {
-  background: var(--bg-light);
+  background: transparent;
   min-height: 70vh;
   padding: 2rem 0;
 }
@@ -373,7 +452,7 @@
 }
 
 .job-thumbnail-link::after {
-  content: '👁️ View Details';
+  content: 'View Details';
   position: absolute;
   top: 0;
   left: 0;
@@ -528,11 +607,10 @@
   border-top: 1px solid var(--border-color);
   margin-top: auto;
 }
-
 .job-budget {
   font-size: 1.5rem;
   font-weight: 700;
-  color: var(--success-color);
+  color: #ffffff;
 }
 
 .job-actions {
@@ -602,7 +680,7 @@
 }
 
 .job-image-link::after {
-  content: '👁️ View Details';
+  content: 'View Details';
   position: absolute;
   top: 0;
   left: 0;
@@ -808,17 +886,17 @@
   <div class="container">
     <div class="hero-header">
       <div class="hero-title-section">
-        <h1 id="heroTitle"><i class="bi bi-briefcase-fill"></i> Job Opportunities</h1>
-        <p id="heroSubtitle">Find your next opportunity from {{ jobs_count }} available positions</p>
+        <h1 id="heroTitle"><i class="bi bi-briefcase-fill"></i> {% trans "Job Opportunities" %}</h1>
+        <p id="heroSubtitle">{% blocktrans with count=jobs_count %}Find your next opportunity from {{ count }} available positions{% endblocktrans %}</p>
       </div>
       <div class="hero-stats">
         <div class="stat-item">
           <span class="stat-number" id="statNumber">{{ jobs_count }}</span>
-          <span class="stat-label" id="statLabel">Active Jobs</span>
+          <span class="stat-label" id="statLabel">{% trans "Active Jobs" %}</span>
         </div>
         <div class="stat-item">
           <span class="stat-number">{{ categories.count }}</span>
-          <span class="stat-label">Categories</span>
+          <span class="stat-label">{% trans "Categories" %}</span>
         </div>
       </div>
     </div>
@@ -831,16 +909,16 @@
           type="text" 
           name="q" 
           value="{{ request.GET.q|default:'' }}" 
-          placeholder="Search by job title, skills, or location..." 
+          placeholder="{% trans 'Search by job title, skills, or location...' %}" 
           class="search-input-compact"
         >
         <button type="button" class="filter-toggle-btn" id="filterToggle">
           <i class="bi bi-funnel"></i>
-          <span>Filters</span>
+          <span>{% trans "Filters" %}</span>
           <i class="bi bi-chevron-down" id="filterChevron"></i>
         </button>
         <button type="submit" class="search-btn-compact">
-          <i class="bi bi-search"></i> Search
+          <i class="bi bi-search"></i> {% trans "Search" %}
         </button>
       </div>
       
@@ -848,9 +926,9 @@
       <div class="filters-panel" id="filtersPanel">
         <div class="filter-row">
           <div class="filter-group">
-            <label><i class="bi bi-tag"></i> Category</label>
+            <label><i class="bi bi-tag"></i> {% trans "Category" %}</label>
             <select name="category" class="form-select">
-              <option value="">All Categories</option>
+              <option value="">{% trans "All Categories" %}</option>
               {% for category in categories %}
               <option value="{{ category.id }}" {% if request.GET.category == category.id|stringformat:"i" %}selected{% endif %}>
                 {{ category.name }}
@@ -859,38 +937,25 @@
             </select>
           </div>
           <div class="filter-group">
-            <label><i class="bi bi-geo-alt"></i> Municipality</label>
-            <input type="text" name="municipality" value="{{ request.GET.municipality|default:'' }}" placeholder="Enter municipality">
+            <label><i class="bi bi-map"></i> {% trans "Barangay" %}</label>
+            <input type="text" name="barangay" value="{{ request.GET.barangay|default:'' }}" placeholder="{% trans 'Enter barangay' %}">
           </div>
           <div class="filter-group">
-            <label><i class="bi bi-map"></i> Barangay</label>
-            <input type="text" name="barangay" value="{{ request.GET.barangay|default:'' }}" placeholder="Enter barangay">
-          </div>
-        </div>
-        <div class="filter-row">
-          <div class="filter-group">
-            <label><i class="bi bi-cash"></i> Min Budget (₱)</label>
-            <input type="number" name="min_budget" value="{{ request.GET.min_budget|default:'' }}" placeholder="0">
-          </div>
-          <div class="filter-group">
-            <label><i class="bi bi-cash-stack"></i> Max Budget (₱)</label>
-            <input type="number" name="max_budget" value="{{ request.GET.max_budget|default:'' }}" placeholder="No limit">
-          </div>
-          <div class="filter-group">
-            <label><i class="bi bi-toggle-on"></i> Status</label>
-            <select name="status">
-              <option value="">All Status</option>
-              <option value="active" {% if request.GET.status == 'active' %}selected{% endif %}>Hiring</option>
-              <option value="inactive" {% if request.GET.status == 'inactive' %}selected{% endif %}>Closed</option>
+            <label><i class="bi bi-exclamation-triangle"></i> {% trans "Urgency" %}</label>
+            <select name="urgency">
+              <option value="">{% trans "All Urgency Levels" %}</option>
+              <option value="low" {% if request.GET.urgency == 'low' %}selected{% endif %}>{% trans "Low - Flexible timing" %}</option>
+              <option value="medium" {% if request.GET.urgency == 'medium' %}selected{% endif %}>{% trans "Medium - Within a week" %}</option>
+              <option value="high" {% if request.GET.urgency == 'high' %}selected{% endif %}>{% trans "High - ASAP" %}</option>
             </select>
           </div>
         </div>
         <div class="filter-actions">
           <a href="{% url 'jobs:job_list' %}" class="btn-primary-custom" style="background: var(--text-light);">
-            <i class="bi bi-x-circle"></i> Clear Filters
+            <i class="bi bi-x-circle"></i> {% trans "Clear Filters" %}
           </a>
           <button type="submit" class="btn-primary-custom">
-            <i class="bi bi-check-circle"></i> Apply Filters
+            <i class="bi bi-check-circle"></i> {% trans "Apply Filters" %}
           </button>
         </div>
       </div>
@@ -1008,11 +1073,11 @@
     <!-- Jobs List View (Default) -->
     <div class="jobs-list" id="listView">
       {% for job in jobs %}
-      <div class="job-card-list" data-lat="{{ job.location.y }}" data-lng="{{ job.location.x }}">
+      <div class="job-card-list" data-job-id="{{ job.id }}" data-lat="{{ job.location.y }}" data-lng="{{ job.location.x }}" data-job-title="{{ job.title }}" data-job-description="{{ job.description|truncatechars:200 }}" data-job-location="{{ job.full_address|default:job.municipality }}" data-job-category="{{ job.category.name }}" data-job-employer="{{ job.owner.username }}" data-job-salary="₱{{ job.budget|floatformat:0 }}" data-job-date="{{ job.created_at|date:'M d, Y' }}">
         <div class="job-thumbnail">
           <a href="{% url 'jobs:job_detail' job.id %}" class="job-thumbnail-link">
             {% if job.jobimage_set.exists %}
-            <img src="{{ job.jobimage_set.first.image.url }}" alt="{{ job.title }}">
+            <img src="{{ job.jobimage_set.first.image.url }}" alt="{{ job.title }}" class="img-fluid">
             {% else %}
             <div class="no-image-placeholder">
               <i class="bi bi-image"></i>
@@ -1107,11 +1172,11 @@
     <!-- Jobs Grid View (Hidden by default) -->
     <div class="jobs-grid" id="gridView" style="display: none;">
       {% for job in jobs %}
-      <div class="job-card-grid" data-lat="{{ job.location.y }}" data-lng="{{ job.location.x }}">
+      <div class="job-card-grid" data-job-id="{{ job.id }}" data-lat="{{ job.location.y }}" data-lng="{{ job.location.x }}" data-job-title="{{ job.title }}" data-job-description="{{ job.description|truncatechars:200 }}" data-job-location="{{ job.full_address|default:job.municipality }}" data-job-category="{{ job.category.name }}" data-job-employer="{{ job.owner.username }}" data-job-salary="₱{{ job.budget|floatformat:0 }}" data-job-date="{{ job.created_at|date:'M d, Y' }}">
         <div class="job-image-grid">
           <a href="{% url 'jobs:job_detail' job.id %}" class="job-image-link">
             {% if job.jobimage_set.exists %}
-            <img src="{{ job.jobimage_set.first.image.url }}" alt="{{ job.title }}">
+            <img src="{{ job.jobimage_set.first.image.url }}" alt="{{ job.title }}" class="img-fluid">
             {% else %}
             <div class="no-image-placeholder">
               <i class="bi bi-image"></i>
@@ -1234,31 +1299,37 @@
       <div class="content-header">
         <div class="results-info">
           <div class="results-count">
-            <span>{{ services.count }}</span> Services Found
+             Services Found
+          </div>
+          <div class="view-toggle">
+            <button class="view-btn active" data-view="list" id="servicesListViewBtn">
+              <i class="bi bi-list-ul"></i>
+            </button>
+            <button class="view-btn" data-view="grid" id="servicesGridViewBtn">
+              <i class="bi bi-grid-3x3-gap"></i>
+            </button>
           </div>
         </div>
         
         <div class="content-actions">
-          {% if user.is_authenticated %}
+          {% if user.is_authenticated and user.role == 'worker' %}
           <a href="{% url 'services:servicepost_create' %}" class="btn-primary-custom">
             <i class="bi bi-plus-circle"></i> Post a Service
           </a>
           {% endif %}
-          <button class="btn-primary-custom" style="background: white; color: var(--primary-color); border: 2px solid var(--primary-color);" data-bs-toggle="modal" data-bs-target="#locationModal">
-            <i class="bi bi-geo-alt"></i> Set Location
-          </button>
+          {% comment %} HIDDEN: Set Location button only for Jobs tab {% endcomment %}
         </div>
       </div>
       
-      <!-- Services List -->
-      <div class="jobs-list">
+      <!-- Services List View -->
+      <div id="servicesListView" class="jobs-list">
         {% for service in services %}
-        <div class="job-card-list">
+        <div class="job-card-list" data-service-id="{{ service.id }}" data-service-title="{{ service.headline }}" data-service-description="{{ service.description|truncatechars:200 }}" data-service-category="{{ service.category.name|default:'General' }}" data-service-provider="{{ service.user.username }}">
           <div class="job-thumbnail">
             <a href="{{ service.get_absolute_url }}" class="job-thumbnail-link">
               {% with service.images.first as service_image %}
               {% if service_image %}
-              <img src="{{ service_image.image.url }}" alt="{{ service.headline }}">
+              <img src="{{ service_image.image.url }}" alt="{{ service.headline }}" class="img-fluid">
               {% else %}
               <div class="no-image-placeholder">
                 <i class="bi bi-tools"></i>
@@ -1315,6 +1386,66 @@
                 </a>
               </div>
             </div>
+          </div>
+        </div>
+        {% empty %}
+        <div class="empty-state">
+          <i class="bi bi-tools"></i>
+          <h3>No Services Found</h3>
+          <p>Check back later for new service opportunities.</p>
+        </div>
+        {% endfor %}
+      </div>
+      
+      <!-- Services Grid View -->
+      <div id="servicesGridView" class="jobs-grid" style="display: none;">
+        {% for service in services %}
+        <div class="job-card-grid" data-service-id="{{ service.id }}" data-service-title="{{ service.headline }}" data-service-description="{{ service.description|truncatechars:200 }}" data-service-category="{{ service.category.name|default:'General' }}" data-service-provider="{{ service.user.username }}">
+          <div class="job-thumbnail-grid">
+            <a href="{{ service.get_absolute_url }}" class="job-thumbnail-link">
+              {% with service.images.first as service_image %}
+              {% if service_image %}
+              <img src="{{ service_image.image.url }}" alt="{{ service.headline }}" class="img-fluid">
+              {% else %}
+              <div class="no-image-placeholder">
+                <i class="bi bi-tools"></i>
+                <small>No image</small>
+              </div>
+              {% endif %}
+              {% endwith %}
+            </a>
+            <div class="timestamp-badge-grid">
+              <i class="bi bi-clock"></i> {{ service.created_at|timesince }} ago
+            </div>
+          </div>
+          
+          <div class="job-content-grid">
+            <span class="status-badge hiring" style="background: rgba(59, 130, 246, 0.1); color: var(--primary-color);">
+              <i class="bi bi-tools"></i> Service
+            </span>
+            
+            <a href="{{ service.get_absolute_url }}" class="job-title-link-grid">
+              {{ service.headline }}
+            </a>
+            
+            <div class="job-meta-grid">
+              <div class="meta-item">
+                <i class="bi bi-person-circle"></i>
+                <span>{{ service.user.username }}</span>
+              </div>
+              <div class="meta-item">
+                <i class="bi bi-calendar-event"></i>
+                <span>{{ service.created_at|date:"M d, Y" }}</span>
+              </div>
+            </div>
+            
+            <p class="job-description-preview-grid">
+              {{ service.description|truncatechars:100 }}
+            </p>
+            
+            <a href="{{ service.get_absolute_url }}" class="btn-view-details-grid">
+              View Details <i class="bi bi-arrow-right"></i>
+            </a>
           </div>
         </div>
         {% empty %}
@@ -1441,6 +1572,36 @@ gridViewBtn.addEventListener('click', function() {
 const savedView = localStorage.getItem('jobViewPreference');
 if (savedView === 'grid') {
   gridViewBtn.click();
+}
+
+// Services View Toggle
+const servicesListViewBtn = document.getElementById('servicesListViewBtn');
+const servicesGridViewBtn = document.getElementById('servicesGridViewBtn');
+const servicesListView = document.getElementById('servicesListView');
+const servicesGridView = document.getElementById('servicesGridView');
+
+if (servicesListViewBtn && servicesGridViewBtn) {
+  servicesListViewBtn.addEventListener('click', function() {
+    servicesListView.style.display = 'flex';
+    servicesGridView.style.display = 'none';
+    servicesListViewBtn.classList.add('active');
+    servicesGridViewBtn.classList.remove('active');
+    localStorage.setItem('servicesViewPreference', 'list');
+  });
+
+  servicesGridViewBtn.addEventListener('click', function() {
+    servicesListView.style.display = 'none';
+    servicesGridView.style.display = 'grid';
+    servicesGridViewBtn.classList.add('active');
+    servicesListViewBtn.classList.remove('active');
+    localStorage.setItem('servicesViewPreference', 'grid');
+  });
+
+  // Restore services view preference
+  const savedServicesView = localStorage.getItem('servicesViewPreference');
+  if (savedServicesView === 'grid') {
+    servicesGridViewBtn.click();
+  }
 }
 
 // Sort Function
@@ -1786,15 +1947,16 @@ function showCachedLocationInfo() {
             document.getElementById('cachedLocationText').textContent = locationText;
             document.getElementById('cachedLocationInfo').style.display = 'block';
         } catch (e) {
-            console.error('Error displaying cached location:', e);
+            console.error('Error displaying cached location, clearing bad data:', e);
+            localStorage.removeItem('userLocation');
         }
     }
 }
 </script>
 
 <!-- Location Modal -->
-<div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
+<div class="modal fade" id="locationModal" tabindex="-1" aria-labelledby="locationModalLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
     <div class="modal-content" style="border-radius: 12px; border: none;">
       <div class="modal-header" style="background: var(--gradient-primary); color: white; border: none;">
         <h5 class="modal-title" id="locationModalLabel">
@@ -1833,7 +1995,7 @@ function showCachedLocationInfo() {
         <div id="locationStatus" style="margin-top: 1rem; display: none;"></div>
       </div>
       <div class="modal-footer" style="border: none; padding: 1rem 2rem;">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px;">Cancel</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" style="border-radius: 8px;">{% trans "Cancel" %}</button>
         <button type="button" class="btn btn-primary" onclick="applyManualLocation()" style="background: var(--gradient-primary); border: none; border-radius: 8px;">Apply Location</button>
       </div>
     </div>
@@ -1841,12 +2003,171 @@ function showCachedLocationInfo() {
 </div>
 
 <style>
+/* Fix modal backdrop z-index and pointer events */
+.modal-backdrop,
+.modal-backdrop.fade,
+.modal-backdrop.show,
+div.modal-backdrop {
+  z-index: 1050 !important; /* Bootstrap default for backdrop */
+  pointer-events: auto !important; /* Block clicks to page content */
+  transform: none !important; /* Prevent stacking context issues */
+  will-change: auto !important;
+}
+
+/* Modal must be ABOVE backdrop */
+#locationModal {
+  z-index: 1055 !important; /* Higher than backdrop (1050) */
+  pointer-events: none !important; /* Allow backdrop clicks to pass through to close modal */
+  transform: translateZ(0) !important; /* Force GPU layer to render above backdrop */
+  isolation: isolate !important; /* Create new stacking context */
+}
+
+#locationModal .modal-dialog {
+  pointer-events: auto !important; /* Only the content box captures clicks */
+}
+
 @keyframes spin {
   from { transform: rotate(0deg); }
   to { transform: rotate(360deg); }
 }
 .spin {
   animation: spin 1s linear infinite;
+}
+
+/* Grid View Specific Styles */
+.job-thumbnail-grid {
+  width: 100%;
+  height: 200px;
+  overflow: hidden;
+  background: var(--bg-light);
+  position: relative;
+}
+
+.job-thumbnail-grid img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.job-thumbnail-link:hover img {
+  transform: scale(1.05);
+}
+
+.timestamp-badge-grid {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: rgba(0, 0, 0, 0.7);
+  color: white;
+  padding: 0.35rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  backdrop-filter: blur(10px);
+  z-index: 2;
+}
+
+.job-content-grid {
+  padding: 1.25rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  flex: 1;
+}
+
+.job-title-link-grid {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: var(--text-dark);
+  text-decoration: none;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: color 0.2s;
+}
+
+.job-title-link-grid:hover {
+  color: var(--primary-color);
+}
+
+.job-meta-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: var(--text-medium);
+}
+
+.job-meta-grid .meta-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.job-meta-grid .meta-item i {
+  font-size: 1rem;
+  color: var(--primary-color);
+}
+
+.job-description-preview-grid {
+  font-size: 0.9rem;
+  color: var(--text-medium);
+  line-height: 1.6;
+  margin: 0;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.btn-view-details-grid {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: var(--primary-color);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.9rem;
+  transition: all 0.2s;
+  margin-top: auto;
+}
+
+.btn-view-details-grid:hover {
+  background: var(--primary-dark);
+  transform: translateX(5px);
+  color: white;
+}
+
+/* Responsive Grid Layout */
+@media (max-width: 768px) {
+  .jobs-grid {
+    grid-template-columns: 1fr !important;
+  }
+  
+  .job-thumbnail-grid {
+    height: 180px;
+  }
+  
+  .job-content-grid {
+    padding: 1rem;
+  }
+  
+  .job-title-link-grid {
+    font-size: 1rem;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .jobs-grid {
+    grid-template-columns: repeat(2, 1fr) !important;
+  }
 }
 </style>
 
@@ -1982,7 +2303,8 @@ const LocationManager = {
                 }
             }
         } catch (e) {
-            console.error('Error reading cached location:', e);
+            console.error('Error reading cached location, clearing bad data:', e);
+            localStorage.removeItem('userLocation');
         }
         return null;
     },
@@ -2134,6 +2456,39 @@ document.addEventListener('DOMContentLoaded', function() {
     const locationModal = document.getElementById('locationModal');
     const searchForm = document.getElementById('searchForm');
     
+    // Fix modal z-index and pointer events when modal is shown
+    if (locationModal) {
+        locationModal.addEventListener('shown.bs.modal', function () {
+            const backdrop = document.querySelector('.modal-backdrop');
+            const modal = this;
+            
+            // Move backdrop BEFORE modal in DOM to fix rendering order
+            if (backdrop && modal.parentNode) {
+                modal.parentNode.insertBefore(backdrop, modal);
+            }
+            
+            // Ensure proper z-index order with setProperty for !important
+            if (backdrop) {
+                backdrop.style.setProperty('z-index', '1050', 'important');
+                backdrop.style.setProperty('pointer-events', 'auto', 'important');
+            }
+            
+            // Modal wrapper above backdrop, but allows clicks through
+            modal.style.setProperty('z-index', '1055', 'important');
+            modal.style.setProperty('pointer-events', 'none', 'important');
+            
+            // Only the modal-dialog (content box) should capture clicks
+            const modalDialog = modal.querySelector('.modal-dialog');
+            if (modalDialog) {
+                modalDialog.style.setProperty('pointer-events', 'auto', 'important');
+            }
+            
+            console.log('Modal z-index:', modal.style.zIndex);
+            console.log('Backdrop z-index:', backdrop ? backdrop.style.zIndex : 'not found');
+            console.log('DOM order fixed: backdrop moved before modal');
+        });
+    }
+    
     // Add event listeners to modal inputs
     const cityInput = document.getElementById('manualCity');
     const barangayInput = document.getElementById('manualBarangay');
@@ -2201,3 +2556,38 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 
 {% endblock %}
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "job_list",
+    "title": "Browse Jobs - Quick Guide",
+    "steps": [
+        {
+            "title": "Welcome to Job Listings! <i class="fa fa-bullseye"></i>",
+            "content": "<h3>Find Your Perfect Job</h3><p>This page displays all available jobs posted by employers. Whether you're looking for a one-time gig or regular work, you'll find opportunities here.</p><div class='guide-tip'><strong><i class="fa fa-lightbulb-o"></i> Tip:</strong> Make sure your profile is complete to increase your chances of getting hired!</div>"
+        },
+        {
+            "title": "Search & Filter Jobs 🔍",
+            "content": "<h3>Finding the Right Opportunities</h3><p>Use the powerful search and filter tools to narrow down jobs:</p><ul><li><strong>Search Bar:</strong> Type keywords like 'plumber', 'driver', or 'construction'</li><li><strong>Category Filter:</strong> Browse by job type</li><li><strong>Location Filter:</strong> Find jobs near you</li><li><strong>Date Posted:</strong> See the newest opportunities first</li></ul><p>Jobs are shown as cards with key information at a glance.</p>"
+        },
+        {
+            "title": "Understanding Job Cards 📋",
+            "content": "<h3>What Each Job Shows</h3><p>Each job card displays:</p><ul><li><strong>Job Title:</strong> What the work involves</li><li><strong>Employer Name:</strong> Who posted the job</li><li><strong>Location:</strong> Where the job is located</li><li><strong>Pay Rate:</strong> How much you'll earn</li><li><strong>Posted Date:</strong> When it was posted</li><li><strong>Deadline:</strong> Last day to apply</li></ul><p>Click on any job card to see full details and requirements.</p>"
+        },
+        {
+            "title": "Applying to Jobs <i class="fa fa-check-circle"></i>",
+            "content": "<h3>How to Submit an Application</h3><ol><li>Click on a job that interests you</li><li>Read the full job description carefully</li><li>Check the requirements and qualifications</li><li>Click the <strong>'Apply Now'</strong> button</li><li>Fill out your application with relevant details</li><li>Submit and wait for employer response</li></ol><div class='guide-warning'><strong><i class="fa fa-exclamation-triangle"></i> Important:</strong> Only apply to jobs you're qualified for and genuinely interested in.</div>"
+        },
+        {
+            "title": "Managing Your Applications 📱",
+            "content": "<h3>Track Your Job Applications</h3><p>After applying, you can:</p><ul><li>View application status in your Worker Dashboard</li><li>Receive notifications when employers respond</li><li>Message employers directly</li><li>Accept or decline job offers</li></ul><p>Check your dashboard regularly to stay updated on your applications.</p>"
+        },
+        {
+            "title": "You're Ready to Start! 🚀",
+            "content": "<h3>Begin Your Job Search</h3><p>You now know how to find and apply for jobs on Trabaholink!</p><p><strong>Next Steps:</strong></p><ul><li>Browse available jobs below</li><li>Complete your profile if you haven't already</li><li>Set up location preferences for relevant jobs</li><li>Enable notifications to never miss opportunities</li></ul><div class='guide-tip'><strong><i class="fa fa-lightbulb-o"></i> Pro Tip:</strong> Apply early! Jobs get filled quickly, so check for new postings daily.</div><p>Good luck with your job search! 🎉</p>"
+        }
+    ]
+}
+{% endblock %}
+</div> <!-- End job-list-page-wrapper -->

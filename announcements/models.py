@@ -17,19 +17,22 @@ class Announcement(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
     posted_by = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE)
     content = models.TextField(blank=True, null=True, default="")
+    is_active = models.BooleanField(default=True)
 
     def __str__(self):
         return self.title
     
     def save(self, *args, **kwargs):
-        banned_words = load_banned_words()
+        # Only apply profanity filtering if content exists
+        if self.content:
+            banned_words = load_banned_words()
 
-        profanity.load_censor_words([word for word in banned_words if ' ' not in word])
-        self.content = profanity.censor(self.content)
+            profanity.load_censor_words([word for word in banned_words if ' ' not in word])
+            self.content = profanity.censor(self.content)
 
-        for phrase in banned_words:
-            if ' ' in phrase:  
-                self.content = self.content.replace(phrase, '*' * len(phrase))
+            for phrase in banned_words:
+                if ' ' in phrase:  
+                    self.content = self.content.replace(phrase, '*' * len(phrase))
 
         super().save(*args, **kwargs)
 

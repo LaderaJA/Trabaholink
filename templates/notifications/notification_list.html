@@ -1,5 +1,6 @@
 {% extends 'mainpages/base.html' %}
 {% load static %}
+{% load i18n %}
 
 {% block css %}
 <style>
@@ -137,6 +138,17 @@ body {
   display: flex;
   gap: 0.5rem;
   overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: thin;
+}
+
+.filter-tabs::-webkit-scrollbar {
+  height: 4px;
+}
+
+.filter-tabs::-webkit-scrollbar-thumb {
+  background: var(--border-color);
+  border-radius: 4px;
 }
 
 .filter-tab {
@@ -152,6 +164,7 @@ body {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 .filter-tab:hover {
@@ -433,6 +446,7 @@ body {
   .header-content {
     flex-direction: column;
     align-items: flex-start;
+    gap: 1rem;
   }
   
   .header-title h1 {
@@ -441,24 +455,38 @@ body {
   
   .header-actions {
     width: 100%;
+    flex-wrap: wrap;
   }
   
   .btn-header {
-    flex: 1;
+    flex: 1 1 auto;
     justify-content: center;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
   }
   
   .filter-tabs {
     padding: 0.35rem;
+    margin-left: -1rem;
+    margin-right: -1rem;
+    border-radius: 0;
+    width: calc(100% + 2rem);
   }
   
   .filter-tab {
-    padding: 0.6rem 1rem;
-    font-size: 0.9rem;
+    padding: 0.625rem 1rem;
+    font-size: 0.875rem;
+  }
+  
+  .filter-tab .count {
+    font-size: 0.75rem;
+    padding: 0.2rem 0.4rem;
   }
   
   .notification-item-modern {
     padding: 1rem;
+    flex-direction: row;
+    gap: 0.75rem;
   }
   
   .notification-icon-modern {
@@ -762,4 +790,27 @@ function showBrokenLinkMessage(notificationId, message) {
   }
 }
 </script>
+{% endblock %}
+
+
+{% block guide_data %}
+{
+    "enabled": true,
+    "page_name": "notifications",
+    "title": "Notifications Guide",
+    "steps": [
+        {
+            "title": "Stay Updated! \ud83d\udd14",
+            "content": "<h3>Your Notification Center</h3><p>Get real-time updates about your jobs, applications, and messages.</p>"
+        },
+        {
+            "title": "Notification Types \ud83d\udcec",
+            "content": "<h3>What You'll See Here</h3><ul><li><strong>Job Alerts:</strong> New jobs near you</li><li><strong>Application Updates:</strong> Employer responses</li><li><strong>Contract Updates:</strong> Work status changes</li><li><strong>Messages:</strong> New chat messages</li></ul>"
+        },
+        {
+            "title": "Manage Notifications \u2699\ufe0f",
+            "content": "<h3>Stay in Control</h3><ul><li>Click to view details</li><li>Mark as read</li><li>Customize notification settings</li><li>Enable/disable by type</li></ul><p>Never miss important updates! \ud83c\udfaf</p>"
+        }
+    ]
+}
 {% endblock %}

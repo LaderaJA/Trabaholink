@@ -5,16 +5,7 @@ FROM nginx:1.25-alpine
 RUN apk add --no-cache gettext
 
 # Remove default nginx config
-RUN rm /etc/nginx/conf.d/default.conf
-
-# Copy nginx configuration files
-COPY nginx.conf /etc/nginx/conf.d/nginx.conf
-COPY nginx.dev.conf /etc/nginx/conf.d/nginx.dev.conf
-COPY nginx.conf /etc/nginx/templates/nginx.conf.template
-
-# Copy startup script
-COPY docker-entrypoint.sh /docker-entrypoint.sh
-RUN chmod +x /docker-entrypoint.sh
+RUN rm -f /etc/nginx/conf.d/default.conf
 
 # Create directory for Let's Encrypt challenges
 RUN mkdir -p /var/www/certbot
@@ -22,5 +13,5 @@ RUN mkdir -p /var/www/certbot
 # Expose ports
 EXPOSE 80 443
 
-ENTRYPOINT ["/docker-entrypoint.sh"]
-CMD ["nginx", "-g", "daemon off;"]
+# Use default nginx entrypoint and command
+# Config will be mounted via volumes

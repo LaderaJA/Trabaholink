@@ -1,5 +1,7 @@
 {% extends 'mainpages/base.html' %}
+<!-- Cache Buster: v3.0.1732286400 -->
 {% load static %}
+{% load i18n %}
 
 {% block css %}
 <style>
@@ -381,11 +383,15 @@ body {
   background: white;
   border-radius: 20px;
   box-shadow: var(--shadow-xl);
-  max-width: 500px;
-  width: 90%;
-  max-height: 80vh;
+  max-width: 600px;
+  width: 95%;
+  max-height: 85vh;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
   animation: modalSlideIn 0.3s ease;
+  position: relative;
+  z-index: 1001;
 }
 
 @keyframes modalSlideIn {
@@ -437,26 +443,45 @@ body {
 
 .modal-body {
   padding: 1.5rem;
-  max-height: 60vh;
-  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  overflow: visible;
+  min-height: 400px;
+}
+
+.search-input-wrapper {
+  position: relative;
 }
 
 .search-results {
-  margin-top: 1rem;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background: white;
+  border: 2px solid #cbd5e1;
+  border-top: none;
+  border-radius: 0 0 0.5rem 0.5rem;
+  max-height: 300px;
+  overflow-y: auto;
+  z-index: 1000;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  margin-top: 0;
 }
 
 .user-result {
-  display: flex;
-  align-items: center;
-  padding: 1rem;
-  border-radius: 12px;
-  margin-bottom: 0.5rem;
-  transition: all 0.2s ease;
+  padding: 0.75rem 1rem;
   cursor: pointer;
+  border-bottom: 1px solid #e2e8f0;
+  transition: all 0.2s;
 }
 
 .user-result:hover {
-  background: var(--bg-light);
+  background: #eff6ff;
+}
+
+.user-result:last-child {
+  border-bottom: none;
 }
 
 .user-result-avatar {
@@ -601,13 +626,17 @@ body {
               {% if conversation.user1 == request.user %}
                 {% with other_user=conversation.user2 %}
                   <a href="{% url 'messaging:conversation_detail' conversation.id %}" class="conversation-item">
-                    <div class="conversation-avatar">
-                      {{ other_user.username.0|upper }}
+                    <div class="conversation-avatar" style="position: relative; padding: 0;">
+                      {% if other_user.profile_picture %}
+                        <img src="{{ other_user.profile_picture.url }}" alt="{{ other_user.username }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                      {% else %}
+                        <img src="{% static 'images/default_avatar.svg' %}" alt="{{ other_user.username }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                      {% endif %}
                       <span class="status-indicator {% if other_user.is_online %}online{% else %}offline{% endif %}"></span>
                     </div>
                     <div class="conversation-info">
                       <div class="conversation-header">
-                        <h3 class="conversation-name">{{ other_user.get_full_name|default:other_user.username }}</h3>
+                        <h3 class="conversation-name">{{ other_user.get_full_name|default:other_user.username|title }}</h3>
                         <span class="conversation-time">
                           {% if conversation.last_message_created_at %}
                             {{ conversation.last_message_created_at|timesince }} ago
@@ -630,13 +659,17 @@ body {
               {% else %}
                 {% with other_user=conversation.user1 %}
                   <a href="{% url 'messaging:conversation_detail' conversation.id %}" class="conversation-item">
-                    <div class="conversation-avatar">
-                      {{ other_user.username.0|upper }}
+                    <div class="conversation-avatar" style="position: relative; padding: 0;">
+                      {% if other_user.profile_picture %}
+                        <img src="{{ other_user.profile_picture.url }}" alt="{{ other_user.username }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                      {% else %}
+                        <img src="{% static 'images/default_avatar.svg' %}" alt="{{ other_user.username }}" style="width: 100%; height: 100%; border-radius: 50%; object-fit: cover;">
+                      {% endif %}
                       <span class="status-indicator {% if other_user.is_online %}online{% else %}offline{% endif %}"></span>
                     </div>
                     <div class="conversation-info">
                       <div class="conversation-header">
-                        <h3 class="conversation-name">{{ other_user.get_full_name|default:other_user.username }}</h3>
+                        <h3 class="conversation-name">{{ other_user.get_full_name|default:other_user.username|title }}</h3>
                         <span class="conversation-time">
                           {% if conversation.last_message_created_at %}
                             {{ conversation.last_message_created_at|timesince }} ago
@@ -698,11 +731,7 @@ body {
           placeholder="Search by username..."
           id="userSearch"
           onkeyup="searchUsers()">
-      </div>
-      <div class="search-results" id="searchResults">
-        <p style="text-align: center; color: var(--text-light); margin-top: 2rem;">
-          Type to search for users
-        </p>
+        <div class="search-results" id="searchResults" style="display: none;"></div>
       </div>
     </div>
   </div>
@@ -718,7 +747,8 @@ function openSearchModal() {
 function closeSearchModal() {
   document.getElementById('searchModal').classList.remove('active');
   document.getElementById('userSearch').value = '';
-  document.getElementById('searchResults').innerHTML = '<p style="text-align: center; color: var(--text-light); margin-top: 2rem;">Type to search for users</p>';
+  document.getElementById('searchResults').innerHTML = '';
+  document.getElementById('searchResults').style.display = 'none';
 }
 
 // Close modal on overlay click
@@ -752,7 +782,7 @@ function searchUsers() {
   const searchTerm = document.getElementById('userSearch').value.trim();
   
   if (searchTerm.length < 2) {
-    document.getElementById('searchResults').innerHTML = '<p style="text-align: center; color: var(--text-light); margin-top: 2rem;">Type at least 2 characters to search</p>';
+    document.getElementById('searchResults').style.display = 'none';
     return;
   }
   
@@ -765,15 +795,11 @@ function searchUsers() {
       </div>
     `;
     
-    // Make AJAX request to search users
-    fetch(`/users/api/search/?q=${encodeURIComponent(searchTerm)}`, {
-      headers: {
-        'X-Requested-With': 'XMLHttpRequest'
-      }
-    })
+    // Use the same endpoint as report modal (proven to work)
+    fetch(`/reports/search/users/?q=${encodeURIComponent(searchTerm)}`)
     .then(response => response.json())
     .then(data => {
-      displaySearchResults(data.users || []);
+      displaySearchResults(data.results || []);
     })
     .catch(error => {
       console.error('Search error:', error);
@@ -785,26 +811,40 @@ function searchUsers() {
 function displaySearchResults(users) {
   const resultsContainer = document.getElementById('searchResults');
   
-  if (users.length === 0) {
-    resultsContainer.innerHTML = '<p style="text-align: center; color: var(--text-light); margin-top: 2rem;">No users found</p>';
+  console.log('displaySearchResults called with:', users);
+  console.log('Results container:', resultsContainer);
+  
+  if (!resultsContainer) {
+    console.error('searchResults container not found!');
     return;
   }
   
+  if (!users || users.length === 0) {
+    resultsContainer.innerHTML = '<div style="padding: 1rem; text-align: center; color: #64748b;">No users found</div>';
+    resultsContainer.style.display = 'block';
+    return;
+  }
+  
+  // Use template literals like report modal (proven to work)
   resultsContainer.innerHTML = users.map(user => `
     <div class="user-result" onclick="startConversation('${user.username}')">
-      <div class="user-result-avatar">
-        ${user.username.charAt(0).toUpperCase()}
+      <div style="display: flex; align-items: center; gap: 1rem; width: 100%;">
+        <div style="width: 48px; height: 48px; border-radius: 50%; background: linear-gradient(135deg, #1A94D5, #0EA5E9); color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 1.25rem; flex-shrink: 0;">
+          ${(user.username || 'U').charAt(0).toUpperCase()}
+        </div>
+        <div style="flex: 1; min-width: 0;">
+          <div style="font-weight: 600; color: #1e293b;">${user.full_name || user.username}</div>
+          <div style="font-size: 0.875rem; color: #64748b;">@${user.username}${user.role ? ' • ' + user.role : ''}</div>
+        </div>
+        <button onclick="event.stopPropagation(); startConversation('${user.username}')" style="background: linear-gradient(135deg, #1e3a8a, #1e40af); color: white; border: none; padding: 0.5rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; flex-shrink: 0;">
+          Chat
+        </button>
       </div>
-      <div class="user-result-info">
-        <h4 class="user-result-name">${user.full_name || user.username}</h4>
-        <p class="user-result-username">@${user.username}</p>
-      </div>
-      <button class="btn-start-chat">
-        <i class="bi bi-chat"></i>
-        Chat
-      </button>
     </div>
   `).join('');
+  
+  resultsContainer.style.display = 'block';
+  console.log('Displayed', users.length, 'users in UI');
 }
 
 function startConversation(username) {
